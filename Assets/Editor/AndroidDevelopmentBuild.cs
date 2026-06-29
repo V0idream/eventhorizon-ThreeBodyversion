@@ -4,13 +4,14 @@ using System.Linq;
 using UnityEditor;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public static class AndroidDevelopmentBuild
 {
     private const string PackageName = "com.threebody.EventHorizon";
     private const string ProductName = "三体视界";
-    private const string VersionName = "1.12.1-threebody.6";
-    private const int VersionCode = 112106;
+    private const string VersionName = "1.12.1-threebody.9";
+    private const int VersionCode = 112109;
 
     [MenuItem("Build/Android/Development APK")]
     public static void BuildFromMenu()
@@ -29,10 +30,13 @@ public static class AndroidDevelopmentBuild
         PlayerSettings.Android.useCustomKeystore = false;
         PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android, ScriptingImplementation.IL2CPP);
         PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
+        PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.Android, false);
+        PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.OpenGLES3 });
 
         var outputDirectory = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "Builds", "Android"));
         Directory.CreateDirectory(outputDirectory);
         var outputPath = Path.Combine(outputDirectory, "ThreeBody-EventHorizon-debug.apk");
+        BuildStreamingAssetBundles();
 
         var scenes = EditorBuildSettings.scenes
             .Where(scene => scene.enabled)
@@ -55,6 +59,20 @@ public static class AndroidDevelopmentBuild
             throw new Exception($"Android build failed: {report.summary.result}, errors: {report.summary.totalErrors}");
 
         Debug.Log($"Android development APK: {outputPath}");
+    }
+
+    private static void BuildStreamingAssetBundles()
+    {
+        Directory.CreateDirectory(Application.streamingAssetsPath);
+        var manifest = BuildPipeline.BuildAssetBundles(
+            Application.streamingAssetsPath,
+            BuildAssetBundleOptions.ChunkBasedCompression,
+            BuildTarget.Android);
+
+        if (manifest == null || !manifest.GetAllAssetBundles().Contains("musicbundle"))
+            throw new InvalidOperationException("Android music AssetBundle was not built.");
+
+        AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
     }
 
     private static void RefreshResourceLocator()

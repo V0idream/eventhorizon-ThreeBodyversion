@@ -67,6 +67,7 @@ SpriteAtlas:
     - b6741c7122fe5fa41b0bbe129ca67d5f: 21300000
     - 555f21916791523459eeddcb3fa0c3ec: 21300000
     - c7186db174cc2a7408efcaa95634fec1: 21300000
+    - 9c89deb164777244abdd0e4e928d503e: 21300000
     - 5c2fcce1eae1d5f498ef130d8ebd2507: 21300000
     - d6fcc4f1da429b94d82503205ce08264: 21300000
     - 83ea6402ad9af3e4fa07a59bad76604c: 21300000
@@ -91,12 +92,13 @@ SpriteAtlas:
     - adc0e5349c0a1d2479ec93690f6b6c1c: 21300000
     - e265be64c9c4c7c45871e02778dc1ebf: 21300000
     - f3da8b7471ac75e41ba87bb629c4ed5f: 21300000
+    - 8f9a3e7490f6a24468690df0736d7d24: 21300000
     - 725745845d7d48746b0e716fffd146d7: 21300000
     - 8453e4941daa04f448970e37eecadd5f: 21300000
     - 683dd7a47fe36aa44a87347343b32b70: 21300000
     - 8229673564ba215448cd0004ed6f3a5b: 21300000
     - b25bbd356d91e0e43a6cbe0f65ed7363: 21300000
-    - 46f07045585d79745992be37843e9864: -8741668035278488193
+    - 46f07045585d79745992be37843e9864: 21300000
     - 640cd145854947f42ac87acbc6d61b66: 21300000
     - 6c2253454898e284aa47bc38785180bb: 21300000
     - 4ff5f365988c49b46982c9d36d4b20aa: 21300000
@@ -144,6 +146,7 @@ SpriteAtlas:
     - 2326e8e9e70eb4843a93aef85f538781: 21300000
     - d1b14ff98b50f6447b49361145250bf9: 21300000
     - eb4e1a0aaa3cb4447ac37a959d88d9de: 21300000
+    - f0c3a01abd1eb0f449b060805b0c6d60: 21300000
     - fef0b71a187247e44894103c4ea45a81: 21300000
     - b313c84a62937ee4e988abbe1774cf61: 21300000
     - 6e48b57a2141c4c4f82c5b40aeb35566: 21300000
@@ -172,6 +175,7 @@ SpriteAtlas:
     - 4754680d3be430a46b69ebecf458c628: 21300000
     - b951c63d50a64944fbc9e0400a6195b9: 21300000
     - 250aac6d5eeb55a469d5e25595540fd1: 21300000
+    - dc268f6d0baa05b4e95b41475f7566d3: 21300000
     - 0741e67dc73829748b87cfd0d233a82f: 21300000
     - f94fc08d64f6753498b127af81c96f92: 21300000
     - 980b2dad8a15c6543aa56ecf443fb93f: 21300000
@@ -184,6 +188,7 @@ SpriteAtlas:
     - 9ea83bbe55040024a94892a218e0ee5f: 21300000
     - 63ef1dce233db60498b40e813572a9ee: 21300000
     - 9c5ac2de15eaddc408cd249bef8ddb86: 21300000
+    - 7d8defdee4bd070499b28f10084640ad: 21300000
     - 72d559eeb52b03341b981ebe21d24c4b: 21300000
     - 1d0a99eecef5a404eb0c620d9a380d5f: 21300000
     - 61cb500f944248b4993eb82de6386296: 21300000
@@ -213,6 +218,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: b6741c7122fe5fa41b0bbe129ca67d5f, type: 3}
   - {fileID: 21300000, guid: 555f21916791523459eeddcb3fa0c3ec, type: 3}
   - {fileID: 21300000, guid: c7186db174cc2a7408efcaa95634fec1, type: 3}
+  - {fileID: 21300000, guid: 9c89deb164777244abdd0e4e928d503e, type: 3}
   - {fileID: 21300000, guid: 5c2fcce1eae1d5f498ef130d8ebd2507, type: 3}
   - {fileID: 21300000, guid: d6fcc4f1da429b94d82503205ce08264, type: 3}
   - {fileID: 21300000, guid: 83ea6402ad9af3e4fa07a59bad76604c, type: 3}
@@ -237,12 +243,13 @@ SpriteAtlas:
   - {fileID: 21300000, guid: adc0e5349c0a1d2479ec93690f6b6c1c, type: 3}
   - {fileID: 21300000, guid: e265be64c9c4c7c45871e02778dc1ebf, type: 3}
   - {fileID: 21300000, guid: f3da8b7471ac75e41ba87bb629c4ed5f, type: 3}
+  - {fileID: 21300000, guid: 8f9a3e7490f6a24468690df0736d7d24, type: 3}
   - {fileID: 21300000, guid: 725745845d7d48746b0e716fffd146d7, type: 3}
   - {fileID: 21300000, guid: 8453e4941daa04f448970e37eecadd5f, type: 3}
   - {fileID: 21300000, guid: 683dd7a47fe36aa44a87347343b32b70, type: 3}
   - {fileID: 21300000, guid: 8229673564ba215448cd0004ed6f3a5b, type: 3}
   - {fileID: 21300000, guid: b25bbd356d91e0e43a6cbe0f65ed7363, type: 3}
-  - {fileID: -8741668035278488193, guid: 46f07045585d79745992be37843e9864, type: 3}
+  - {fileID: 21300000, guid: 46f07045585d79745992be37843e9864, type: 3}
   - {fileID: 21300000, guid: 640cd145854947f42ac87acbc6d61b66, type: 3}
   - {fileID: 21300000, guid: 6c2253454898e284aa47bc38785180bb, type: 3}
   - {fileID: 21300000, guid: 4ff5f365988c49b46982c9d36d4b20aa, type: 3}
@@ -290,6 +297,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 2326e8e9e70eb4843a93aef85f538781, type: 3}
   - {fileID: 21300000, guid: d1b14ff98b50f6447b49361145250bf9, type: 3}
   - {fileID: 21300000, guid: eb4e1a0aaa3cb4447ac37a959d88d9de, type: 3}
+  - {fileID: 21300000, guid: f0c3a01abd1eb0f449b060805b0c6d60, type: 3}
   - {fileID: 21300000, guid: fef0b71a187247e44894103c4ea45a81, type: 3}
   - {fileID: 21300000, guid: b313c84a62937ee4e988abbe1774cf61, type: 3}
   - {fileID: 21300000, guid: 6e48b57a2141c4c4f82c5b40aeb35566, type: 3}
@@ -318,6 +326,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 4754680d3be430a46b69ebecf458c628, type: 3}
   - {fileID: 21300000, guid: b951c63d50a64944fbc9e0400a6195b9, type: 3}
   - {fileID: 21300000, guid: 250aac6d5eeb55a469d5e25595540fd1, type: 3}
+  - {fileID: 21300000, guid: dc268f6d0baa05b4e95b41475f7566d3, type: 3}
   - {fileID: 21300000, guid: 0741e67dc73829748b87cfd0d233a82f, type: 3}
   - {fileID: 21300000, guid: f94fc08d64f6753498b127af81c96f92, type: 3}
   - {fileID: 21300000, guid: 980b2dad8a15c6543aa56ecf443fb93f, type: 3}
@@ -330,6 +339,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 9ea83bbe55040024a94892a218e0ee5f, type: 3}
   - {fileID: 21300000, guid: 63ef1dce233db60498b40e813572a9ee, type: 3}
   - {fileID: 21300000, guid: 9c5ac2de15eaddc408cd249bef8ddb86, type: 3}
+  - {fileID: 21300000, guid: 7d8defdee4bd070499b28f10084640ad, type: 3}
   - {fileID: 21300000, guid: 72d559eeb52b03341b981ebe21d24c4b, type: 3}
   - {fileID: 21300000, guid: 1d0a99eecef5a404eb0c620d9a380d5f, type: 3}
   - {fileID: 21300000, guid: 61cb500f944248b4993eb82de6386296, type: 3}
@@ -358,6 +368,7 @@ SpriteAtlas:
   - f3s3
   - f12s1
   - ship6
+  - starship_earth_flagship
   - drone1
   - red_ship1
   - f9s3
@@ -382,12 +393,13 @@ SpriteAtlas:
   - f1s1
   - drone4
   - f8s2
+  - starship_earth_cruiser
   - f3s4
   - red_ship5
   - fas2
   - f6s4
   - necro5
-  - empty_dream_0
+  - empty_dream
   - fns7
   - f2s3
   - f8s1
@@ -435,6 +447,7 @@ SpriteAtlas:
   - fns1_2
   - f1s2
   - f13s4
+  - starship_earth_frigate
   - f5s3
   - space_invader
   - drone3
@@ -463,6 +476,7 @@ SpriteAtlas:
   - f0s1
   - f3s1
   - f1s4
+  - starship_earth_battleship
   - f2s4
   - necro6
   - fns8
@@ -475,6 +489,7 @@ SpriteAtlas:
   - f9s2
   - fns6
   - f4s1_2
+  - starship_earth_destroyer
   - ship1
   - necro7
   - ship3
