@@ -1,0 +1,39 @@
+{
+  "ItemType": 6,
+  "Id": 163,
+  "ShipType": 0,
+  "SizeClass": 2,
+  "Name": "$StarshipEarthCruiser",
+  "Description": "$StarshipEarthCruiserDescription",
+  "Faction": 21,
+  "IconImage": "starship_earth_cruiser",
+  "IconScale": 0.95,
+  "ModelImage": "starship_earth_cruiser",
+  "ModelScale": 1.8,
+  "EngineColor": "#63EFFF",
+  "Engines": [
+    {
+      "Position": {
+        "x": -0.62,
+        "y": 0.22
+      },
+      "Size": 0.2
+    },
+    {
+      "Position": {
+        "x": -0.62,
+        "y": -0.22
+      },
+      "Size": 0.2
+    }
+  ],
+  "Layout": "0000044000000000004400000000000440000000001111111000001112221110000111222111000111222221110011122222111001112222211100111222221110001115551110000111555111000000055500000",
+  "Barrels": [
+    {
+      "Position": {
+        "x": 0.72
+      },
+      "WeaponClass": "L"
+    }
+  ]
+}

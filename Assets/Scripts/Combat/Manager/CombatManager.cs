@@ -91,10 +91,20 @@ namespace Combat.Manager
                 _spaceObjectFactory.CreatePlanet(position, size, color);
             }
 
-            var initialEnemies = _combatModel.Rules.InitialEnemyShips;
-            if (initialEnemies > 1)
-                foreach (var ship in _combatModel.EnemyFleet.Ships.Where(item => item.Status == ShipStatus.Ready).Skip(1).Take(initialEnemies - 1))
-                    CreateShip(ship);
+            // The original implementation relied on an update-tick fallback to
+            // create the first enemy. That leaves the battlefield empty during
+            // scene startup and lets the counter prefab display its placeholder
+            // value. Create the complete initial wave here instead.
+            var initialEnemies = Mathf.Max(1, _combatModel.Rules.InitialEnemyShips);
+            var enemiesToCreate = Mathf.Max(0, initialEnemies - ActiveEnemyCount());
+            foreach (var ship in _combatModel.EnemyFleet.Ships
+                         .Where(item => item.Status == ShipStatus.Ready)
+                         .Take(enemiesToCreate)
+                         .ToArray())
+                CreateShip(ship);
+
+            UpdateEnemyCounter(true);
+            CheckIfCanCallNextEnemy();
         }
 
         public void OnShipCreated(IShip ship)
@@ -113,8 +123,9 @@ namespace Combat.Manager
                     break;
                 case UnitSide.Enemy:
                     _radarPanel.Add(ship);
-                    _messenger.Broadcast(EventType.EnemyShipCountChanged,
-                        _combatModel.EnemyFleet.Ships.Count(item => item.Status == ShipStatus.Ready));
+                    // Factory events are raised before ShipInfo stores the new
+                    // unit. Defer the authoritative status/count refresh.
+                    _enemyCounterDirty = true;
                     break;
             }
         }
@@ -123,7 +134,14 @@ namespace Combat.Manager
         {
             if (ship.Type.Class != UnitClass.Ship)
                 return;
-            
+
+            if (ship.Type.Side == UnitSide.Enemy)
+            {
+                // ShipInfo is updated after the factory event is emitted, so
+                // the authoritative count is synchronized on the next Tick.
+                _enemyCounterDirty = true;
+            }
+
             CheckIfCanCallNextEnemy();
         }
 
@@ -184,7 +202,7 @@ namespace Combat.Manager
             if (!CanCallNextEnemy())
                 return;
 
-            var shipInfo = _combatModel.EnemyFleet.Ships.FirstOrDefault(item => item.Status == ShipStatus.Ready);
+            var shipInfo = GetNextEnemy();
             if (shipInfo == null)
                 return;
 
@@ -192,23 +210,26 @@ namespace Combat.Manager
             _soundPlayer.Play(_settings.ReinforcementSound);
         }
 
+        public bool TryCallNextEnemyAutomatically()
+        {
+            var activeEnemies = ActiveEnemyCount();
+            if (activeEnemies >= AutoEnemyLimit || _reinforcementCooldown < AutoEnemySpawnCooldown)
+                return false;
+
+            var shipInfo = GetNextEnemy();
+            if (shipInfo == null)
+                return false;
+
+            _reinforcementCooldown = 0;
+            CreateShip(shipInfo);
+            _soundPlayer.Play(_settings.ReinforcementSound);
+            return true;
+        }
+
         private void CheckIfCanCallNextEnemy()
         {
-            var rules = _combatModel.Rules;
-            if (rules.TimeOutMode != TimeOutMode.CallNextEnemy && rules.TimeOutMode != TimeOutMode.CallNextEnemyOrDraw)
-            {
-                _canCallNextEnemy = false;
-                return;
-            }
-
-            if (rules.TimeLimit <= 0)
-            {
-                _canCallNextEnemy = false;
-                return;
-            }
-
-            var enemyCount = _combatModel.EnemyFleet.Ships.Count(item => item.Status == ShipStatus.Active);
-            _canCallNextEnemy = enemyCount < rules.MaxEnemyShips && _combatModel.EnemyFleet.IsAnyShipLeft();
+            _canCallNextEnemy = _combatModel.Rules.NextEnemyButton &&
+                                _combatModel.EnemyFleet.AnyAvailableShip() != null;
         }
 
         public void Tick()
@@ -224,25 +245,32 @@ namespace Combat.Manager
             var player = _scene.PlayerShip;
             var enemy = _scene.EnemyShip;
 
-            if (!enemy.IsActive())
-            {
-                _nextShipCooldown += Time.deltaTime;
-                if (_nextShipCooldown > _nextShipMaxCooldown)
-                {
-                    _nextShipCooldown = 0;
+            UpdateEnemyCounter();
 
-                    var shipInfo = _combatModel.EnemyFleet.Ships.FirstOrDefault(item => item.Status == ShipStatus.Ready);
-                    if (shipInfo == null)
+            if (player.IsActive() && !IsGamePaused)
+            {
+                if (GetNextEnemy() != null && ActiveEnemyCount() < AutoEnemyLimit)
+                {
+                    _reinforcementCooldown += Time.deltaTime;
+                    TryCallNextEnemyAutomatically();
+                }
+
+                if (ActiveEnemyCount() == 0 && _combatModel.EnemyFleet.AnyAvailableShip() == null)
+                {
+                    _battleEndCooldown += Time.deltaTime;
+                    if (_battleEndCooldown >= _nextShipMaxCooldown)
                     {
-                        UnityEngine.Debug.Log("No more ships");
                         Exit();
                         return;
                     }
-
-                    CreateShip(shipInfo);
+                }
+                else
+                {
+                    _battleEndCooldown = 0;
                 }
             }
-            else if (!player.IsActive())
+
+            if (!player.IsActive())
             {
                 _nextPlayerShipCooldown += Time.deltaTime;
                 if (_nextPlayerShipCooldown > _nextShipMaxCooldown)
@@ -265,11 +293,49 @@ namespace Combat.Manager
                     }
                 }
             }
-            else if (!IsGamePaused)
+            else if (player.IsActive() && enemy.IsActive() && !IsGamePaused)
             {
                 _playerStatsPanel.Open(player);
                 _enemyStatsPanel.Open(enemy);
             }
+        }
+
+        private int ActiveEnemyCount()
+        {
+            return _combatModel.EnemyFleet.Ships.Count(item => item.Status == ShipStatus.Active);
+        }
+
+        public int ReinforcementTimeLeft
+        {
+            get
+            {
+                if (GetNextEnemy() == null)
+                    return 0;
+
+                return Mathf.Max(0, Mathf.CeilToInt(AutoEnemySpawnCooldown - _reinforcementCooldown));
+            }
+        }
+
+        private int RemainingEnemyCount()
+        {
+            return _combatModel.EnemyFleet.Ships.Count(item => item.Status != ShipStatus.Destroyed);
+        }
+
+        private void UpdateEnemyCounter(bool force = false)
+        {
+            var count = RemainingEnemyCount();
+            if (!force && !_enemyCounterDirty && count == _lastEnemyCount)
+                return;
+
+            _enemyCounterDirty = false;
+            _lastEnemyCount = count;
+            _messenger.Broadcast(EventType.EnemyShipCountChanged, count);
+            CheckIfCanCallNextEnemy();
+        }
+
+        private IShipInfo GetNextEnemy()
+        {
+            return _combatModel.EnemyFleet.Ships.FirstOrDefault(item => item.Status == ShipStatus.Ready);
         }
 
         private bool IsPlayerDefeated()
@@ -286,9 +352,14 @@ namespace Combat.Manager
 
         private bool _canCallNextEnemy;
 
-        private float _nextShipCooldown = _nextShipMaxCooldown;
+        private float _reinforcementCooldown;
         private float _nextPlayerShipCooldown = _nextShipMaxCooldown;
+        private float _battleEndCooldown;
+        private int _lastEnemyCount = -1;
+        private bool _enemyCounterDirty = true;
         private const float _nextShipMaxCooldown = 3.0f;
+        private const float AutoEnemySpawnCooldown = 20.0f;
+        private const int AutoEnemyLimit = 25;
 
         private int _pausedCount;
         private readonly ISoundPlayer _soundPlayer;

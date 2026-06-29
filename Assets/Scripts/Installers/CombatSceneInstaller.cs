@@ -42,7 +42,7 @@ namespace Installers
 				NoEnemyMessages = !_gameSettings.ShowEnemyMessages,
 			};
 
-            var areaSize = _combatModel.Rules.BattleMapSize;
+            var areaSize = ThreeBody.CombatMapSizeSettings.Scale(_combatModel.Rules.BattleMapSize);
 
             Container.BindInterfacesTo<Messenger>().AsSingle().WithArguments(GameScene.Combat);
 
