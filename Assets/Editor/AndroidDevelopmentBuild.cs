@@ -10,8 +10,8 @@ public static class AndroidDevelopmentBuild
 {
     private const string PackageName = "com.threebody.EventHorizon";
     private const string ProductName = "三体视界";
-    private const string VersionName = "1.12.1-threebody.9";
-    private const int VersionCode = 112109;
+    private const string VersionName = "1.12.1-threebody.12";
+    private const int VersionCode = 112112;
 
     [MenuItem("Build/Android/Development APK")]
     public static void BuildFromMenu()
@@ -29,7 +29,7 @@ public static class AndroidDevelopmentBuild
         PlayerSettings.Android.bundleVersionCode = VersionCode;
         PlayerSettings.Android.useCustomKeystore = false;
         PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android, ScriptingImplementation.IL2CPP);
-        PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
+        PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64 | AndroidArchitecture.X86_64;
         PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.Android, false);
         PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.OpenGLES3 });
 
