@@ -18,6 +18,7 @@ using Maths;
 using Zenject;
 using GameDatabase.Enums;
 using GameDatabase.Extensions;
+using Combat.Ai.Calculations;
 
 namespace Combat.Manager
 {
@@ -103,6 +104,11 @@ namespace Combat.Manager
                          .ToArray())
                 CreateShip(ship);
 
+            foreach (var ally in _combatModel.AllyFleet.Ships
+                         .Where(item => item.Status == ShipStatus.Ready)
+                         .ToArray())
+                CreateShip(ally);
+
             UpdateEnemyCounter(true);
             CheckIfCanCallNextEnemy();
         }
@@ -126,6 +132,9 @@ namespace Combat.Manager
                     // Factory events are raised before ShipInfo stores the new
                     // unit. Defer the authoritative status/count refresh.
                     _enemyCounterDirty = true;
+                    break;
+                case UnitSide.Ally:
+                    _radarPanel.Add(ship);
                     break;
             }
         }
@@ -249,6 +258,17 @@ namespace Combat.Manager
 
             if (player.IsActive() && !IsGamePaused)
             {
+                if (ActiveEnemyCount() == 0)
+                {
+                    var nextEnemy = GetNextEnemy();
+                    if (nextEnemy != null)
+                    {
+                        _reinforcementCooldown = 0;
+                        CreateShip(nextEnemy);
+                        _soundPlayer.Play(_settings.ReinforcementSound);
+                    }
+                }
+
                 if (GetNextEnemy() != null && ActiveEnemyCount() < AutoEnemyLimit)
                 {
                     _reinforcementCooldown += Time.deltaTime;
@@ -293,10 +313,16 @@ namespace Combat.Manager
                     }
                 }
             }
-            else if (player.IsActive() && enemy.IsActive() && !IsGamePaused)
+            else if (player.IsActive() && enemy.IsActive() && !IsGamePaused &&
+                     !TargetingHelpers.CantDetectTarget(player, enemy))
             {
                 _playerStatsPanel.Open(player);
                 _enemyStatsPanel.Open(enemy);
+            }
+            else if (player.IsActive() && !IsGamePaused)
+            {
+                _playerStatsPanel.Open(player);
+                _enemyStatsPanel.Close();
             }
         }
 

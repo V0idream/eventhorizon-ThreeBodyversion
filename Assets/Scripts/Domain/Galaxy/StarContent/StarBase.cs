@@ -8,6 +8,7 @@ using Domain.Quests;
 using GameModel;
 using Session;
 using Zenject;
+using ViewModel;
 
 namespace Galaxy.StarContent
 {
@@ -34,6 +35,8 @@ namespace Galaxy.StarContent
 
 			var builder = _combatModelBuilderFactory.Create();
 			builder.PlayerFleet = playerFleet;
+			if (FactionPanelViewModel.IncludeStarshipEarthAllies)
+				builder.AllyFleet = Fleet.StarshipEarthAllies(region.HomeStarLevel, starId ^ 0x5345, _database);
 			builder.EnemyFleet = defenderFleet;
             builder.Rules = _database.GalaxySettings.StarbaseCombatRules ?? _database.CombatSettings.DefaultCombatRules;
 			builder.AddSpecialReward(_lootGenerator.GetStarBaseSpecialReward(region));

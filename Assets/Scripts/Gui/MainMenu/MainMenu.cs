@@ -146,6 +146,16 @@ namespace Gui.MainMenu
 
         private void OnDatabaseLoaded()
         {
+            var preview5Background = Resources.Load<Texture2D>("Textures/Preview5/main_background_preview5");
+            if (preview5Background != null)
+            {
+                _backgroundImage.gameObject.SetActive(true);
+                _backgroundImage.SetImage(preview5Background);
+                _animatedBackground.SetActive(false);
+                UpdateButtons();
+                return;
+            }
+
             var backgroundImage = _database.UiSettings.MainMenuBackgroundImage;
             if (backgroundImage)
             {

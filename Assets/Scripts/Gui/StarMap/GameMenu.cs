@@ -7,6 +7,10 @@ using Services.Messenger;
 using Gui.Windows;
 using Services.Gui;
 using Zenject;
+using System.Linq;
+using GameDatabase;
+using Combat.Component.Unit.Classification;
+using Services.Localization;
 
 namespace Gui.StarMap
 {
@@ -17,6 +21,8 @@ namespace Gui.StarMap
         [Inject] private readonly Galaxy.StarMap _starMap;
         [Inject] private readonly HolidayManager _holidayManager;
         [Inject] private readonly IMessenger _messenger;
+        [Inject] private readonly IDatabase _database;
+        [Inject] private readonly ILocalization _localization;
 
         public AnimatedWindow InformationPanel;
         public AnimatedWindow CargoHoldPanel;
@@ -83,6 +89,8 @@ namespace Gui.StarMap
 
         private void Start()
         {
+            ApplyPreview4FactionIcon();
+            CreateRelationsButton();
             _messenger.AddListener<int>(EventType.PlayerPositionChanged, OnPlayerPositionChanged);
             _messenger.AddListener<ViewMode>(EventType.ViewModeChanged, OnMapStateChanged);
             _messenger.AddListener<Galaxy.StarObjectType>(EventType.ArrivedToObject, OnArrivedToObject);
@@ -92,6 +100,122 @@ namespace Gui.StarMap
 
             InitButtons();
             OnFiltersChanged();
+        }
+
+        private void CreateRelationsButton()
+        {
+            if (transform.Find("Preview5RelationsButton") != null) return;
+            var exit = GetComponentsInChildren<Button>(true).FirstOrDefault(button =>
+            {
+                for (var i = 0; i < button.onClick.GetPersistentEventCount(); i++)
+                    if (button.onClick.GetPersistentMethodName(i) == nameof(ExitToMainMenu)) return true;
+                return false;
+            });
+            if (exit == null) return;
+
+            var buttonObject = new GameObject("Preview5RelationsButton", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
+            buttonObject.transform.SetParent(exit.transform.parent, false);
+            buttonObject.name = "Preview5RelationsButton";
+            var rect = buttonObject.GetComponent<RectTransform>();
+            var exitRect = exit.GetComponent<RectTransform>();
+            rect.anchorMin = exitRect.anchorMin;
+            rect.anchorMax = exitRect.anchorMax;
+            rect.pivot = exitRect.pivot;
+            rect.sizeDelta = exitRect.sizeDelta;
+            rect.anchoredPosition = exitRect.anchoredPosition + new Vector2(exitRect.rect.width + 12f, 0f);
+            var sourceImage = exit.GetComponent<Image>();
+            var image = buttonObject.GetComponent<Image>();
+            if (sourceImage != null)
+            {
+                image.sprite = sourceImage.sprite;
+                image.type = sourceImage.type;
+                image.color = sourceImage.color;
+            }
+            var button = buttonObject.GetComponent<Button>();
+            button.onClick.AddListener(ToggleRelationsPanel);
+            var text = NewRelationText(buttonObject.transform, "势力关系", 20);
+            var textRect = text.GetComponent<RectTransform>();
+            textRect.anchorMin = Vector2.zero;
+            textRect.anchorMax = Vector2.one;
+            textRect.offsetMin = Vector2.zero;
+            textRect.offsetMax = Vector2.zero;
+            text.alignment = TextAnchor.MiddleCenter;
+            text.color = Color.white;
+        }
+
+        private void ToggleRelationsPanel()
+        {
+            if (_relationsPanel != null)
+            {
+                _relationsPanel.SetActive(!_relationsPanel.activeSelf);
+                return;
+            }
+
+            _relationsPanel = new GameObject("Preview5RelationsPanel", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            var rect = _relationsPanel.GetComponent<RectTransform>();
+            rect.SetParent(transform.root, false);
+            rect.anchorMin = new Vector2(0.5f, 0.5f);
+            rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.sizeDelta = new Vector2(760f, 520f);
+            _relationsPanel.GetComponent<Image>().color = new Color(0.015f, 0.04f, 0.08f, 0.97f);
+            _relationsPanel.transform.SetAsLastSibling();
+
+            var layout = _relationsPanel.AddComponent<GridLayoutGroup>();
+            layout.padding = new RectOffset(24, 24, 24, 24);
+            layout.spacing = new Vector2(8f, 4f);
+            layout.cellSize = new Vector2(350f, 28f);
+            layout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            layout.constraintCount = 2;
+            var title = NewRelationText(rect, "玩家势力关系", 26);
+            title.color = new Color(0.3f, 0.8f, 1f);
+            foreach (var faction in _database.FactionList.OrderBy(item => item.Id.Value))
+            {
+                var allied = faction.Id.Value >= 21;
+                var row = NewRelationText(rect,
+                    $"{faction.Id.Value:00}  {_localization.GetString(faction.Name)}    {(allied ? "友好" : "敌对")}", 18);
+                row.color = allied ? new Color(0.3f, 0.8f, 1f) : new Color(1f, 0.35f, 0.25f);
+                CombatRelations.SetRelation(0, faction.Id.Value, allied);
+            }
+        }
+
+        private static Text NewRelationText(Transform parent, string value, int size)
+        {
+            var go = new GameObject("Row", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text), typeof(LayoutElement));
+            go.transform.SetParent(parent, false);
+            go.GetComponent<LayoutElement>().preferredHeight = 28f;
+            var text = go.GetComponent<Text>();
+            text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            text.fontSize = size;
+            text.alignment = TextAnchor.MiddleLeft;
+            text.text = value;
+            return text;
+        }
+
+        private void ApplyPreview4FactionIcon()
+        {
+            var icon = Resources.Load<Sprite>("Textures/UI/faction_relations_preview4");
+            if (icon == null)
+                return;
+
+            foreach (var button in GetComponentsInChildren<Button>(true))
+            {
+                var opensFactionPanel = false;
+                for (var i = 0; i < button.onClick.GetPersistentEventCount(); i++)
+                    opensFactionPanel |= button.onClick.GetPersistentMethodName(i) == nameof(ShowFaction);
+
+                if (!opensFactionPanel)
+                    continue;
+
+                var images = button.GetComponentsInChildren<Image>(true);
+                var target = images.FirstOrDefault(image => image.gameObject != button.gameObject) ??
+                             images.FirstOrDefault();
+                if (target != null)
+                {
+                    target.sprite = icon;
+                    target.preserveAspect = true;
+                }
+            }
         }
 
         private void OnPlayerPositionChanged(int starId)
@@ -165,5 +289,7 @@ namespace Gui.StarMap
         {
             ShowPlanet(planetId);
         }
+
+        private GameObject _relationsPanel;
     }
 }

@@ -10,8 +10,8 @@ public static class AndroidDevelopmentBuild
 {
     private const string PackageName = "com.threebody.EventHorizon";
     private const string ProductName = "三体视界";
-    private const string VersionName = "1.12.1-threebody.12";
-    private const int VersionCode = 112112;
+    private const string VersionName = "Preview5";
+    private const int VersionCode = 112114;
 
     [MenuItem("Build/Android/Development APK")]
     public static void BuildFromMenu()
@@ -35,7 +35,7 @@ public static class AndroidDevelopmentBuild
 
         var outputDirectory = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "Builds", "Android"));
         Directory.CreateDirectory(outputDirectory);
-        var outputPath = Path.Combine(outputDirectory, "ThreeBody-EventHorizon-debug.apk");
+        var outputPath = Path.Combine(outputDirectory, "ThreeBody-EventHorizon-Preview-5.apk");
         BuildStreamingAssetBundles();
 
         var scenes = EditorBuildSettings.scenes
@@ -51,7 +51,7 @@ public static class AndroidDevelopmentBuild
             scenes = scenes,
             locationPathName = outputPath,
             target = BuildTarget.Android,
-            options = BuildOptions.Development | BuildOptions.AllowDebugging
+            options = BuildOptions.None
         };
 
         var report = BuildPipeline.BuildPlayer(options);
@@ -186,6 +186,14 @@ public static class AndroidDevelopmentBuild
         var sdk = Path.Combine(toolsRoot, "SDK");
         var ndk = Path.Combine(sdk, "ndk", "27.2.12479018");
         var jdk = Path.Combine(toolsRoot, "OpenJDK");
+
+        if (!Directory.Exists(sdk) || !Directory.Exists(ndk) || !Directory.Exists(jdk))
+        {
+            toolsRoot = Path.GetFullPath(Path.Combine(EditorApplication.applicationPath, "..", "Data", "PlaybackEngines", "AndroidPlayer"));
+            sdk = Path.Combine(toolsRoot, "SDK");
+            ndk = Path.Combine(toolsRoot, "NDK");
+            jdk = Path.Combine(toolsRoot, "OpenJDK");
+        }
 
         if (!Directory.Exists(sdk) || !Directory.Exists(ndk) || !Directory.Exists(jdk))
             throw new DirectoryNotFoundException($"Android tools are incomplete under {toolsRoot}");

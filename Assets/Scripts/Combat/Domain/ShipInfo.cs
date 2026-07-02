@@ -80,6 +80,8 @@ namespace Combat.Domain
             else
                 ship = factory.CreateEnemyShip(_shipSpec, position, rotation, aiLevel);
 
+            ship.Type.FactionId = _unitSide == UnitSide.Player ? 0 : _shipData.Model.Faction.Id.Value;
+
             if (ShipUnit != null && ShipUnit.State == UnitState.Inactive)
             {
                 ship.Stats.Armor.Get(ShipUnit.Stats.Armor.MaxValue - ShipUnit.Stats.Armor.Value);

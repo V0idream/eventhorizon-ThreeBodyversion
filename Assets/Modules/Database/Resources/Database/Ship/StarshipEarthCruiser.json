@@ -8,8 +8,8 @@
   "Faction": 21,
   "IconImage": "starship_earth_cruiser",
   "IconScale": 0.95,
-  "ModelImage": "starship_earth_cruiser",
-  "ModelScale": 1.8,
+  "ModelImage": "starship_earth_cruiser_preview5",
+  "ModelScale": 3.0,
   "EngineColor": "#63EFFF",
   "Engines": [
     {
@@ -33,7 +33,7 @@
       "Position": {
         "x": 0.72
       },
-      "WeaponClass": "L"
+      "WeaponClass": "CN"
     }
   ]
 }

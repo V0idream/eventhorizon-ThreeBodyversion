@@ -8,8 +8,8 @@
   "Faction": 21,
   "IconImage": "starship_earth_frigate",
   "IconScale": 0.85,
-  "ModelImage": "starship_earth_frigate",
-  "ModelScale": 1.1,
+  "ModelImage": "starship_earth_frigate_preview5",
+  "ModelScale": 1.4,
   "EngineColor": "#63EFFF",
   "Engines": [
     {
@@ -25,7 +25,7 @@
       "Position": {
         "x": 0.52
       },
-      "WeaponClass": "C"
+      "WeaponClass": "L"
     }
   ]
 }

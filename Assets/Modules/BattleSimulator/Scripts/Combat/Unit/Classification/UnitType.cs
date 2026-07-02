@@ -17,6 +17,11 @@ namespace Combat.Component.Unit.Classification
 
         public readonly UnitClass Class;
         public UnitSide Side => _ignoreOwnerSide || Owner == null ? _side : Owner.Type.Side;
+        public int FactionId
+        {
+            get => !_ignoreOwnerSide && Owner != null ? Owner.Type.FactionId : _factionId;
+            set => _factionId = value;
+        }
         public IShip Owner;
 
         public Layer CollisionLayer => GetCollisionLayer(Class, Side);
@@ -80,6 +85,7 @@ namespace Combat.Component.Unit.Classification
 
         private readonly bool _ignoreOwnerSide;
         private readonly UnitSide _side;
+        private int _factionId;
 
         public static readonly UnitType Default = new UnitType(UnitClass.SpaceObject, UnitSide.Undefined, null);
     }

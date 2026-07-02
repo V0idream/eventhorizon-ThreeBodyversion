@@ -8,8 +8,8 @@
   "Faction": 21,
   "IconImage": "starship_earth_battleship",
   "IconScale": 1.0,
-  "ModelImage": "starship_earth_battleship",
-  "ModelScale": 2.2,
+  "ModelImage": "starship_earth_battleship_preview5",
+  "ModelScale": 4.0,
   "EngineColor": "#63EFFF",
   "Engines": [
     {
@@ -39,7 +39,7 @@
       "Position": {
         "x": 0.82
       },
-      "WeaponClass": "L"
+      "WeaponClass": "CN"
     }
   ]
 }

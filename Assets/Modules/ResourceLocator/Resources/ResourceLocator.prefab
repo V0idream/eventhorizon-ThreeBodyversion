@@ -194,6 +194,12 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 57dd5b0fff2f2394698987d98deaa8f6, type: 3}
   - {fileID: 21300000, guid: a74ddbf0f339dcd4e8839a1e1505d087, type: 3}
   - {fileID: 21300000, guid: ad2ddd301ddc5ae46a2abb4925c41803, type: 3}
+  - {fileID: 21300000, guid: c8ba528815a624d48a4c0e969bfa3896, type: 3}
+  - {fileID: 21300000, guid: e068bc39a113ca04eb290e8a2c4ac938, type: 3}
+  - {fileID: 21300000, guid: c628e49921110c2498b49ef9684709f5, type: 3}
+  - {fileID: 21300000, guid: 0b16904aa53bcd541a5d4725b3d7a56c, type: 3}
+  - {fileID: 21300000, guid: 9e3bbf4e73782fd458f1cb11633cc257, type: 3}
+  - {fileID: 21300000, guid: 9161e59863d14564382e2f90760c2488, type: 3}
   - {fileID: 21300000, guid: 16e56297a5e600942b175dc3ff4e4b18, type: 3}
   - {fileID: 21300000, guid: 32e8aa157dfae1440aed4d2906ee049b, type: 3}
   _shipIconSprites:
@@ -424,8 +430,10 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 2897b1dfccbc4ea4c93f213feea992fa, type: 3}
   - {fileID: 21300000, guid: 0a4f00c6db8885c46aed19c4d70b07b3, type: 3}
   - {fileID: 21300000, guid: 450606a600f688540ac477877038debc, type: 3}
+  - {fileID: 21300000, guid: 8c570c7a186ec924f884bccbcb798321, type: 3}
   - {fileID: 21300000, guid: 8d0cfaf65d5ff2247ac346c1ae33f092, type: 3}
   - {fileID: 21300000, guid: 9f8649341d760f245a6166bc9f6daeab, type: 3}
+  - {fileID: 21300000, guid: b39f6abf77224fe4589a6f7fc9e5d643, type: 3}
   - {fileID: 21300000, guid: 8e4da03e4fd3eb34092a255f2e37a590, type: 3}
   - {fileID: 21300000, guid: 774a983b43af4f94dbb2a03c48cfa9ba, type: 3}
   - {fileID: 21300000, guid: 57843ac0e48380a4bb7af46bf75ca19e, type: 3}

@@ -8,8 +8,8 @@
   "Faction": 21,
   "IconImage": "starship_earth_destroyer",
   "IconScale": 0.9,
-  "ModelImage": "starship_earth_destroyer",
-  "ModelScale": 1.4,
+  "ModelImage": "starship_earth_destroyer_preview5",
+  "ModelScale": 1.9,
   "EngineColor": "#63EFFF",
   "Engines": [
     {
@@ -34,14 +34,14 @@
         "x": 0.62,
         "y": 0.22
       },
-      "WeaponClass": "C"
+      "WeaponClass": "L"
     },
     {
       "Position": {
         "x": 0.62,
         "y": -0.22
       },
-      "WeaponClass": "C"
+      "WeaponClass": "L"
     }
   ]
 }

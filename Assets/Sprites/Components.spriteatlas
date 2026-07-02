@@ -148,6 +148,7 @@ SpriteAtlas:
     - 2f80360a413e9ec4fbb53c4356c29d88: 21300000
     - 70cd713a93ba4444cb1c102a642e6a7a: 21300000
     - 89ada06a0da09a34db8ffdefe075760d: 21300000
+    - 8c570c7a186ec924f884bccbcb798321: 21300000
     - d1e96c8abc688ef4db1cc794592054a6: 21300000
     - aa26989afc7ec7f45946ce00323a447e: 21300000
     - ca8bc6ba9bd5114409b845d0ca6bb41d: 21300000
@@ -197,6 +198,7 @@ SpriteAtlas:
     - cb203e4fbc8c23d47a1dd799f321269e: 21300000
     - 6db0ed6f8755c5543b91a5b36c1b167b: 21300000
     - af4b4e8f4d233714aa601226703f3aba: 21300000
+    - b39f6abf77224fe4589a6f7fc9e5d643: 21300000
     - fe61e2cfde7836d49a37febc209bfe2c: 21300000
     - 2897b1dfccbc4ea4c93f213feea992fa: 21300000
     - df4722dfaa2689c49ad6f3dfc853693b: 21300000
@@ -290,6 +292,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 2f80360a413e9ec4fbb53c4356c29d88, type: 3}
   - {fileID: 21300000, guid: 70cd713a93ba4444cb1c102a642e6a7a, type: 3}
   - {fileID: 21300000, guid: 89ada06a0da09a34db8ffdefe075760d, type: 3}
+  - {fileID: 21300000, guid: 8c570c7a186ec924f884bccbcb798321, type: 3}
   - {fileID: 21300000, guid: d1e96c8abc688ef4db1cc794592054a6, type: 3}
   - {fileID: 21300000, guid: aa26989afc7ec7f45946ce00323a447e, type: 3}
   - {fileID: 21300000, guid: ca8bc6ba9bd5114409b845d0ca6bb41d, type: 3}
@@ -339,6 +342,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: cb203e4fbc8c23d47a1dd799f321269e, type: 3}
   - {fileID: 21300000, guid: 6db0ed6f8755c5543b91a5b36c1b167b, type: 3}
   - {fileID: 21300000, guid: af4b4e8f4d233714aa601226703f3aba, type: 3}
+  - {fileID: 21300000, guid: b39f6abf77224fe4589a6f7fc9e5d643, type: 3}
   - {fileID: 21300000, guid: fe61e2cfde7836d49a37febc209bfe2c, type: 3}
   - {fileID: 21300000, guid: 2897b1dfccbc4ea4c93f213feea992fa, type: 3}
   - {fileID: 21300000, guid: df4722dfaa2689c49ad6f3dfc853693b, type: 3}
@@ -431,6 +435,7 @@ SpriteAtlas:
   - range1
   - block2
   - dronebay2
+  - starship_earth_nuclear_missile
   - armor53
   - ion_cannon2
   - drone_power1
@@ -480,6 +485,7 @@ SpriteAtlas:
   - doom1
   - armor63
   - shotgun1
+  - starship_earth_standard_missile
   - dronebay3
   - starship_earth_fusion_reactor
   - electron_compressor

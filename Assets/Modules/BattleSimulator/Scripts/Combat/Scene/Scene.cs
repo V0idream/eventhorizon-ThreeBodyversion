@@ -54,7 +54,12 @@ namespace Combat.Scene
         }
 
         public IShip PlayerShip => _activePlayerShip;
-        public IShip EnemyShip => _nearestEnemyShip;
+        public IShip EnemyShip => _lockedEnemyShip.IsActive() ? _lockedEnemyShip : _nearestEnemyShip;
+        public IShip LockedEnemyShip => _lockedEnemyShip;
+        public void LockTarget(IShip ship)
+        {
+            _lockedEnemyShip = ship != null && ship.IsActive() && ship.Type.Side == UnitSide.Enemy ? ship : null;
+        }
         
         public void Tick()
         {
@@ -178,6 +183,8 @@ namespace Combat.Scene
             var position = _activePlayerShip.Body.Position;
             var minDistance = float.MaxValue;
             _nearestEnemyShip = null;
+            if (!_lockedEnemyShip.IsActive())
+                _lockedEnemyShip = null;
 
             lock (_shipList.LockObject)
             {
@@ -263,6 +270,7 @@ namespace Combat.Scene
         private bool _playerInCenter;
         private IShip _activePlayerShip;
         private IShip _nearestEnemyShip;
+        private IShip _lockedEnemyShip;
 
         private readonly UnitList<IUnit> _unitList = new UnitList<IUnit>();
         private readonly ShipList _shipList = new ShipList();

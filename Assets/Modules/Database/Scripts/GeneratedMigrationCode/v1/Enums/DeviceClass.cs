@@ -34,5 +34,6 @@ namespace DatabaseMigration.v1.Enums
 		TeleporterV2,
 		WormTailV2,
 		Retribution,
+		Radar,
 	}
 }
