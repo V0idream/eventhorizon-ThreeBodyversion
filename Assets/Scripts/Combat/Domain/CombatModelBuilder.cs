@@ -31,6 +31,7 @@ namespace Combat.Domain
 
         public IFleet EnemyFleet { get; set; }
         public IFleet PlayerFleet { get; set; }
+        public IFleet AllyFleet { get; set; }
 
         public CombatRules Rules { get; set; }
         public int StarLevel { get; set; }
@@ -49,10 +50,12 @@ namespace Combat.Domain
         {
             var playerFleet = PlayerFleet ?? Model.Factories.Fleet.Empty;
             var enemyFleet = EnemyFleet ?? Model.Factories.Fleet.Empty;
+            var allyFleet = AllyFleet ?? Model.Factories.Fleet.Empty;
             var useBonuses = !Rules.DisableSkillBonuses;
 
             var model = new CombatModel(
                 new FleetModel(playerFleet.Ships, UnitSide.Player, _database, playerFleet.AiLevel, useBonuses ? _playerSkills : null),
+                new FleetModel(allyFleet.Ships, UnitSide.Ally, _database, allyFleet.AiLevel),
                 new FleetModel(enemyFleet.Ships, UnitSide.Enemy, _database, enemyFleet.AiLevel), _shipDestroyedSignal);
 
 			var rules = Rules.Create(StarLevel, _playerSkills.HasRescueUnit);

@@ -78,7 +78,9 @@ namespace Combat.Domain
             else if (_unitSide == UnitSide.Player)
                 ship = factory.CreatePlayerShip(_shipSpec, position, rotation);
             else
-                ship = factory.CreateEnemyShip(_shipSpec, position, rotation, aiLevel);
+                ship = factory.CreateAiShip(_shipSpec, position, rotation, aiLevel, _unitSide);
+
+            ship.Type.FactionId = _unitSide == UnitSide.Player ? 0 : _shipData.Model.Faction.Id.Value;
 
             if (ShipUnit != null && ShipUnit.State == UnitState.Inactive)
             {
