@@ -11,7 +11,7 @@ public static class AndroidDevelopmentBuild
     private const string PackageName = "com.threebody.EventHorizon";
     private const string ProductName = "三体视界";
     private const string VersionName = "Preview5";
-    private const int VersionCode = 112114;
+    private const int VersionCode = 112115;
 
     [MenuItem("Build/Android/Development APK")]
     public static void BuildFromMenu()

@@ -22,11 +22,14 @@ namespace Gui.Combat
             _radars.AddRange(transform.Children<Radar>());
             _beaconRadars.AddRange(transform.Children<BeaconRadar>());
             var minimap = new GameObject("Preview5CombatMinimap", typeof(RectTransform), typeof(Canvas), typeof(GraphicRaycaster), typeof(CombatMinimap));
-            minimap.transform.SetParent(transform, false);
+            minimap.transform.SetParent(transform.root, false);
             minimap.transform.SetAsLastSibling();
             var canvas = minimap.GetComponent<Canvas>();
             canvas.overrideSorting = true;
-            canvas.sortingOrder = 100;
+            canvas.sortingOrder = 32000;
+            var group = minimap.AddComponent<CanvasGroup>();
+            group.interactable = true;
+            group.blocksRaycasts = true;
             minimap.GetComponent<CombatMinimap>().Initialize(_scene);
         }
 

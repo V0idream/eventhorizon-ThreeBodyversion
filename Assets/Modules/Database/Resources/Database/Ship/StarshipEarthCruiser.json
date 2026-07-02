@@ -9,7 +9,7 @@
   "IconImage": "starship_earth_cruiser",
   "IconScale": 0.95,
   "ModelImage": "starship_earth_cruiser_preview5",
-  "ModelScale": 3.0,
+  "ModelScale": 4.5,
   "EngineColor": "#63EFFF",
   "Engines": [
     {
@@ -33,7 +33,7 @@
       "Position": {
         "x": 0.72
       },
-      "WeaponClass": "CN"
+      "WeaponClass": "CLM"
     }
   ]
 }

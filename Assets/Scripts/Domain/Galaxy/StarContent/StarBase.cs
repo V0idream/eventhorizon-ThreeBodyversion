@@ -9,6 +9,7 @@ using GameModel;
 using Session;
 using Zenject;
 using ViewModel;
+using Combat.Component.Unit.Classification;
 
 namespace Galaxy.StarContent
 {
@@ -34,6 +35,9 @@ namespace Galaxy.StarContent
 			var defenderFleet = Fleet.Capital(region, _database);
 
 			var builder = _combatModelBuilderFactory.Create();
+            var savedRelation = _session.Quests.GetFactionRelations(region.HomeStar);
+            CombatRelations.SetRelation(0, region.Faction.Id.Value,
+                region.Faction.Id.Value >= Region.StarshipEarthFactionId && savedRelation >= 0);
 			builder.PlayerFleet = playerFleet;
 			if (FactionPanelViewModel.IncludeStarshipEarthAllies)
 				builder.AllyFleet = Fleet.StarshipEarthAllies(region.HomeStarLevel, starId ^ 0x5345, _database);
@@ -67,8 +71,10 @@ namespace Galaxy.StarContent
 				return;
 			}
 
-			var model = CreateCombatModel(starId);
-            _session.Quests.SetFactionRelations(starId, -100);
+            var model = CreateCombatModel(starId);
+            var region = _starData.GetRegion(starId);
+            _session.Quests.SetFactionRelations(region.HomeStar, -100);
+            CombatRelations.SetRelation(0, region.Faction.Id.Value, false);
             _startBattleTrigger.Fire(model, result => OnCombatCompleted(starId, result));
         }
 

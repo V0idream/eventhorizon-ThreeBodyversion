@@ -9,7 +9,7 @@
   "IconImage": "starship_earth_battleship",
   "IconScale": 1.0,
   "ModelImage": "starship_earth_battleship_preview5",
-  "ModelScale": 4.0,
+  "ModelScale": 6.0,
   "EngineColor": "#63EFFF",
   "Engines": [
     {
@@ -39,7 +39,7 @@
       "Position": {
         "x": 0.82
       },
-      "WeaponClass": "CN"
+      "WeaponClass": "CLM"
     }
   ]
 }

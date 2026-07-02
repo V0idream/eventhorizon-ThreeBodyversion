@@ -83,6 +83,7 @@ namespace ViewModel
 
             if (region.IsCaptured)
 		    {
+                SetJointControlsVisible(false);
 		        CaptureButton.gameObject.SetActive(false);
 		        CaptureDescription.gameObject.SetActive(false);
 		        MilitaryPowerPanel.gameObject.SetActive(false);
@@ -95,6 +96,7 @@ namespace ViewModel
 		    }
 
             CaptureButton.gameObject.SetActive(true);
+            SetJointControlsVisible(true);
 		    CaptureDescription.gameObject.SetActive(true);
 		    MilitaryPowerPanel.gameObject.SetActive(true);
 		    ReputationPanel.gameObject.SetActive(!region.Faction.NoMissions);
@@ -118,26 +120,35 @@ namespace ViewModel
             }
 
             var captureRect = CaptureButton.GetComponent<RectTransform>();
-            if (captureRect != null)
-                captureRect.sizeDelta = new Vector2(Mathf.Max(300f, captureRect.sizeDelta.x), Mathf.Max(84f, captureRect.sizeDelta.y));
+            if (captureRect == null)
+                return;
+
+            var originalPosition = captureRect.anchoredPosition;
+            captureRect.sizeDelta = new Vector2(220f, Mathf.Max(76f, captureRect.sizeDelta.y));
+            captureRect.anchoredPosition = originalPosition + new Vector2(-105f, 0f);
 
             var emblem = transform.Find("Body/Left/Faction") ?? transform.Find("Faction");
             if (emblem != null)
                 emblem.localScale = Vector3.one * 0.72f;
 
-            if (GetComponentsInChildren<Transform>(true).Any(item => item.name == "Preview4AlliedAttackList"))
+            _alliedAttackPanel = GetComponentsInChildren<Transform>(true)
+                .FirstOrDefault(item => item.name == "Preview5AlliedAttackList")?.gameObject;
+            _jointAttackButton = GetComponentsInChildren<Transform>(true)
+                .FirstOrDefault(item => item.name == "Preview5JointAttackButton")?.gameObject;
+            if (_alliedAttackPanel != null && _jointAttackButton != null)
                 return;
 
-            var panel = new GameObject("Preview4AlliedAttackList", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            var panel = new GameObject("Preview5AlliedAttackList", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
             var rect = panel.GetComponent<RectTransform>();
-            rect.SetParent(CaptureDescription.transform.parent, false);
-            rect.anchorMin = new Vector2(0.5f, 0f);
-            rect.anchorMax = new Vector2(0.5f, 0f);
-            rect.pivot = new Vector2(0.5f, 0f);
-            rect.anchoredPosition = new Vector2(0f, 92f);
+            rect.SetParent(CaptureButton.transform.parent, false);
+            rect.anchorMin = captureRect.anchorMin;
+            rect.anchorMax = captureRect.anchorMax;
+            rect.pivot = captureRect.pivot;
+            rect.anchoredPosition = originalPosition + new Vector2(0f, captureRect.rect.height + 12f);
             rect.sizeDelta = new Vector2(430f, 52f);
             panel.GetComponent<Image>().color = new Color(0.02f, 0.08f, 0.14f, 0.9f);
             panel.SetActive(false);
+            _alliedAttackPanel = panel;
 
             var toggleObject = new GameObject("StarshipEarth", typeof(RectTransform), typeof(Toggle));
             var toggleRect = toggleObject.GetComponent<RectTransform>();
@@ -179,11 +190,12 @@ namespace ViewModel
             var jointObject = new GameObject("Preview5JointAttackButton", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
             var jointRect = jointObject.GetComponent<RectTransform>();
             jointRect.SetParent(CaptureButton.transform.parent, false);
+            jointObject.transform.SetAsLastSibling();
             jointRect.anchorMin = captureRect.anchorMin;
             jointRect.anchorMax = captureRect.anchorMax;
             jointRect.pivot = captureRect.pivot;
-            jointRect.sizeDelta = new Vector2(190f, Mathf.Max(64f, captureRect.sizeDelta.y));
-            jointRect.anchoredPosition = captureRect.anchoredPosition + new Vector2(captureRect.rect.width * 0.5f + 105f, 0f);
+            jointRect.sizeDelta = new Vector2(200f, captureRect.sizeDelta.y);
+            jointRect.anchoredPosition = originalPosition + new Vector2(115f, 0f);
             var captureImage = CaptureButton.GetComponent<Image>();
             var jointImage = jointObject.GetComponent<Image>();
             if (captureImage != null)
@@ -213,6 +225,18 @@ namespace ViewModel
             jointText.alignment = TextAnchor.MiddleCenter;
             jointText.color = Color.white;
             jointText.text = "联合进攻";
+            _jointAttackButton = jointObject;
         }
+
+        private void SetJointControlsVisible(bool visible)
+        {
+            if (_jointAttackButton != null)
+                _jointAttackButton.SetActive(visible);
+            if (!visible && _alliedAttackPanel != null)
+                _alliedAttackPanel.SetActive(false);
+        }
+
+        private GameObject _jointAttackButton;
+        private GameObject _alliedAttackPanel;
 	}
 }

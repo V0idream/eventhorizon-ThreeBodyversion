@@ -9,7 +9,7 @@
   "IconImage": "starship_earth_frigate",
   "IconScale": 0.85,
   "ModelImage": "starship_earth_frigate_preview5",
-  "ModelScale": 1.4,
+  "ModelScale": 2.2,
   "EngineColor": "#63EFFF",
   "Engines": [
     {

@@ -4,6 +4,7 @@
   "Name": "星舰地球制式导弹",
   "Description": "竖置1×2制式导弹，接近普通导弹的装填速度并提供重型导弹两倍火力。",
   "DisplayCategory": 1,
+  "Availability": 1,
   "ComponentStatsId": 1,
   "Faction": 21,
   "Level": 75,

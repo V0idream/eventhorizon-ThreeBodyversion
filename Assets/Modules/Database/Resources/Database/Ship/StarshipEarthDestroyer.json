@@ -9,7 +9,7 @@
   "IconImage": "starship_earth_destroyer",
   "IconScale": 0.9,
   "ModelImage": "starship_earth_destroyer_preview5",
-  "ModelScale": 1.9,
+  "ModelScale": 3.2,
   "EngineColor": "#63EFFF",
   "Engines": [
     {

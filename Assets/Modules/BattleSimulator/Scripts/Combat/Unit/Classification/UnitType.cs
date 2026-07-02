@@ -17,6 +17,7 @@ namespace Combat.Component.Unit.Classification
 
         public readonly UnitClass Class;
         public UnitSide Side => _ignoreOwnerSide || Owner == null ? _side : Owner.Type.Side;
+        public bool CanHitAllies => _ignoreOwnerSide;
         public int FactionId
         {
             get => !_ignoreOwnerSide && Owner != null ? Owner.Type.FactionId : _factionId;
@@ -81,7 +82,20 @@ namespace Combat.Component.Unit.Classification
             return layer;
         }
 
-        public int CollisionMask { get { return Physics2D.GetLayerCollisionMask((int)CollisionLayer); } }
+        public int CollisionMask
+        {
+            get
+            {
+                if (Class == UnitClass.Missile || Class == UnitClass.EnergyBolt || Class == UnitClass.AreaOfEffect)
+                {
+                    var mask = 1 << (int)Layer.Default;
+                    for (var layer = (int)Layer.Ship1; layer <= (int)Layer.Platform4; layer++)
+                        mask |= 1 << layer;
+                    return mask;
+                }
+                return Physics2D.GetLayerCollisionMask((int)CollisionLayer);
+            }
+        }
 
         private readonly bool _ignoreOwnerSide;
         private readonly UnitSide _side;

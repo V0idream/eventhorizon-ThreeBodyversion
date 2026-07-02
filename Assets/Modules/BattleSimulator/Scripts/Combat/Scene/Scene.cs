@@ -58,7 +58,11 @@ namespace Combat.Scene
         public IShip LockedEnemyShip => _lockedEnemyShip;
         public void LockTarget(IShip ship)
         {
-            _lockedEnemyShip = ship != null && ship.IsActive() && ship.Type.Side == UnitSide.Enemy ? ship : null;
+            _lockedEnemyShip = ship != null && ship.IsActive() &&
+                                 _activePlayerShip.IsActive() &&
+                                 CombatRelations.AreEnemies(_activePlayerShip.Type, ship.Type)
+                ? ship
+                : null;
         }
         
         public void Tick()
@@ -190,7 +194,8 @@ namespace Combat.Scene
             {
                 foreach (var ship in _shipList.Items)
                 {
-                    if (ship.IsActive() && ship.Type.Side == UnitSide.Enemy && ship.Type.Class == UnitClass.Ship)
+                    if (ship.IsActive() && ship.Type.Class == UnitClass.Ship &&
+                        CombatRelations.AreEnemies(_activePlayerShip.Type, ship.Type))
                     {
                         enemyCount++;
                         var distance = Vector2.SqrMagnitude(ship.Body.Position - position);

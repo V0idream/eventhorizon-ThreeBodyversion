@@ -48,7 +48,7 @@ namespace Gui.Combat
             var radarRange = observer.IsActive()
                 ? 300f + observer.Specification.Devices.Where(d => d.Device.DeviceClass == DeviceClass.Radar).Sum(d => d.Device.Power)
                 : 0f;
-            var detected = _ship.Type.Side.IsAlly(UnitSide.Player) ||
+            var detected = (observer.IsActive() && CombatRelations.AreAllies(_ship.Type, observer.Type)) ||
                            (observer.IsActive() && Vector2.Distance(observer.Body.Position, _ship.Body.Position) <= radarRange);
             if (!detected)
             {
@@ -116,7 +116,7 @@ namespace Gui.Combat
         private void Initialize(IResourceLocator resourceLocator)
         {
             var model = _ship.Specification.Stats;
-            var isAlly = _ship.Type.Side.IsAlly(UnitSide.Player);
+            var isAlly = _scene.PlayerShip.IsActive() && CombatRelations.AreAllies(_ship.Type, _scene.PlayerShip.Type);
             var isDangerous = _ship.Specification.Info.Class >= DifficultyClass.Class3;
 
             ApplyBackgroundColor();
@@ -135,7 +135,7 @@ namespace Gui.Combat
             }
 
             ShipIcon.sprite = resourceLocator.GetSprite(model.ShipModel.ModelImage);
-            UpdateAllyMarker(isAlly && _ship.Type.Side != UnitSide.Player);
+            UpdateAllyMarker(isAlly && _ship != _scene.PlayerShip);
 
             UpdateScreenSize();
         }
@@ -144,7 +144,7 @@ namespace Gui.Combat
         {
             if (_ship == null) return;
             var size = _ship.Specification.Stats.ShipModel.SizeClass;
-            var isAlly = _ship.Type.Side.IsAlly(UnitSide.Player);
+            var isAlly = _scene.PlayerShip.IsActive() && CombatRelations.AreAllies(_ship.Type, _scene.PlayerShip.Type);
             var isDangerous = _ship.Specification.Info.Class >= DifficultyClass.Class3;
             if (isAlly) Background.color = AllyColor;
             else if (size == SizeClass.Starbase) Background.color = StarbaseColor;

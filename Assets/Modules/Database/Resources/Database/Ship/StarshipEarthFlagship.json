@@ -9,7 +9,7 @@
   "IconImage": "starship_earth_flagship",
   "IconScale": 1.0,
   "ModelImage": "starship_earth_flagship_preview5",
-  "ModelScale": 6.2,
+  "ModelScale": 8.5,
   "EngineColor": "#63EFFF",
   "Engines": [
     {
@@ -47,14 +47,14 @@
         "x": 0.62,
         "y": 0.45
       },
-      "WeaponClass": "LN"
+      "WeaponClass": "LM"
     },
     {
       "Position": {
         "x": 0.62,
         "y": -0.45
       },
-      "WeaponClass": "LN"
+      "WeaponClass": "LM"
     }
   ],
   "Features": {

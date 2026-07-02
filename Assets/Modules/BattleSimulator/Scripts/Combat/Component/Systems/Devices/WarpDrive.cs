@@ -117,10 +117,11 @@ namespace Combat.Component.Systems.Devices
                     InvokeTriggers(ConditionType.OnDeactivate);
                     TimeFromLastUse = 0;
                     _isEnabled = false;
+                    _ship.Collider.Enabled = true;
                     _ship.Body.ApplyAcceleration(-_ship.Body.Velocity);
                 }
             }
-            else if (Active && CanBeActivated && _ship.Stats.Energy.TryGet(_energyCost))
+            else if (Active && CanBeActivated)
             {
                 if (_controllable)
                 {
