@@ -32,6 +32,10 @@ namespace Gui.ComponentList
             if (!node.IsVisible) return true;
 
             if (node.Parent == null) return false;
+            // Preview5 source/category branches must remain explicit even when
+            // the current inventory only contains one or two matching items.
+            if (node is FactionCategoryNode || node.Parent is FactionCategoryNode)
+                return false;
             var itemCount = node.ItemCount;
             if (node.Parent.QuantityProvider != node.QuantityProvider && itemCount > 0) return false;
             return itemCount < MinElementsInGroup;
