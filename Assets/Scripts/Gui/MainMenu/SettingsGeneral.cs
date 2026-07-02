@@ -104,6 +104,7 @@ namespace Gui.MainMenu
 
         private void OnEnable()
         {
+            SettingsProgress.ApplyThreeBodySettingsLayout();
             _musicVolumeSlider.value = _musicPlayer.Volume;
             _soundVolumeSlider.value = _soundPlayer.Volume;
             _runInBackgroundToggle.isOn = _gameSettings.RunInBackground;

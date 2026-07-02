@@ -1,0 +1,25 @@
+{
+  "ItemType": 15,
+  "Id": 201,
+  "Name": "$Quest_ThreeBodyStarterGift",
+  "QuestType": 1,
+  "StartCondition": 4,
+  "Nodes": [
+    {
+      "Id": 1,
+      "Type": 10,
+      "Message": "$ThreeBodyStarterGift_Message",
+      "Character": 3,
+      "Actions": [
+        {
+          "TargetNode": 2,
+          "ButtonText": "$ThreeBodyStarterGift_Accept"
+        }
+      ]
+    },
+    {
+      "Id": 2,
+      "Type": 40
+    }
+  ]
+}

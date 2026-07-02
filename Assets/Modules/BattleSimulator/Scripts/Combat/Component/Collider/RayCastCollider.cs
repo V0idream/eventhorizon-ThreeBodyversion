@@ -5,6 +5,7 @@ using Combat.Component.View;
 using System.Collections.Generic;
 using UnityEngine;
 using Zenject;
+using Combat.Component.Systems.Devices;
 
 namespace Combat.Component.Collider
 {
@@ -53,8 +54,12 @@ namespace Combat.Component.Collider
 
             var position = Unit.Body.WorldPositionNoOffset();
             var direction = RotationHelpers.Direction(Unit.Body.WorldRotation());
+            var effectiveRange = MaxRange;
+            var blockedByWarpTrail = WarpTrailEffect.TryBlockRay(position, direction, MaxRange, out var trailRange);
+            if (blockedByWarpTrail)
+                effectiveRange = trailRange;
 
-            var hits = Physics2D.RaycastNonAlloc(position, direction, _buffer, MaxRange, Unit.Type.CollisionMask);
+            var hits = Physics2D.RaycastNonAlloc(position, direction, _buffer, effectiveRange, Unit.Type.CollisionMask);
             bool collisionFound = false;
 			for (int i = 0; i < hits; ++i)
 			{
@@ -73,14 +78,14 @@ namespace Combat.Component.Collider
                 if (!_passThrough) break;
             }
 
-            if (!collisionFound && ActiveCollision != null)
+            if (!collisionFound)
             {
                 ActiveCollision = null;
-                UpdateLength(MaxRange);
+                UpdateLength(effectiveRange);
             }
 
             if (_needUpdateView)
-                UpdateLength(MaxRange);
+                UpdateLength(effectiveRange);
         }
 
         private void ProcessCollision(ICollider target, Vector2 position, Vector2 hitPoint, float elapsedTime, bool isFirst)

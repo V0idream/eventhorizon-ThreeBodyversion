@@ -5,7 +5,9 @@ using Services.Messenger;
 using Services.Storage;
 using Session;
 using UnityEngine;
+using UnityEngine.UI;
 using Zenject;
+using System.Linq;
 
 namespace Gui.MainMenu
 {
@@ -60,7 +62,96 @@ namespace Gui.MainMenu
 
         private void OnEnable()
         {
+            ApplyThreeBodySettingsLayout();
             OnSessionCreated();
+        }
+
+        public static void ApplyThreeBodySettingsLayout()
+        {
+            var controller = FindObjectsByType<SettingsProgress>(
+                    FindObjectsInactive.Include, FindObjectsSortMode.None)
+                .FirstOrDefault();
+            var accountButton = GameObject.Find("Canvas/Settings/Buttons/Account");
+            var cloudButton = GameObject.Find("Canvas/Settings/Buttons/LoadSave");
+            var modButton = GameObject.Find("Canvas/Settings/Buttons/Database");
+            var buttons = accountButton != null ? accountButton.transform.parent : null;
+
+            if (buttons != null && modButton != null)
+            {
+                var accountIndex = accountButton.transform.GetSiblingIndex();
+                modButton.transform.SetSiblingIndex(accountIndex);
+            }
+
+            accountButton?.SetActive(false);
+            cloudButton?.SetActive(false);
+
+            if (controller != null && buttons != null && buttons.Find("DeleteProgress") == null)
+                controller.CreateDeleteProgressNavigationButton(buttons, cloudButton, modButton);
+
+            GameObject.Find("Canvas/Settings/Panels/LoadSave")?.SetActive(false);
+            if (controller != null && controller._deleteProgressPanel != null)
+                controller._deleteProgressPanel.SetActive(false);
+
+            foreach (var account in FindObjectsOfType<SettingsAccount>(true))
+                account.gameObject.SetActive(false);
+            foreach (var loadSave in FindObjectsOfType<SettingsLoadSave>(true))
+                loadSave.gameObject.SetActive(false);
+        }
+
+        private void CreateDeleteProgressNavigationButton(Transform parent, GameObject cloudTemplate, GameObject modButton)
+        {
+            var buttonObject = new GameObject("DeleteProgress", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button), typeof(LayoutElement));
+            buttonObject.layer = parent.gameObject.layer;
+            var rect = buttonObject.GetComponent<RectTransform>();
+            rect.SetParent(parent, false);
+
+            if (cloudTemplate != null && cloudTemplate.transform is RectTransform cloudRect)
+                rect.sizeDelta = cloudRect.sizeDelta;
+            else
+                rect.sizeDelta = new Vector2(96, 96);
+
+            var templateImage = cloudTemplate != null ? cloudTemplate.GetComponent<Image>() : null;
+            var image = buttonObject.GetComponent<Image>();
+            if (templateImage != null)
+            {
+                image.sprite = templateImage.sprite;
+                image.type = templateImage.type;
+                image.color = templateImage.color;
+            }
+            else
+            {
+                image.color = new Color(0.12f, 0.12f, 0.16f, 0.9f);
+            }
+
+            var templateLayout = cloudTemplate != null ? cloudTemplate.GetComponent<LayoutElement>() : null;
+            var layout = buttonObject.GetComponent<LayoutElement>();
+            if (templateLayout != null)
+            {
+                layout.minWidth = templateLayout.minWidth;
+                layout.minHeight = templateLayout.minHeight;
+                layout.preferredWidth = templateLayout.preferredWidth;
+                layout.preferredHeight = templateLayout.preferredHeight;
+                layout.flexibleWidth = templateLayout.flexibleWidth;
+                layout.flexibleHeight = templateLayout.flexibleHeight;
+            }
+
+            var iconObject = new GameObject("ProhibitedIcon", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            iconObject.layer = buttonObject.layer;
+            var iconRect = iconObject.GetComponent<RectTransform>();
+            iconRect.SetParent(buttonObject.transform, false);
+            iconRect.anchorMin = new Vector2(0.18f, 0.18f);
+            iconRect.anchorMax = new Vector2(0.82f, 0.82f);
+            iconRect.offsetMin = Vector2.zero;
+            iconRect.offsetMax = Vector2.zero;
+
+            var icon = iconObject.GetComponent<Image>();
+            icon.sprite = Resources.Load<Sprite>("Textures/GUI/cross2");
+            icon.preserveAspect = true;
+            icon.color = new Color(1f, 0.2f, 0.16f, 1f);
+            icon.raycastTarget = false;
+
+            buttonObject.GetComponent<Button>().onClick.AddListener(DeleteProgress);
+            buttonObject.transform.SetSiblingIndex(modButton != null ? modButton.transform.GetSiblingIndex() + 1 : parent.childCount - 1);
         }
 
         private void OnSessionCreated()
