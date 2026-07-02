@@ -34,6 +34,9 @@ namespace Combat.Factory
 
             switch (stats.DeviceClass)
             {
+                case DeviceClass.Radar:
+                    device = new PassiveRadarDevice(stats);
+                    break;
                 case DeviceClass.ClonningCenter:
                     device = new ClonningDevice(ship, stats, _shipFactory, shipSpec, _effectFactory, deviceData.KeyBinding);
                     break;
@@ -128,7 +131,7 @@ namespace Combat.Factory
                         device.AddTrigger(new StaticEffect(stats.EffectPrefab, _effectFactory, ship.Body, 0.5f, stats.Size * ship.Body.Scale, stats.Color, ConditionType.OnActivate | ConditionType.OnDeactivate));
                     break;
                 case DeviceClass.TeleporterV2:
-                    device = new WarpDrive(ship, stats, deviceData.KeyBinding);
+                    device = new WarpDrive(ship, stats, deviceData.KeyBinding, _scene);
                     if (stats.VisualEffect != null)
                         device.AddTrigger(new StaticEffect(stats.VisualEffect, _effectFactory, ship.Body, 0.5f, stats.Size * ship.Body.Scale, stats.Color, ConditionType.OnActivate | ConditionType.OnDeactivate));
                     else if (stats.EffectPrefab)

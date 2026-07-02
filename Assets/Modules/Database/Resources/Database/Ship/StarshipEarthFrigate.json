@@ -1,0 +1,31 @@
+{
+  "ItemType": 6,
+  "Id": 161,
+  "ShipType": 0,
+  "SizeClass": 0,
+  "Name": "$StarshipEarthFrigate",
+  "Description": "$StarshipEarthFrigateDescription",
+  "Faction": 21,
+  "IconImage": "starship_earth_frigate_preview5",
+  "IconScale": 0.85,
+  "ModelImage": "starship_earth_frigate_preview5",
+  "ModelScale": 4.4,
+  "EngineColor": "#63EFFF",
+  "Engines": [
+    {
+      "Position": {
+        "x": -0.48
+      },
+      "Size": 0.18
+    }
+  ],
+  "Layout": "000040000000040000001111100011122110011122110011222110011552110011552110001550100",
+  "Barrels": [
+    {
+      "Position": {
+        "x": 0.52
+      },
+      "WeaponClass": "L"
+    }
+  ]
+}

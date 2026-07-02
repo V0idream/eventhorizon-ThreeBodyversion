@@ -11,6 +11,7 @@ using Session.Content;
 using Model.Military;
 using Zenject;
 using PlayerFleet = GameServices.Player.PlayerFleet;
+using Combat.Component.Unit.Classification;
 
 namespace Galaxy.StarContent
 {
@@ -105,7 +106,10 @@ namespace Galaxy.StarContent
 
 		    var builder = _combatModelBuilderFactory.Create();
 		    builder.PlayerFleet = Model.Factories.Fleet.Player(_playerFleet, _database);
-		    builder.EnemyFleet = CreateFleet(starId);
+            var enemyFleet = CreateFleet(starId);
+		    builder.EnemyFleet = enemyFleet;
+            foreach (var ship in enemyFleet.Ships)
+                CombatRelations.SetRelation(0, ship.Model.Faction.Id.Value, false);
             builder.Rules = _database.CombatSettings.DefaultCombatRules;
 
             if (region.Id > Region.PlayerHomeRegionId)
@@ -125,6 +129,14 @@ namespace Galaxy.StarContent
             return builder.Build();
 		}
 
+        public void Infiltrate(int starId)
+        {
+            if (!IsExists(starId))
+                return;
+            _session.StarMap.SetEnemy(starId, IStarMapData.Occupant.Passive);
+            _starContentChangedTrigger.Fire(starId);
+        }
+
 		public struct Facade
 		{
 			public Facade(Occupants occupants, int starId)
@@ -139,6 +151,7 @@ namespace Galaxy.StarContent
 		    public IFleet CreateFleet() { return _occupants.CreateFleet(_starId); }
 		    public ICombatModel CreateCombatModel() { return _occupants.CreateCombatModel(_starId); }
             public void Attack() { _occupants.Attack(_starId); }
+            public void Infiltrate() { _occupants.Infiltrate(_starId); }
 		    public void Suppress(bool destroy) { _occupants.Suppress(_starId, destroy); }
 
 

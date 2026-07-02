@@ -7,6 +7,7 @@ using UnityEngine.UI;
 using UnityEngine.Events;
 using Services.Localization;
 using Zenject;
+using Gui.Common;
 
 namespace ViewModel
 {
@@ -37,7 +38,7 @@ namespace ViewModel
 			var unlocked = _starMapManager.IsFactionDiscovered(faction) || _research.AnyResearchPointsObtained(faction);
 
 			var color = faction.Color;
-			Icon.color = color;
+            FactionIconUtility.Apply(Icon, faction, 64f);
 			Background.color = new Color(color.R, color.G, color.B, 0.5f);
 			Name.text = unlocked ? _localization.GetString(faction.Name) : "???";
 			var researchPoints = _research.GetAvailablePoints(faction);

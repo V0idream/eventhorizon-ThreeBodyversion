@@ -94,7 +94,13 @@ public class Star : MonoBehaviour
 
 			if (star.HasStarBase)
 			{
-				AddIcon(FactionIconPrefab).GetComponent<StarIcon>().SetColor(color);
+				var factionIcon = AddIcon(FactionIconPrefab).GetComponent<StarIcon>();
+				var iconName = star.Region.Faction.Icon;
+				var iconTexture = string.IsNullOrEmpty(iconName)
+					? null
+					: Resources.Load<Texture2D>("Textures/Factions/" + iconName);
+				factionIcon.SetTexture(iconTexture);
+				factionIcon.SetColor(iconTexture != null ? Color.white : color);
 				AddStarInfo(star);
 			    _showMiniStarOnGalaxyMap = false;
 			}
