@@ -11,6 +11,7 @@ using Services.Localization;
 using Services.Messenger;
 using Session;
 using Zenject;
+using GameServices.Player;
 
 namespace ViewModel.Skills
 {
@@ -127,6 +128,113 @@ namespace ViewModel.Skills
             RebuildTree();
             UpdateResetPanel();
             _informationPanel.Cleanup();
+            CreateThreeBodySkillTree();
+        }
+
+        private void CreateThreeBodySkillTree()
+        {
+            var root = transform as RectTransform;
+            if (root == null || transform.Find("Preview7SkillTabs") != null)
+                return;
+
+            var tabs = new GameObject("Preview7SkillTabs", typeof(RectTransform));
+            var tabsRect = tabs.GetComponent<RectTransform>();
+            tabsRect.SetParent(root, false);
+            tabsRect.anchorMin = tabsRect.anchorMax = new Vector2(0.5f, 1f);
+            tabsRect.pivot = new Vector2(0.5f, 1f);
+            tabsRect.anchoredPosition = new Vector2(0f, -18f);
+            tabsRect.sizeDelta = new Vector2(360f, 52f);
+
+            var originalButton = CreateTreeButton(tabsRect, "原版", new Vector2(-92f, 0f));
+            var threeBodyButton = CreateTreeButton(tabsRect, "三体1", new Vector2(92f, 0f));
+
+            var panel = new GameObject("Preview7ThreeBodyTree", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            var panelRect = panel.GetComponent<RectTransform>();
+            panelRect.SetParent(_content.parent, false);
+            if (_content is RectTransform contentRect)
+            {
+                panelRect.anchorMin = contentRect.anchorMin;
+                panelRect.anchorMax = contentRect.anchorMax;
+                panelRect.pivot = contentRect.pivot;
+                panelRect.anchoredPosition = contentRect.anchoredPosition;
+                panelRect.sizeDelta = contentRect.sizeDelta;
+            }
+            panel.GetComponent<Image>().color = new Color(0.01f, 0.025f, 0.05f, 0.94f);
+            _preview7Panel = panel;
+
+            var node = new GameObject("AdvancedRadar", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
+            var nodeRect = node.GetComponent<RectTransform>();
+            nodeRect.SetParent(panelRect, false);
+            nodeRect.anchorMin = nodeRect.anchorMax = new Vector2(0.5f, 0.5f);
+            nodeRect.pivot = new Vector2(0.5f, 0.5f);
+            nodeRect.sizeDelta = new Vector2(260f, 110f);
+            node.GetComponent<Button>().onClick.AddListener(() =>
+            {
+                ThreeBodySkillState.UnlockAdvancedRadar();
+                UpdateAdvancedRadarNode(node);
+            });
+            var nodeText = CreateLabel(nodeRect, string.Empty, 22);
+            nodeText.name = "Description";
+            UpdateAdvancedRadarNode(node);
+
+            originalButton.onClick.AddListener(() => ShowThreeBodyTree(false));
+            threeBodyButton.onClick.AddListener(() => ShowThreeBodyTree(true));
+            ShowThreeBodyTree(false);
+        }
+
+        private void ShowThreeBodyTree(bool enabled)
+        {
+            _content.gameObject.SetActive(!enabled);
+            if (_preview7Panel != null)
+                _preview7Panel.SetActive(enabled);
+            _informationPanel.gameObject.SetActive(!enabled);
+        }
+
+        private static Button CreateTreeButton(RectTransform parent, string title, Vector2 position)
+        {
+            var go = new GameObject(title, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
+            var rect = go.GetComponent<RectTransform>();
+            rect.SetParent(parent, false);
+            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = position;
+            rect.sizeDelta = new Vector2(170f, 46f);
+            go.GetComponent<Image>().color = new Color(0.08f, 0.32f, 0.48f, 0.95f);
+            CreateLabel(rect, title, 22);
+            return go.GetComponent<Button>();
+        }
+
+        private static Text CreateLabel(RectTransform parent, string value, int size)
+        {
+            var go = new GameObject("Label", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
+            var rect = go.GetComponent<RectTransform>();
+            rect.SetParent(parent, false);
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = new Vector2(6f, 4f);
+            rect.offsetMax = new Vector2(-6f, -4f);
+            var text = go.GetComponent<Text>();
+            text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            text.fontSize = size;
+            text.alignment = TextAnchor.MiddleCenter;
+            text.color = Color.white;
+            text.raycastTarget = false;
+            text.text = value;
+            return text;
+        }
+
+        private static void UpdateAdvancedRadarNode(GameObject node)
+        {
+            var unlocked = ThreeBodySkillState.AdvancedRadarUnlocked;
+            node.GetComponent<Image>().color = unlocked
+                ? new Color(0.1f, 0.62f, 0.82f, 1f)
+                : new Color(0.08f, 0.12f, 0.18f, 1f);
+            var text = node.transform.Find("Description")?.GetComponent<Text>() ??
+                       node.GetComponentInChildren<Text>();
+            if (text != null)
+                text.text = unlocked
+                    ? "先进雷达  已解锁\n雷达范围 +20%\n舰船识别器已启用"
+                    : "先进雷达\n雷达范围 +20%\n点击解锁舰船识别器";
         }
 
         private void RebuildTree()
@@ -247,5 +355,6 @@ namespace ViewModel.Skills
 
         private Dictionary<SkillTreeNode, int> _nodeIds;
 		private readonly HashSet<SkillTreeNode> _connectedNodes = new HashSet<SkillTreeNode>();
+        private GameObject _preview7Panel;
     }
 }

@@ -6,7 +6,7 @@
   "Name": "$StarshipEarthBattleship",
   "Description": "$StarshipEarthBattleshipDescription",
   "Faction": 21,
-  "IconImage": "starship_earth_battleship",
+  "IconImage": "starship_earth_battleship_preview5",
   "IconScale": 1.0,
   "ModelImage": "starship_earth_battleship_preview5",
   "ModelScale": 6.0,

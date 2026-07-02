@@ -121,8 +121,8 @@ namespace Gui.StarMap
             rect.anchorMin = exitRect.anchorMin;
             rect.anchorMax = exitRect.anchorMax;
             rect.pivot = exitRect.pivot;
-            rect.sizeDelta = exitRect.sizeDelta;
-            rect.anchoredPosition = exitRect.anchoredPosition + new Vector2(exitRect.rect.width + 12f, 0f);
+            rect.sizeDelta = new Vector2(Mathf.Max(exitRect.sizeDelta.x, 128f), Mathf.Max(exitRect.sizeDelta.y, 64f));
+            rect.anchoredPosition = exitRect.anchoredPosition + new Vector2(Mathf.Max(exitRect.rect.width, 128f) + 12f, 0f);
             var sourceImage = exit.GetComponent<Image>();
             var image = buttonObject.GetComponent<Image>();
             if (sourceImage != null)
@@ -138,18 +138,18 @@ namespace Gui.StarMap
             iconRect.SetParent(buttonObject.transform, false);
             iconRect.anchorMin = iconRect.anchorMax = new Vector2(0f, 0.5f);
             iconRect.pivot = new Vector2(0f, 0.5f);
-            iconRect.anchoredPosition = new Vector2(8f, 0f);
-            iconRect.sizeDelta = new Vector2(34f, 34f);
+            iconRect.anchoredPosition = new Vector2(10f, 0f);
+            iconRect.sizeDelta = new Vector2(42f, 42f);
             var iconImage = iconObject.GetComponent<Image>();
             iconImage.sprite = Resources.Load<Sprite>("Textures/UI/faction_relations_preview4");
             iconImage.preserveAspect = true;
             iconImage.raycastTarget = false;
-            var text = NewRelationText(buttonObject.transform, "势力关系", 20);
+            var text = NewRelationText(buttonObject.transform, "关系", 22);
             var textRect = text.GetComponent<RectTransform>();
             textRect.anchorMin = Vector2.zero;
             textRect.anchorMax = Vector2.one;
-            textRect.offsetMin = new Vector2(44f, 0f);
-            textRect.offsetMax = new Vector2(-6f, 0f);
+            textRect.offsetMin = new Vector2(54f, 0f);
+            textRect.offsetMax = new Vector2(-8f, 0f);
             text.alignment = TextAnchor.MiddleCenter;
             text.color = Color.white;
         }
@@ -186,7 +186,6 @@ namespace Gui.StarMap
                 var row = NewRelationText(rect,
                     $"{faction.Id.Value:00}  {_localization.GetString(faction.Name)}    {(allied ? "友好" : "敌对")}", 18);
                 row.color = allied ? new Color(0.3f, 0.8f, 1f) : new Color(1f, 0.35f, 0.25f);
-                CombatRelations.SetRelation(0, faction.Id.Value, allied);
             }
         }
 

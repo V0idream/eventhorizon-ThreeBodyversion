@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Combat.Component.Ship;
+using Combat.Component.Unit;
 using Combat.Component.Unit.Classification;
 using Combat.Scene;
 using Combat.Unit;
@@ -18,12 +19,12 @@ namespace Combat.Component.Systems.Devices
             effect._owner = owner;
             effect._line = go.AddComponent<LineRenderer>();
             effect._line.useWorldSpace = true;
-            effect._line.widthMultiplier = 5f;
-            effect._line.numCapVertices = 6;
-            effect._line.numCornerVertices = 6;
+            effect._line.widthMultiplier = 7f;
+            effect._line.numCapVertices = 12;
+            effect._line.numCornerVertices = 12;
             effect._line.material = new Material(Shader.Find("Sprites/Default"));
-            effect._line.startColor = new Color(0.01f, 0.01f, 0.015f, 0.72f);
-            effect._line.endColor = new Color(0.08f, 0.08f, 0.1f, 0.45f);
+            effect._line.startColor = new Color(0.005f, 0.008f, 0.014f, 0.36f);
+            effect._line.endColor = new Color(0.025f, 0.03f, 0.045f, 0.24f);
             effect._line.sortingOrder = 20;
             effect.CreateFog();
             ActiveTrails.Add(effect);
@@ -38,31 +39,56 @@ namespace Combat.Component.Systems.Devices
             _line.SetPosition(_points.Count - 1, new Vector3(position.x, position.y, 0f));
             if (_fog != null)
             {
-                var parameters = new ParticleSystem.EmitParams
+                for (var i = 0; i < 7; i++)
                 {
-                    position = position + Random.insideUnitCircle * 2f,
-                    startColor = new Color(0.01f, 0.01f, 0.015f, 0.55f),
-                    startSize = Random.Range(4f, 7f),
-                    startLifetime = 3600f
-                };
-                _fog.Emit(parameters, 2);
+                    var layer = i % 3;
+                    var parameters = new ParticleSystem.EmitParams
+                    {
+                        position = position + Random.insideUnitCircle * (layer == 0 ? 1.7f : 3.8f),
+                        startColor = layer == 0
+                            ? new Color(0.005f, 0.008f, 0.014f, Random.Range(0.52f, 0.72f))
+                            : new Color(0.025f, 0.035f, 0.055f, Random.Range(0.22f, 0.44f)),
+                        startSize = layer == 0 ? Random.Range(2.2f, 4.5f) : Random.Range(5f, 10f),
+                        startLifetime = 3600f,
+                        rotation = Random.Range(0f, Mathf.PI * 2f)
+                    };
+                    _fog.Emit(parameters, 1);
+                }
             }
         }
 
-        private void FixedUpdate()
+        public static void ApplySceneEffects(IScene scene)
         {
-            if (_scene == null || _points.Count < 2) return;
-            lock (_scene.Units.LockObject)
+            if (scene == null || ActiveTrails.Count == 0)
+                return;
+
+            var slowed = new HashSet<IUnit>();
+            lock (scene.Units.LockObject)
             {
-                foreach (var unit in _scene.Units.Items)
+                foreach (var unit in scene.Units.Items)
                 {
-                    if (!unit.IsActive() || unit == _owner || !InsideTrail(unit.Body.Position)) continue;
-                    if (unit.Type.Class == UnitClass.Ship || unit.Type.Class == UnitClass.Drone)
-                        unit.Body.ApplyAcceleration(-unit.Body.Velocity * 0.9f);
-                    else if (unit.Type.Class == UnitClass.Missile || unit.Type.Class == UnitClass.EnergyBolt)
-                        unit.Vanish();
+                    if (!unit.IsActive())
+                        continue;
+
+                    foreach (var trail in ActiveTrails)
+                    {
+                        if (trail == null || trail._points.Count < 2 || unit == trail._owner ||
+                            !trail.InsideTrail(unit.Body.WorldPosition()))
+                            continue;
+
+                        if (unit.Type.Class == UnitClass.Ship || unit.Type.Class == UnitClass.Drone)
+                            slowed.Add(unit);
+                        else if (unit.Type.Class == UnitClass.Missile || unit.Type.Class == UnitClass.EnergyBolt)
+                            unit.Vanish();
+                        break;
+                    }
                 }
             }
+
+            // Apply after engines have updated. This hard reduction makes the black-domain
+            // speed limit observable even when a powerful engine keeps accelerating.
+            foreach (var unit in slowed)
+                unit.Body.ApplyAcceleration(-unit.Body.Velocity * 0.9f);
         }
 
         private bool InsideTrail(Vector2 position)
@@ -73,7 +99,7 @@ namespace Combat.Component.Systems.Devices
                 var b = _points[i];
                 var ab = b - a;
                 var t = Mathf.Clamp01(Vector2.Dot(position - a, ab) / Mathf.Max(ab.sqrMagnitude, 0.001f));
-                if (Vector2.SqrMagnitude(position - (a + ab * t)) <= 9f) return true;
+                if (Vector2.SqrMagnitude(position - (a + ab * t)) <= TrailRadius * TrailRadius) return true;
             }
             return false;
         }
@@ -187,7 +213,7 @@ namespace Combat.Component.Systems.Devices
 
         private static Texture2D CreateFogTexture()
         {
-            const int size = 64;
+            const int size = 128;
             var texture = new Texture2D(size, size, TextureFormat.RGBA32, false)
             {
                 name = "Preview6BlackDomainFog",
@@ -203,10 +229,14 @@ namespace Combat.Component.Systems.Devices
                 var dx = (x + 0.5f) / size * 2f - 1f;
                 var dy = (y + 0.5f) / size * 2f - 1f;
                 var radius = Mathf.Sqrt(dx * dx + dy * dy);
-                var noise = (float)random.NextDouble() * 0.14f - 0.07f;
-                var alpha = Mathf.Clamp01((1f - radius + noise) * 1.45f);
+                var fineNoise = (float)random.NextDouble() * 0.22f - 0.11f;
+                var cloudNoise = 0.12f * Mathf.Sin(x * 0.29f + Mathf.Sin(y * 0.13f) * 2.1f) +
+                                 0.09f * Mathf.Cos(y * 0.23f - Mathf.Sin(x * 0.17f) * 1.8f);
+                var filament = 0.07f * Mathf.Sin((x + y) * 0.47f);
+                var alpha = Mathf.Clamp01((1f - radius + fineNoise + cloudNoise + filament) * 1.35f);
                 alpha = alpha * alpha * (3f - 2f * alpha);
-                pixels[y * size + x] = new Color32(2, 3, 5, (byte)(alpha * 210f));
+                var blue = (byte)Mathf.Clamp(6f + cloudNoise * 35f, 3f, 14f);
+                pixels[y * size + x] = new Color32(2, 4, blue, (byte)(alpha * 205f));
             }
             texture.SetPixels32(pixels);
             texture.Apply(false, true);

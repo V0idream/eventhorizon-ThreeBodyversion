@@ -134,61 +134,128 @@ namespace ViewModel
             if (emblem != null)
                 emblem.localScale = Vector3.one * 0.72f;
 
-            _alliedAttackPanel = GetComponentsInChildren<Transform>(true)
-                .FirstOrDefault(item => item.name == "Preview5AlliedAttackList")?.gameObject;
+            var rootCanvas = GetComponentInParent<Canvas>()?.rootCanvas;
+            _alliedAttackPanel = (rootCanvas != null ? rootCanvas.GetComponentsInChildren<Transform>(true) : GetComponentsInChildren<Transform>(true))
+                .FirstOrDefault(item => item.name == "Preview7AlliedAttackDialog")?.gameObject;
             _jointAttackButton = GetComponentsInChildren<Transform>(true)
                 .FirstOrDefault(item => item.name == "Preview5JointAttackButton")?.gameObject;
             if (_alliedAttackPanel != null && _jointAttackButton != null)
                 return;
 
-            var panel = new GameObject("Preview5AlliedAttackList", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            var panel = new GameObject("Preview7AlliedAttackDialog", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
             var rect = panel.GetComponent<RectTransform>();
-            rect.SetParent(transform, false);
-            rect.anchorMin = new Vector2(1f, 0f);
-            rect.anchorMax = new Vector2(1f, 0f);
-            rect.pivot = new Vector2(1f, 0f);
-            rect.anchoredPosition = new Vector2(-25f, 24f);
-            rect.sizeDelta = new Vector2(430f, 52f);
-            panel.GetComponent<Image>().color = new Color(0.02f, 0.08f, 0.14f, 0.9f);
+            rect.SetParent(rootCanvas != null ? rootCanvas.transform : transform, false);
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+            panel.GetComponent<Image>().color = new Color(0f, 0.02f, 0.05f, 0.78f);
             panel.SetActive(false);
             _alliedAttackPanel = panel;
 
-            var toggleObject = new GameObject("StarshipEarth", typeof(RectTransform), typeof(Toggle));
+            var dismissButton = panel.AddComponent<Button>();
+            dismissButton.targetGraphic = panel.GetComponent<Image>();
+            dismissButton.onClick.AddListener(() => panel.SetActive(false));
+
+            var card = new GameObject("Card", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Outline));
+            var cardRect = card.GetComponent<RectTransform>();
+            cardRect.SetParent(rect, false);
+            cardRect.anchorMin = cardRect.anchorMax = new Vector2(0.5f, 0.5f);
+            cardRect.pivot = new Vector2(0.5f, 0.5f);
+            cardRect.sizeDelta = new Vector2(540f, 300f);
+            card.GetComponent<Image>().color = new Color(0.015f, 0.09f, 0.15f, 0.98f);
+            var cardOutline = card.GetComponent<Outline>();
+            cardOutline.effectColor = new Color(0.12f, 0.72f, 1f, 0.95f);
+            cardOutline.effectDistance = new Vector2(2f, -2f);
+
+            var title = new GameObject("Title", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
+            var titleRect = title.GetComponent<RectTransform>();
+            titleRect.SetParent(cardRect, false);
+            titleRect.anchorMin = new Vector2(0f, 1f);
+            titleRect.anchorMax = new Vector2(1f, 1f);
+            titleRect.pivot = new Vector2(0.5f, 1f);
+            titleRect.anchoredPosition = new Vector2(0f, -18f);
+            titleRect.sizeDelta = new Vector2(-36f, 56f);
+            var titleText = title.GetComponent<Text>();
+            titleText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            titleText.fontSize = 28;
+            titleText.alignment = TextAnchor.MiddleCenter;
+            titleText.color = new Color(0.5f, 0.9f, 1f);
+            titleText.text = "选择联合进攻舰队";
+
+            var toggleObject = new GameObject("StarshipEarth", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Toggle));
             var toggleRect = toggleObject.GetComponent<RectTransform>();
-            toggleRect.SetParent(rect, false);
-            toggleRect.anchorMin = Vector2.zero;
-            toggleRect.anchorMax = Vector2.one;
-            toggleRect.offsetMin = new Vector2(12f, 4f);
-            toggleRect.offsetMax = new Vector2(-12f, -4f);
+            toggleRect.SetParent(cardRect, false);
+            toggleRect.anchorMin = toggleRect.anchorMax = new Vector2(0.5f, 0.5f);
+            toggleRect.pivot = new Vector2(0.5f, 0.5f);
+            toggleRect.anchoredPosition = new Vector2(0f, 20f);
+            toggleRect.sizeDelta = new Vector2(460f, 72f);
+            toggleObject.GetComponent<Image>().color = new Color(0.035f, 0.18f, 0.25f, 1f);
+
+            var checkBackground = new GameObject("CheckBackground", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            var checkBackgroundRect = checkBackground.GetComponent<RectTransform>();
+            checkBackgroundRect.SetParent(toggleRect, false);
+            checkBackgroundRect.anchorMin = checkBackgroundRect.anchorMax = new Vector2(0f, 0.5f);
+            checkBackgroundRect.pivot = new Vector2(0f, 0.5f);
+            checkBackgroundRect.sizeDelta = new Vector2(38f, 38f);
+            checkBackgroundRect.anchoredPosition = new Vector2(18f, 0f);
+            checkBackground.GetComponent<Image>().color = new Color(0.02f, 0.05f, 0.08f, 1f);
 
             var check = new GameObject("Checkmark", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
             var checkRect = check.GetComponent<RectTransform>();
-            checkRect.SetParent(toggleRect, false);
-            checkRect.anchorMin = checkRect.anchorMax = new Vector2(0f, 0.5f);
-            checkRect.pivot = new Vector2(0f, 0.5f);
-            checkRect.sizeDelta = new Vector2(30f, 30f);
-            checkRect.anchoredPosition = Vector2.zero;
-            check.GetComponent<Image>().color = new Color(0.1f, 0.55f, 1f, 1f);
+            checkRect.SetParent(checkBackgroundRect, false);
+            checkRect.anchorMin = new Vector2(0.2f, 0.2f);
+            checkRect.anchorMax = new Vector2(0.8f, 0.8f);
+            checkRect.offsetMin = Vector2.zero;
+            checkRect.offsetMax = Vector2.zero;
+            check.GetComponent<Image>().color = new Color(0.12f, 0.75f, 1f, 1f);
 
             var label = new GameObject("Label", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
             var labelRect = label.GetComponent<RectTransform>();
             labelRect.SetParent(toggleRect, false);
             labelRect.anchorMin = new Vector2(0f, 0f);
             labelRect.anchorMax = new Vector2(1f, 1f);
-            labelRect.offsetMin = new Vector2(44f, 0f);
-            labelRect.offsetMax = Vector2.zero;
+            labelRect.offsetMin = new Vector2(72f, 0f);
+            labelRect.offsetMax = new Vector2(-12f, 0f);
             var labelText = label.GetComponent<Text>();
             labelText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             labelText.fontSize = 22;
             labelText.alignment = TextAnchor.MiddleLeft;
             labelText.color = Color.white;
-            labelText.text = "联合进攻盟友：星舰地球";
+            labelText.text = "星舰地球支援舰队";
 
             var toggle = toggleObject.GetComponent<Toggle>();
             toggle.graphic = check.GetComponent<Image>();
-            toggle.targetGraphic = panel.GetComponent<Image>();
+            toggle.targetGraphic = toggleObject.GetComponent<Image>();
             toggle.isOn = IncludeStarshipEarthAllies;
-            toggle.onValueChanged.AddListener(value => IncludeStarshipEarthAllies = value);
+
+            var confirmObject = new GameObject("Confirm", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button), typeof(Outline));
+            var confirmRect = confirmObject.GetComponent<RectTransform>();
+            confirmRect.SetParent(cardRect, false);
+            confirmRect.anchorMin = confirmRect.anchorMax = new Vector2(0.5f, 0f);
+            confirmRect.pivot = new Vector2(0.5f, 0f);
+            confirmRect.anchoredPosition = new Vector2(0f, 22f);
+            confirmRect.sizeDelta = new Vector2(300f, 62f);
+            confirmObject.GetComponent<Image>().color = new Color(0.04f, 0.46f, 0.68f, 1f);
+            confirmObject.GetComponent<Outline>().effectColor = new Color(0.3f, 0.9f, 1f, 0.8f);
+            var confirmText = new GameObject("Label", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
+            var confirmTextRect = confirmText.GetComponent<RectTransform>();
+            confirmTextRect.SetParent(confirmRect, false);
+            confirmTextRect.anchorMin = Vector2.zero;
+            confirmTextRect.anchorMax = Vector2.one;
+            confirmTextRect.offsetMin = Vector2.zero;
+            confirmTextRect.offsetMax = Vector2.zero;
+            var confirmLabel = confirmText.GetComponent<Text>();
+            confirmLabel.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            confirmLabel.fontSize = 24;
+            confirmLabel.alignment = TextAnchor.MiddleCenter;
+            confirmLabel.color = Color.white;
+            confirmLabel.text = "确认选择";
+            confirmObject.GetComponent<Button>().onClick.AddListener(() =>
+            {
+                IncludeStarshipEarthAllies = toggle.isOn;
+                panel.SetActive(false);
+            });
 
             var jointObject = new GameObject("Preview5JointAttackButton", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
             var jointRect = jointObject.GetComponent<RectTransform>();
@@ -200,16 +267,15 @@ namespace ViewModel
             jointLayout.flexibleWidth = 1f;
             var captureImage = CaptureButton.GetComponent<Image>();
             var jointImage = jointObject.GetComponent<Image>();
-            if (captureImage != null)
-            {
-                jointImage.sprite = captureImage.sprite;
-                jointImage.type = captureImage.type;
-                jointImage.color = captureImage.color;
-            }
+            jointImage.color = new Color(0.025f, 0.32f, 0.48f, 1f);
+            var jointOutline = jointObject.AddComponent<Outline>();
+            jointOutline.effectColor = new Color(0.2f, 0.8f, 1f, 0.85f);
+            jointOutline.effectDistance = new Vector2(2f, -2f);
             jointObject.GetComponent<Button>().onClick.AddListener(() =>
             {
-                panel.SetActive(!panel.activeSelf);
-                if (panel.activeSelf) panel.transform.SetAsLastSibling();
+                toggle.isOn = IncludeStarshipEarthAllies;
+                panel.SetActive(true);
+                panel.transform.SetAsLastSibling();
             });
 
             var jointLabel = new GameObject("Label", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
@@ -226,7 +292,7 @@ namespace ViewModel
             jointText.resizeTextMinSize = 14;
             jointText.alignment = TextAnchor.MiddleCenter;
             jointText.color = Color.white;
-            jointText.text = "联合进攻";
+            jointText.text = "◇  联合进攻";
             _jointAttackButton = jointObject;
         }
 

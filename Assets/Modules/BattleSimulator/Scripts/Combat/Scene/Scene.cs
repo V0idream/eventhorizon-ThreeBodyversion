@@ -55,7 +55,7 @@ namespace Combat.Scene
         }
 
         public IShip PlayerShip => _activePlayerShip;
-        public IShip EnemyShip => _lockedEnemyShip.IsActive() ? _lockedEnemyShip : _nearestEnemyShip;
+        public IShip EnemyShip => _lockedEnemyShip.IsActive() ? _lockedEnemyShip : null;
         public IShip LockedEnemyShip => _lockedEnemyShip;
         public void LockTarget(IShip ship)
         {
@@ -78,6 +78,7 @@ namespace Combat.Scene
         public void FixedTick()
         {
             _unitList.UpdateItems(UpdateUnitPhysics);
+            WarpTrailEffect.ApplySceneEffects(this);
             UpdateEnemies();
             CheckBounds();
 

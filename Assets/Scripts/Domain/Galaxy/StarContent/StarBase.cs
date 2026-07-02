@@ -35,12 +35,12 @@ namespace Galaxy.StarContent
 			var defenderFleet = Fleet.Capital(region, _database);
 
 			var builder = _combatModelBuilderFactory.Create();
-            var savedRelation = _session.Quests.GetFactionRelations(region.HomeStar);
-            CombatRelations.SetRelation(0, region.Faction.Id.Value,
-                region.Faction.Id.Value >= Region.StarshipEarthFactionId && savedRelation >= 0);
+            CombatRelations.SetRelation(0, region.Faction.Id.Value, false);
 			builder.PlayerFleet = playerFleet;
 			if (FactionPanelViewModel.IncludeStarshipEarthAllies)
+            {
 				builder.AllyFleet = Fleet.StarshipEarthAllies(region.HomeStarLevel, starId ^ 0x5345, _database);
+            }
 			builder.EnemyFleet = defenderFleet;
             builder.Rules = _database.GalaxySettings.StarbaseCombatRules ?? _database.CombatSettings.DefaultCombatRules;
 			builder.AddSpecialReward(_lootGenerator.GetStarBaseSpecialReward(region));

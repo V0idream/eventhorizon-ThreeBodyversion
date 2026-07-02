@@ -31,6 +31,9 @@ namespace Gui.Combat
             group.interactable = true;
             group.blocksRaycasts = true;
             minimap.GetComponent<CombatMinimap>().Initialize(_scene);
+
+            var targetLine = new GameObject("Preview7TargetLine", typeof(CombatTargetLine));
+            targetLine.GetComponent<CombatTargetLine>().Initialize(_scene);
         }
 
         public void Add(IShip ship)

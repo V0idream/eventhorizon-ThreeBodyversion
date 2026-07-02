@@ -7,6 +7,7 @@ using Combat.Unit;
 using GameDatabase.Enums;
 using UnityEngine;
 using UnityEngine.UI;
+using GameServices.Player;
 
 namespace Gui.Combat
 {
@@ -17,14 +18,15 @@ namespace Gui.Combat
         private IScene _scene;
         private RectTransform _map;
         private Text _status;
+        private Text _rangeText;
 
         public void Initialize(IScene scene)
         {
             _scene = scene;
             var root = GetComponent<RectTransform>();
-            root.anchorMin = root.anchorMax = new Vector2(0f, 1f);
-            root.pivot = new Vector2(0f, 1f);
-            root.anchoredPosition = new Vector2(72f, -95f);
+            root.anchorMin = root.anchorMax = new Vector2(1f, 0.5f);
+            root.pivot = new Vector2(1f, 0.5f);
+            root.anchoredPosition = new Vector2(-115f, 55f);
             root.sizeDelta = new Vector2(190f, 170f);
 
             var panel = NewImage("Map", root, new Color(0.01f, 0.04f, 0.05f, 0.82f));
@@ -43,7 +45,7 @@ namespace Gui.Combat
             var nearestRect = nearest.GetComponent<RectTransform>();
             nearestRect.SetParent(root, false);
             nearestRect.anchorMin = new Vector2(0f, 0f);
-            nearestRect.anchorMax = new Vector2(0.35f, 0f);
+            nearestRect.anchorMax = new Vector2(0.4f, 0f);
             nearestRect.offsetMin = Vector2.zero;
             nearestRect.offsetMax = new Vector2(0f, 30f);
             nearest.GetComponent<Image>().color = new Color(0.08f, 0.32f, 0.2f, 0.95f);
@@ -53,7 +55,7 @@ namespace Gui.Combat
             var statusObject = new GameObject("Status", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
             var statusRect = statusObject.GetComponent<RectTransform>();
             statusRect.SetParent(root, false);
-            statusRect.anchorMin = new Vector2(0.35f, 0f);
+            statusRect.anchorMin = new Vector2(0.72f, 0f);
             statusRect.anchorMax = Vector2.one;
             statusRect.offsetMin = Vector2.zero;
             statusRect.offsetMax = new Vector2(0f, 30f);
@@ -62,18 +64,40 @@ namespace Gui.Combat
             _status.alignment = TextAnchor.MiddleCenter;
             _status.color = Color.white;
             _status.raycastTarget = false;
+
+            var rangeObject = new GameObject("Range", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
+            var rangeRect = rangeObject.GetComponent<RectTransform>();
+            rangeRect.SetParent(root, false);
+            rangeRect.anchorMin = new Vector2(0.4f, 0f);
+            rangeRect.anchorMax = new Vector2(0.72f, 0f);
+            rangeRect.offsetMin = Vector2.zero;
+            rangeRect.offsetMax = new Vector2(0f, 30f);
+            _rangeText = rangeObject.GetComponent<Text>();
+            _rangeText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            _rangeText.fontSize = 13;
+            _rangeText.alignment = TextAnchor.MiddleCenter;
+            _rangeText.color = Color.white;
+            _rangeText.raycastTarget = false;
         }
 
         private void Update()
         {
             if (_scene == null || !_scene.PlayerShip.IsActive()) return;
             var player = _scene.PlayerShip;
-            var radarRange = BaseRadarRange + player.Specification.Devices
-                .Where(d => d.Device.DeviceClass == DeviceClass.Radar).Sum(d => d.Device.Power);
+            var radarRange = GetRadarRange(player);
             var enemies = _scene.Ships.Items
                 .Where(s => s.IsActive() && CombatRelations.AreEnemies(player.Type, s.Type))
                 .ToArray();
             var detected = enemies.Where(s => Vector2.Distance(player.Body.Position, s.Body.Position) <= radarRange).ToArray();
+            if (!_scene.LockedEnemyShip.IsActive() || !detected.Contains(_scene.LockedEnemyShip))
+            {
+                _scene.LockTarget(null);
+                var nearestTarget = detected
+                    .OrderBy(s => Vector2.SqrMagnitude(s.Body.Position - player.Body.Position))
+                    .FirstOrDefault();
+                if (nearestTarget != null)
+                    Lock(nearestTarget);
+            }
             var displayRange = Mathf.Max(100f, detected.Select(s => Vector2.Distance(player.Body.Position, s.Body.Position)).DefaultIfEmpty(100f).Max());
 
             var detectedSet = new HashSet<IShip>(detected);
@@ -95,11 +119,14 @@ namespace Gui.Combat
                 var relative = (ship.Body.Position - player.Body.Position) / displayRange;
                 rect.anchorMin = rect.anchorMax = new Vector2(0.5f + relative.x * 0.47f, 0.5f + relative.y * 0.47f);
                 SetDot(rect, Vector2.zero, ship == _scene.LockedEnemyShip ? 12f : 7f);
-                marker.Image.color = ShipColor(ship);
+                marker.Image.color = ThreeBodySkillState.AdvancedRadarUnlocked
+                    ? CombatTargetLine.TargetColor(ship)
+                    : Color.red;
                 marker.Cross.SetActive(ship == _scene.LockedEnemyShip);
             }
 
-            _status.text = _scene.LockedEnemyShip.IsActive() ? "LOCKED" : $"RADAR {radarRange:0}";
+            _status.text = _scene.LockedEnemyShip.IsActive() ? "LOCKED" : "NO LOCK";
+            _rangeText.text = $"RADAR {radarRange:0}";
         }
 
         private void LockNearest()
@@ -111,10 +138,11 @@ namespace Gui.Combat
             Lock(target);
         }
 
-        private static float GetRadarRange(IShip ship)
+        public static float GetRadarRange(IShip ship)
         {
-            return BaseRadarRange + ship.Specification.Devices
+            var range = BaseRadarRange + ship.Specification.Devices
                 .Where(d => d.Device.DeviceClass == DeviceClass.Radar).Sum(d => d.Device.Power);
+            return range * ThreeBodySkillState.RadarRangeMultiplier;
         }
 
         private void Lock(IShip ship)
@@ -149,16 +177,6 @@ namespace Gui.Combat
             crossText.raycastTarget = false;
             cross.SetActive(false);
             return new TargetMarker(buttonObject, rect, image, cross);
-        }
-
-        private static Color ShipColor(IShip ship)
-        {
-            return ship.Specification.Stats.ShipModel.SizeClass switch
-            {
-                SizeClass.Cruiser => new Color(1f, 0.45f, 0.05f),
-                SizeClass.Battleship => new Color(1f, 0.45f, 0.05f),
-                _ => Color.red
-            };
         }
 
         private static Image NewImage(string name, Transform parent, Color color)
