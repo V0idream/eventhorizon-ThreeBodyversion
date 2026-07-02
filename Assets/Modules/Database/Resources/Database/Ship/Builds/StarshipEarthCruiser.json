@@ -1,0 +1,34 @@
+{
+  "ItemType": 8,
+  "Id": 414,
+  "ShipId": 163,
+  "AvailableForPlayer": true,
+  "AvailableForEnemy": true,
+  "Components": [
+    {
+      "ComponentId": 301,
+      "X": 5,
+      "Y": 0
+    },
+    {
+      "ComponentId": 302,
+      "X": 2,
+      "Y": 4
+    },
+    {
+      "ComponentId": 303,
+      "X": 5,
+      "Y": 4
+    },
+    {
+      "ComponentId": 306,
+      "X": 4,
+      "Y": 6
+    },
+    {
+      "ComponentId": 304,
+      "X": 5,
+      "Y": 10
+    }
+  ]
+}

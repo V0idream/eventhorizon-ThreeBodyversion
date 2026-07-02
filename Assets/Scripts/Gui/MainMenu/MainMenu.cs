@@ -49,6 +49,7 @@ namespace Gui.MainMenu
             _guiManager = guiManager;
 
             _inputField.text = _gameSettings.EditorText;
+            ApplyThreeBodyBranding();
 
             messenger.AddListener(EventType.SessionCreated, UpdateButtons);
             messenger.AddListener(EventType.DatabaseLoaded, OnDatabaseLoaded);
@@ -145,6 +146,16 @@ namespace Gui.MainMenu
 
         private void OnDatabaseLoaded()
         {
+            var preview5Background = Resources.Load<Texture2D>("Textures/Preview5/main_background_preview5");
+            if (preview5Background != null)
+            {
+                _backgroundImage.gameObject.SetActive(true);
+                _backgroundImage.SetImage(preview5Background);
+                _animatedBackground.SetActive(false);
+                UpdateButtons();
+                return;
+            }
+
             var backgroundImage = _database.UiSettings.MainMenuBackgroundImage;
             if (backgroundImage)
             {
@@ -172,6 +183,67 @@ namespace Gui.MainMenu
             _continueGameButton.gameObject.SetActive(gameExists);
             _constructorButton.gameObject.SetActive(_database.IsEditable);
             _reloadDatabaseButton.gameObject.SetActive(_database.IsEditable);
+        }
+
+        private void ApplyThreeBodyBranding()
+        {
+            if (GameObject.Find("ThreeBodyBranding") != null)
+                return;
+
+            var template = _credits != null ? _credits.GetComponentInChildren<Text>(true) : null;
+            var canvas = GetComponentInParent<Canvas>() ?? FindObjectOfType<Canvas>();
+            if (canvas == null)
+                return;
+
+            if (_credits != null)
+                _credits.SetActive(false);
+
+            var root = new GameObject("ThreeBodyBranding", typeof(RectTransform));
+            root.layer = canvas.gameObject.layer;
+            var rect = root.GetComponent<RectTransform>();
+            rect.SetParent(canvas.transform, false);
+            rect.anchorMin = new Vector2(0.04f, 0.66f);
+            rect.anchorMax = new Vector2(0.62f, 0.96f);
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+
+            CreateBrandText(root.transform, template, "Title", "三体视界", 76, new Vector2(0, 0.53f), new Vector2(1, 1), Color.white);
+            CreateBrandText(root.transform, template, "Developers", "开发者：白墨 & 空梦", 32, new Vector2(0, 0.27f), new Vector2(1, 0.55f), new Color(0.55f, 0.9f, 1f));
+            CreateBrandText(root.transform, template, "OriginalAuthor", "原作者：Pavel Zinchenko（Event Horizon）", 23, new Vector2(0, 0), new Vector2(1, 0.28f), new Color(0.72f, 0.76f, 0.82f));
+        }
+
+        private static void CreateBrandText(
+            Transform parent,
+            Text template,
+            string name,
+            string value,
+            int fontSize,
+            Vector2 anchorMin,
+            Vector2 anchorMax,
+            Color color)
+        {
+            var gameObject = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Text), typeof(Outline));
+            gameObject.layer = parent.gameObject.layer;
+            var rect = gameObject.GetComponent<RectTransform>();
+            rect.SetParent(parent, false);
+            rect.anchorMin = anchorMin;
+            rect.anchorMax = anchorMax;
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+
+            var text = gameObject.GetComponent<Text>();
+            text.font = template != null ? template.font : Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            text.text = value;
+            text.fontSize = fontSize;
+            text.resizeTextForBestFit = true;
+            text.resizeTextMinSize = 16;
+            text.resizeTextMaxSize = fontSize;
+            text.alignment = TextAnchor.MiddleLeft;
+            text.color = color;
+
+            var outline = gameObject.GetComponent<Outline>();
+            outline.effectColor = new Color(0, 0, 0, 0.9f);
+            outline.effectDistance = new Vector2(2, -2);
         }
 
 		private OpenShipEditorSignal.Trigger _openShipEditorTrigger;

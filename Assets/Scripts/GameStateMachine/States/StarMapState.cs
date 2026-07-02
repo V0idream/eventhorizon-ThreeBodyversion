@@ -15,6 +15,7 @@ using Game.Exploration;
 using GameDatabase.DataModel;
 using GameModel.Quests;
 using UniRx;
+using Combat.Component.Unit.Classification;
 
 namespace GameStateMachine.States
 {
@@ -251,7 +252,12 @@ namespace GameStateMachine.States
 
         public void SetFactionRelations(int starId, int value, bool additive)
         {
-            _session.Quests.SetFactionRelations(starId, additive ? value + _session.Quests.GetFactionRelations(starId) : value);
+            var relation = additive ? value + _session.Quests.GetFactionRelations(starId) : value;
+            _session.Quests.SetFactionRelations(starId, relation);
+            var faction = _starData.GetRegion(starId).Faction;
+            if (faction != null && faction.Id.Value > 0)
+                CombatRelations.SetRelation(0, faction.Id.Value,
+                    faction.Id.Value >= GameModel.Region.StarshipEarthFactionId && relation >= 0);
         }
 
         public void SetFactionStarbasePower(int starId, int value, bool additive)

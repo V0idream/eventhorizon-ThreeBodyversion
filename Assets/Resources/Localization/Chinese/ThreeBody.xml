@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+    <string name="ContentSourceOriginal">原版</string>
+    <string name="ContentSourceThreeBody">三体模组</string>
+    <string name="Faction21">星舰地球</string>
+    <string name="Faction22">三体</string>
+    <string name="Faction23">歌者</string>
+    <string name="Faction24">归零者</string>
+    <string name="Faction25">边缘世界</string>
+    <string name="Faction26">墓地</string>
+    <string name="Faction27">四维空间</string>
+    <string name="ThreeBody_StarshipEarth">星舰地球占位科技</string>
+    <string name="ThreeBody_Trisolaris">三体占位科技</string>
+    <string name="ThreeBody_Singer">歌者占位科技</string>
+    <string name="ThreeBody_Returners">归零者占位科技</string>
+    <string name="ThreeBody_RimWorld">边缘世界占位科技</string>
+    <string name="ThreeBody_Graveyard">墓地占位科技</string>
+    <string name="ThreeBody_FourDimensionalSpace">四维空间占位科技</string>
+    <string name="ThreeBodyPlaceholderDescription">第一阶段占位内容，后续将替换为正式装置与科技。</string>
+
+    <string name="EmptyDream">空幻之梦</string>
+    <string name="EmptyDreamDescription">自由势力旗舰。舰体围绕高维能量骨架构筑，专用于三体模组测试。</string>
+    <string name="TearTheStars">撕裂星辰</string>
+    <string name="TearTheStarsDescription">2×4 特殊槽位武器，发射无视护盾、装甲抗性与减伤的超远程真实伤害束。</string>
+    <string name="ZeroElementArmor">零素装甲</string>
+    <string name="ZeroElementArmorDescription">四格测试装甲，提供极高装甲值、修复能力和全属性减伤。</string>
+    <string name="QuantumLoanGenerator">量子借贷发电机</string>
+    <string name="QuantumLoanGeneratorDescription">四格测试反应堆，从未来真空中借取近乎无限的能量。</string>
+    <string name="FtlDevice">FTL装置</string>
+    <string name="FtlDeviceDescription">六格超光速引擎，提供极高推进力和转向速度。</string>
+    <string name="ElectronCompressor">电子压缩器</string>
+    <string name="ElectronCompressorDescription">测试电池，以压缩电子态存储巨量能量。</string>
+    <string name="TrueDamage">真实伤害</string>
+    <string name="TrueDPS">真实伤害/秒</string>
+
+    <string name="StarshipEarthLaser">激光</string>
+    <string name="StarshipEarthLaserDescription">星舰地球早期定向能武器，射程与能量效率优于同级原版装备。</string>
+    <string name="StarshipEarthRailgun">电磁炮</string>
+    <string name="StarshipEarthRailgunDescription">以强磁场加速弹丸的远程动能武器，具备高初速和冲击威力。</string>
+    <string name="NanobladeArmor">飞刃纳米装甲</string>
+    <string name="NanobladeArmorDescription">由可重排纳米飞刃构成的四格复合装甲，对各类伤害均有较强防护。</string>
+    <string name="StarshipEarthFusionReactor">聚变反应炉</string>
+    <string name="StarshipEarthFusionReactorDescription">紧凑型四格聚变能源核心，输出高于同级常规反应堆。</string>
+    <string name="ReactionlessEngine">无工质引擎</string>
+    <string name="ReactionlessEngineDescription">不依赖推进工质的六格引擎，兼顾高推进力与转向性能。</string>
+    <string name="StarshipEarthWarpDrive">曲速引擎</string>
+    <string name="StarshipEarthWarpDriveDescription">九格时空场装置，可执行类似跃迁装置的短距离曲速转移。</string>
+    <string name="SuperconductingBattery">超导电池</string>
+    <string name="SuperconductingBatteryDescription">三格高密度储能装置，利用超导回路显著提高可用电量。</string>
+
+    <string name="StarshipEarthFrigate">追光号</string>
+    <string name="StarshipEarthFrigateDescription">星舰地球护卫舰，强调快速部署与低成本远程火力。</string>
+    <string name="StarshipEarthDestroyer">蓝色空间号</string>
+    <string name="StarshipEarthDestroyerDescription">星舰地球驱逐舰，具备成对武器阵列和稳定的无工质推进能力。</string>
+    <string name="StarshipEarthCruiser">终极规律号</string>
+    <string name="StarshipEarthCruiserDescription">星舰地球巡洋舰，围绕电磁主炮与高密度能源系统设计。</string>
+    <string name="StarshipEarthBattleship">青铜时代号</string>
+    <string name="StarshipEarthBattleshipDescription">星舰地球战列舰，可搭载曲速引擎并维持重型远程火力。</string>
+    <string name="StarshipEarthFlagship">自然选择号</string>
+    <string name="StarshipEarthFlagshipDescription">星舰地球旗舰，能够同时搭载全部星舰地球特色装置。</string>
+</resources>

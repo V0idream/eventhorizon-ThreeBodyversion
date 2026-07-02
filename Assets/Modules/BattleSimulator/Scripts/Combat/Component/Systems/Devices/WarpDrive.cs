@@ -5,6 +5,8 @@ using Combat.Component.Systems.Weapons;
 using Combat.Component.Triggers;
 using GameDatabase.DataModel;
 using GameDatabase.Enums;
+using UnityEngine;
+using Combat.Scene;
 
 namespace Combat.Component.Systems.Devices
 {
@@ -21,18 +23,19 @@ namespace Combat.Component.Systems.Devices
         private bool _isEnabled;
         private float _timeLeft;
 
-        public WarpDrive(IShip ship, DeviceStats deviceSpec, int keyBinding)
+        public WarpDrive(IShip ship, DeviceStats deviceSpec, int keyBinding, IScene scene)
             : base(keyBinding, deviceSpec.ControlButtonIcon)
         {
 			DeviceClass = deviceSpec.DeviceClass;
             MaxCooldown = deviceSpec.Cooldown;
 
             _ship = ship;
-            _range = deviceSpec.Range;
-            _speed = deviceSpec.Power;
+            _range = Mathf.Max(deviceSpec.Range, 100000f);
+            _speed = deviceSpec.Power * 10f;
             _totalTime = _range / _speed;
             _energyCost = deviceSpec.EnergyConsumption;
             _controllable = _ship.Systems.All.FindFirstDevice(DeviceClass.WormTail) < 0;
+            _scene = scene;
         }
 
         public float MaxRange => _range;
@@ -105,6 +108,8 @@ namespace Combat.Component.Systems.Devices
         {
             if (_isEnabled)
             {
+                if (!_ship.Stats.Energy.TryGet(_energyCost * elapsedTime))
+                    _timeLeft = 0;
                 _timeLeft -= elapsedTime;
 
                 if (!Active && _totalTime - _timeLeft > _minTime || _timeLeft <= 0)
@@ -112,14 +117,17 @@ namespace Combat.Component.Systems.Devices
                     InvokeTriggers(ConditionType.OnDeactivate);
                     TimeFromLastUse = 0;
                     _isEnabled = false;
+                    _ship.Collider.Enabled = true;
                     _ship.Body.ApplyAcceleration(-_ship.Body.Velocity);
                 }
             }
-            else if (Active && CanBeActivated && _ship.Stats.Energy.TryGet(_energyCost))
+            else if (Active && CanBeActivated)
             {
                 if (_controllable)
                 {
                     _isEnabled = true;
+                    if (_trail == null)
+                        _trail = WarpTrailEffect.Create(_scene, _ship);
                     _timeLeft = _totalTime;
                     InvokeTriggers(ConditionType.OnActivate);
                     _ship.Collider.Enabled = false;
@@ -136,10 +144,16 @@ namespace Combat.Component.Systems.Devices
 
                 _ship.Body.ApplyAngularAcceleration(-_ship.Body.AngularVelocity);
             }
+
+            if (_isEnabled)
+                _trail?.Record(_ship.Body.Position);
         }
 
         protected override void OnUpdateView(float elapsedTime) {}
 
         protected override void OnDispose() {}
+
+        private readonly IScene _scene;
+        private WarpTrailEffect _trail;
     }
 }
