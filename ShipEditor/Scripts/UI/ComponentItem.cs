@@ -46,7 +46,9 @@ namespace ShipEditor.UI
 		{
 			_requiredCellIcon.color = GetCellColor(component.Data.CellType);
 			_requiredCellText.text = component.Data.CellType == CellType.Weapon ? SlotTypeToString(component.Data.WeaponSlotType) : string.Empty;
-			_sizeText.text = component.Data.Layout.CellCount.ToString();
+			_sizeText.text = component.Data.Id.Value == 91
+				? "0"
+				: component.Data.Layout.CellCount.ToString();
 
 			UpdateDescription(component);
 		}
