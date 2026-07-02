@@ -120,6 +120,13 @@ namespace Combat.Component.Platform
             if (!IsValidTarget(_target))
                 _target = null;
 
+            if (_parent.Type.Side == UnitSide.Player && _scene.LockedEnemyShip.IsActive() &&
+                Vector2.Distance(WorldPosition(), _scene.LockedEnemyShip.Body.WorldPosition()) <= _weaponRange)
+            {
+                ActiveTarget = _scene.LockedEnemyShip;
+                return;
+            }
+
             if (_timeFromTargetUpdate < _targetFindCooldown) return;
             if (_timeFromTargetUpdate < _targetUpdateCooldown && _target.IsActive()) return;
 
@@ -130,7 +137,7 @@ namespace Combat.Component.Platform
 		private bool IsValidTarget(IUnit target)
 		{
 			if (target == null) return false;
-			if (target.Type.Side.IsAlly(_parent.Type.Side)) return true;
+			if (CombatRelations.AreAllies(target.Type, _parent.Type)) return false;
 			if (target is not IShip ship) return true;
 			if (ship.Features.TargetPriority == TargetPriority.None) return false;
 			return true;

@@ -15,6 +15,8 @@ using Game.Exploration;
 using GameDatabase.DataModel;
 using GameModel.Quests;
 using UniRx;
+using Combat.Component.Unit.Classification;
+using GameServices.Gui;
 
 namespace GameStateMachine.States
 {
@@ -25,8 +27,9 @@ namespace GameStateMachine.States
 			IStateMachine stateMachine,
             GameStateFactory gameStateFactory,
 			IQuestManager questManager,
-			ISessionData session,
+            ISessionData session,
             IGuiManager guiManager,
+            GuiHelper guiHelper,
             MotherShip motherShip,
             PlayerResources playerResources,
 			StarData starData,
@@ -58,6 +61,7 @@ namespace GameStateMachine.States
             _playerResources = playerResources;
             _inventoryFactory = inventoryFactory;
             _guiManager = guiManager;
+            _guiHelper = guiHelper;
             _musicPlayer = musicPlayer;
             _questCombatModelFacctory = questCombatModelFacctory;
             _retreatSignal = retreatSignal;
@@ -211,18 +215,54 @@ namespace GameStateMachine.States
 		{
 			if (Condition != GameStateCondition.Active)
 				return false;
+            if (_guardianDialogOpen)
+                return true;
 
 			var star = _session.StarMap.PlayerPosition;
 			var guardian = _starData.GetOccupant(star);
 
 		    if (guardian.IsAggressive)
 		    {
-		        UnityEngine.Debug.Log("Attacked by occupants");
-		        guardian.Attack();
+                _guardianDialogOpen = true;
+                const string message = "侦测到星域守军。\n\n确定：尝试潜入\n取消：立即进入战斗\n\n友好势力潜入必定成功，敌对势力存在失败概率。";
+                LoadStateAdditive(StateFactory.CreateDialogState(
+                    global::Gui.Common.WindowNames.ConfirmationDialog,
+                    new WindowArgs(message),
+                    code => ResolveInfiltration(star, code)));
                 return true;
             }
 
             return false;
+        }
+
+        private void ResolveInfiltration(int starId, WindowExitCode code)
+        {
+            var guardian = _starData.GetOccupant(starId);
+            if (code != WindowExitCode.Ok)
+            {
+                _guardianDialogOpen = false;
+                guardian.Attack();
+                return;
+            }
+
+            var region = _starData.GetRegion(starId);
+            var relation = _session.Quests.GetFactionRelations(region.HomeStar);
+            var factionId = region.Faction.Id.Value;
+            var strategicallyFriendly = factionId >= GameModel.Region.StarshipEarthFactionId
+                ? relation >= 0
+                : relation > 0;
+            var success = strategicallyFriendly || UnityEngine.Random.value <= 0.45f;
+            _guardianDialogOpen = false;
+            if (success)
+            {
+                guardian.Infiltrate();
+                _guiHelper.ShowMessage("潜入成功");
+            }
+            else
+            {
+                _guiHelper.ShowMessage("潜入失败，守军已发现舰队");
+                guardian.Attack();
+            }
         }
 
 		private void UpdateQuests()
@@ -251,7 +291,12 @@ namespace GameStateMachine.States
 
         public void SetFactionRelations(int starId, int value, bool additive)
         {
-            _session.Quests.SetFactionRelations(starId, additive ? value + _session.Quests.GetFactionRelations(starId) : value);
+            var relation = additive ? value + _session.Quests.GetFactionRelations(starId) : value;
+            _session.Quests.SetFactionRelations(starId, relation);
+            var faction = _starData.GetRegion(starId).Faction;
+            if (faction != null && faction.Id.Value > 0)
+                CombatRelations.SetRelation(0, faction.Id.Value,
+                    faction.Id.Value >= GameModel.Region.StarshipEarthFactionId && relation >= 0);
         }
 
         public void SetFactionStarbasePower(int starId, int value, bool additive)
@@ -335,6 +380,8 @@ namespace GameStateMachine.States
         private readonly OpenWorkshopSignal _openWorkshopSignal;
         private readonly OpenShipyardSignal _openShipyardSignal;
         private readonly OpenEhopediaSignal _openEhopediaSignal;
+        private readonly GuiHelper _guiHelper;
+        private bool _guardianDialogOpen;
         private readonly ExitSignal _exitSignal;
         private readonly EscapeKeyPressedSignal _escapeKeyPressedSignal;
         private readonly PlayerPositionChangedSignal _playerPositionChangedSignal;

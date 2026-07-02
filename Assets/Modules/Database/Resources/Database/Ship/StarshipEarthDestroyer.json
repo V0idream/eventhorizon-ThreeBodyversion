@@ -1,0 +1,47 @@
+{
+  "ItemType": 6,
+  "Id": 162,
+  "ShipType": 0,
+  "SizeClass": 1,
+  "Name": "$StarshipEarthDestroyer",
+  "Description": "$StarshipEarthDestroyerDescription",
+  "Faction": 21,
+  "IconImage": "starship_earth_destroyer_preview5",
+  "IconScale": 0.9,
+  "ModelImage": "starship_earth_destroyer_preview5",
+  "ModelScale": 3.2,
+  "EngineColor": "#63EFFF",
+  "Engines": [
+    {
+      "Position": {
+        "x": -0.55,
+        "y": 0.18
+      },
+      "Size": 0.18
+    },
+    {
+      "Position": {
+        "x": -0.55,
+        "y": -0.18
+      },
+      "Size": 0.18
+    }
+  ],
+  "Layout": "0000404000000004040000001111111000011222110001122222110011222221100112222211001122222110011155511100011555110000055500000",
+  "Barrels": [
+    {
+      "Position": {
+        "x": 0.62,
+        "y": 0.22
+      },
+      "WeaponClass": "L"
+    },
+    {
+      "Position": {
+        "x": 0.62,
+        "y": -0.22
+      },
+      "WeaponClass": "L"
+    }
+  ]
+}

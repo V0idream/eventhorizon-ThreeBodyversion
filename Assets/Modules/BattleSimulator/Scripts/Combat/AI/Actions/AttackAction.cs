@@ -4,6 +4,7 @@ using Combat.Component.Features;
 using Combat.Component.Ship;
 using Combat.Component.Systems.Weapons;
 using Combat.Component.Unit.Classification;
+using Combat.Unit;
 using GameDatabase.Enums;
 using UnityEngine;
 using Combat.Component.Platform;
@@ -276,15 +277,14 @@ namespace Combat.Ai
     {
         public static bool CantDetectTarget(IShip ship, IShip enemy)
         {
-            if (enemy == null)
+            if (ship == null || enemy == null || !ship.IsActive() || !enemy.IsActive())
                 return true;
             if (ship.Type.Side.IsAlly(enemy.Type.Side))
                 return false;
             if (enemy.Features.TargetPriority != TargetPriority.None)
                 return false;
 
-            var distance = Helpers.Distance(ship, enemy);
-            return distance > 5 + enemy.Body.Scale;
+            return false;
         }
 
         public static bool TryGetTarget(IWeapon weapon, IShip ship, IShip enemy, AiBulletBehavior type, out Vector2 target)

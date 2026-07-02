@@ -56,7 +56,8 @@ namespace ViewModel
 		{
 		    var researched = _research.IsTechResearched(technology);
             var available = _research.IsTechAvailable(technology);
-			ResearchButton.interactable = !researched && available && !technology.Hidden;
+			ResearchButton.interactable = !researched && !technology.Hidden &&
+			                              (available || _research.CanResearchPath(technology));
             MoreInfoButton.interactable = available;
             _selectedItem = technology;
 
@@ -86,7 +87,7 @@ namespace ViewModel
 
 		public void OnResearchButtonClicked()
 		{
-			if (_selectedItem.Hidden || !_research.ResearchTech(_selectedItem))
+			if (_selectedItem.Hidden || !_research.ResearchPath(_selectedItem))
 				return;
 
 			UpdateTree(_selectedItem.Faction);

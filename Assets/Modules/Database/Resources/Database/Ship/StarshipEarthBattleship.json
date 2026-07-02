@@ -1,0 +1,45 @@
+{
+  "ItemType": 6,
+  "Id": 164,
+  "ShipType": 0,
+  "SizeClass": 3,
+  "Name": "$StarshipEarthBattleship",
+  "Description": "$StarshipEarthBattleshipDescription",
+  "Faction": 21,
+  "IconImage": "starship_earth_battleship_preview5",
+  "IconScale": 1.0,
+  "ModelImage": "starship_earth_battleship_preview5",
+  "ModelScale": 6.0,
+  "EngineColor": "#63EFFF",
+  "Engines": [
+    {
+      "Position": {
+        "x": -0.7,
+        "y": 0.3
+      },
+      "Size": 0.22
+    },
+    {
+      "Position": {
+        "x": -0.72
+      },
+      "Size": 0.25
+    },
+    {
+      "Position": {
+        "x": -0.7,
+        "y": -0.3
+      },
+      "Size": 0.22
+    }
+  ],
+  "Layout": "000000440000000000000440000000000000440000000000011111110000000111222111000000111222111000001112222211100001112222211100011122222221110011122222221110011122222221110011122222221110001111555111100001111555111100000000550000000",
+  "Barrels": [
+    {
+      "Position": {
+        "x": 0.82
+      },
+      "WeaponClass": "CLM"
+    }
+  ]
+}
