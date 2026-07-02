@@ -98,6 +98,6 @@ namespace Combat.Component.Controller
         private readonly float _maxAngularVelocity;
         private readonly float _acceleration;
         private readonly float _maxRange;
-        private const float _targetUpdateCooldown = 2.0f;
+        private const float _targetUpdateCooldown = 0.25f;
     }
 }

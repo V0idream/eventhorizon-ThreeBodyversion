@@ -7,6 +7,7 @@ using Combat.Unit;
 using Services.Settings;
 using UnityEngine;
 using Zenject;
+using Combat.Component.Systems.Devices;
 
 namespace Combat.Scene
 {
@@ -126,6 +127,7 @@ namespace Combat.Scene
 
 		public void Clear()
 		{
+            WarpTrailEffect.ClearAll();
 			_unitList.Clear();
 			_shipList.Clear();
 		}

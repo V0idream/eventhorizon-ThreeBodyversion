@@ -99,6 +99,14 @@ namespace Combat.Component.Systems.Devices
             return blocked;
         }
 
+        public static void ClearAll()
+        {
+            foreach (var trail in ActiveTrails.ToArray())
+                if (trail != null)
+                    Destroy(trail.gameObject);
+            ActiveTrails.Clear();
+        }
+
         private static bool ClosestSegmentParameters(Vector2 p1, Vector2 q1, Vector2 p2, Vector2 q2, out float firstT, out float distance)
         {
             var d1 = q1 - p1;
@@ -168,9 +176,41 @@ namespace Combat.Component.Systems.Devices
             var shape = _fog.shape;
             shape.enabled = false;
             var renderer = _fog.GetComponent<ParticleSystemRenderer>();
-            renderer.material = new Material(Shader.Find("Sprites/Default"));
+            renderer.renderMode = ParticleSystemRenderMode.Billboard;
+            renderer.alignment = ParticleSystemRenderSpace.World;
+            var material = new Material(Shader.Find("Sprites/Default"));
+            material.mainTexture = CreateFogTexture();
+            renderer.material = material;
             renderer.sortingOrder = 19;
             _fog.Play();
+        }
+
+        private static Texture2D CreateFogTexture()
+        {
+            const int size = 64;
+            var texture = new Texture2D(size, size, TextureFormat.RGBA32, false)
+            {
+                name = "Preview6BlackDomainFog",
+                filterMode = FilterMode.Bilinear,
+                wrapMode = TextureWrapMode.Clamp,
+                hideFlags = HideFlags.HideAndDontSave
+            };
+            var pixels = new Color32[size * size];
+            var random = new System.Random(0xB1A6);
+            for (var y = 0; y < size; y++)
+            for (var x = 0; x < size; x++)
+            {
+                var dx = (x + 0.5f) / size * 2f - 1f;
+                var dy = (y + 0.5f) / size * 2f - 1f;
+                var radius = Mathf.Sqrt(dx * dx + dy * dy);
+                var noise = (float)random.NextDouble() * 0.14f - 0.07f;
+                var alpha = Mathf.Clamp01((1f - radius + noise) * 1.45f);
+                alpha = alpha * alpha * (3f - 2f * alpha);
+                pixels[y * size + x] = new Color32(2, 3, 5, (byte)(alpha * 210f));
+            }
+            texture.SetPixels32(pixels);
+            texture.Apply(false, true);
+            return texture;
         }
 
         private void OnDestroy()
@@ -183,7 +223,7 @@ namespace Combat.Component.Systems.Devices
         private LineRenderer _line;
         private ParticleSystem _fog;
         private readonly List<Vector2> _points = new();
-        private const float TrailRadius = 3f;
+        private const float TrailRadius = 6f;
         private static readonly List<WarpTrailEffect> ActiveTrails = new();
     }
 }

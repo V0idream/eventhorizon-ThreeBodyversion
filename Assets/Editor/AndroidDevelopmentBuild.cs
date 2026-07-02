@@ -10,8 +10,8 @@ public static class AndroidDevelopmentBuild
 {
     private const string PackageName = "com.threebody.EventHorizon";
     private const string ProductName = "三体视界";
-    private const string VersionName = "Preview5";
-    private const int VersionCode = 112115;
+    private const string VersionName = "Preview6";
+    private const int VersionCode = 112116;
 
     [MenuItem("Build/Android/Development APK")]
     public static void BuildFromMenu()
@@ -35,7 +35,7 @@ public static class AndroidDevelopmentBuild
 
         var outputDirectory = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "Builds", "Android"));
         Directory.CreateDirectory(outputDirectory);
-        var outputPath = Path.Combine(outputDirectory, "ThreeBody-EventHorizon-Preview-5.apk");
+        var outputPath = Path.Combine(outputDirectory, "ThreeBody-EventHorizon-Preview-6.apk");
         BuildStreamingAssetBundles();
 
         var scenes = EditorBuildSettings.scenes

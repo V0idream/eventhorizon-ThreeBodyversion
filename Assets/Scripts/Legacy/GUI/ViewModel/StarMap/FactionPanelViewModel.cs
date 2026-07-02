@@ -123,9 +123,12 @@ namespace ViewModel
             if (captureRect == null)
                 return;
 
-            var originalPosition = captureRect.anchoredPosition;
-            captureRect.sizeDelta = new Vector2(220f, Mathf.Max(76f, captureRect.sizeDelta.y));
-            captureRect.anchoredPosition = originalPosition + new Vector2(-105f, 0f);
+            var buttonsRect = CaptureButton.transform.parent.GetComponent<RectTransform>();
+            if (buttonsRect != null)
+                buttonsRect.sizeDelta = new Vector2(buttonsRect.sizeDelta.x, Mathf.Max(260f, buttonsRect.sizeDelta.y));
+            var captureLayout = CaptureButton.GetComponent<LayoutElement>() ?? CaptureButton.AddComponent<LayoutElement>();
+            captureLayout.preferredHeight = 58f;
+            captureLayout.flexibleWidth = 1f;
 
             var emblem = transform.Find("Body/Left/Faction") ?? transform.Find("Faction");
             if (emblem != null)
@@ -140,11 +143,11 @@ namespace ViewModel
 
             var panel = new GameObject("Preview5AlliedAttackList", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
             var rect = panel.GetComponent<RectTransform>();
-            rect.SetParent(CaptureButton.transform.parent, false);
-            rect.anchorMin = captureRect.anchorMin;
-            rect.anchorMax = captureRect.anchorMax;
-            rect.pivot = captureRect.pivot;
-            rect.anchoredPosition = originalPosition + new Vector2(0f, captureRect.rect.height + 12f);
+            rect.SetParent(transform, false);
+            rect.anchorMin = new Vector2(1f, 0f);
+            rect.anchorMax = new Vector2(1f, 0f);
+            rect.pivot = new Vector2(1f, 0f);
+            rect.anchoredPosition = new Vector2(-25f, 24f);
             rect.sizeDelta = new Vector2(430f, 52f);
             panel.GetComponent<Image>().color = new Color(0.02f, 0.08f, 0.14f, 0.9f);
             panel.SetActive(false);
@@ -191,11 +194,10 @@ namespace ViewModel
             var jointRect = jointObject.GetComponent<RectTransform>();
             jointRect.SetParent(CaptureButton.transform.parent, false);
             jointObject.transform.SetAsLastSibling();
-            jointRect.anchorMin = captureRect.anchorMin;
-            jointRect.anchorMax = captureRect.anchorMax;
-            jointRect.pivot = captureRect.pivot;
-            jointRect.sizeDelta = new Vector2(200f, captureRect.sizeDelta.y);
-            jointRect.anchoredPosition = originalPosition + new Vector2(115f, 0f);
+            jointRect.sizeDelta = new Vector2(captureRect.sizeDelta.x, 58f);
+            var jointLayout = jointObject.AddComponent<LayoutElement>();
+            jointLayout.preferredHeight = 58f;
+            jointLayout.flexibleWidth = 1f;
             var captureImage = CaptureButton.GetComponent<Image>();
             var jointImage = jointObject.GetComponent<Image>();
             if (captureImage != null)
