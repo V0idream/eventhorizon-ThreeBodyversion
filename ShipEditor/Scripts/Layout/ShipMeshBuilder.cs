@@ -115,6 +115,7 @@ namespace ShipEditor
 				case CellType.InnerOuter:
 				case CellType.Engine:
 				case CellType.Weapon:
+				case CellType.Special:
 					return true;
 				default:
 					return false;
@@ -130,6 +131,7 @@ namespace ShipEditor
 				case CellType.InnerOuter: return InnerCellColor;
 				case CellType.Engine: return EngineCellColor;
 				case CellType.Weapon: return WeaponCellColor;
+				case CellType.Special: return new Color32(255, 128, 24, 255);
 				default: return new Color32();
 			}
 		}

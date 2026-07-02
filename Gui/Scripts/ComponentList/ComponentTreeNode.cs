@@ -21,6 +21,11 @@ namespace Gui.ComponentList
             _droneNode = CreateNode("$GroupDrones", new SpriteId("icons/icon_drone", SpriteId.Type.Default));
             _engineNode = CreateNode("$GroupEngines", new SpriteId("icons/icon_engine", SpriteId.Type.Default));
             _specialNode = CreateNode("$GroupSpecial", new SpriteId("icons/icon_gear", SpriteId.Type.Default));
+            if (database != null)
+            {
+                _originalBranch = new FactionCategoryNode("原版", this, database.WeaponSlots);
+                _modBranch = new FactionCategoryNode("三体模组", this, database.WeaponSlots);
+            }
 
             IsVisible = true;
         }
@@ -50,6 +55,14 @@ namespace Gui.ComponentList
 
         public void Add(ComponentInfo componentInfo)
         {
+            if (_originalBranch != null)
+            {
+                var isMod = componentInfo.Data.Faction.Id.Value == 21 || componentInfo.Data.Id.Value >= 900;
+                (isMod ? _modBranch : _originalBranch).Add(componentInfo);
+                _count = -1;
+                return;
+            }
+
             if (componentInfo.Data.Weapon != null)
             {
                 _weaponNode.Add(componentInfo);
@@ -108,6 +121,15 @@ namespace Gui.ComponentList
                 foreach (var node in _extraNodes1)
                     yield return node;
 
+                if (_originalBranch != null)
+                {
+                    yield return _originalBranch;
+                    yield return _modBranch;
+                    foreach (var node in _extraNodes2)
+                        yield return node;
+                    yield break;
+                }
+
                 yield return _weaponNode;
                 yield return _armorNode;
                 yield return _energyNode;
@@ -136,6 +158,69 @@ namespace Gui.ComponentList
         private readonly IComponentQuantityProvider _quantityProvider;
         private readonly List<IComponentTreeNode> _extraNodes1 = new List<IComponentTreeNode>();
         private readonly List<IComponentTreeNode> _extraNodes2 = new List<IComponentTreeNode>();
+        private readonly FactionCategoryNode _originalBranch;
+        private readonly FactionCategoryNode _modBranch;
+    }
+
+    public sealed class FactionCategoryNode : IComponentTreeNode
+    {
+        public FactionCategoryNode(string name, IComponentTreeNode parent, WeaponSlots weaponSlots)
+        {
+            Name = name;
+            Parent = parent;
+            _weapon = new WeaponNode(this, weaponSlots);
+            _armor = New("$GroupArmor", "icons/icon_shield");
+            _energy = New("$GroupEnergy", "icons/icon_battery");
+            _drone = New("$GroupDrones", "icons/icon_drone");
+            _engine = New("$GroupEngines", "icons/icon_engine");
+            _special = New("$GroupSpecial", "icons/icon_gear");
+        }
+
+        public IComponentTreeNode Parent { get; }
+        public IComponentQuantityProvider QuantityProvider => Parent.QuantityProvider;
+        public string Name { get; }
+        public SpriteId Icon => new SpriteId("icons/icon_gear", SpriteId.Type.Default);
+        public UnityEngine.Color Color => CommonNode.DefaultColor;
+        public bool IsVisible => true;
+        public IEnumerable<IComponentTreeNode> Nodes => Children.ChildrenNodes();
+        public IEnumerable<ComponentInfo> Components => Children.ChildrenComponents();
+        public int ItemCount => Children.GetItemCount();
+
+        public void Add(ComponentInfo item)
+        {
+            if (item.Data.Weapon != null) { _weapon.Add(item); return; }
+            switch (item.Data.DisplayCategory)
+            {
+                case ComponentCategory.Defense: _armor.Add(item); break;
+                case ComponentCategory.Energy: _energy.Add(item); break;
+                case ComponentCategory.Engine: _engine.Add(item); break;
+                case ComponentCategory.Drones: _drone.Add(item); break;
+                default: _special.Add(item); break;
+            }
+        }
+
+        public void Clear() => Children.Clear();
+
+        private CommonNode New(string name, string icon) => new CommonNode(name, new SpriteId(icon, SpriteId.Type.Default), this);
+        private IEnumerable<IComponentTreeNode> Children
+        {
+            get
+            {
+                yield return _weapon;
+                yield return _armor;
+                yield return _energy;
+                yield return _drone;
+                yield return _engine;
+                yield return _special;
+            }
+        }
+
+        private readonly WeaponNode _weapon;
+        private readonly CommonNode _armor;
+        private readonly CommonNode _energy;
+        private readonly CommonNode _drone;
+        private readonly CommonNode _engine;
+        private readonly CommonNode _special;
     }
 
     public class WeaponNode : IComponentTreeNode

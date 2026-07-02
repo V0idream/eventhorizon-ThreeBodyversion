@@ -9,6 +9,7 @@ using GameDatabase;
 using Gui.Theme;
 using System.Collections.Generic;
 using Constructor.Component;
+using GameDatabase.Enums;
 
 namespace ShipEditor.UI
 {
@@ -86,6 +87,13 @@ namespace ShipEditor.UI
 
 		private void Start()
 		{
+			if (_radarRange == null && _velocity != null)
+			{
+				_radarRange = Instantiate(_velocity, _velocity.transform.parent);
+				_radarRange.name = "Preview5RadarRange";
+				_radarRange.transform.SetSiblingIndex(_velocity.transform.GetSiblingIndex());
+				_radarRange.Label.text = "雷达范围";
+			}
 			UpdateStats();
 		}
 
@@ -181,6 +189,13 @@ namespace ShipEditor.UI
             _turnRate.Color = stats.TurnRate > 0 ? NormalColor : ErrorColor;
             _angularAccel.Color = stats.TurnRate > 0 ? NormalColor : ErrorColor;
             _velocity.Value.text = engine.Velocity.AsDecimal();
+            if (_radarRange != null)
+            {
+                var radar = 300f + _shipEditor.InstalledComponents
+                    .Where(item => item.Info.Data.Device != null && item.Info.Data.Device.Stats.DeviceClass == DeviceClass.Radar)
+                    .Sum(item => item.Info.Data.Device.Stats.Power);
+                _radarRange.Value.text = radar.ToString("N0");
+            }
             _turnRate.Value.text = engine.AngularVelocityInUnits.AsDecimal();
             _forwardAccel.Value.text = engine.Propulsion.AsDecimal();
             _angularAccel.Value.text = engine.TurnRateInUnits.AsDecimal();
@@ -220,5 +235,7 @@ namespace ShipEditor.UI
 			_energyDamageResistance.Value.text = $"{stats.EnergyResistance.AsInteger()} ( {stats.EnergyResistancePercentage.AsPercentage()})";
 			_resistanceBlock.gameObject.SetActive(_resistanceBlock.transform.Cast<Transform>().Count(item => item.gameObject.activeSelf) > 1);
 		}
-    }
+
+		private NameValueItem _radarRange;
+	}
 }

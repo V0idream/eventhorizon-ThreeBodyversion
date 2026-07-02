@@ -60,6 +60,7 @@ namespace ShipEditor.UI
 				case CellType.Inner: return _innerCellColor;
 				case CellType.InnerOuter: return Color.Lerp(_innerCellColor, _outerCellColor, 0.5f);
 				case CellType.Engine: return _engineCellColor;
+				case CellType.Special: return new Color(1f, 0.5f, 0.08f, 1f);
 				case CellType.Empty:
 				default:
 					return _emptyCellColor;

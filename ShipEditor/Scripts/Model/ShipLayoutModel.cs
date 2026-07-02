@@ -121,7 +121,8 @@ namespace ShipEditor.Model
 			if (!HasComponent(component))
 				throw new System.InvalidOperationException();
 
-			ClearCells(component.X, component.Y, component.Data.Layout);
+			if (component.Data.Id.Value != 91)
+				ClearCells(component.X, component.Y, component.Data.Layout);
 
 			var id = component.Id;
 			int lastId = _components.Count - 1;
@@ -150,10 +151,13 @@ namespace ShipEditor.Model
 			return model;
 		}
 
-		public bool IsCellCompatible(int x, int y, Component component)
-		{
+        public bool IsCellCompatible(int x, int y, Component component)
+        {
             if (!_layout.Rect.IsInsideRect(x, y))
 				return false;
+
+			if (component.Id.Value == 91)
+				return true;
 
 			var index = CellIndex.FromXY(x, y);
 			if (_filledCells.ContainsKey(index))
@@ -192,6 +196,8 @@ namespace ShipEditor.Model
 
 		private void FillCells(int x, int y, Layout layout, IComponentModel component)
 		{
+			if (component.Data.Id.Value == 91)
+				return;
 			for (int i = 0; i < layout.Size; ++i)
 				for (int j = 0; j < layout.Size; ++j)
 					if ((CellType)layout[j, i] != CellType.Empty)
