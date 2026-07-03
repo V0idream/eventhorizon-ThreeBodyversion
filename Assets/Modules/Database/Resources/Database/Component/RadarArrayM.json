@@ -1,0 +1,16 @@
+{
+  "ItemType": 1,
+  "Id": 912,
+  "Name": "远程雷达阵列",
+  "Description": "雷达探测范围+220。",
+  "DisplayCategory": 6,
+  "Availability": 1,
+  "ComponentStatsId": 91,
+  "Faction": -1,
+  "Level": 45,
+  "Icon": "TargetingUnit",
+  "Color": "#44DD77",
+  "Layout": "1111",
+  "CellType": "2",
+  "DeviceId": 902
+}

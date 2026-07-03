@@ -32,12 +32,12 @@ namespace Services.Resources
         private Dictionary<string, Sprite> _guiIcons;
         private Dictionary<string, AudioClip> _audio;
 
-		private Dictionary<string, Sprite> Ships => _ships ??= new Dictionary<string, Sprite>(_shipSprites.ToDictionary(item => item.name));
-		private Dictionary<string, Sprite> ShipIcons => _shipIcons ??= new Dictionary<string, Sprite>(_shipIconSprites.ToDictionary(item => item.name));
-		private Dictionary<string, Sprite> Components => _components ??= new Dictionary<string, Sprite>(_componentSprites.ToDictionary(item => item.name));
-		private Dictionary<string, Sprite> Satellites => _satellites ??= new Dictionary<string, Sprite>(_satelliteSprites.ToDictionary(item => item.name));
-		private Dictionary<string, Sprite> ControlButtons => _controlButtons ??= new Dictionary<string, Sprite>(_controlButtonSprites.ToDictionary(item => item.name));
-		private Dictionary<string, Sprite> GuiIcons => _guiIcons ??= new Dictionary<string, Sprite>(_guiIconSprites.ToDictionary(item => item.name));
+		private Dictionary<string, Sprite> Ships => _ships ??= CreateSpriteDictionary(_shipSprites);
+		private Dictionary<string, Sprite> ShipIcons => _shipIcons ??= CreateSpriteDictionary(_shipIconSprites);
+		private Dictionary<string, Sprite> Components => _components ??= CreateSpriteDictionary(_componentSprites);
+		private Dictionary<string, Sprite> Satellites => _satellites ??= CreateSpriteDictionary(_satelliteSprites);
+		private Dictionary<string, Sprite> ControlButtons => _controlButtons ??= CreateSpriteDictionary(_controlButtonSprites);
+		private Dictionary<string, Sprite> GuiIcons => _guiIcons ??= CreateSpriteDictionary(_guiIconSprites);
 		private Dictionary<string, AudioClip> Audio => _audio ??= new Dictionary<string, AudioClip>(_audioClips.ToDictionary(item => item.name));
 		
 		public Sprite GetSprite(SpriteId spriteId)
@@ -110,7 +110,7 @@ namespace Services.Resources
 
 #if UNITY_EDITOR
 		[ContextMenu("Reload")]
-		private void Reload()
+		public void Reload()
         {
             var prefab = UnityEngine.Resources.Load<ResourceLocator>("ResourceLocator");
 
@@ -132,12 +132,28 @@ namespace Services.Resources
             foreach (var file in files)
             {
                 var assetPath = "Assets" + file.Replace(Application.dataPath, "").Replace('\\', '/');
-                var asset = UnityEditor.AssetDatabase.LoadAssetAtPath<T>(assetPath);
-                if (asset != null)
+                foreach (var asset in UnityEditor.AssetDatabase.LoadAllAssetsAtPath(assetPath).OfType<T>())
                     yield return asset;
             }
         }
 #endif
+
+        private static Dictionary<string, Sprite> CreateSpriteDictionary(IEnumerable<Sprite> sprites)
+        {
+            var result = new Dictionary<string, Sprite>(StringComparer.OrdinalIgnoreCase);
+            foreach (var sprite in sprites.Where(item => item != null))
+            {
+                result[sprite.name] = sprite;
+
+                // Unity automatically names a single transparent slice "filename_0".
+                // Keep the database-facing id stable so imported mod artwork works without
+                // leaking Unity's slice suffix into content files.
+                if (sprite.name.EndsWith("_0", StringComparison.OrdinalIgnoreCase))
+                    result.TryAdd(sprite.name.Substring(0, sprite.name.Length - 2), sprite);
+            }
+
+            return result;
+        }
 
 		private Sprite GetShipSprite(string id) => Ships.TryGetValue(id, out var sprite) ? sprite : null;
 		private Sprite GetShipIconSprite(string id) => ShipIcons.TryGetValue(id, out var sprite) || Ships.TryGetValue(id, out sprite) ? sprite : null;

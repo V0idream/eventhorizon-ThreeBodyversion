@@ -27,7 +27,10 @@ namespace Combat.Component.Controller
 
             if (_timeFromLastUpdate > _targetUpdateCooldown)
             {
-                _target = _scene.Ships.GetEnemyForMissile(_unit, 0f, _maxRange*1.3f, 30f, false, false);
+                _target = _unit.Type.Side == Combat.Component.Unit.Classification.UnitSide.Player &&
+                          _scene.LockedEnemyShip.IsActive()
+                    ? _scene.LockedEnemyShip
+                    : _scene.Ships.GetEnemyForMissile(_unit, 0f, _maxRange*1.3f, 30f, false, false);
                 _timeFromLastUpdate = 0;
             }
             
@@ -95,6 +98,6 @@ namespace Combat.Component.Controller
         private readonly float _maxAngularVelocity;
         private readonly float _acceleration;
         private readonly float _maxRange;
-        private const float _targetUpdateCooldown = 2.0f;
+        private const float _targetUpdateCooldown = 0.25f;
     }
 }

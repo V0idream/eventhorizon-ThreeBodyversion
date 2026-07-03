@@ -90,6 +90,8 @@ namespace Combat.Factory
                 new Ship(spec, unitSide, body, view, shipStats, collider, physics);
 
             ship.AddResource(shipGameObject);
+            if (unitSide == UnitSide.Ally && !isDrone)
+                shipGameObject.AddComponent<AllyShipMarker>();
 
             if (!_settings.NoDamageIndicator && !isDrone)
                 shipStats.DamageIndicator = new DamageIndicator(ship, _effectFactory, unitSide == UnitSide.Player ? 0.75f : 0.5f);
@@ -197,7 +199,12 @@ namespace Combat.Factory
 
 		public Ship CreateEnemyShip(IShipSpecification spec, Vector2 position, float rotation, int aiLevel)
         {
-            return CreateShip(spec, _controllerFactory.CreateDefaultAiController(aiLevel, spec.CustomAi), UnitSide.Enemy, position, rotation);
+            return CreateAiShip(spec, position, rotation, aiLevel, UnitSide.Enemy);
+        }
+
+        public Ship CreateAiShip(IShipSpecification spec, Vector2 position, float rotation, int aiLevel, UnitSide side)
+        {
+            return CreateShip(spec, _controllerFactory.CreateDefaultAiController(aiLevel, spec.CustomAi), side, position, rotation);
         }
 
         public Ship CreatePlayerShip(IShipSpecification spec, Vector2 position, float rotation)

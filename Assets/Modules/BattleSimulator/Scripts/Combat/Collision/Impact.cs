@@ -63,6 +63,7 @@ namespace Combat.Collision
         public float EnergyDamage;
         public float HeatDamage;
         public float CorrosiveDamage;
+        public float TrueDamage;
         public float Repair;
         public float ShieldDamage;
         public float EnergyDrain;
@@ -81,7 +82,8 @@ namespace Combat.Collision
 				resistance.ModifyKineticDamage(KineticDamage) +
 				resistance.ModifyEnergyDamage(EnergyDamage) +
 				resistance.ModifyHeatDamage(HeatDamage) +
-				resistance.ModifyCorrosiveDamage(CorrosiveDamage);
+				resistance.ModifyCorrosiveDamage(CorrosiveDamage) +
+                TrueDamage;
 
             return damage;
         }
@@ -99,6 +101,8 @@ namespace Combat.Collision
                 EnergyDamage += amount;
             else if (type == DamageType.Heat)
                 HeatDamage += amount;
+            else if (type == DamageType.True)
+                TrueDamage += amount;
             else
                 throw new System.ArgumentException("unknown damage type");
         }
@@ -137,6 +141,7 @@ namespace Combat.Collision
                 EnergyDamage = EnergyDamage * (1f - resistance.Energy),
                 HeatDamage = HeatDamage * (1f - resistance.Heat),
                 CorrosiveDamage = CorrosiveDamage * (1f - 0.5f * resistance.MinResistance),
+                TrueDamage = TrueDamage,
                 ShieldDamage = ShieldDamage,
                 EnergyDrain = EnergyDrain,
                 Impulse = Impulse,
@@ -192,6 +197,7 @@ namespace Combat.Collision
             EnergyDamage = 0;
             HeatDamage = 0;
             CorrosiveDamage = 0;
+            TrueDamage = 0;
         }
 
         public void Append(in Impact second)
@@ -200,6 +206,7 @@ namespace Combat.Collision
             EnergyDamage += second.EnergyDamage;
             HeatDamage += second.HeatDamage;
             CorrosiveDamage += second.CorrosiveDamage;
+            TrueDamage += second.TrueDamage;
             ShieldDamage += second.ShieldDamage;
             Repair += second.Repair;
             Effects |= second.Effects;

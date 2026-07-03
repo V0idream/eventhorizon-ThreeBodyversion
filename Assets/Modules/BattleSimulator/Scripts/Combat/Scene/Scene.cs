@@ -7,6 +7,7 @@ using Combat.Unit;
 using Services.Settings;
 using UnityEngine;
 using Zenject;
+using Combat.Component.Systems.Devices;
 
 namespace Combat.Scene
 {
@@ -54,7 +55,16 @@ namespace Combat.Scene
         }
 
         public IShip PlayerShip => _activePlayerShip;
-        public IShip EnemyShip => _nearestEnemyShip;
+        public IShip EnemyShip => _lockedEnemyShip.IsActive() ? _lockedEnemyShip : null;
+        public IShip LockedEnemyShip => _lockedEnemyShip;
+        public void LockTarget(IShip ship)
+        {
+            _lockedEnemyShip = ship != null && ship.IsActive() &&
+                                 _activePlayerShip.IsActive() &&
+                                 CombatRelations.AreEnemies(_activePlayerShip.Type, ship.Type)
+                ? ship
+                : null;
+        }
         
         public void Tick()
         {
@@ -68,6 +78,7 @@ namespace Combat.Scene
         public void FixedTick()
         {
             _unitList.UpdateItems(UpdateUnitPhysics);
+            WarpTrailEffect.ApplySceneEffects(this);
             UpdateEnemies();
             CheckBounds();
 
@@ -117,6 +128,7 @@ namespace Combat.Scene
 
 		public void Clear()
 		{
+            WarpTrailEffect.ClearAll();
 			_unitList.Clear();
 			_shipList.Clear();
 		}
@@ -178,12 +190,15 @@ namespace Combat.Scene
             var position = _activePlayerShip.Body.Position;
             var minDistance = float.MaxValue;
             _nearestEnemyShip = null;
+            if (!_lockedEnemyShip.IsActive())
+                _lockedEnemyShip = null;
 
             lock (_shipList.LockObject)
             {
                 foreach (var ship in _shipList.Items)
                 {
-                    if (ship.IsActive() && ship.Type.Side == UnitSide.Enemy && ship.Type.Class == UnitClass.Ship)
+                    if (ship.IsActive() && ship.Type.Class == UnitClass.Ship &&
+                        CombatRelations.AreEnemies(_activePlayerShip.Type, ship.Type))
                     {
                         enemyCount++;
                         var distance = Vector2.SqrMagnitude(ship.Body.Position - position);
@@ -263,6 +278,7 @@ namespace Combat.Scene
         private bool _playerInCenter;
         private IShip _activePlayerShip;
         private IShip _nearestEnemyShip;
+        private IShip _lockedEnemyShip;
 
         private readonly UnitList<IUnit> _unitList = new UnitList<IUnit>();
         private readonly ShipList _shipList = new ShipList();

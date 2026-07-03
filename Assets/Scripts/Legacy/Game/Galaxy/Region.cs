@@ -18,7 +18,13 @@ namespace GameModel
 			Id = Mathf.Max(id, 0);
 			OwnerId = Id;
 
-			if (Id == 0 || Id == PlayerHomeRegionId || isPirateBase)
+            if (Id == PlayerHomeRegionId)
+            {
+                _faction = _database.GetFaction(new GameDatabase.Model.ItemId<GameDatabase.DataModel.Faction>(StarshipEarthFactionId));
+                Size = RegionLayout.RegionFourthSize * 2 - 1;
+                _session.Regions.SetRegionFactionId(Id, _faction.Id);
+            }
+			else if (Id == 0 || isPirateBase)
 			{
 				_faction = Faction.Empty;
 			    Size = 0;
@@ -155,6 +161,7 @@ namespace GameModel
 
         public const int UnoccupiedRegionId = 0;
 		public const int PlayerHomeRegionId = 1;
+        public const int StarshipEarthFactionId = 21;
 
 	    public static readonly Region Empty = new Region();
 	}

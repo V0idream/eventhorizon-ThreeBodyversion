@@ -13,6 +13,7 @@ namespace Combat.Domain
         IReward GetReward(LootGenerator lootGenerator, PlayerSkills playerSkills, Galaxy.Star currentStar);
 
         IFleetModel PlayerFleet { get; }
+        IFleetModel AllyFleet { get; }
         IFleetModel EnemyFleet { get; }
     }
 
