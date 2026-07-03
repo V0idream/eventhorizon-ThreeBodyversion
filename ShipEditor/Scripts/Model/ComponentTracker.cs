@@ -67,6 +67,9 @@ namespace ShipEditor.Model
 
 		public int GetDefaultKey(Component component)
 		{
+			if (component.Id.Value == 305)
+				return 2;
+
 			if (component.GetActivationType() == ActivationType.None)
 				return 0;
 

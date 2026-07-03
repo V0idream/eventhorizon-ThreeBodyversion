@@ -59,7 +59,20 @@ namespace ShipEditor.Model
 			_elementType = elementType;
 		}
 
-		public bool TryGetComponentAt(int x, int y, out IComponentModel component) => _filledCells.TryGetValue(CellIndex.FromXY(x, y), out component);
+        public bool TryGetComponentAt(int x, int y, out IComponentModel component)
+        {
+            for (var i = _components.Count - 1; i >= 0; --i)
+            {
+                var item = _components[i];
+                if (item.Data.Id.Value == 91 && item.X == x && item.Y == y)
+                {
+                    component = item;
+                    return true;
+                }
+            }
+
+            return _filledCells.TryGetValue(CellIndex.FromXY(x, y), out component);
+        }
 		public int GetBarrelId(IComponentModel component) => GetBarrelId(component.X, component.Y, component.Data.Layout);
 
 		public IComponentModel FindComponent(int x, int y, ComponentInfo info)
