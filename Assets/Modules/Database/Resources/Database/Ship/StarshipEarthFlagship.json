@@ -1,0 +1,65 @@
+{
+  "ItemType": 6,
+  "Id": 165,
+  "ShipType": 4,
+  "SizeClass": 4,
+  "Name": "$StarshipEarthFlagship",
+  "Description": "$StarshipEarthFlagshipDescription",
+  "Faction": 21,
+  "IconImage": "starship_earth_flagship_preview5",
+  "IconScale": 1.0,
+  "ModelImage": "starship_earth_flagship_preview5",
+  "ModelScale": 17.0,
+  "EngineColor": "#63EFFF",
+  "Engines": [
+    {
+      "Position": {
+        "x": -0.78,
+        "y": 0.34
+      },
+      "Size": 0.25
+    },
+    {
+      "Position": {
+        "x": -0.82
+      },
+      "Size": 0.3
+    },
+    {
+      "Position": {
+        "x": -0.78,
+        "y": -0.34
+      },
+      "Size": 0.25
+    }
+  ],
+  "Layout": "0000000444000000000000004440000000000000044400000000000011111110000000044011111044000000440111110440000011112222211110001111222222211110011112222222111101111222222222111111112222222221111011112222222111100111122222221111000111122222111100001115555555111000011155555551110000000115551100000",
+  "Barrels": [
+    {
+      "Position": {
+        "x": 0.9
+      },
+      "WeaponClass": "C",
+      "Size": 0.35
+    },
+    {
+      "Position": {
+        "x": 0.62,
+        "y": 0.45
+      },
+      "WeaponClass": "LM"
+    },
+    {
+      "Position": {
+        "x": 0.62,
+        "y": -0.45
+      },
+      "WeaponClass": "LM"
+    }
+  ],
+  "Features": {
+    "ArmorBonus": 0.2,
+    "VelocityBonus": 0.1,
+    "TurnRateBonus": 0.1
+  }
+}
