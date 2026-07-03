@@ -57,7 +57,10 @@ namespace ShipEditor
                 var offsetY = _shipLayout == null ? 0 : (0.5f*size - _shipLayout.Rect.yMin) * _cellSize;
 
                 _shipImage.transform.localPosition = new Vector3(offsetX, -offsetY, _shipImage.transform.localPosition.z);
-				_shipImage.transform.localScale = size * _cellSize * Vector3.one;
+                var isThreeBodyShip = sprite.name.StartsWith("starship_earth_") ||
+                                      sprite.name.StartsWith("wandering_earth_");
+                var imageScale = size * _cellSize * (isThreeBodyShip ? 1.22f : 1f);
+				_shipImage.transform.localScale = imageScale * Vector3.one;
 			}
 
 			_content.localPosition = new Vector3(-Width / 2, Height / 2, 0);

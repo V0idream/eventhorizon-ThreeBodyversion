@@ -25,6 +25,7 @@ namespace Gui.ComponentList
             {
                 _originalBranch = new FactionCategoryNode("原版", this, database.WeaponSlots);
                 _modBranch = new FactionCategoryNode("三体模组", this, database.WeaponSlots);
+                _otherModBranch = new FactionCategoryNode("其他模组", this, database.WeaponSlots);
             }
 
             IsVisible = true;
@@ -57,8 +58,13 @@ namespace Gui.ComponentList
         {
             if (_originalBranch != null)
             {
-                var isMod = componentInfo.Data.Faction.Id.Value == 21 || componentInfo.Data.Id.Value >= 900;
-                (isMod ? _modBranch : _originalBranch).Add(componentInfo);
+                var component = componentInfo.Data;
+                if (component.ContentSource == ContentSource.ThreeBody)
+                    _modBranch.Add(componentInfo);
+                else if (component.Id.Value <= LastOriginalComponentId)
+                    _originalBranch.Add(componentInfo);
+                else
+                    _otherModBranch.Add(componentInfo);
                 _count = -1;
                 return;
             }
@@ -125,6 +131,7 @@ namespace Gui.ComponentList
                 {
                     yield return _originalBranch;
                     yield return _modBranch;
+                    yield return _otherModBranch;
                     foreach (var node in _extraNodes2)
                         yield return node;
                     yield break;
@@ -160,6 +167,8 @@ namespace Gui.ComponentList
         private readonly List<IComponentTreeNode> _extraNodes2 = new List<IComponentTreeNode>();
         private readonly FactionCategoryNode _originalBranch;
         private readonly FactionCategoryNode _modBranch;
+        private readonly FactionCategoryNode _otherModBranch;
+        private const int LastOriginalComponentId = 299;
     }
 
     public sealed class FactionCategoryNode : IComponentTreeNode
