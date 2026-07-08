@@ -1,5 +1,6 @@
 ﻿using Combat.Component.Unit;
 using Combat.Unit;
+using Combat.Component.Unit.Classification;
 
 namespace Combat.Collision.Manager
 {
@@ -26,6 +27,9 @@ namespace Combat.Collision.Manager
                 return;
 
             if (!first.IsActive() || !second.IsActive())
+                return;
+            if (CombatRelations.AreAllies(first.Type, second.Type) &&
+                !first.Type.CanHitAllies && !second.Type.CanHitAllies)
                 return;
 
             var selfImpact = new Impact();

@@ -10,6 +10,17 @@ public class ApplicationBuildProcessor : IPostGenerateGradleAndroidProject
 	{
 		try
 		{
+			var gradleRoot = Directory.GetParent(path)?.FullName ?? path;
+			var sdk = System.Environment.GetEnvironmentVariable("ANDROID_SDK_ROOT");
+			var ndk = System.Environment.GetEnvironmentVariable("ANDROID_NDK_ROOT");
+			if (!string.IsNullOrEmpty(sdk))
+			{
+				var properties = "sdk.dir=" + sdk.Replace('\\', '/') + System.Environment.NewLine;
+				if (!string.IsNullOrEmpty(ndk))
+					properties += "ndk.dir=" + ndk.Replace('\\', '/') + System.Environment.NewLine;
+				File.WriteAllText(Path.Combine(gradleRoot, "local.properties"), properties);
+			}
+
 			var files = Directory.GetFiles(path, _androidManifest, SearchOption.AllDirectories);
 			foreach (var filename in files)
 			{

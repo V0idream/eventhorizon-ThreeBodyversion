@@ -44,21 +44,36 @@ namespace ViewModel.Skills
 			else
 			{
 				var id = NodeIds[node];
-				_informationPanel.Initialize(node, _connectedNodes.Contains(node) && _playerSkills.CanAdd(id), _playerSkills.HasSkill(id));
+				_informationPanel.Initialize(node, CanUnlockShortestPath(node), _playerSkills.HasSkill(id));
 			}
         }
 
         public void UnlockButtonClicked()
         {
             var node = CurrentNode;
-			if (node == null || !_connectedNodes.Contains(node))
+			if (node == null)
                 return;
 
-            if (!_playerSkills.TryAdd(NodeIds[node]))
+            var path = FindShortestUnlockPath(node);
+            if (path == null || path.Count > _playerSkills.AvailablePoints)
                 return;
 
-			node.State = SkillTreeNode.NodeState.EnabledAndConnected;
-            UpdateLinkedNodes(node);
+            var changed = false;
+            foreach (var item in path)
+            {
+                var id = NodeIds[item];
+                if (_playerSkills.HasSkill(id))
+                    continue;
+                if (!_playerSkills.TryAdd(id))
+                    return;
+
+                item.State = SkillTreeNode.NodeState.EnabledAndConnected;
+                UpdateLinkedNodes(item);
+                changed = true;
+            }
+
+            if (!changed)
+                return;
 
             _soundPlayer.Play(_unlockSound);
 			ToggleValueChanged(true);
@@ -157,6 +172,57 @@ namespace ViewModel.Skills
 					UpdateLinkedNodes(item);
 				}
 			}
+        }
+
+        private bool CanUnlockShortestPath(SkillTreeNode target)
+        {
+            if (_playerSkills.HasSkill(NodeIds[target]))
+                return false;
+
+            var path = FindShortestUnlockPath(target);
+            return path != null && path.Count <= _playerSkills.AvailablePoints;
+        }
+
+        private List<SkillTreeNode> FindShortestUnlockPath(SkillTreeNode target)
+        {
+            var sources = NodeIds.Keys
+                .Where(node => node == _root ||
+                               (_connectedNodes.Contains(node) && _playerSkills.HasSkill(NodeIds[node])))
+                .ToArray();
+
+            var queue = new Queue<SkillTreeNode>();
+            var previous = new Dictionary<SkillTreeNode, SkillTreeNode>();
+            foreach (var source in sources)
+            {
+                if (previous.ContainsKey(source))
+                    continue;
+                previous[source] = null;
+                queue.Enqueue(source);
+            }
+
+            while (queue.Count > 0)
+            {
+                var node = queue.Dequeue();
+                if (node == target)
+                    break;
+
+                foreach (var linked in node.LinkedNodes)
+                {
+                    if (linked == null || !NodeIds.ContainsKey(linked) || previous.ContainsKey(linked))
+                        continue;
+                    previous[linked] = node;
+                    queue.Enqueue(linked);
+                }
+            }
+
+            if (!previous.ContainsKey(target))
+                return null;
+
+            var path = new List<SkillTreeNode>();
+            for (var current = target; current != null && !sources.Contains(current); current = previous[current])
+                path.Add(current);
+            path.Reverse();
+            return path.Where(node => !_playerSkills.HasSkill(NodeIds[node])).ToList();
         }
 
         private Dictionary<SkillTreeNode, int> NodeIds

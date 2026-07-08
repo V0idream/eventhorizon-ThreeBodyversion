@@ -29,6 +29,8 @@ namespace Combat.Collision
 					return ModifyHeatDamage(damage);
 				case DamageType.Corrosive:
 					return ModifyCorrosiveDamage(damage);
+				case DamageType.True:
+					return damage;
 				default:
 					return damage;
 			}

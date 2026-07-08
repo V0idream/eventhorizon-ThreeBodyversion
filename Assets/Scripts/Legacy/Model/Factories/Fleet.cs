@@ -180,6 +180,16 @@ namespace Model
 				return new PlayerFleet(database, fleet);
 			}
 
+			public static IFleet StarshipEarthAllies(int distance, int seed, IDatabase database)
+			{
+				var faction = database.GetFaction(new ItemId<Faction>(21));
+				var ships = ShipBuildQuery.EnemyShips(database).
+					CommonAndRare().
+					BelongToFaction(faction).
+					SelectRandom(5, new Random(seed));
+				return new CommonFleet(database, ships.All, distance, seed, Maths.Distance.AiLevel(distance));
+			}
+
 			public static readonly IFleet Empty = new CommonFleet(null, Enumerable.Empty<ShipBuild>(), 0, 0);
 		}
 	}

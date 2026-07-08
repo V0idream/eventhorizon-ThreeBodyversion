@@ -1,0 +1,16 @@
+{
+  "ItemType": 1,
+  "Id": 913,
+  "Name": "深空相控阵雷达",
+  "Description": "雷达探测范围+2000。",
+  "DisplayCategory": 6,
+  "Availability": 1,
+  "ComponentStatsId": 91,
+  "Faction": -1,
+  "Level": 80,
+  "Icon": "TargetingUnit",
+  "Color": "#22BB66",
+  "Layout": "111111111",
+  "CellType": "2",
+  "DeviceId": 903
+}
