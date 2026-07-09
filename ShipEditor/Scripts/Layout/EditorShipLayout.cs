@@ -59,7 +59,7 @@ namespace ShipEditor
                 _shipImage.transform.localPosition = new Vector3(offsetX, -offsetY, _shipImage.transform.localPosition.z);
                 var isThreeBodyShip = sprite.name.StartsWith("starship_earth_") ||
                                       sprite.name.StartsWith("wandering_earth_");
-                var imageScale = size * _cellSize * (isThreeBodyShip ? 1.72f : 1f);
+                var imageScale = size * _cellSize * (isThreeBodyShip ? GetThreeBodyShipScale(sprite.name) : 1f);
 				_shipImage.transform.localScale = imageScale * Vector3.one;
 			}
 
@@ -189,6 +189,20 @@ namespace ShipEditor
 				return _model.Rect.IsInsideRect(x,y);
 			}
 		}
+
+        private static float GetThreeBodyShipScale(string spriteName)
+        {
+            return spriteName switch
+            {
+                "starship_earth_frigate_preview5" => 1.84f,
+                "starship_earth_destroyer_preview5" => 1.86f,
+                "starship_earth_cruiser_preview5" => 1.9f,
+                "starship_earth_battleship_preview5" => 1.98f,
+                "starship_earth_flagship_preview5" => 1.84f,
+                "wandering_earth_preview5" => 1.82f,
+                _ => 1.72f,
+            };
+        }
 
 		private class LayoutAdapter : ShipMeshBuilder.ILayout
 		{

@@ -10,7 +10,8 @@
         "Gui",
         "Localization",
         "Diagnostics",
-        "Utilites"
+        "Utilites",
+        "NativeFilePicker.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
