@@ -156,6 +156,7 @@
     <string name="GroupWeaponM">Missiles</string>
     <string name="GroupWeaponT">Energy torpedoes</string>
     <string name="GroupWeaponS">Special weapons</string>
+    <string name="GroupWeaponD">Dimensional weapons</string>
     <string name="GroupAllItems">All items</string>
     <string name="GroupBlueprints">Blueprints</string>
     <string name="GroupCoins">Coins</string>

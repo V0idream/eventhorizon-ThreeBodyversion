@@ -129,6 +129,7 @@
     <string name="GroupWeaponM">导弹</string>
     <string name="GroupWeaponT">鱼雷</string>
     <string name="GroupWeaponS">特殊武器</string>
+    <string name="GroupWeaponD">维度武器</string>
     <string name="GroupAllItems">所有物品</string>
     <string name="GroupBlueprints">蓝图</string>
     <string name="GroupCoins">货币</string>
