@@ -195,9 +195,24 @@ namespace ShipEditor.UI
 
         private void PickImportFile(Action<string> callback)
         {
-            // Direct invocation works on Android and desktop.  The former
-            // reflection path did not resolve the plugin's params overload.
-            NativeFilePicker.PickFile(path => callback?.Invoke(path), "application/json", "text/plain", "*/*");
+            NativeFilePicker.RequestPermissionAsync(permission =>
+            {
+                if (permission != NativeFilePicker.Permission.Granted)
+                {
+                    _guiManager.ShowMessage("未获得存储读取权限，无法导入配置");
+                    return;
+                }
+
+                NativeFilePicker.PickFile(path =>
+                {
+                    if (string.IsNullOrWhiteSpace(path))
+                    {
+                        _guiManager.ShowMessage("未选择配置文件");
+                        return;
+                    }
+                    callback?.Invoke(path);
+                }, "application/json", "text/plain", "*/*");
+            }, true);
         }
 
         private Button _exportButton;
