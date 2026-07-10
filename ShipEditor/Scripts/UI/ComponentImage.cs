@@ -11,6 +11,13 @@ namespace ShipEditor.UI
 		private float _minY = 0;
 		private float _maxY = 1;
 
+		public void SetIconFitted(Sprite icon, Color color)
+		{
+			base.sprite = icon;
+			base.color = color;
+			SetDisplayRect(0f, 0f, 1f, 1f);
+		}
+
 		public void SetIcon(Sprite icon, string layout, int size, Color color)
 		{
 			base.sprite = icon;
