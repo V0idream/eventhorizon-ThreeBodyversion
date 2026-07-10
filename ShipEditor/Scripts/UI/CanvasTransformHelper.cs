@@ -21,6 +21,7 @@ namespace ShipEditor.UI
         public float GetShipRotation() => _shipView.transform.localEulerAngles.z - _camera.transform.localEulerAngles.z;
 
         public Vector2 GetCellSize() => GetUnitSquare() *_shipView.Scale;
+        public float GetWorldCellSize() => _shipView.CellSize;
 
         public Vector2 GetUnitSquare()
 		{
