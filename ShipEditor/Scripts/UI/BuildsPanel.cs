@@ -195,26 +195,9 @@ namespace ShipEditor.UI
 
         private void PickImportFile(Action<string> callback)
         {
-            var pickerType = AppDomain.CurrentDomain.GetAssemblies()
-                .Select(assembly => assembly.GetType("NativeFilePicker"))
-                .FirstOrDefault(type => type != null);
-
-            if (pickerType == null)
-            {
-                _guiManager.ShowMessage("当前平台不支持系统文件选择");
-                return;
-            }
-
-            var callbackType = pickerType.GetNestedType("FilePickedCallback");
-            var method = pickerType.GetMethod("PickFile", new[] { callbackType, typeof(string[]) });
-            if (callbackType == null || method == null)
-            {
-                _guiManager.ShowMessage("文件选择器不可用");
-                return;
-            }
-
-            var pickerCallback = Delegate.CreateDelegate(callbackType, callback.Target, callback.Method);
-            method.Invoke(null, new object[] { pickerCallback, new[] { "*/*" } });
+            // Direct invocation works on Android and desktop.  The former
+            // reflection path did not resolve the plugin's params overload.
+            NativeFilePicker.PickFile(path => callback?.Invoke(path), "application/json", "text/plain", "*/*");
         }
 
         private Button _exportButton;
