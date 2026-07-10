@@ -200,7 +200,11 @@ namespace ShipEditor
                 "starship_earth_battleship_preview5" => 1.98f,
                 "starship_earth_flagship_preview5" => 1.84f,
                 "wandering_earth_preview5" => 1.82f,
-                _ => 1.72f,
+                // Only the six legacy sprites above were authored against the old
+                // preview grid scale. New assets (especially the dedicated station)
+                // are exported at the grid's native scale and must not inherit a
+                // blanket 1.72 multiplier merely because of their filename prefix.
+                _ => 1f,
             };
         }
 

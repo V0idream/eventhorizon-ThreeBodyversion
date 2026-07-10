@@ -22,7 +22,6 @@ namespace ShipEditor.UI
 		private RectTransform _rectTransform;
 
 		private Content _content;
-		private Vector2 _dropScreenOffset;
 
 		private RectTransform RectTransform
 		{
@@ -50,12 +49,6 @@ namespace ShipEditor.UI
             RectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
             _icon.SetIconFitted(_resourceLocator.GetSprite(content.Icon), content.Color);
 
-			var layoutCenter = Vector2.one * (content.Layout.Size * 0.5f);
-			var occupiedCenter = new Vector2(minX + width * 0.5f, minY + height * 0.5f);
-			var delta = layoutCenter - occupiedCenter;
-			var localOffset = new Vector2(delta.x * blockSize.x, -delta.y * blockSize.y);
-			_dropScreenOffset = RotationHelpers.Transform(localOffset, _helper.GetShipRotation());
-
             eventData.pointerDrag = gameObject;
             ExecuteEvents.Execute<IBeginDragHandler>(gameObject, eventData, ExecuteEvents.beginDragHandler);
         }
@@ -71,13 +64,16 @@ namespace ShipEditor.UI
         public void OnDrag(PointerEventData eventData)
         {
             SetScreenPosition(eventData);
-			_dragging?.Invoke(_content, _helper.ScreenToWorld(eventData.position + _dropScreenOffset));
+			// The editor grid already converts the pointer position using the full
+			// component layout. Applying an occupied-bounds offset a second time made
+			// the installed cell differ from the cell under the finger.
+			_dragging?.Invoke(_content, _helper.ScreenToWorld(eventData.position));
         }
 
         public void OnEndDrag(PointerEventData eventData)
 		{
 			gameObject.SetActive(false);
-			_dropped?.Invoke(_content, _helper.ScreenToWorld(eventData.position + _dropScreenOffset));
+			_dropped?.Invoke(_content, _helper.ScreenToWorld(eventData.position));
 		}
 
 		private void SetScreenPosition(PointerEventData eventData)
