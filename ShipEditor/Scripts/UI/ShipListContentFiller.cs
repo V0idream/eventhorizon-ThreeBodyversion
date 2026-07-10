@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Constructor.Ships;
+using System.Linq;
 using Services.Localization;
 using Services.Resources;
 using UnityEngine;
@@ -18,7 +19,9 @@ namespace ShipEditor.UI
         {
             _itemPrefab.gameObject.SetActive(false);
             _ships.Clear();
-            _ships.AddRange(ships);
+            _ships.AddRange(ships
+                .OrderBy(ship => ship.Model.SizeClass)
+                .ThenBy(ship => ship is EditorModeShip editorShip ? editorShip.BuildId : ship.Id.Value));
         }
 
         public GameObject GetListItem(int index, int itemType, GameObject obj)

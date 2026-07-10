@@ -29,11 +29,11 @@ namespace ShipEditor
 			var sprite = _resourceLocator.GetSprite(component.Icon);
 			var spriteRect = SpriteRect.Create(sprite);
 			var rect = new ComponentRect(layout);
-            var size = layout.Size > 0 ? layout.Size : 1;
-
-            var aspect = spriteRect.Aspect;
-            var halfWidth = size * _cellSize * 0.5f * aspect.x;
-            var halfHeight = size * _cellSize * 0.5f * aspect.y;
+            // Layout is stored as a square string even for rectangular parts.
+            // Render the occupied grid rectangle so 1x2 and 1x3 equipment
+            // matches the cells used by placement validation.
+            var halfWidth = Mathf.Max(1, rect.Width) * _cellSize * 0.5f;
+            var halfHeight = Mathf.Max(1, rect.Height) * _cellSize * 0.5f;
             var centerX = (x + 0.5f * (rect.xmax + rect.xmin + 1)) * _cellSize;
             var centerY = (y + 0.5f * (rect.ymax + rect.ymin + 1)) * _cellSize;
 

@@ -138,4 +138,11 @@
     <string name="ValuePerSecond">$1 / 秒</string>
     <string name="None">无</string>
     <string name="TurretTurnRate">炮塔转速</string>
+    <string name="NewPreset">新建预设</string>
+    <string name="LoadPreset">载入预设</string>
+    <string name="SavePreset">保存预设</string>
+    <string name="DeletePreset">删除预设</string>
+    <string name="DeletePresetConfirmation">确定删除所选预设吗？此操作无法撤销。</string>
+    <string name="OverwritePresetConfirmation">确定覆盖所选预设吗？</string>
+    <string name="PartiallyLoadedPreset">库存中缺少部分装置，预设仅完成了部分载入。</string>
 </resources>
