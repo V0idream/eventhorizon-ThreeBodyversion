@@ -243,10 +243,16 @@ namespace ShipEditor.UI
                     var directory = GetExportDirectory();
                     Directory.CreateDirectory(directory);
 
-                    var shipName = SanitizeFileName(string.IsNullOrWhiteSpace(customName)
-                        ? shipEditor.Ship.Model.OriginalShip.Name
+                    var ship = shipEditor.Ship.Model.OriginalShip;
+                    var presetName = SanitizeFileName(string.IsNullOrWhiteSpace(customName)
+                        ? "默认布局"
                         : customName);
-                    outputPath = Path.Combine(directory, $"{shipName}_{shipEditor.Ship.Model.OriginalShip.Id.Value}.shiplayout.json");
+                    var shipName = SanitizeFileName(ship.Name);
+                    var variant = shipEditor.Ship is EditorModeShip editorShip
+                        ? "改型" + editorShip.BuildId
+                        : "当前配置";
+                    outputPath = Path.Combine(directory,
+                        $"{shipName}_{ship.Id.Value}_{variant}_{presetName}.shiplayout.json");
                     File.WriteAllText(outputPath, JsonUtility.ToJson(data, true));
                     return true;
                 }

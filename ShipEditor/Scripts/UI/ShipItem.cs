@@ -30,7 +30,12 @@ namespace ShipEditor.UI
 
             _icon.color = ship.ColorScheme.HsvColor;
 
-			_name.text = localization.GetString(ship.Name);
+			var shipName = localization.GetString(ship.Model.OriginalShip.Name);
+            // Database-editor mode exposes every ShipBuild.  Show the build id
+            // as a variant label so AI/default layouts can be selected safely.
+            _name.text = ship is EditorModeShip editorShip
+                ? shipName + " · 改型 " + editorShip.BuildId
+                : localization.GetString(ship.Name);
 			_classText.text = ship.Model.SizeClass.ToString(localization);
 			var level = ship.Experience.Level;
 			_levelText.text = level > 0 ? level.ToString() : "0";
