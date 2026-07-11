@@ -67,7 +67,7 @@ namespace ShipEditor
                 // padded axis so the visible hull follows the grid silhouette.
                 var paddingCorrection = spriteName.Contains("starship_earth_cruiser") ||
                                         spriteName.Contains("starship_earth_battleship")
-                    ? new Vector3(1f, 1.53f, 1f)
+                    ? new Vector3(1.53f, 1f, 1f)
                     : Vector3.one;
 				_shipImage.transform.localScale = imageScale * paddingCorrection;
 			}
