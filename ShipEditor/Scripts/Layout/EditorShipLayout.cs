@@ -61,7 +61,15 @@ namespace ShipEditor
                 // Per-name multipliers caused both visual/grid mismatch and editor
                 // pointer-offset reports when switching between ship variants.
                 var imageScale = size * _cellSize;
-				_shipImage.transform.localScale = imageScale * Vector3.one;
+                var spriteName = sprite.name.ToLowerInvariant();
+                // These two source renders contain substantially more vertical
+                // transparent padding than their layout masks.  Correct only the
+                // padded axis so the visible hull follows the grid silhouette.
+                var paddingCorrection = spriteName.Contains("starship_earth_cruiser") ||
+                                        spriteName.Contains("starship_earth_battleship")
+                    ? new Vector3(1f, 1.53f, 1f)
+                    : Vector3.one;
+				_shipImage.transform.localScale = imageScale * paddingCorrection;
 			}
 
 			_content.localPosition = new Vector3(-Width / 2, Height / 2, 0);
