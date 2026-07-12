@@ -11,10 +11,11 @@ namespace ShipEditor.UI
 		private float _minY = 0;
 		private float _maxY = 1;
 
-		public void SetIconFitted(Sprite icon, Color color)
+		public void SetIconFitted(Sprite icon, Color color, bool preserveAspect = false)
 		{
 			base.sprite = icon;
 			base.color = color;
+			base.preserveAspect = preserveAspect;
 			SetDisplayRect(0f, 0f, 1f, 1f);
 		}
 
@@ -22,6 +23,7 @@ namespace ShipEditor.UI
 		{
 			base.sprite = icon;
 			base.color = color;
+			base.preserveAspect = false;
 
 			int x0 = size, x1 = 0, y0 = size, y1 = 0;
 

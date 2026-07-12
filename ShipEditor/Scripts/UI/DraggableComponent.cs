@@ -5,6 +5,7 @@ using Zenject;
 using Services.Resources;
 using Constructor;
 using GameDatabase.Model;
+using GameDatabase.Enums;
 
 namespace ShipEditor.UI
 {
@@ -34,7 +35,8 @@ namespace ShipEditor.UI
             RectTransform.localEulerAngles = new Vector3(0, 0, _helper.GetShipRotation());
             RectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
             RectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
-            _icon.SetIconFitted(_resourceLocator.GetSprite(content.Icon), content.Color);
+            _icon.SetIconFitted(_resourceLocator.GetSprite(content.Icon), content.Color,
+                content.Component.Data.ContentSource == ContentSource.ThreeBody);
 
             // The finger follows the centre of the visible (occupied) cells, while
             // WorldToCell works from the centre of the component's square layout.
