@@ -81,6 +81,7 @@ namespace ShipEditor.UI
 		{
 			_icon.sprite = _emptyIcon;
 			_icon.color = Color.white;
+			_icon.preserveAspect = true;
 			_name.text = "-";
 		}
 
@@ -94,6 +95,7 @@ namespace ShipEditor.UI
 
 			_icon.sprite = _resourceLocator.GetSprite(info.Data.Icon);
 			_icon.color = info.Data.Color;
+			_icon.preserveAspect = true;
 
 		    var modification = component.Modification ?? EmptyModification.Instance;
 		    _modification.gameObject.SetActive(!string.IsNullOrEmpty(_modification.text = modification.GetDescription(_localization)));

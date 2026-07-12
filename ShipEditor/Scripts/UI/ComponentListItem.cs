@@ -64,6 +64,7 @@ namespace ShipEditor.UI
 
 			_icon.sprite = _resourceLocator.GetSprite(_component.Data.Icon);
 			_icon.color = _component.Data.Color;
+			_icon.preserveAspect = true;
 
 		    var modification = component.Modification ?? EmptyModification.Instance;
 		    _modification.gameObject.SetActive(!string.IsNullOrEmpty(_modification.text = modification.GetDescription(_localization)));

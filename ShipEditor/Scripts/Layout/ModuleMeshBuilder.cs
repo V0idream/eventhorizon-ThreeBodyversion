@@ -29,11 +29,15 @@ namespace ShipEditor
 			var sprite = _resourceLocator.GetSprite(component.Icon);
 			var spriteRect = SpriteRect.Create(sprite);
 			var rect = new ComponentRect(layout);
-            // Layout is stored as a square string even for rectangular parts.
-            // Render the occupied grid rectangle so 1x2 and 1x3 equipment
-            // matches the cells used by placement validation.
-            var halfWidth = Mathf.Max(1, rect.Width) * _cellSize * 0.5f;
-            var halfHeight = Mathf.Max(1, rect.Height) * _cellSize * 0.5f;
+			// Component art is authored on a square canvas.  The empty cells in
+			// the layout are part of that canvas, so stretching it to the occupied
+			// rectangle distorts horizontal and vertical ThreeBody equipment.
+			// Keep the source aspect ratio and let the transparent canvas align it
+			// with the occupied cells instead.
+			var size = Mathf.Max(1, layout.Size);
+			var aspect = spriteRect.Aspect;
+			var halfWidth = size * _cellSize * 0.5f * aspect.x;
+			var halfHeight = size * _cellSize * 0.5f * aspect.y;
             var centerX = (x + 0.5f * (rect.xmax + rect.xmin + 1)) * _cellSize;
             var centerY = (y + 0.5f * (rect.ymax + rect.ymin + 1)) * _cellSize;
 
