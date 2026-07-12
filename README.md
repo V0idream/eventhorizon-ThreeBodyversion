@@ -1,45 +1,67 @@
-# Event Horizon
+# 三体视界
 
-Welcome to the official repository for **Event Horizon** - a repository that includes the latest releases, source code, bug reports, and feature requests. This serves as a central point for community engagement and support.
+> 基于 **Event Horizon** 制作的《三体》主题游戏改版  
+> 制作：**边界工作室（Boundary Studio）**
 
-## Getting Started
+**当前公开开发版本：Preview 27**
 
-To get started with **Event Horizon**, you have multiple options to download the game:
+《三体视界》在原版《Event Horizon》的基础上，加入《三体》世界观相关阵营、舰船、装备与战斗机制。目前星舰地球和三体阵营已经具备较完整的主要玩法，其他高等文明阵营仍在持续制作中。
 
-- [Google Play](https://play.google.com/store/apps/details?id=com.ZipasGames.EventHorizon) - for Android devices
-- [App Store](https://apps.apple.com/us/app/event-horizon-cosmic-rpg/id1098794574) - for iOS devices
-- [Steam](https://store.steampowered.com/app/465000/Event_Horizon/) - for PC
-- [itch.io](https://pavel-zinchenko.itch.io/event-horizon) - free version without ads or in-app purchases for Web/Android/PC
+> `main` 分支仅作为项目主页和下载指引，不再存放游戏工程。各版本源码保存在对应的 Preview 分支中。
 
-However, for the most up-to-date version of the game, visit the [Releases](https://github.com/PavelZinchenko/event-horizon-main/releases) page here on GitHub. This ensures you have the latest features, bug fixes, and improvements.
+## 现有内容
 
-## Reporting Bugs
+- 新增星舰地球、三体、歌者、归零者、边缘世界、墓地、四维空间等阵营。
+- 新增星舰地球完整舰队：追光号、蓝色空间号、终极规律号、青铜时代号、自然选择号。
+- 新增三体巡洋舰、战舰、旗舰以及特殊单位“水滴”。
+- 新增激光、电磁炮、核导弹、反物质武器、强相互作用力装甲、曲速引擎等装备。
+- 加入维度伤害、四维状态、曲率航行与黑域航迹等机制。
+- 水滴能够反射部分激光，并通过高速撞击贯穿敌舰。
+- 新增战斗雷达、自动拦截激光、SIM 近防炮和动能穿甲机制。
+- 支持玩家、友军与敌军多方同时参战。
+- 制造界面支持一次批量制造最多 99 件装备。
+- 新增独立启动画面与《三体视界》开场序章。
 
-Your feedback is invaluable in making **Event Horizon** better. If you encounter any bugs or issues, please report them under the [Issues](https://github.com/PavelZinchenko/event-horizon-main/issues) section. Be sure to include:
+## 获取游戏
 
-- A clear and descriptive title
-- Steps to reproduce the issue
-- Expected behavior
-- Actual behavior
-- Screenshots or video (if applicable)
-- Your game version and operating system
+### 玩家安装包
 
-## Feature Requests
+前往仓库的 **[Releases 页面](https://github.com/V0idream/eventhorizon-ThreeBodyversion/releases)** 获取已经公开发布的安装包和版本说明。
 
-Got ideas to make the game even more awesome? Feel free to submit your feature requests in the [Issues](https://github.com/PavelZinchenko/event-horizon-main/issues) section. When submitting a feature request, please add the `enhancement` label to your issue. This helps in categorizing and prioritizing new ideas. Please provide:
+1. 打开 Releases 页面并选择最新版本。
+2. 在版本下方的 `Assets` 中下载适用于设备的文件。
+3. 按发布说明完成安装或更新。
+4. 覆盖安装前建议备份游戏存档。
 
-- A clear and concise description of what you want to happen.
-- Any additional context or screenshots illustrating your idea.
+发布文件以 Releases 页面中实际提供的内容为准。不要从来源不明的网盘或第三方站点下载修改包。
 
-## Support
+### 查看源码
 
-For important inquiries or assistance that cannot be resolved through community channels, please reach out via email at: `help.eventhorizon@gmail.com`. This email is intended for significant issues or concerns that require direct attention. For general questions and discussions, the Discord and VK communities are the best places to start. Your understanding is appreciated, and you will receive a response as quickly as possible for urgent matters.
+每个开发版本使用独立分支保存。当前版本源码位于：
 
-## Join the Community
+- **[Preview27 分支](https://github.com/V0idream/eventhorizon-ThreeBodyversion/tree/Preview27)**
+- **[全部分支](https://github.com/V0idream/eventhorizon-ThreeBodyversion/branches)**
 
-Stay connected and engage with other players through the communities on Discord and VK (ВКонтакте). These platforms offer great spaces for news updates, discussions, feedback sharing, questions, or just casual chats about the game.
+版本分支包含完整 Unity 工程，主要面向开发、研究和二次修改；普通玩家通常只需下载 Releases 中的安装包。
 
-- [Join on Discord](https://discordapp.com/invite/yFFvF7m)
-- [Join on VK](https://vk.com/club90031290)
+## 问题反馈
 
-Everyone is welcome, and participation is encouraged!
+发现程序错误、数值异常或兼容性问题时，请前往 **[Issues](https://github.com/V0idream/eventhorizon-ThreeBodyversion/issues)** 提交反馈，并尽量提供：
+
+- 游戏版本与设备/系统版本；
+- 问题出现前后的操作步骤；
+- 截图、录屏或日志；
+- 问题是否可以稳定复现。
+
+## 项目来源与许可
+
+本项目修改自 Pavel Zinchenko 的开源项目 **[Event Horizon](https://github.com/PavelZinchenko/event-horizon-main)**。
+
+项目源码依照仓库中的 **GNU General Public License v3.0** 提供。分发修改版本时，应同时遵守 GPLv3 以及第三方素材各自的许可要求。
+
+《三体》相关名称、设定及其他第三方内容的权利归相应权利人所有。本项目属于非官方同人改版，与原作作者、出版方及其他版权方不存在官方隶属或授权关系。
+
+---
+
+**边界工作室 · Boundary Studio**  
+向星辰大海，前进四。

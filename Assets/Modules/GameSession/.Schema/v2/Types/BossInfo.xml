@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<data name="BossInfo" type="struct">
-    <member name="DefeatCount" type="int" />
-    <member name="LastDefeatTime" type="int" />
-</data>
