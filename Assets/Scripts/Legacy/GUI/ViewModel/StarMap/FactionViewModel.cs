@@ -38,7 +38,9 @@ namespace ViewModel
 			var unlocked = _starMapManager.IsFactionDiscovered(faction) || _research.AnyResearchPointsObtained(faction);
 
 			var color = faction.Color;
-            FactionIconUtility.Apply(Icon, faction, 34f);
+            // Keep the technology-page faction strip compact so custom
+            // factions do not crowd the research-point controls.
+            FactionIconUtility.Apply(Icon, faction, 24f);
 			Background.color = new Color(color.R, color.G, color.B, 0.5f);
 			Name.text = unlocked ? _localization.GetString(faction.Name) : "???";
 			var researchPoints = _research.GetAvailablePoints(faction);

@@ -90,8 +90,21 @@ namespace Combat.Manager
         {
             Debug.Log("OnPlayerDocked - " + stationId);
 
-            if (!_objectives.ContainsKey(stationId)) return;
-            _guiManager.OpenWindow(Gui.Exploration.WindowNames.ScanningPanel, code => { if (code == WindowExitCode.Ok) OnScanCompleted(stationId); });
+            if (!_objectives.ContainsKey(stationId) || !_dockableObjectives.Contains(stationId))
+                return;
+
+            // Both the physical trigger and the proximity safety net below
+            // can report the same point.  A scan must only ever have one
+            // active panel and one completion callback.
+            if (!_scanningObjectives.Add(stationId))
+                return;
+
+            _guiManager.OpenWindow(Gui.Exploration.WindowNames.ScanningPanel, code =>
+            {
+                _scanningObjectives.Remove(stationId);
+                if (code == WindowExitCode.Ok)
+                    OnScanCompleted(stationId);
+            });
         }
 
         private void OnObjectiveDestroyed(int id)
@@ -128,6 +141,8 @@ namespace Combat.Manager
         public void Tick()
         {
             _playerStatsPanel.Open(_scene.PlayerShip);
+
+            TryStartNearbyObjectiveScan();
 
             if (_scene.EnemyShip.IsActive())
                 _enemyStatsPanel.Open(_scene.EnemyShip);
@@ -314,6 +329,40 @@ namespace Combat.Manager
                 _radarPanel.AddBeacon(unit);
                 _sceneObjects.Add(unit);
                 _objectives.Add(i, unit);
+
+                if (objective.Type == ObjectiveType.Container ||
+                    objective.Type == ObjectiveType.Meteorite ||
+                    objective.Type == ObjectiveType.ShipWreck ||
+                    objective.Type == ObjectiveType.Minerals ||
+                    objective.Type == ObjectiveType.MineralsRare)
+                {
+                    _dockableObjectives.Add(i);
+                }
+            }
+        }
+
+        private void TryStartNearbyObjectiveScan()
+        {
+            var player = _scene.PlayerShip;
+            if (player == null || !player.IsActive())
+                return;
+
+            foreach (var stationId in _dockableObjectives)
+            {
+                if (_scanningObjectives.Contains(stationId) ||
+                    !_objectives.TryGetValue(stationId, out var objective) ||
+                    objective == null || !objective.IsActive())
+                {
+                    continue;
+                }
+
+                // This mirrors the docking collision radius but is tolerant
+                // of ships whose visual/physics extents differ.  It fixes
+                // exploration points that could be touched yet failed to
+                // emit a stable collision event.
+                var range = Mathf.Max(8f, (player.Body.WorldScale() + objective.Body.WorldScale()) * 0.8f);
+                if ((player.Body.WorldPosition() - objective.Body.WorldPosition()).sqrMagnitude <= range * range)
+                    OnPlayerDocked(stationId);
             }
         }
 
@@ -349,6 +398,8 @@ namespace Combat.Manager
 
         private readonly IMessenger _messenger;
         private readonly Dictionary<int, IUnit> _objectives = new Dictionary<int, IUnit>();
+        private readonly HashSet<int> _dockableObjectives = new HashSet<int>();
+        private readonly HashSet<int> _scanningObjectives = new HashSet<int>();
         private readonly List<IUnit> _sceneObjects = new List<IUnit>();
 
         private const float _enemyActivationDistance = 75f;

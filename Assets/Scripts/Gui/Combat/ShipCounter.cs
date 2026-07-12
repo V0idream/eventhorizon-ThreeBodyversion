@@ -67,7 +67,7 @@ namespace Gui.Combat
             panelRect.pivot = new Vector2(0.5f, 1f);
             // Keep the ally counter in its own top-level popup, well clear of
             // the enemy counter and the right-side target list.
-            panelRect.anchoredPosition = new Vector2(-210f, -18f);
+            panelRect.anchoredPosition = new Vector2(-210f, -82f);
             panelRect.sizeDelta = new Vector2(180f, 48f);
 
             var background = panel.GetComponent<Image>();
