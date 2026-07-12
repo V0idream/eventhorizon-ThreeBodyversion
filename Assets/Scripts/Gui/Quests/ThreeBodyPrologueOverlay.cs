@@ -1,3 +1,4 @@
+using System;
 using Domain.Quests;
 using UnityEngine;
 using UnityEngine.UI;
@@ -12,10 +13,10 @@ namespace Gui.Quests
     /// </summary>
     public sealed class ThreeBodyPrologueOverlay : MonoBehaviour
     {
-        public static void Show(string resourcePath, UserAction action, QuestEventSignal.Trigger trigger)
+        public static void Show(string resourcePath, UserAction action, QuestEventSignal.Trigger trigger, Action afterAction = null)
         {
             var overlay = EnsureOverlay();
-            overlay.SetPage(resourcePath, action, trigger);
+            overlay.SetPage(resourcePath, action, trigger, afterAction);
         }
 
         public static void Hide()
@@ -93,7 +94,7 @@ namespace Gui.Quests
             _tapButton.transition = Selectable.Transition.None;
         }
 
-        private void SetPage(string resourcePath, UserAction action, QuestEventSignal.Trigger trigger)
+        private void SetPage(string resourcePath, UserAction action, QuestEventSignal.Trigger trigger, Action afterAction)
         {
             _storyImage.sprite = LoadSprite(resourcePath);
             _tapButton.onClick.RemoveAllListeners();
@@ -103,10 +104,13 @@ namespace Gui.Quests
 
             _tapButton.onClick.AddListener(() =>
             {
-                // A page always owns exactly one action.  Hiding first makes
-                // the final "前进四" page behave like a normal quest button.
+                // The original quest action button invokes the action and
+                // then closes its dialog.  Do the same here: otherwise the
+                // inactive description panel remains in the open dialog and
+                // the next illustrated node appears as an empty window.
                 Hide();
                 action.Invoke(trigger);
+                afterAction?.Invoke();
             });
         }
 

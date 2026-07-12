@@ -2,7 +2,7 @@
   "ItemType": 1,
   "Id": 902,
   "Name": "星舰地球核导弹",
-  "Description": "远程战术核导弹，爆炸范围大但装填缓慢。",
+  "Description": "制式导弹的基础上，采用了核弹头，引爆后大范围爆炸伤害与持续辐射减血区域",
   "ContentSource": 1,
   "DisplayCategory": 1,
   "Availability": 1,

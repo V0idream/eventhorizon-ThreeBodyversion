@@ -62,19 +62,19 @@
     <string name="TrueDPS">维度伤害/秒</string>
 
     <string name="StarshipEarthLaser">激光</string>
-    <string name="StarshipEarthLaserDescription">星舰地球早期定向能武器，射程与能量效率优于同级原版装备。</string>
+    <string name="StarshipEarthLaserDescription">将高能能量聚合发射出去的标准制式武器</string>
     <string name="StarshipEarthRailgun">电磁炮</string>
-    <string name="StarshipEarthRailgunDescription">以强磁场加速弹丸的远程动能武器，具备高初速和冲击威力。</string>
+    <string name="StarshipEarthRailgunDescription">利用长电磁轨道加速弹丸实现极高的动能打击，可以轻松摧毁一座山</string>
     <string name="NanobladeArmor">飞刃纳米装甲</string>
-    <string name="NanobladeArmorDescription">由可重排纳米飞刃构成的四格复合装甲，对各类伤害均有较强防护。</string>
+    <string name="NanobladeArmorDescription">利用高强度纳米材料制成的标准制式装甲</string>
     <string name="StarshipEarthFusionReactor">聚变反应炉</string>
-    <string name="StarshipEarthFusionReactorDescription">紧凑型四格聚变能源核心，输出高于同级常规反应堆。</string>
+    <string name="StarshipEarthFusionReactorDescription">利用核聚变发电的装置，可以提供能量恢复</string>
     <string name="ReactionlessEngine">无工质引擎</string>
-    <string name="ReactionlessEngineDescription">不依赖推进工质的六格引擎，兼顾高推进力与转向性能。</string>
+    <string name="ReactionlessEngineDescription">一种无需工质的星际航行引擎，是支持飞船星际航行的基础</string>
     <string name="StarshipEarthWarpDrive">曲速引擎</string>
-    <string name="StarshipEarthWarpDriveDescription">九格时空场装置，可执行类似跃迁装置的短距离曲速转移。</string>
+    <string name="StarshipEarthWarpDriveDescription">光速引擎，通过扭曲空间实现极高速度的航行，但是副作用是使用后留下的航迹会生成有减速作用的黑黑域</string>
     <string name="SuperconductingBattery">超导电池</string>
-    <string name="SuperconductingBatteryDescription">三格高密度储能装置，利用超导回路显著提高可用电量。</string>
+    <string name="SuperconductingBatteryDescription">一种损耗几乎为0的超导储存能量装置</string>
 
     <string name="StarshipEarthFrigate">追光号</string>
     <string name="StarshipEarthFrigateDescription">星舰地球护卫舰，强调快速部署与低成本远程火力。</string>
@@ -87,13 +87,13 @@
     <string name="StarshipEarthFlagship">自然选择号</string>
     <string name="StarshipEarthFlagshipDescription">星舰地球旗舰，能够同时搭载全部星舰地球特色装置。</string>
     <string name="StarshipEarthHeavyRailgun">大型电磁炮</string>
-    <string name="StarshipEarthHeavyRailgunDescription">重型动能武器，拥有优秀的射程、弹速与单发威力。</string>
+    <string name="StarshipEarthHeavyRailgunDescription">进一步优化了弹丸与加速轨道，提升了更高的伤害与耗能</string>
     <string name="StarshipEarthFocusedLaser">聚能激光</string>
-    <string name="StarshipEarthFocusedLaserDescription">通过多级聚能阵列强化射程与持续火力的舰载激光。</string>
+    <string name="StarshipEarthFocusedLaserDescription">进一步优化、强化了高能能量聚合伤害与耗能</string>
     <string name="StarshipEarthAntimatterDrive">反物质引擎</string>
-    <string name="StarshipEarthAntimatterDriveDescription">以反物质反应提供推进力的高性能引擎，可通过并联满足大型舰船需求。</string>
+    <string name="StarshipEarthAntimatterDriveDescription">利用正反物质湮灭爆发的巨大能量进行供能驱动的引擎</string>
     <string name="StarshipEarthInterceptorLaser">小型拦截激光</string>
-    <string name="StarshipEarthInterceptorLaserDescription">一格L槽点防御激光，自动优先拦截导弹；射程50，每秒造成10热能伤害。</string>
+    <string name="StarshipEarthInterceptorLaserDescription">主动拦截防御武器，可以拦截攻击导弹并提前引爆，运气够好可以拦截动能弹药</string>
     <string name="SophonSimPointDefense">SIM弹头近防炮</string>
     <string name="SophonSimPointDefenseDescription">一格L槽自主近防炮，以每秒10发的射速发射SIM实弹，单发造成5点物理伤害并穿透目标80%的动能抗性；360°旋转并始终优先拦截射程内导弹。</string>
 </resources>
