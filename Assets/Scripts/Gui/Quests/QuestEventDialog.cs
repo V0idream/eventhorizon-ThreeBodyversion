@@ -28,6 +28,7 @@ namespace Gui.Quests
             else
             {
                 _description.Initialize(data.Message, data.CharacterName, data.CharacterAvatar);
+                _actions.gameObject.SetActive(true);
                 _actions.Initialize(data.Actions);
             }
             if (_fleet) _fleet.Initialize(_questCombatModelFacctory.CreateEnemyFleet(data.EnemyData));

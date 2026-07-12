@@ -63,6 +63,7 @@ namespace ViewModel.Craft
         {
             _icon.sprite = _resourceLocator.GetSprite(ship.Model.ModelImage);
             _icon.color = Color.white;
+            _icon.preserveAspect = true;
             _name.text = _localization.GetString(ship.Name);
             _name.color = Gui.Theme.UiTheme.Current.GetQualityColor(ship.Model.Quality());
 
@@ -79,13 +80,14 @@ namespace ViewModel.Craft
 
             _stats.gameObject.SetActive(true);
             _stats.transform.InitializeElements<TextFieldViewModel, KeyValuePair<string, string>>(GetShipDescription(ship, _localization), UpdateTextField);
-			UpdateWeaponSlots(ship.Model.Barrels);
+			UpdateWeaponSlots(ship.Model.Layout, ship.Model.Barrels);
         }
 
         private void CreateSatellite(Satellite satellite)
         {
             _icon.sprite = _resourceLocator.GetSprite(satellite.ModelImage);
             _icon.color = Color.white;
+            _icon.preserveAspect = true;
             _name.text = _localization.GetString(satellite.Name);
             _name.color = Gui.Theme.UiTheme.Current.GetQualityColor(ItemQuality.Common);
             _description.gameObject.SetActive(false);
@@ -93,13 +95,14 @@ namespace ViewModel.Craft
 
             _stats.gameObject.SetActive(true);
             _stats.transform.InitializeElements<TextFieldViewModel, KeyValuePair<string, string>>(GetSatelliteDescription(satellite), UpdateTextField);
-			UpdateWeaponSlots(satellite.Barrels);
+			UpdateWeaponSlots(new ShipLayoutAdapter(satellite.Layout), satellite.Barrels);
         }
 
         private void CreateComponent(ComponentInfo info)
         {
             _icon.sprite = _resourceLocator.GetSprite(info.Data.Icon);
             _icon.color = info.Data.Color;
+            _icon.preserveAspect = true;
             _name.text = _localization.GetString(info.Data.Name);
             _name.color = UiTheme.Current.GetQualityColor(info.ItemQuality);
 
@@ -127,6 +130,7 @@ namespace ViewModel.Craft
         {
             _icon.sprite = _emptyIcon;
             _icon.color = Color.white;
+            _icon.preserveAspect = true;
             _name.text = string.Empty;
             _description.gameObject.SetActive(false);
             _stats.gameObject.SetActive(false);
@@ -138,6 +142,7 @@ namespace ViewModel.Craft
         {
             _icon.sprite = _resourceLocator.GetSprite(item.Icon);
             _icon.color = item.Color;
+            _icon.preserveAspect = true;
             _name.text = item.Name;
             _name.color = UiTheme.Current.GetQualityColor(item.Quality);
 
@@ -150,10 +155,11 @@ namespace ViewModel.Craft
             _modification.gameObject.SetActive(false);
         }
 
-		private void UpdateWeaponSlots(IReadOnlyCollection<Barrel> barrels)
+		private void UpdateWeaponSlots(IShipLayout layout, IReadOnlyCollection<Barrel> barrels)
 		{
-			_weaponSlots.gameObject.SetActive(barrels.Count > 0);
-			_weaponSlots.transform.InitializeElements<BlockViewModel, Barrel>(barrels, UpdateWeaponSlot);
+			var slots = GetActualWeaponSlots(layout, barrels).ToArray();
+			_weaponSlots.gameObject.SetActive(slots.Length > 0);
+			_weaponSlots.transform.InitializeElements<BlockViewModel, WeaponSlot>(slots, UpdateWeaponSlot);
 		}
 
 		private void UpdateTextField(TextFieldViewModel viewModel, KeyValuePair<string, string> data)
@@ -162,10 +168,77 @@ namespace ViewModel.Craft
             viewModel.Value.text = data.Value;
         }
 
-        private static void UpdateWeaponSlot(BlockViewModel view, Barrel barrel)
+        private static void UpdateWeaponSlot(BlockViewModel view, WeaponSlot slot)
         {
-            view.Label.text = barrel.WeaponClass;
+            // An empty class is an unrestricted physical slot.  Showing it as
+            // "任意" is clearer than an empty block and mirrors the slot that
+            // can actually accept any weapon in the editor.
+            view.Label.text = string.IsNullOrEmpty(slot.WeaponClass) ? "任意" : slot.WeaponClass;
         }
+
+        private static IEnumerable<WeaponSlot> GetActualWeaponSlots(IShipLayout layout, IReadOnlyCollection<Barrel> barrels)
+        {
+            var barrelList = barrels?.ToList() ?? new List<Barrel>();
+            var visited = new HashSet<Vector2Int>();
+            var barrelIndex = 0;
+            var rect = layout.Rect;
+
+            for (var y = rect.yMin; y <= rect.yMax; y++)
+            {
+                for (var x = rect.xMin; x <= rect.xMax; x++)
+                {
+                    var position = new Vector2Int(x, y);
+                    if (visited.Contains(position) || !IsWeaponSlotCell(layout[x, y]))
+                        continue;
+
+                    FloodFillWeaponSlot(layout, position, visited);
+                    var weaponClass = barrelIndex < barrelList.Count ? barrelList[barrelIndex].WeaponClass : string.Empty;
+                    yield return new WeaponSlot(weaponClass);
+                    barrelIndex++;
+                }
+            }
+        }
+
+        private static void FloodFillWeaponSlot(IShipLayout layout, Vector2Int origin, HashSet<Vector2Int> visited)
+        {
+            var rect = layout.Rect;
+            var queue = new Queue<Vector2Int>();
+            queue.Enqueue(origin);
+            visited.Add(origin);
+
+            while (queue.Count > 0)
+            {
+                var current = queue.Dequeue();
+                foreach (var offset in _neighbourOffsets)
+                {
+                    var next = current + offset;
+                    if (!rect.IsInsideRect(next.x, next.y) || visited.Contains(next) || !IsWeaponSlotCell(layout[next.x, next.y]))
+                        continue;
+
+                    visited.Add(next);
+                    queue.Enqueue(next);
+                }
+            }
+        }
+
+        private static bool IsWeaponSlotCell(CellType cell)
+        {
+            return cell == CellType.Weapon || (char)cell == (char)GameDatabase.Model.Layout.CustomWeaponCell;
+        }
+
+        private readonly struct WeaponSlot
+        {
+            public WeaponSlot(string weaponClass) => WeaponClass = weaponClass;
+            public readonly string WeaponClass;
+        }
+
+        private static readonly Vector2Int[] _neighbourOffsets =
+        {
+            Vector2Int.left,
+            Vector2Int.right,
+            Vector2Int.up,
+            Vector2Int.down,
+        };
 
         private static IEnumerable<KeyValuePair<string, string>> GetShipDescription(IShip ship, ILocalization localization)
         {

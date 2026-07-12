@@ -68,6 +68,33 @@
       "Rotation": -90.0,
       "Offset": 0.25,
       "WeaponClass": "CL"
+    },
+    {
+      "Position": {
+        "x": -0.15,
+        "y": -0.8
+      },
+      "Rotation": -90.0,
+      "AutoAimingArc": 360.0,
+      "WeaponClass": "L"
+    },
+    {
+      "Position": {
+        "x": -0.15,
+        "y": 0.7
+      },
+      "Rotation": 90.0,
+      "AutoAimingArc": 360.0,
+      "WeaponClass": "L"
+    },
+    {
+      "Position": {
+        "x": -0.15,
+        "y": 0.88
+      },
+      "Rotation": 90.0,
+      "AutoAimingArc": 360.0,
+      "WeaponClass": "L"
     }
   ],
   "Features": {
