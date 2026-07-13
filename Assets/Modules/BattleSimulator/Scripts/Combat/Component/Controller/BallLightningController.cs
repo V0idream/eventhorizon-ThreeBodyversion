@@ -1,5 +1,6 @@
 using System;
 using Combat.Collision;
+using Combat.Collision.Manager;
 using Combat.Component.Body;
 using Combat.Component.Bullet;
 using Combat.Component.Ship;
@@ -237,7 +238,8 @@ namespace Combat.Component.Controller
             var units = _scene.Units.Items;
             for (var i = 0; i < units.Count; ++i)
             {
-                if (!(units[i] is IShip target) || !target.IsActive() || target == _owner)
+                var target = units[i];
+                if (target == null || !target.IsActive() || target == _bullet || target == _owner)
                     continue;
                 if (!CombatRelations.AreEnemies(_owner.Type, target.Type))
                     continue;
@@ -247,8 +249,23 @@ namespace Combat.Component.Controller
                 if (distance > 30f)
                     continue;
 
-                target.Affect(new Impact { EnergyDamage = damage }, _owner);
-                target.Body.ApplyAcceleration(-target.Body.Velocity * 0.7f);
+                if (target is IShip targetShip)
+                {
+                    targetShip.Affect(new Impact { EnergyDamage = damage }, _owner);
+                    targetShip.Body.ApplyAcceleration(-targetShip.Body.Velocity * 0.7f);
+                }
+                else if (IsBallLightning(target))
+                {
+                    // An activated macro-electron can excite an opposing
+                    // unarmed macro-electron.  Deliver the hit through the
+                    // target bullet's damage handler so it follows the same
+                    // charging path as an ordinary weapon impact.
+                    var collision = CollisionData.FromObjects(_bullet, target, sourcePosition, true,
+                        Mathf.Max(Time.fixedDeltaTime, 0.02f));
+                    target.OnCollision(new Impact { EnergyDamage = damage }, _bullet, collision);
+                }
+                else
+                    continue;
 
                 var lightning = _effectFactory.CreateEffect("Lightning", target.Body);
                 if (lightning == null || !lightning.IsAlive)
@@ -260,6 +277,12 @@ namespace Combat.Component.Controller
                 lightning.Run(0.48f, Vector2.zero, 0f);
                 CreateDischargeArc(sourcePosition, targetPosition, color);
             }
+        }
+
+        private static bool IsBallLightning(IUnit unit)
+        {
+            return unit is Combat.Component.Bullet.Bullet bullet &&
+                   bullet.Controller is BallLightningController;
         }
 
         private void CreateDischargeArc(Vector2 source, Vector2 target, Color color)

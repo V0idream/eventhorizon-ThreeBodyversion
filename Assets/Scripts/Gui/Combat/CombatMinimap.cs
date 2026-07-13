@@ -242,6 +242,7 @@ namespace Gui.Combat
                 .Where(s => s.IsActive() && s != player && s.Type.Side == UnitSide.Ally)
                 .Where(s => Vector2.Distance(player.Body.Position, s.Body.Position) <= radarRange)
                 .ToArray();
+            var detectedMacroElectrons = GetDetectedMacroElectrons(player, radarRange);
             var lockedTarget = _scene.LockedTarget;
             var lockedShip = _scene.LockedEnemyShip;
             var lockedMacroElectron = IsMacroElectron(lockedTarget);
@@ -250,7 +251,9 @@ namespace Gui.Combat
             if (!lockedTargetVisible)
             {
                 _scene.LockTarget(null);
-                var nearestTarget = detected
+                IUnit nearestTarget = detected
+                    .Cast<IUnit>()
+                    .Concat(detectedMacroElectrons)
                     .OrderBy(s => Vector2.SqrMagnitude(s.Body.Position - player.Body.Position))
                     .FirstOrDefault();
                 if (nearestTarget != null)
@@ -258,6 +261,7 @@ namespace Gui.Combat
             }
             var displayRange = Mathf.Max(100f, detected.Concat(allies)
                 .Select(s => Vector2.Distance(player.Body.Position, s.Body.Position))
+                .Concat(detectedMacroElectrons.Select(m => Vector2.Distance(player.Body.Position, m.Body.WorldPosition())))
                 .DefaultIfEmpty(100f).Max());
 
             var detectedSet = new HashSet<IShip>(detected);
@@ -392,13 +396,17 @@ namespace Gui.Combat
             var rect = go.GetComponent<RectTransform>();
             rect.SetParent(_map, false);
             var image = go.GetComponent<Image>();
+            image.sprite = MarkerSprite;
             image.raycastTarget = isMacroElectron;
 
             GameObject cross = null;
+            Text symbol = null;
             if (isMacroElectron)
             {
                 var button = go.AddComponent<Button>();
                 button.onClick.AddListener(() => _scene.LockUnit(unit));
+                symbol = AddText(rect, "●", 14);
+                symbol.color = Color.white;
                 cross = new GameObject("LockedCross", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
                 var crossRect = cross.GetComponent<RectTransform>();
                 crossRect.SetParent(rect, false);
@@ -415,7 +423,7 @@ namespace Gui.Combat
                 cross.SetActive(false);
             }
 
-            return new UnitMarker(go, rect, image, cross);
+            return new UnitMarker(go, rect, image, cross, symbol);
         }
 
         private void UpdateProjectileMarker(UnitMarker marker, IUnit unit, IShip player, float displayRange)
@@ -429,7 +437,12 @@ namespace Gui.Combat
 
             if (IsMacroElectron(unit))
             {
-                marker.Image.color = new Color(0.32f, 0.76f, 1f, 0.95f);
+                var macroColor = friendly
+                    ? new Color(0.2f, 0.65f, 1f, 1f)
+                    : new Color(1f, 0.16f, 0.08f, 1f);
+                marker.Image.color = new Color(macroColor.r, macroColor.g, macroColor.b, 0.22f);
+                if (marker.Symbol != null)
+                    marker.Symbol.color = macroColor;
                 SetDot(marker.Rect, Vector2.zero, _scene.LockedTarget == unit ? 12f : 9f);
                 marker.Cross?.SetActive(_scene.LockedTarget == unit);
                 marker.Rect.localEulerAngles = Vector3.zero;
@@ -468,8 +481,22 @@ namespace Gui.Combat
             var player = _scene.PlayerShip;
             var target = _scene.Ships.Items.Where(s => s.IsActive() && CombatRelations.AreEnemies(player.Type, s.Type))
                 .Where(s => Vector2.Distance(player.Body.Position, s.Body.Position) <= GetRadarRange(player))
-                .OrderBy(s => Vector2.SqrMagnitude(s.Body.Position - player.Body.Position)).FirstOrDefault();
+                .Cast<IUnit>()
+                .Concat(GetDetectedMacroElectrons(player, GetRadarRange(player)))
+                .OrderBy(s => Vector2.SqrMagnitude(s.Body.WorldPosition() - player.Body.Position)).FirstOrDefault();
             Lock(target);
+        }
+
+        private IUnit[] GetDetectedMacroElectrons(IShip player, float radarRange)
+        {
+            lock (_scene.Units.LockObject)
+            {
+                return _scene.Units.Items
+                    .Where(unit => IsMacroElectron(unit) &&
+                                   CombatRelations.AreEnemies(player.Type, unit.Type) &&
+                                   IsProjectileVisible(unit, player, radarRange))
+                    .ToArray();
+            }
         }
 
         public static float GetRadarRange(IShip ship)
@@ -481,9 +508,14 @@ namespace Gui.Combat
 
         private void Lock(IShip ship)
         {
-            if (ship == null || !ship.IsActive())
+            Lock((IUnit)ship);
+        }
+
+        private void Lock(IUnit unit)
+        {
+            if (unit == null || !unit.IsActive())
                 return;
-            _scene.LockTarget(ship);
+            _scene.LockUnit(unit);
             _status.text = "LOCKED";
         }
 
@@ -525,6 +557,17 @@ namespace Gui.Combat
         private static bool IsMacroElectron(IUnit unit)
         {
             return unit is Bullet bullet && bullet.Controller is BallLightningController;
+        }
+
+        private static Sprite MarkerSprite
+        {
+            get
+            {
+                if (_markerSprite == null)
+                    _markerSprite = Sprite.Create(Texture2D.whiteTexture, new Rect(0, 0, 1, 1),
+                        new Vector2(0.5f, 0.5f), 1f);
+                return _markerSprite;
+            }
         }
 
         private static void SetDot(RectTransform rect, Vector2 position, float size)
@@ -603,18 +646,20 @@ namespace Gui.Combat
 
         private sealed class UnitMarker
         {
-            public UnitMarker(GameObject root, RectTransform rect, Image image, GameObject cross = null)
+            public UnitMarker(GameObject root, RectTransform rect, Image image, GameObject cross = null, Text symbol = null)
             {
                 Root = root;
                 Rect = rect;
                 Image = image;
                 Cross = cross;
+                Symbol = symbol;
             }
 
             public readonly GameObject Root;
             public readonly RectTransform Rect;
             public readonly Image Image;
             public readonly GameObject Cross;
+            public readonly Text Symbol;
         }
 
         private sealed class TransientMarker
@@ -636,5 +681,7 @@ namespace Gui.Combat
             public readonly float Duration;
             public float TimeLeft;
         }
+
+        private static Sprite _markerSprite;
     }
 }

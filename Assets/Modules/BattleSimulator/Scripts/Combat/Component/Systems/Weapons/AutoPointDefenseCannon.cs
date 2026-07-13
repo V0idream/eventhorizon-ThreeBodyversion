@@ -1,4 +1,5 @@
 using Combat.Component.Bullet;
+using Combat.Component.Controller;
 using Combat.Component.Platform;
 using Combat.Component.Ship;
 using Combat.Component.Triggers;
@@ -55,7 +56,7 @@ namespace Combat.Component.Systems.Weapons
             {
                 foreach (var unit in _scene.Units.Items)
                 {
-                    if (!unit.IsActive() || unit.Type.Class != UnitClass.Missile ||
+                    if (!unit.IsActive() || !IsInterceptableProjectile(unit) ||
                         !CombatRelations.AreEnemies(unit.Type, _owner.Type))
                         continue;
                     var distance = Vector2.SqrMagnitude(unit.Body.WorldPosition() - position);
@@ -82,5 +83,11 @@ namespace Combat.Component.Systems.Weapons
         private readonly IShip _owner;
         private readonly float _energyCost;
         private readonly IBulletCompositeDisposable _bullets;
+
+        private static bool IsInterceptableProjectile(IUnit unit)
+        {
+            return unit.Type.Class == UnitClass.Missile ||
+                   unit is Combat.Component.Bullet.Bullet bullet && bullet.Controller is BallLightningController;
+        }
     }
 }

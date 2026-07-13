@@ -16,6 +16,15 @@ namespace Combat.Collision.Behaviour.Action
 
         public void Invoke(IUnit self, IUnit target, CollisionData collisionData, ref Impact selfImpact, ref Impact targetImpact)
         {
+            // Lingering area hazards affect ships, not weapon projectiles.
+            // Otherwise a missile's persistent cloud can destroy unrelated
+            // electromagnetic-cannon shots while they are in flight.
+            if (_impactType == BulletImpactType.DamageOverTime &&
+                self.Type.Class == Combat.Component.Unit.Classification.UnitClass.AreaOfEffect &&
+                target.Type.Class != Combat.Component.Unit.Classification.UnitClass.Ship &&
+                target.Type.Class != Combat.Component.Unit.Classification.UnitClass.Drone)
+                return;
+
             var damage = _ignoreDefenseBonus ? _damage * target.DefenseMultiplier : _damage;
 
             if (_impactType == BulletImpactType.DamageOverTime)
