@@ -113,36 +113,46 @@ namespace Model
             public static IFleet StarbaseDefenseAllies(GameModel.Region region, int seed, IDatabase database)
             {
                 var random = new Random(seed);
+                var stationLevel = UnityEngine.Mathf.Max(1, region.BaseDefendersLevel);
                 var builds = new List<ShipBuild>();
-                AddDefenseClass(builds, region.Faction, SizeClass.Titan, 1, region.HomeStarLevel, random, database);
-                AddDefenseClass(builds, region.Faction, SizeClass.Battleship, 3, region.HomeStarLevel, random, database);
-                AddDefenseClass(builds, region.Faction, SizeClass.Cruiser, 5, region.HomeStarLevel, random, database);
-                AddDefenseClass(builds, region.Faction, SizeClass.Destroyer, 10, region.HomeStarLevel, random, database);
-                AddDefenseClass(builds, region.Faction, SizeClass.Frigate, 20, region.HomeStarLevel, random, database);
-                return new CommonFleet(database, builds.OrderBy(_ => random.Next()), region.HomeStarLevel, random.Next(),
-                    Maths.Distance.AiLevel(region.HomeStarLevel));
+                AddDefenseClass(builds, region.Faction, SizeClass.Titan, 1, stationLevel, random, database);
+                AddDefenseClass(builds, region.Faction, SizeClass.Battleship, 3, stationLevel, random, database);
+                AddDefenseClass(builds, region.Faction, SizeClass.Cruiser, 5, stationLevel, random, database);
+                AddDefenseClass(builds, region.Faction, SizeClass.Destroyer, 10, stationLevel, random, database);
+                AddDefenseClass(builds, region.Faction, SizeClass.Frigate, 20, stationLevel, random, database);
+                return new CommonFleet(database, builds.OrderBy(_ => random.Next()), stationLevel, random.Next(),
+                    Maths.Distance.AiLevel(stationLevel));
             }
 
-            public static IFleet StarbaseDefenseEnemies(GameModel.Region region, int seed, IDatabase database)
+            public static IFleet StarbaseDefenseEnemies(GameModel.Region region, int seed, int excludedFactionId,
+                IDatabase database, out int selectedFactionId)
             {
                 var random = new Random(seed);
-                var level = UnityEngine.Mathf.Max(1, UnityEngine.Mathf.RoundToInt(region.HomeStarLevel * 1.5f));
-                var available = ShipBuildQuery.EnemyShips(database)
-                    .FilterByStarDistance(level, ShipBuildQuery.FilterMode.SizeAndDifficulty)
-                    .Where(item => item.Faction != region.Faction)
-                    .All.ToList();
-                if (available.Count == 0)
-                    available = ShipBuildQuery.EnemyShips(database).Where(item => item.Faction != region.Faction).All.ToList();
+                var stationLevel = UnityEngine.Mathf.Max(1, region.BaseDefendersLevel);
+                var level = UnityEngine.Mathf.Max(1, UnityEngine.Mathf.RoundToInt(stationLevel * 1.5f));
+                var allAvailable = ShipBuildQuery.EnemyShips(database)
+                    .Where(item => item.Faction != region.Faction).All.ToList();
+                var factions = allAvailable.Select(item => item.Faction).Distinct().ToList();
+                var differentFactions = factions.Where(item => item.Id.Value != excludedFactionId).ToList();
+                if (differentFactions.Count > 0)
+                    factions = differentFactions;
 
-                var factions = available.Select(item => item.Faction).Distinct().ToList();
+                selectedFactionId = -1;
+                var available = new List<ShipBuild>();
                 if (factions.Count > 0)
                 {
                     var faction = factions[random.Next(factions.Count)];
-                    available = available.Where(item => item.Faction == faction).ToList();
+                    selectedFactionId = faction.Id.Value;
+                    available = ShipBuildQuery.EnemyShips(database)
+                        .BelongToFaction(faction)
+                        .FilterByStarDistance(level, ShipBuildQuery.FilterMode.SizeAndDifficulty)
+                        .All.ToList();
+                    if (available.Count == 0)
+                        available = allAvailable.Where(item => item.Faction == faction).ToList();
                 }
 
                 var builds = new List<ShipBuild>();
-                for (var i = 0; i < 15 && available.Count > 0; i++)
+                for (var i = 0; i < 40 && available.Count > 0; i++)
                     builds.Add(available[random.Next(available.Count)]);
                 return new CommonFleet(database, builds.OrderBy(_ => random.Next()), level, random.Next(), Maths.Distance.AiLevel(level));
             }

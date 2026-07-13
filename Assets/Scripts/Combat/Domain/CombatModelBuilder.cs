@@ -37,6 +37,7 @@ namespace Combat.Domain
         public CombatRules Rules { get; set; }
         public int StarLevel { get; set; }
         public ShipBuild DefenseStarbaseBuild { get; set; }
+        public int DefenseStarbaseLevel { get; set; }
 
         public void AddSpecialReward(IProduct item)
         {
@@ -73,6 +74,9 @@ namespace Combat.Domain
             if (DefenseStarbaseBuild != null && DefenseStarbaseBuild != ShipBuild.DefaultValue)
             {
                 var station = new CommonShip(DefenseStarbaseBuild, _database);
+                if (DefenseStarbaseLevel > 0)
+                    station.Experience = Maths.Experience.FromLevel(
+                        _database.GalaxySettings.EnemyLevel(DefenseStarbaseLevel));
                 var stationSpec = station.CreateBuilder().Build(_database.ShipSettings);
                 model.DefenseStarbase = new ShipInfo(station, stationSpec, UnitSide.Player);
                 model.IsStarbaseDefense = true;

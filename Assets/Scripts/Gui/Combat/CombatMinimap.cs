@@ -272,9 +272,11 @@ namespace Gui.Combat
                 var relative = (ship.Body.Position - player.Body.Position) / displayRange;
                 rect.anchorMin = rect.anchorMax = new Vector2(0.5f + relative.x * 0.47f, 0.5f + relative.y * 0.47f);
                 SetDot(rect, Vector2.zero, ship == _scene.LockedEnemyShip ? 12f : 7f);
-                marker.Image.color = ThreeBodySkillState.AdvancedRadarUnlocked
+                marker.Image.color = ship.Specification.Stats.ShipModel.SizeClass == GameDatabase.Enums.SizeClass.Starbase
                     ? CombatTargetLine.TargetColor(ship)
-                    : Color.red;
+                    : ThreeBodySkillState.AdvancedRadarUnlocked
+                        ? CombatTargetLine.TargetColor(ship)
+                        : Color.red;
                 marker.Cross.SetActive(ship == _scene.LockedEnemyShip);
             }
 
@@ -304,9 +306,9 @@ namespace Gui.Combat
                     markerRect.SetParent(_map, false);
                     marker = go.GetComponent<Text>();
                     marker.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-                    marker.fontSize = 15;
+                    marker.fontSize = 10;
                     marker.alignment = TextAnchor.MiddleCenter;
-                    marker.text = "▲";
+                    marker.text = "●";
                     marker.color = new Color(0.2f, 0.62f, 1f, 1f);
                     marker.raycastTarget = false;
                     _allyMarkers.Add(ally, marker);
@@ -315,7 +317,7 @@ namespace Gui.Combat
                 var relative = (ally.Body.Position - player.Body.Position) / displayRange;
                 var rect = marker.rectTransform;
                 rect.anchorMin = rect.anchorMax = new Vector2(0.5f + relative.x * 0.47f, 0.5f + relative.y * 0.47f);
-                SetDot(rect, Vector2.zero, 14f);
+                SetDot(rect, Vector2.zero, 8f);
             }
         }
 

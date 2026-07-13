@@ -10,6 +10,7 @@ using Session;
 using Zenject;
 using ViewModel;
 using Combat.Component.Unit.Classification;
+using System.Collections.Generic;
 
 namespace Galaxy.StarContent
 {
@@ -103,12 +104,19 @@ namespace Galaxy.StarContent
                 return;
 
             var builder = _combatModelBuilderFactory.Create();
+            var stationLevel = UnityEngine.Mathf.Max(1, region.BaseDefendersLevel);
+            _lastDefenseFactionByStar.TryGetValue(starId, out var previousFactionId);
+            var seed = unchecked(starId ^ (++_defenseAttemptSerial * 7919) ^ System.Environment.TickCount);
             builder.PlayerFleet = new Model.Military.PlayerFleet(_database, _playerFleet);
-            builder.AllyFleet = Fleet.StarbaseDefenseAllies(region, starId ^ 0x444546, _database);
-            builder.EnemyFleet = Fleet.StarbaseDefenseEnemies(region, starId ^ 0x454E4D, _database);
+            builder.AllyFleet = Fleet.StarbaseDefenseAllies(region, seed ^ 0x444546, _database);
+            builder.EnemyFleet = Fleet.StarbaseDefenseEnemies(region, seed ^ 0x454E4D, previousFactionId,
+                _database, out var attackerFactionId);
+            if (attackerFactionId >= 0)
+                _lastDefenseFactionByStar[starId] = attackerFactionId;
             builder.DefenseStarbaseBuild = Fleet.StarbaseForFaction(region, _database);
+            builder.DefenseStarbaseLevel = stationLevel;
             builder.Rules = _database.GalaxySettings.StarbaseCombatRules ?? _database.CombatSettings.DefaultCombatRules;
-            builder.StarLevel = region.HomeStarLevel;
+            builder.StarLevel = stationLevel;
             CombatRelations.SetRelation(0, region.Faction.Id.Value, true);
             var model = builder.Build();
             _startBattleTrigger.Fire(model, result => OnDefenseCompleted(starId, result));
@@ -116,11 +124,13 @@ namespace Galaxy.StarContent
 
         private void OnDefenseCompleted(int starId, ICombatModel result)
         {
-            if (!result.IsVictory())
+            if (result == null || result.EnemyFleet.IsAnyShipAlive())
                 return;
 
             var region = _starData.GetRegion(starId);
-            region.BaseDefensePower = UnityEngine.Mathf.CeilToInt(region.BaseDefensePower * 1.5f);
+            var currentPower = region.BaseDefensePower;
+            region.BaseDefensePower = UnityEngine.Mathf.Max(currentPower + 1,
+                UnityEngine.Mathf.CeilToInt(currentPower * 1.5f));
             _starContentChangedTrigger.Fire(starId);
         }
 
@@ -148,7 +158,10 @@ namespace Galaxy.StarContent
 			public ICombatModel CreateCombatModel() => _starbase.CreateCombatModel(_starId);
 
 			private readonly StarBase _starbase;
-			private readonly int _starId;
+		private readonly int _starId;
 		}
+
+        private readonly Dictionary<int, int> _lastDefenseFactionByStar = new Dictionary<int, int>();
+        private int _defenseAttemptSerial;
 	}
 }
