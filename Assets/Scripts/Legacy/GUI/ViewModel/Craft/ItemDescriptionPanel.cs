@@ -80,7 +80,7 @@ namespace ViewModel.Craft
 
             _stats.gameObject.SetActive(true);
             _stats.transform.InitializeElements<TextFieldViewModel, KeyValuePair<string, string>>(GetShipDescription(ship, _localization), UpdateTextField);
-			UpdateWeaponSlots(ship.Model.Barrels);
+            _weaponSlots.gameObject.SetActive(false);
         }
 
         private void CreateSatellite(Satellite satellite)
@@ -95,7 +95,7 @@ namespace ViewModel.Craft
 
             _stats.gameObject.SetActive(true);
             _stats.transform.InitializeElements<TextFieldViewModel, KeyValuePair<string, string>>(GetSatelliteDescription(satellite), UpdateTextField);
-			UpdateWeaponSlots(satellite.Barrels);
+            _weaponSlots.gameObject.SetActive(false);
         }
 
         private void CreateComponent(ComponentInfo info)
@@ -155,25 +155,18 @@ namespace ViewModel.Craft
             _modification.gameObject.SetActive(false);
         }
 
-		private void UpdateWeaponSlots(IReadOnlyCollection<Barrel> barrels)
-		{
-			_weaponSlots.gameObject.SetActive(barrels.Count > 0);
-			_weaponSlots.transform.InitializeElements<BlockViewModel, Barrel>(barrels, UpdateWeaponSlot);
-		}
-
 		private void UpdateTextField(TextFieldViewModel viewModel, KeyValuePair<string, string> data)
         {
             viewModel.Label.text = _localization.GetString(data.Key);
             viewModel.Value.text = data.Value;
         }
 
-        private static void UpdateWeaponSlot(BlockViewModel view, Barrel barrel)
-        {
-            view.Label.text = string.IsNullOrEmpty(barrel.WeaponClass) ? "任意" : barrel.WeaponClass;
-        }
-
         private static IEnumerable<KeyValuePair<string, string>> GetShipDescription(IShip ship, ILocalization localization)
         {
+            var weaponSlots = GetWeaponSlotText(ship.Model.Barrels);
+            if (!string.IsNullOrEmpty(weaponSlots))
+                yield return new KeyValuePair<string, string>("$WeaponSlots", weaponSlots);
+
             var size = ship.Model.Layout.CellCount;
             yield return new KeyValuePair<string, string>("$CellCount", size.ToString());
             yield return new KeyValuePair<string, string>("$EngineSize", CalculateEngineSize(ship.Model.Layout).ToString());
@@ -220,6 +213,10 @@ namespace ViewModel.Craft
 
         private static IEnumerable<KeyValuePair<string, string>> GetSatelliteDescription(Satellite satellite)
         {
+            var weaponSlots = GetWeaponSlotText(satellite.Barrels);
+            if (!string.IsNullOrEmpty(weaponSlots))
+                yield return new KeyValuePair<string, string>("$WeaponSlots", weaponSlots);
+
             var size = satellite.Layout.CellCount;
             yield return new KeyValuePair<string, string>("$CellCount", size.ToString());
 
@@ -231,6 +228,17 @@ namespace ViewModel.Craft
         private static int CalculateResistance(float value)
         {
             return Mathf.FloorToInt(100 * value / (value + 1));
+        }
+
+        private static string GetWeaponSlotText(IReadOnlyCollection<Barrel> barrels)
+        {
+            if (barrels == null || barrels.Count == 0)
+                return string.Empty;
+
+            // The old floating slot-grid prefab retained an absolute editor
+            // position and could overlap the stat rows.  Put the exact live
+            // barrel classes into the same stat layout instead.
+            return string.Join("  ", barrels.Select(item => string.IsNullOrEmpty(item.WeaponClass) ? "任意" : item.WeaponClass));
         }
 
         private static string SignedPercent(float value)

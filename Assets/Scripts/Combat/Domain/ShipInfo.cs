@@ -25,11 +25,12 @@ namespace Combat.Domain
 {
     public class ShipInfo : IShipInfo
     {
-        public ShipInfo(Constructor.Ships.IShip shipData, IShipSpecification shipSpec, UnitSide unitSide)
+        public ShipInfo(Constructor.Ships.IShip shipData, IShipSpecification shipSpec, UnitSide unitSide, bool isCollaborativeAlly = false)
         {
             _unitSide = unitSide;
             _shipData = shipData;
             _shipSpec = shipSpec;
+            IsCollaborativeAlly = isCollaborativeAlly;
         }
 
         public ShipStatus Status
@@ -63,6 +64,7 @@ namespace Combat.Domain
         }
 
         public UnitSide Side { get { return _unitSide; } }
+        public bool IsCollaborativeAlly { get; }
 
         public void Create(Factory.ShipFactory factory, Vector2 position, int aiLevel)
         {

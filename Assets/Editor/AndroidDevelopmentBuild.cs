@@ -10,8 +10,8 @@ public static class AndroidDevelopmentBuild
 {
     private const string PackageName = "com.threebody.EventHorizon";
     private const string ProductName = "三体视界";
-    private const string VersionName = "Alpha 1.2";
-    private const int VersionCode = 113201;
+    private const string VersionName = "Alpha 1.3";
+    private const int VersionCode = 113301;
 
     [MenuItem("Build/Android/Development APK")]
     public static void BuildFromMenu()
@@ -35,7 +35,7 @@ public static class AndroidDevelopmentBuild
 
         var outputDirectory = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "Builds", "Android"));
         Directory.CreateDirectory(outputDirectory);
-        var outputPath = Path.Combine(outputDirectory, "ThreeBody-EventHorizon-Alpha-1.2.apk");
+        var outputPath = Path.Combine(outputDirectory, "ThreeBody-EventHorizon-Alpha-1.3.apk");
         BuildStreamingAssetBundles();
 
         var scenes = EditorBuildSettings.scenes
@@ -136,8 +136,21 @@ public static class AndroidDevelopmentBuild
                 ? component.Icon.Substring(0, component.Icon.Length - 2)
                 : component.Icon;
             var assetPath = FindComponentSpriteAsset(icon);
-            if (string.IsNullOrEmpty(assetPath) || AssetImporter.GetAtPath(assetPath) is not TextureImporter importer)
+            if (string.IsNullOrEmpty(assetPath))
                 throw new InvalidOperationException($"ThreeBody component sprite is missing: {component.Icon} ({jsonPath})");
+
+            var importer = AssetImporter.GetAtPath(assetPath) as TextureImporter;
+            if (importer == null)
+            {
+                AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceSynchronousImport | ImportAssetOptions.ForceUpdate);
+                importer = AssetImporter.GetAtPath(assetPath) as TextureImporter;
+            }
+
+            if (importer == null)
+            {
+                Debug.LogWarning($"Skipping sprite normalization until Unity imports: {assetPath}");
+                continue;
+            }
 
             importer.GetSourceTextureWidthAndHeight(out var width, out var height);
             var gridSize = Mathf.CeilToInt(Mathf.Sqrt(component.Layout.Length));
@@ -181,7 +194,8 @@ public static class AndroidDevelopmentBuild
         foreach (var extension in new[] { ".png", ".jpg", ".jpeg", ".JPG", ".psd" })
         {
             var path = folder + icon + extension;
-            if (File.Exists(Path.GetFullPath(path)))
+            var absolutePath = Path.Combine(Application.dataPath, "Sprites", "Components", icon + extension);
+            if (File.Exists(absolutePath))
                 return path;
         }
 

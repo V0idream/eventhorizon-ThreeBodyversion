@@ -19,11 +19,21 @@ using Zenject;
 using GameDatabase.Enums;
 using GameDatabase.Extensions;
 using Combat.Ai.Calculations;
+using Combat.Component.Platform;
+using Combat.Component.Systems.Weapons;
+using GameServices.Player;
 
 namespace Combat.Manager
 {
     public class CombatManager : IInitializable, ITickable
     {
+        public enum AllyOrder
+        {
+            Free,
+            Attack,
+            Defend,
+        }
+
         [Inject]
         private CombatManager(
             IMessenger messenger,
@@ -107,6 +117,7 @@ namespace Combat.Manager
                 CreateShip(ship);
 
             foreach (var ally in _combatModel.AllyFleet.Ships
+                         .Where(item => !item.IsCollaborativeAlly)
                          .Where(item => item.Status == ShipStatus.Ready)
                          .ToArray())
                 CreateShip(ally);
@@ -158,7 +169,37 @@ namespace Combat.Manager
 
         public void CreateShip(IShipInfo ship)
         {
-            ship.Create(_shipFactory, _scene.FindFreePlace(40, ship.Side), _combatModel.EnemyFleet.AiLevel);
+            CreateShip(ship, _scene.FindFreePlace(40, ship.Side));
+        }
+
+        public void CycleAllyOrder()
+        {
+            AllyTactic = AllyTactic == AllyOrder.Free
+                ? AllyOrder.Attack
+                : AllyTactic == AllyOrder.Attack
+                    ? AllyOrder.Defend
+                    : AllyOrder.Free;
+        }
+
+        public AllyOrder AllyTactic { get; private set; } = AllyOrder.Free;
+
+        public string AllyOrderName => AllyTactic switch
+        {
+            AllyOrder.Attack => "攻击",
+            AllyOrder.Defend => "防御",
+            _ => "自由",
+        };
+
+        private void CreateShip(IShipInfo ship, Vector2 position)
+        {
+            if (ship == null)
+                return;
+
+            ship.Create(_shipFactory, position, ship.Side == UnitSide.Enemy
+                ? _combatModel.EnemyFleet.AiLevel
+                : ship.Side == UnitSide.Ally
+                    ? _combatModel.AllyFleet.AiLevel
+                    : _combatModel.PlayerFleet.AiLevel);
         }
 
         public bool IsGamePaused { get { return _pausedCount > 0; } }
@@ -268,6 +309,10 @@ namespace Combat.Manager
 
             if (player.IsActive() && !IsGamePaused)
             {
+                _hasActivatedPlayerShip = true;
+                DeployCollaborativeAllies(player);
+                ApplyAllyOrders(player);
+
                 if (ActiveEnemyCount() == 0)
                 {
                     var nextEnemy = GetNextEnemy();
@@ -302,6 +347,9 @@ namespace Combat.Manager
 
             if (!player.IsActive())
             {
+                if (_hasActivatedPlayerShip && ThreeBodySkillState.CollaborativeCombatUnlocked && TakeControlOfLargestCollaborator())
+                    return;
+
                 _nextPlayerShipCooldown += Time.deltaTime;
                 if (_nextPlayerShipCooldown > _nextShipMaxCooldown)
                 {
@@ -334,6 +382,103 @@ namespace Combat.Manager
                 _playerStatsPanel.Open(player);
                 _enemyStatsPanel.Close();
             }
+        }
+
+        private void DeployCollaborativeAllies(IShip player)
+        {
+            if (!ThreeBodySkillState.CollaborativeCombatUnlocked)
+                return;
+
+            var playerInfo = _combatModel.PlayerFleet.GetInfo(player);
+            if (playerInfo == null)
+                return;
+
+            foreach (var ally in _combatModel.AllyFleet.Ships
+                         .Where(item => item.IsCollaborativeAlly && item.Status == ShipStatus.Ready)
+                         .Where(item => !ReferenceEquals(item.ShipData, playerInfo.ShipData))
+                         .ToArray())
+                CreateShip(ally);
+        }
+
+        private bool TakeControlOfLargestCollaborator()
+        {
+            var candidates = _combatModel.PlayerFleet.Ships
+                .Where(item => item.Status == ShipStatus.Ready)
+                .ToArray();
+            if (candidates.Length == 0)
+                return false;
+
+            var largestClass = candidates.Max(item => (int)item.ShipData.Model.SizeClass);
+            var largest = candidates
+                .Where(item => (int)item.ShipData.Model.SizeClass == largestClass)
+                .OrderBy(_ => UnityEngine.Random.value)
+                .FirstOrDefault();
+            if (largest == null)
+                return false;
+
+            var collaborator = _combatModel.AllyFleet.Ships.FirstOrDefault(item =>
+                item.IsCollaborativeAlly &&
+                item.Status == ShipStatus.Active &&
+                ReferenceEquals(item.ShipData, largest.ShipData));
+
+            var position = collaborator?.ShipUnit?.Body.WorldPosition() ?? _scene.FindFreePlace(40, UnitSide.Player);
+            // The friendly version represents the same carried craft.  Remove
+            // it before recreating the unit with the player's controller.
+            collaborator?.Destroy();
+            CreateShip(largest, position);
+            _nextPlayerShipCooldown = 0;
+            return true;
+        }
+
+        private void ApplyAllyOrders(IShip player)
+        {
+            if (AllyTactic == AllyOrder.Free || player == null || !player.IsActive())
+                return;
+
+            var target = AllyTactic == AllyOrder.Attack
+                ? _scene.LockedEnemyShip
+                : FindNearestEnemyTo(player);
+            if (target == null || !target.IsActive() || !CombatRelations.AreEnemies(player.Type, target.Type))
+                return;
+
+            lock (_scene.Ships.LockObject)
+            {
+                foreach (var ally in _scene.Ships.Items)
+                {
+                    if (!ally.IsActive() || ally.Type.Side != UnitSide.Ally)
+                        continue;
+
+                    foreach (var weapon in ally.Systems.All.OfType<IWeapon>())
+                    {
+                        weapon.Platform.ActiveTarget = target;
+                        if (weapon.Platform is IUnitTargetingPlatform unitTargetingPlatform)
+                            unitTargetingPlatform.ActiveUnitTarget = target;
+                    }
+                }
+            }
+        }
+
+        private IShip FindNearestEnemyTo(IShip player)
+        {
+            IShip nearest = null;
+            var nearestDistance = float.PositiveInfinity;
+            lock (_scene.Ships.LockObject)
+            {
+                foreach (var candidate in _scene.Ships.Items)
+                {
+                    if (!candidate.IsActive() || !CombatRelations.AreEnemies(player.Type, candidate.Type))
+                        continue;
+
+                    var distance = (candidate.Body.Position - player.Body.Position).sqrMagnitude;
+                    if (distance >= nearestDistance)
+                        continue;
+
+                    nearest = candidate;
+                    nearestDistance = distance;
+                }
+            }
+
+            return nearest;
         }
 
         private int ActiveEnemyCount()
@@ -391,6 +536,7 @@ namespace Combat.Manager
         }
 
         private bool _canCallNextEnemy;
+        private bool _hasActivatedPlayerShip;
 
         private float _reinforcementCooldown;
         private float _nextPlayerShipCooldown = _nextShipMaxCooldown;

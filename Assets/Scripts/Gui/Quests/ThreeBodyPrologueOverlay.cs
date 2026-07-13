@@ -96,6 +96,11 @@ namespace Gui.Quests
 
         private void SetPage(string resourcePath, UserAction action, QuestEventSignal.Trigger trigger, Action afterAction)
         {
+            // A single overlay is deliberately retained while a page action
+            // closes and recreates the underlying quest window.  Reusing it
+            // avoids exposing the now-empty dialog for one frame between two
+            // story images.
+            _pageVersion++;
             _storyImage.sprite = LoadSprite(resourcePath);
             _tapButton.onClick.RemoveAllListeners();
             _tapButton.interactable = action != null && trigger != null;
@@ -105,13 +110,28 @@ namespace Gui.Quests
             _tapButton.onClick.AddListener(() =>
             {
                 // The original quest action button invokes the action and
-                // then closes its dialog.  Do the same here: otherwise the
-                // inactive description panel remains in the open dialog and
-                // the next illustrated node appears as an empty window.
-                Hide();
+                // then closes its dialog.  Keep this full-screen image alive
+                // during that hand-off; the following page replaces it in
+                // place, so no empty dialog can flash between pages.
+                var pageVersion = _pageVersion;
+                _tapButton.interactable = false;
                 action.Invoke(trigger);
                 afterAction?.Invoke();
+                StartCoroutine(HideIfNoReplacement(pageVersion));
             });
+        }
+
+        private System.Collections.IEnumerator HideIfNoReplacement(int pageVersion)
+        {
+            // Quest transitions are processed on the next update.  Two frame
+            // boundaries cover both the quest update and the replacement
+            // dialog's initialization, while the final page still disappears
+            // promptly because it is never replaced.
+            yield return null;
+            yield return null;
+
+            if (_instance == this && _pageVersion == pageVersion)
+                Hide();
         }
 
         private static Image CreateImage(string name, Transform parent)
@@ -160,5 +180,6 @@ namespace Gui.Quests
 
         private Image _storyImage;
         private Button _tapButton;
+        private int _pageVersion;
     }
 }
