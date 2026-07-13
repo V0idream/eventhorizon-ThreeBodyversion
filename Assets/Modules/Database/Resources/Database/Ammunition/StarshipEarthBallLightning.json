@@ -4,6 +4,7 @@
   "Body": {
     "Size": 1.4,
     "Weight": 0.35,
+    "HitPoints": 50,
     "Velocity": 36.0,
     "AttachedToParent": false,
     "Range": 90.0,
