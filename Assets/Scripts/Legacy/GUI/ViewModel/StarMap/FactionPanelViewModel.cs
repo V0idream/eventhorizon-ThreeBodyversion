@@ -24,6 +24,8 @@ namespace ViewModel
 	    [Inject] private readonly MotherShip _motherShip;
 	    [Inject] private readonly IQuestManager _questManager;
 	    [Inject] private readonly OpenShopSignal.Trigger _openShopTrigger;
+	    [Inject] private readonly OpenWorkshopSignal.Trigger _openWorkshopTrigger;
+	    [Inject] private readonly OpenShipyardSignal.Trigger _openShipyardTrigger;
 	    [Inject] private readonly InventoryFactory _inventoryFactory;
 	    [Inject] private readonly ISessionData _session;
 	    [Inject] private readonly ILocalization _localization;
@@ -85,6 +87,7 @@ namespace ViewModel
 		private void OnEnable()
 		{
             ConfigurePreview4Layout();
+			BindFacilityButtons();
 			var region = _motherShip.CurrentStar.Region;
 
 		    FactionName.text = _localization.GetString(region.Faction.Name);
@@ -124,6 +127,34 @@ namespace ViewModel
 			ShopButton.SetActive(reputation >= 5);
 			CraftButton.SetActive(reputation >= 60);
             ShipyardButton.SetActive(reputation >= 90);
+		}
+
+		private bool _facilityButtonsBound;
+
+		private void BindFacilityButtons()
+		{
+			if (_facilityButtonsBound)
+				return;
+
+			var workshopButton = CraftButton != null ? CraftButton.GetComponent<Button>() : null;
+			var shipyardButton = ShipyardButton != null ? ShipyardButton.GetComponent<Button>() : null;
+			if (workshopButton != null)
+				workshopButton.onClick.AddListener(OpenWorkshop);
+			if (shipyardButton != null)
+				shipyardButton.onClick.AddListener(OpenShipyard);
+			_facilityButtonsBound = workshopButton != null || shipyardButton != null;
+		}
+
+		private void OpenWorkshop()
+		{
+			var region = _motherShip.CurrentStar.Region;
+			_openWorkshopTrigger.Fire(region.Faction, Mathf.Max(1, region.HomeStarLevel));
+		}
+
+		private void OpenShipyard()
+		{
+			var region = _motherShip.CurrentStar.Region;
+			_openShipyardTrigger.Fire(region.Faction, Mathf.Max(1, region.HomeStarLevel));
 		}
 
         private void ConfigurePreview4Layout()

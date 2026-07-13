@@ -78,6 +78,11 @@
     <string name="SuperconductingBattery">超导电池</string>
     <string name="SuperconductingBatteryDescription">一种损耗几乎为0的超导储存能量装置</string>
 
+    <string name="StarshipEarthBallLightning">球状闪电</string>
+    <string name="StarshipEarthBallLightningDescription">将宏电子送入战场，受击后释放按受损程度变化的球状闪电。</string>
+    <string name="TrisolarisAntimatterCollector">反物质收集器</string>
+    <string name="TrisolarisAntimatterCollectorDescription">收集反物质并释放维护机器人，持续修复舰体与能量。</string>
+
     <string name="StarshipEarthFrigate">追光号</string>
     <string name="StarshipEarthFrigateDescription">星舰地球护卫舰，强调快速部署与低成本远程火力。</string>
     <string name="StarshipEarthDestroyer">蓝色空间号</string>

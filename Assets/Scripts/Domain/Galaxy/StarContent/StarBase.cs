@@ -131,6 +131,7 @@ namespace Galaxy.StarContent
             var currentPower = region.BaseDefensePower;
             region.BaseDefensePower = UnityEngine.Mathf.Max(currentPower + 1,
                 UnityEngine.Mathf.CeilToInt(currentPower * 1.5f));
+            region.RaiseCapturedServiceLevel();
             _starContentChangedTrigger.Fire(starId);
         }
 

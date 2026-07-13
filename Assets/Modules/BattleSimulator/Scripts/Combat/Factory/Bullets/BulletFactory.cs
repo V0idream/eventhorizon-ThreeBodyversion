@@ -156,6 +156,9 @@ namespace Combat.Factory
             if (_ammunition.Id.Value == 163)
                 collisionBehaviour.AddAction(new KineticPenetrationAction(0.8f));
 
+            if (_ammunition.Id.Value == 166)
+                collisionBehaviour.AddAction(new BallLightningCollisionAction());
+
             if (impactType == BulletImpactType.HitFirstTarget)
             {
                 if (_ammunition.Body.HitPoints > 0)
@@ -244,6 +247,9 @@ namespace Combat.Factory
 
         private IDamageHandler CreateDamageHandler(Bullet bullet)
         {
+            if (_ammunition.Id.Value == 166 && bullet.Controller is BallLightningController ballLightning)
+                return new BallLightningDamageHandler(ballLightning);
+
             var hitPoints = _stats.HitPoints;
             if (hitPoints > 0)
             {
@@ -264,6 +270,9 @@ namespace Combat.Factory
         private IController CreateController(IWeaponPlatform parent, Bullet bullet, float bulletSpeed, float spread,
             float rotationOffset)
         {
+            if (_ammunition.Id.Value == 166)
+                return new BallLightningController(bullet, _scene, _effectFactory, _owner, _stats.Range);
+
             var range = _stats.Range;
             var weight = _stats.Weight;
 

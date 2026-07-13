@@ -108,9 +108,21 @@ namespace GameModel
         // shipyard or workshop level.  Captured stations now expose their
         // upgraded defence level as the effective home-star level while keeping
         // the immutable map distance for initial generation.
-		public int HomeStarLevel => IsCaptured
+        public int HomeStarLevel => IsCaptured
             ? Mathf.Max(NaturalHomeStarLevel, BaseDefendersLevel)
             : NaturalHomeStarLevel;
+
+        /// <summary>
+        /// Captured station services must advance independently of the original
+        /// map-distance level calculation.  Raise the persisted defence value
+        /// enough that the effective level increases by at least one.
+        /// </summary>
+        public void RaiseCapturedServiceLevel()
+        {
+            var nextLevel = HomeStarLevel + 1;
+            var requiredPower = Mathf.CeilToInt(nextLevel * 100f / Mathf.Max(1, NaturalHomeStarLevel));
+            BaseDefensePower = Mathf.Max(BaseDefensePower + 1, requiredPower);
+        }
 
         private int NaturalHomeStarLevel =>
             Mathf.RoundToInt(StarLayout.GetStarPosition(HomeStar, _session.Game.Seed).magnitude);
