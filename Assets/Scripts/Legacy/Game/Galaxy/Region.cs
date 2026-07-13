@@ -90,7 +90,7 @@ namespace GameModel
 			get
 			{
                 if (!_session.Regions.TryGetStarbaseDefensePower(Id, out var power))
-                    power = (uint)_database.FactionsSettings.StarbaseInitialDefense(HomeStarLevel);
+                    power = (uint)_database.FactionsSettings.StarbaseInitialDefense(NaturalHomeStarLevel);
 
 				return (int)power;
 			}
@@ -101,8 +101,19 @@ namespace GameModel
             }
 		}
 
-        public int BaseDefendersLevel => HomeStarLevel * BaseDefensePower / 100;
-		public int HomeStarLevel => Mathf.RoundToInt(StarLayout.GetStarPosition(HomeStar, _session.Game.Seed).magnitude);
+        public int BaseDefendersLevel => Mathf.Max(1, NaturalHomeStarLevel * BaseDefensePower / 100);
+
+        // The original game derives station services directly from galactic
+        // distance, so improving a captured station's defence never raises its
+        // shipyard or workshop level.  Captured stations now expose their
+        // upgraded defence level as the effective home-star level while keeping
+        // the immutable map distance for initial generation.
+		public int HomeStarLevel => IsCaptured
+            ? Mathf.Max(NaturalHomeStarLevel, BaseDefendersLevel)
+            : NaturalHomeStarLevel;
+
+        private int NaturalHomeStarLevel =>
+            Mathf.RoundToInt(StarLayout.GetStarPosition(HomeStar, _session.Game.Seed).magnitude);
 
 		public Faction Faction
 		{
