@@ -72,10 +72,10 @@ namespace Constructor
                 .ToArray();
         }
 
-        public static bool TryGetCreativeWorkshopDrone(IDatabase database, int keyBinding, int behaviour, out ShipBuild shipBuild)
+        public static bool TryGetCreativeWorkshopDrone(IDatabase database, int persistedBarrelId, int behaviour, out ShipBuild shipBuild)
         {
             shipBuild = ShipBuild.DefaultValue;
-            var code = ((byte)keyBinding << 8) | (byte)behaviour;
+            var code = ((byte)persistedBarrelId << 8) | (byte)behaviour;
             if (code == 0)
                 return false;
 
@@ -88,9 +88,9 @@ namespace Constructor
             return shipBuild != null && shipBuild != ShipBuild.DefaultValue;
         }
 
-        public static bool TryEncodeCreativeWorkshopDrone(IDatabase database, ShipBuild shipBuild, out int keyBinding, out int behaviour)
+        public static bool TryEncodeCreativeWorkshopDrone(IDatabase database, ShipBuild shipBuild, out int persistedBarrelId, out int behaviour)
         {
-            keyBinding = 0;
+            persistedBarrelId = 0;
             behaviour = 0;
             if (shipBuild == null || shipBuild == ShipBuild.DefaultValue)
                 return false;
@@ -110,7 +110,7 @@ namespace Constructor
                 return false;
 
             var code = index + 1;
-            keyBinding = (sbyte)(code >> 8);
+            persistedBarrelId = (sbyte)(code >> 8);
             behaviour = (sbyte)(code & 0xff);
             return true;
         }

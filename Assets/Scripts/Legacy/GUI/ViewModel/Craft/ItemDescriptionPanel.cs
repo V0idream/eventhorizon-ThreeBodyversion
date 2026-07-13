@@ -166,13 +166,26 @@ namespace ViewModel.Craft
             if (_weaponSlots == null)
                 return;
 
-            // The serialized LayoutGroup is the inner content object of the
-            // old floating weapon-slot panel. Disabling only that child left
-            // the legacy label and red slot icon visible beside the stat row.
-            var legacyRoot = _weaponSlots.transform.parent != null
-                ? _weaponSlots.transform.parent.gameObject
-                : _weaponSlots.gameObject;
-            legacyRoot.SetActive(false);
+            // Walk up to the named legacy root. Some imported scene variants
+            // insert an extra Layout container, so assuming one fixed parent
+            // leaves the red icon/label row alive.
+            var current = _weaponSlots.transform;
+            while (current != null && current != _stats.transform)
+            {
+                if (current.name == "WeaponSlots")
+                {
+                    current.gameObject.SetActive(false);
+                    return;
+                }
+
+                current = current.parent;
+            }
+
+            var legacyRoot = _stats.transform.Find("WeaponSlots");
+            if (legacyRoot != null)
+                legacyRoot.gameObject.SetActive(false);
+            else
+                _weaponSlots.gameObject.SetActive(false);
         }
 
         private static IEnumerable<KeyValuePair<string, string>> GetShipDescription(IShip ship, ILocalization localization)
@@ -254,7 +267,7 @@ namespace ViewModel.Craft
             // The old floating slot-grid prefab retained an absolute editor
             // position and could overlap the stat rows.  Put the exact live
             // barrel classes into the same stat layout instead.
-            return string.Join("  ", barrels
+            return string.Join("　", barrels
                 .Select(item => string.IsNullOrEmpty(item.WeaponClass) ? "任意" : item.WeaponClass)
                 .Distinct());
         }

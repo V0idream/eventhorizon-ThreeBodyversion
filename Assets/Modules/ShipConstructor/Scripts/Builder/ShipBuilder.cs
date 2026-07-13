@@ -155,14 +155,12 @@ namespace Constructor
 
                 if (item.Info.Data.Id.Value == ThreeBodyContentRules.CreativeWorkshopComponentId)
                 {
-                    if (ThreeBodyContentRules.TryGetCreativeWorkshopDrone(_ship.Database, item.KeyBinding, item.Behaviour, out var selectedBuild))
+                    if (ThreeBodyContentRules.TryGetCreativeWorkshopDrone(_ship.Database, item.BarrelId, item.Behaviour, out var selectedBuild))
                         droneBuild = selectedBuild;
 
-                    // Workshop selections are packed into the component's
-                    // persisted key/mode bytes. The bay itself always uses
-                    // the first action slot, leaving selection independent
-                    // from a ship's ordinary weapon barrels.
-                    keyBinding = 0;
+                    // The selected build is packed into the persisted barrel
+                    // and behaviour bytes. KeyBinding remains an ordinary,
+                    // player-configurable action slot.
                     behaviour = DroneBehaviour.Aggressive;
                 }
 

@@ -103,14 +103,20 @@ namespace Gui.Combat
             orderRect.offsetMax = new Vector2(-6f, -3f);
             var orderBackground = orderButton.GetComponent<Image>();
             orderBackground.color = new Color(0.08f, 0.38f, 0.54f, 0.94f);
-            var orderText = new GameObject("Label", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text)).GetComponent<Text>();
+            // Clone the scene's localized counter text so the button inherits
+            // the game's Chinese-capable font. LegacyRuntime.ttf has no CJK
+            // glyphs on Android and produced a visually empty button.
+            var orderText = Instantiate(_countText, orderRect);
+            orderText.name = "Label";
             orderText.transform.SetParent(orderRect, false);
             var orderTextRect = orderText.rectTransform;
             orderTextRect.anchorMin = Vector2.zero;
             orderTextRect.anchorMax = Vector2.one;
             orderTextRect.offsetMin = orderTextRect.offsetMax = Vector2.zero;
-            orderText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             orderText.fontSize = Mathf.Max(13, _countText.fontSize - 4);
+            orderText.resizeTextForBestFit = true;
+            orderText.resizeTextMinSize = 11;
+            orderText.resizeTextMaxSize = Mathf.Max(13, _countText.fontSize - 2);
             orderText.alignment = TextAnchor.MiddleCenter;
             orderText.color = Color.white;
             orderText.raycastTarget = false;

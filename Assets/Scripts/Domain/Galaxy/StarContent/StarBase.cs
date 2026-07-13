@@ -59,7 +59,7 @@ namespace Galaxy.StarContent
 			return _starData.GetRegion(starId).Id != Region.UnoccupiedRegionId;
 		}
 
-		public void Attack(int starId)
+        public void Attack(int starId)
         {
 			if (!IsExists(starId))
 				throw new System.InvalidOperationException();
@@ -76,6 +76,21 @@ namespace Galaxy.StarContent
             _session.Quests.SetFactionRelations(region.HomeStar, -50);
             CombatRelations.SetRelation(0, region.Faction.Id.Value, false);
             _startBattleTrigger.Fire(model, result => OnCombatCompleted(starId, result));
+        }
+
+        public bool PeacefulTransfer(int starId)
+        {
+            if (!IsExists(starId))
+                return false;
+
+            var region = _starData.GetRegion(starId);
+            if (region.IsCaptured || _session.Quests.GetFactionRelations(region.HomeStar) <= 25)
+                return false;
+
+            region.IsCaptured = true;
+            CombatRelations.SetRelation(0, region.Faction.Id.Value, true);
+            _starContentChangedTrigger.Fire(starId);
+            return true;
         }
 
         private void OnCombatCompleted(int starId, ICombatModel result)
@@ -97,6 +112,7 @@ namespace Galaxy.StarContent
 
 			public bool IsExists => _starbase.IsExists(_starId);
 			public void Attack() => _starbase.Attack(_starId);
+			public bool PeacefulTransfer() => _starbase.PeacefulTransfer(_starId);
 			public ICombatModel CreateCombatModel() => _starbase.CreateCombatModel(_starId);
 
 			private readonly StarBase _starbase;

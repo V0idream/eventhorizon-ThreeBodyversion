@@ -136,6 +136,7 @@ namespace Combat.Manager
             switch (ship.Type.Side)
             {
                 case UnitSide.Player:
+					_manualShipChangePending = false;
                     _shipControlsPanel.Load(ship);
                     _messenger.Broadcast(EventType.PlayerShipCountChanged,
                         _combatModel.PlayerFleet.Ships.Count(item => item.Status == ShipStatus.Ready));
@@ -163,6 +164,20 @@ namespace Combat.Manager
                 // the authoritative count is synchronized on the next Tick.
                 _enemyCounterDirty = true;
             }
+			else if (ship.Type.Side == UnitSide.Ally)
+			{
+				var allyInfo = _combatModel.AllyFleet.GetInfo(ship);
+				if (allyInfo != null && allyInfo.IsCollaborativeAlly && !ReferenceEquals(allyInfo, _collaboratorBeingTransferred))
+				{
+					// A carried ship destroyed while fighting as an ally must also
+					// disappear from the player's reserve. Otherwise the takeover
+					// path can recreate that already-destroyed hull.
+					var reserve = _combatModel.PlayerFleet.Ships.FirstOrDefault(item =>
+						ReferenceEquals(item.ShipData, allyInfo.ShipData));
+					if (reserve != null && reserve.Status == ShipStatus.Ready)
+						reserve.Destroy();
+				}
+			}
 
             CheckIfCanCallNextEnemy();
         }
@@ -241,6 +256,8 @@ namespace Combat.Manager
             if (!player.IsActive() || player.Effects.All.OfType<ShipRetreatEffect>().Any())
                 return;
 
+			_manualShipChangePending = true;
+			_nextPlayerShipCooldown = 0f;
             var chargeEffect = new ShipRetreatingEffect(player, _effectFactory, ConditionType.OnActivate, ConditionType.OnDeactivate);
             var warpEffect = new ShipWarpEffect(player, _effectFactory, _soundPlayer, _settings.ShipWarpSound, ConditionType.OnDeactivate);
             var soundEffect = new SoundLoopEffect(_soundPlayer, _settings.ShipRetreatSound, ConditionType.OnActivate, ConditionType.OnDeactivate);
@@ -347,7 +364,7 @@ namespace Combat.Manager
 
             if (!player.IsActive())
             {
-                if (_hasActivatedPlayerShip && ThreeBodySkillState.CollaborativeCombatUnlocked && TakeControlOfLargestCollaborator())
+				if (!_manualShipChangePending && _hasActivatedPlayerShip && ThreeBodySkillState.CollaborativeCombatUnlocked && TakeControlOfLargestCollaborator())
                     return;
 
                 _nextPlayerShipCooldown += Time.deltaTime;
@@ -362,6 +379,7 @@ namespace Combat.Manager
                     }
                     else if (_combatModel.Rules.ShipSelection.CanChooseShip())
                     {
+						_manualShipChangePending = false;
                         _shipSelectionPanel.Open(_combatModel);
                     }
                     else
@@ -404,6 +422,11 @@ namespace Combat.Manager
         {
             var candidates = _combatModel.PlayerFleet.Ships
                 .Where(item => item.Status == ShipStatus.Ready)
+				.Where(item =>
+				{
+					var ally = FindCollaborativeAlly(item.ShipData);
+					return ally == null || ally.Status != ShipStatus.Destroyed;
+				})
                 .ToArray();
             if (candidates.Length == 0)
                 return false;
@@ -416,19 +439,24 @@ namespace Combat.Manager
             if (largest == null)
                 return false;
 
-            var collaborator = _combatModel.AllyFleet.Ships.FirstOrDefault(item =>
-                item.IsCollaborativeAlly &&
-                item.Status == ShipStatus.Active &&
-                ReferenceEquals(item.ShipData, largest.ShipData));
+			var collaborator = FindCollaborativeAlly(largest.ShipData);
 
             var position = collaborator?.ShipUnit?.Body.WorldPosition() ?? _scene.FindFreePlace(40, UnitSide.Player);
             // The friendly version represents the same carried craft.  Remove
             // it before recreating the unit with the player's controller.
-            collaborator?.Destroy();
+			_collaboratorBeingTransferred = collaborator;
+			collaborator?.Destroy();
+			_collaboratorBeingTransferred = null;
             CreateShip(largest, position);
             _nextPlayerShipCooldown = 0;
             return true;
         }
+
+		private IShipInfo FindCollaborativeAlly(Constructor.Ships.IShip shipData)
+		{
+			return _combatModel.AllyFleet.Ships.FirstOrDefault(item =>
+				item.IsCollaborativeAlly && ReferenceEquals(item.ShipData, shipData));
+		}
 
         private void ApplyAllyOrders(IShip player)
         {
@@ -502,9 +530,23 @@ namespace Combat.Manager
             return _combatModel.EnemyFleet.Ships.Count(item => item.Status != ShipStatus.Destroyed);
         }
 
-        public int RemainingAllyCount => _combatModel?.AllyFleet?.Ships.Count(item => item.Status != ShipStatus.Destroyed) ?? 0;
+        public int RemainingAllyCount
+		{
+			get
+			{
+				if (_combatModel?.AllyFleet == null)
+					return 0;
 
-        public bool HasAlliedParticipants => _combatModel?.AllyFleet?.Ships.Any() == true;
+				var activePlayerData = _scene?.PlayerShip != null && _scene.PlayerShip.IsActive()
+					? _combatModel.PlayerFleet.GetInfo(_scene.PlayerShip)?.ShipData
+					: null;
+				return _combatModel.AllyFleet.Ships.Count(item =>
+					item.Status != ShipStatus.Destroyed &&
+					(!item.IsCollaborativeAlly || !ReferenceEquals(item.ShipData, activePlayerData)));
+			}
+		}
+
+        public bool HasAlliedParticipants => RemainingAllyCount > 0;
 
         private void UpdateEnemyCounter(bool force = false)
         {
@@ -537,6 +579,8 @@ namespace Combat.Manager
 
         private bool _canCallNextEnemy;
         private bool _hasActivatedPlayerShip;
+		private bool _manualShipChangePending;
+		private IShipInfo _collaboratorBeingTransferred;
 
         private float _reinforcementCooldown;
         private float _nextPlayerShipCooldown = _nextShipMaxCooldown;

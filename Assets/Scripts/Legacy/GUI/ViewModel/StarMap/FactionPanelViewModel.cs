@@ -54,6 +54,12 @@ namespace ViewModel
 			_motherShip.CurrentStar.CaptureBase();
 		}
 
+        public void PeacefullyTransferBase()
+        {
+            if (_motherShip.CurrentStar.PeacefulTransferBase())
+                OnEnable();
+        }
+
         public static bool IncludeStarshipEarthAllies { get; private set; }
 
         public bool MissionsAvailable
@@ -84,6 +90,7 @@ namespace ViewModel
             if (region.IsCaptured)
 		    {
                 SetJointControlsVisible(false);
+		        SetPeacefulTransferVisible(false);
 		        CaptureButton.gameObject.SetActive(false);
 		        CaptureDescription.gameObject.SetActive(false);
 		        MilitaryPowerPanel.gameObject.SetActive(false);
@@ -102,6 +109,7 @@ namespace ViewModel
 		    ReputationPanel.gameObject.SetActive(region.Faction != Faction.Empty);
             var relationState = reputation > 25 ? "友好" : reputation < -25 ? "敌对" : "中立";
 		    ReputationText.text = $"{reputation:+0;-0;0}  {relationState}";
+		    SetPeacefulTransferVisible(reputation > 25);
 		    PowerText.text = region.BaseDefensePower + "%";
 
             MissionButton.gameObject.SetActive(MissionsAvailable);
@@ -126,7 +134,7 @@ namespace ViewModel
 
             var buttonsRect = CaptureButton.transform.parent.GetComponent<RectTransform>();
             if (buttonsRect != null)
-                buttonsRect.sizeDelta = new Vector2(Mathf.Max(430f, buttonsRect.sizeDelta.x), Mathf.Max(360f, buttonsRect.sizeDelta.y));
+                buttonsRect.sizeDelta = new Vector2(Mathf.Max(430f, buttonsRect.sizeDelta.x), Mathf.Max(440f, buttonsRect.sizeDelta.y));
             var captureLayout = CaptureButton.GetComponent<LayoutElement>() ?? CaptureButton.AddComponent<LayoutElement>();
             captureLayout.minWidth = 410f;
             captureLayout.preferredWidth = 410f;
@@ -152,6 +160,7 @@ namespace ViewModel
                 .FirstOrDefault(item => item.name == "Preview7AlliedAttackDialog")?.gameObject;
             _jointAttackButton = GetComponentsInChildren<Transform>(true)
                 .FirstOrDefault(item => item.name == "Preview5JointAttackButton")?.gameObject;
+			EnsurePeacefulTransferButton();
             if (_alliedAttackPanel != null && _jointAttackButton != null)
                 return;
 
@@ -312,6 +321,61 @@ namespace ViewModel
             _jointAttackButton = jointObject;
         }
 
+        private void EnsurePeacefulTransferButton()
+        {
+            _peacefulTransferButton = GetComponentsInChildren<Transform>(true)
+                .FirstOrDefault(item => item.name == "PeacefulTransferButton")?.gameObject;
+            if (_peacefulTransferButton != null)
+                return;
+
+            var buttonObject = new GameObject("PeacefulTransferButton", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button), typeof(LayoutElement), typeof(Outline));
+            var rect = buttonObject.GetComponent<RectTransform>();
+            rect.SetParent(CaptureButton.transform.parent, false);
+            rect.sizeDelta = new Vector2(410f, 78f);
+            var layout = buttonObject.GetComponent<LayoutElement>();
+            layout.minWidth = layout.preferredWidth = 410f;
+            layout.minHeight = layout.preferredHeight = 78f;
+            layout.flexibleWidth = 0f;
+            buttonObject.GetComponent<Image>().color = new Color(0.04f, 0.42f, 0.34f, 1f);
+            var outline = buttonObject.GetComponent<Outline>();
+            outline.effectColor = new Color(0.35f, 1f, 0.72f, 0.9f);
+            outline.effectDistance = new Vector2(2f, -2f);
+            buttonObject.GetComponent<Button>().onClick.AddListener(PeacefullyTransferBase);
+
+            var textTemplate = CaptureButton.GetComponentInChildren<Text>(true);
+            Text label;
+            if (textTemplate != null)
+            {
+                label = Instantiate(textTemplate, rect);
+                label.name = "Label";
+            }
+            else
+            {
+                label = new GameObject("Label", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text)).GetComponent<Text>();
+                label.transform.SetParent(rect, false);
+                label.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            }
+
+            var labelRect = label.rectTransform;
+            labelRect.anchorMin = Vector2.zero;
+            labelRect.anchorMax = Vector2.one;
+            labelRect.offsetMin = new Vector2(8f, 4f);
+            labelRect.offsetMax = new Vector2(-8f, -4f);
+            label.text = "和平交接";
+            label.alignment = TextAnchor.MiddleCenter;
+            label.resizeTextForBestFit = true;
+            label.resizeTextMinSize = 14;
+            label.resizeTextMaxSize = 24;
+            label.color = Color.white;
+            _peacefulTransferButton = buttonObject;
+        }
+
+        private void SetPeacefulTransferVisible(bool visible)
+        {
+            if (_peacefulTransferButton != null)
+                _peacefulTransferButton.SetActive(visible);
+        }
+
         private void SetJointControlsVisible(bool visible)
         {
             if (_jointAttackButton != null)
@@ -322,5 +386,6 @@ namespace ViewModel
 
         private GameObject _jointAttackButton;
         private GameObject _alliedAttackPanel;
+        private GameObject _peacefulTransferButton;
 	}
 }
