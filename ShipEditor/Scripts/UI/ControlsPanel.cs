@@ -1,5 +1,6 @@
 using GameDatabase.Enums;
 using GameDatabase.Extensions;
+using Constructor;
 using Services.Localization;
 using UnityEngine;
 using UnityEngine.UI;
@@ -32,6 +33,16 @@ namespace ShipEditor.UI
 
 		public void Initialize(GameDatabase.DataModel.Component component, int key, int defaultKey, int componentMode)
 		{
+			if (component.Id.Value == ThreeBodyContentRules.CreativeWorkshopComponentId)
+			{
+				// The workshop uses the two persisted control bytes to store the
+				// selected drone build. Its dedicated selector is shown by
+				// ComponentPanel, so ordinary key/mode controls must not overwrite
+				// that selection.
+				gameObject.SetActive(false);
+				return;
+			}
+
 			var activationType = component.GetActivationType();
 			if (activationType == ActivationType.None)
 			{
