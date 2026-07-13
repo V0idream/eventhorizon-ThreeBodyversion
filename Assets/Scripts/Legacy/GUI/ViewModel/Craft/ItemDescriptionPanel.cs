@@ -80,7 +80,7 @@ namespace ViewModel.Craft
 
             _stats.gameObject.SetActive(true);
             _stats.transform.InitializeElements<TextFieldViewModel, KeyValuePair<string, string>>(GetShipDescription(ship, _localization), UpdateTextField);
-            _weaponSlots.gameObject.SetActive(false);
+            HideLegacyWeaponSlotDisplay();
         }
 
         private void CreateSatellite(Satellite satellite)
@@ -95,7 +95,7 @@ namespace ViewModel.Craft
 
             _stats.gameObject.SetActive(true);
             _stats.transform.InitializeElements<TextFieldViewModel, KeyValuePair<string, string>>(GetSatelliteDescription(satellite), UpdateTextField);
-            _weaponSlots.gameObject.SetActive(false);
+            HideLegacyWeaponSlotDisplay();
         }
 
         private void CreateComponent(ComponentInfo info)
@@ -123,7 +123,7 @@ namespace ViewModel.Craft
             _stats.gameObject.SetActive(true);
             _stats.transform.InitializeElements<TextFieldViewModel, KeyValuePair<string, string>>(
                 ShipEditor.UI.ComponentItem.GetDescription(component, _localization, _database.LocalizationSettings), UpdateTextField, _factory);
-            _weaponSlots.gameObject.SetActive(false);
+            HideLegacyWeaponSlotDisplay();
         }
 
         private void CreateEmpty()
@@ -134,7 +134,7 @@ namespace ViewModel.Craft
             _name.text = string.Empty;
             _description.gameObject.SetActive(false);
             _stats.gameObject.SetActive(false);
-            _weaponSlots.gameObject.SetActive(false);
+            HideLegacyWeaponSlotDisplay();
             _modification.gameObject.SetActive(false);
         }
 
@@ -151,7 +151,7 @@ namespace ViewModel.Craft
             _description.text = item.Description;
 
             _stats.gameObject.SetActive(false);
-            _weaponSlots.gameObject.SetActive(false);
+            HideLegacyWeaponSlotDisplay();
             _modification.gameObject.SetActive(false);
         }
 
@@ -159,6 +159,20 @@ namespace ViewModel.Craft
         {
             viewModel.Label.text = _localization.GetString(data.Key);
             viewModel.Value.text = data.Value;
+        }
+
+        private void HideLegacyWeaponSlotDisplay()
+        {
+            if (_weaponSlots == null)
+                return;
+
+            // The serialized LayoutGroup is the inner content object of the
+            // old floating weapon-slot panel. Disabling only that child left
+            // the legacy label and red slot icon visible beside the stat row.
+            var legacyRoot = _weaponSlots.transform.parent != null
+                ? _weaponSlots.transform.parent.gameObject
+                : _weaponSlots.gameObject;
+            legacyRoot.SetActive(false);
         }
 
         private static IEnumerable<KeyValuePair<string, string>> GetShipDescription(IShip ship, ILocalization localization)
@@ -227,6 +241,8 @@ namespace ViewModel.Craft
 
         private static int CalculateResistance(float value)
         {
+            if (value <= -1f)
+                return -100;
             return Mathf.FloorToInt(100 * value / (value + 1));
         }
 
@@ -238,7 +254,9 @@ namespace ViewModel.Craft
             // The old floating slot-grid prefab retained an absolute editor
             // position and could overlap the stat rows.  Put the exact live
             // barrel classes into the same stat layout instead.
-            return string.Join("  ", barrels.Select(item => string.IsNullOrEmpty(item.WeaponClass) ? "任意" : item.WeaponClass));
+            return string.Join("  ", barrels
+                .Select(item => string.IsNullOrEmpty(item.WeaponClass) ? "任意" : item.WeaponClass)
+                .Distinct());
         }
 
         private static string SignedPercent(float value)

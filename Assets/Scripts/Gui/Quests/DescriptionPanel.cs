@@ -26,7 +26,7 @@ namespace Gui.Quests
 
         public void Initialize(string text, string characterName, SpriteId avatar)
         {
-            ThreeBodyPrologueOverlay.Hide();
+            ThreeBodyPrologueOverlay.HideUnlessPageTransitionPending();
             if (string.IsNullOrEmpty(text))
             {
                 gameObject.SetActive(false);

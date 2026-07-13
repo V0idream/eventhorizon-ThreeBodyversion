@@ -52,7 +52,7 @@ namespace Gui.Combat
                 _allyText.text = "友军：" + _manager.RemainingAllyCount;
 
             if (visible && _allyOrderText != null)
-                _allyOrderText.text = "指令：" + _manager.AllyOrderName;
+                _allyOrderText.text = GetAllyOrderText();
         }
 
         private void CreateAllyPopup()
@@ -114,12 +114,18 @@ namespace Gui.Combat
             orderText.alignment = TextAnchor.MiddleCenter;
             orderText.color = Color.white;
             orderText.raycastTarget = false;
+            orderText.text = GetAllyOrderText();
             orderButton.GetComponent<Button>().onClick.AddListener(() =>
             {
                 _manager.CycleAllyOrder();
-                orderText.text = "指令：" + _manager.AllyOrderName;
+                orderText.text = GetAllyOrderText();
             });
             _allyOrderText = orderText;
+        }
+
+        private string GetAllyOrderText()
+        {
+            return _manager == null ? "友军指令：自由" : "友军指令：" + _manager.AllyOrderName;
         }
 
         private global::Combat.Manager.CombatManager _manager;

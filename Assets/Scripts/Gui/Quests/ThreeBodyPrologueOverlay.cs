@@ -33,6 +33,13 @@ namespace Gui.Quests
             Destroy(overlay.gameObject);
         }
 
+        public static void HideUnlessPageTransitionPending()
+        {
+            var overlay = _instance;
+            if (overlay == null || !overlay._awaitingReplacement)
+                Hide();
+        }
+
         private static ThreeBodyPrologueOverlay EnsureOverlay()
         {
             if (_instance != null)
@@ -100,6 +107,7 @@ namespace Gui.Quests
             // closes and recreates the underlying quest window.  Reusing it
             // avoids exposing the now-empty dialog for one frame between two
             // story images.
+            _awaitingReplacement = false;
             _pageVersion++;
             _storyImage.sprite = LoadSprite(resourcePath);
             _tapButton.onClick.RemoveAllListeners();
@@ -115,6 +123,7 @@ namespace Gui.Quests
                 // place, so no empty dialog can flash between pages.
                 var pageVersion = _pageVersion;
                 _tapButton.interactable = false;
+                _awaitingReplacement = true;
                 action.Invoke(trigger);
                 afterAction?.Invoke();
                 StartCoroutine(HideIfNoReplacement(pageVersion));
@@ -123,15 +132,16 @@ namespace Gui.Quests
 
         private System.Collections.IEnumerator HideIfNoReplacement(int pageVersion)
         {
-            // Quest transitions are processed on the next update.  Two frame
-            // boundaries cover both the quest update and the replacement
-            // dialog's initialization, while the final page still disappears
-            // promptly because it is never replaced.
-            yield return null;
-            yield return null;
+            // Keep the previous illustration on screen across the quest
+            // window hand-off. This deliberately covers the transient empty
+            // dialog that Unity creates before the next image page arrives.
+            yield return new WaitForSecondsRealtime(0.35f);
 
             if (_instance == this && _pageVersion == pageVersion)
+            {
+                _awaitingReplacement = false;
                 Hide();
+            }
         }
 
         private static Image CreateImage(string name, Transform parent)
@@ -181,5 +191,6 @@ namespace Gui.Quests
         private Image _storyImage;
         private Button _tapButton;
         private int _pageVersion;
+        private bool _awaitingReplacement;
     }
 }

@@ -149,7 +149,24 @@ namespace Constructor
             {
                 var droneBayStats = spec.Key;
                 droneBayStats.Capacity += ExtraDroneBayCapacity;
-                data.AddDroneBay(new DroneBayData(droneBayStats, spec.Value, item.KeyBinding, (DroneBehaviour)item.Behaviour));
+                var droneBuild = spec.Value;
+                var keyBinding = item.KeyBinding;
+                var behaviour = (DroneBehaviour)item.Behaviour;
+
+                if (item.Info.Data.Id.Value == ThreeBodyContentRules.CreativeWorkshopComponentId)
+                {
+                    if (ThreeBodyContentRules.TryGetCreativeWorkshopDrone(_ship.Database, item.KeyBinding, item.Behaviour, out var selectedBuild))
+                        droneBuild = selectedBuild;
+
+                    // Workshop selections are packed into the component's
+                    // persisted key/mode bytes. The bay itself always uses
+                    // the first action slot, leaving selection independent
+                    // from a ship's ordinary weapon barrels.
+                    keyBinding = 0;
+                    behaviour = DroneBehaviour.Aggressive;
+                }
+
+                data.AddDroneBay(new DroneBayData(droneBayStats, droneBuild, keyBinding, behaviour));
             }
 
             if (item.BarrelId < 0)

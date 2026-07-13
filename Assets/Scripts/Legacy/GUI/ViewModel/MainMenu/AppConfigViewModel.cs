@@ -52,7 +52,8 @@ namespace ViewModel
             foreach (var ship in _database.ShipList.Where(item => item != null))
                 _session.Statistics.UnlockShip(ship.Id);
 
-            foreach (var component in _database.ComponentList.Where(item => item != null))
+            foreach (var component in _database.ComponentList.Where(item => item != null &&
+                         item.Id.Value != ThreeBodyContentRules.ObserverCoreComponentId))
             {
                 var info = new ComponentInfo(component);
                 if (_playerInventory.Components.GetQuantity(info) < 99)

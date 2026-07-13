@@ -116,19 +116,25 @@ namespace GameStateMachine.States
 				secondFleet = new TestFleet(_database, ships.RandomUniqueElements(12, random).OrderBy(item => random.Next()), _settings.EasyMode ? 0 : 100);
 			}
 
-            var configuredEnemies = ParseEnemyFleet(_settings.EnemyFleetSpec).ToList();
+            var configuredEnemies = ParseFleet(_settings.EnemyFleetSpec).ToList();
             if (configuredEnemies.Count > 0)
                 secondFleet = new TestFleet(_database, configuredEnemies.OrderBy(_ => random.Next()), _settings.EasyMode ? 0 : 100);
+
+            var configuredAllies = _settings.UseConfiguredAllies
+                ? ParseFleet(_settings.AllyFleetSpec).ToList()
+                : new List<ShipBuild>();
 
 			var builder = _combatModelBuilderFactory.Create();
 			builder.PlayerFleet = firstFleet;
 			builder.EnemyFleet = secondFleet;
+			if (configuredAllies.Count > 0)
+				builder.AllyFleet = new TestFleet(_database, configuredAllies.OrderBy(_ => random.Next()), _settings.EasyMode ? 0 : 100);
 			builder.Rules = _database.GalaxySettings.QuickCombatRules ?? _database.CombatSettings.DefaultCombatRules;
 
             return builder.Build();
 		}
 
-        private IEnumerable<ShipBuild> ParseEnemyFleet(string spec)
+        private IEnumerable<ShipBuild> ParseFleet(string spec)
         {
             if (string.IsNullOrWhiteSpace(spec)) yield break;
             foreach (var entry in spec.Split(','))
@@ -182,7 +188,9 @@ namespace GameStateMachine.States
 			public string TestShipId;
 			public bool EasyMode;
             public bool UsePlayerFleet;
+			public bool UseConfiguredAllies;
 			public string EnemyFleetSpec;
+			public string AllyFleetSpec;
 		}
     }
 }

@@ -136,11 +136,18 @@ namespace Gui.MainMenu
         {
             if (_enemyFleetPanel != null)
                 Destroy(_enemyFleetPanel);
+            if (_allyFleetPanel != null)
+                Destroy(_allyFleetPanel);
             _enemyFleetPanel = null;
+            _allyFleetPanel = null;
             _quickEnemyCountTexts.Clear();
+            _quickAllyCountTexts.Clear();
             _gameSettings.EditorText = _inputField.text;
             var useMyFleet = _useMyFleetToggle != null && _useMyFleetToggle.isOn;
+            var useConfiguredAllies = _useConfiguredAlliesToggle != null && _useConfiguredAlliesToggle.isOn;
             var enemyFleetSpec = string.Join(",", _quickEnemyCounts.Where(item => item.Value > 0)
+                .OrderBy(item => item.Key).Select(item => item.Key + ":" + item.Value));
+            var allyFleetSpec = string.Join(",", _quickAllyCounts.Where(item => item.Value > 0)
                 .OrderBy(item => item.Key).Select(item => item.Key + ":" + item.Value));
 
             switch (result)
@@ -150,7 +157,9 @@ namespace Gui.MainMenu
                     {
                         EasyMode = true,
                         UsePlayerFleet = useMyFleet,
+                        UseConfiguredAllies = useConfiguredAllies,
                         EnemyFleetSpec = enemyFleetSpec,
+                        AllyFleetSpec = allyFleetSpec,
                         TestShipId = _inputField.text
                     });
                     break;
@@ -159,7 +168,9 @@ namespace Gui.MainMenu
                     {
                         EasyMode = false,
                         UsePlayerFleet = useMyFleet,
+                        UseConfiguredAllies = useConfiguredAllies,
                         EnemyFleetSpec = enemyFleetSpec,
+                        AllyFleetSpec = allyFleetSpec,
                         TestShipId = _inputField.text
                     });
                     break;
@@ -178,6 +189,7 @@ namespace Gui.MainMenu
             {
                 _useMyFleetToggle = existing.GetComponent<Toggle>();
                 CreateEnemyFleetButton(dialog.transform);
+                CreateAllyFleetToggle(dialog.transform);
                 yield break;
             }
 
@@ -234,6 +246,7 @@ namespace Gui.MainMenu
             _useMyFleetToggle.interactable = _gameSession.IsGameStarted();
             labelText.color = _useMyFleetToggle.interactable ? Color.white : new Color(0.55f, 0.58f, 0.62f);
             CreateEnemyFleetButton(dialog.transform);
+            CreateAllyFleetToggle(dialog.transform);
         }
 
         private void CreateEnemyFleetButton(Transform dialog)
@@ -259,29 +272,140 @@ namespace Gui.MainMenu
             label.rectTransform.offsetMin = label.rectTransform.offsetMax = Vector2.zero;
         }
 
+        private void CreateAllyFleetToggle(Transform dialog)
+        {
+            var existing = dialog.Find("UseConfiguredAllies");
+            if (existing != null)
+            {
+                _useConfiguredAlliesToggle = existing.GetComponent<Toggle>();
+                CreateAllyFleetButton(dialog);
+                return;
+            }
+
+            var row = new GameObject("UseConfiguredAllies", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Toggle), typeof(LayoutElement));
+            row.layer = dialog.gameObject.layer;
+            row.transform.SetParent(dialog, false);
+            row.transform.SetAsLastSibling();
+            var rowRect = row.GetComponent<RectTransform>();
+            rowRect.sizeDelta = new Vector2(0f, 62f);
+            var rowLayout = row.GetComponent<LayoutElement>();
+            rowLayout.minHeight = 62f;
+            rowLayout.preferredHeight = 62f;
+            row.GetComponent<Image>().color = new Color(0.025f, 0.13f, 0.19f, 0.96f);
+
+            var checkBackground = new GameObject("CheckBackground", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            checkBackground.layer = row.layer;
+            var checkRect = checkBackground.GetComponent<RectTransform>();
+            checkRect.SetParent(rowRect, false);
+            checkRect.anchorMin = checkRect.anchorMax = new Vector2(0f, 0.5f);
+            checkRect.pivot = new Vector2(0f, 0.5f);
+            checkRect.anchoredPosition = new Vector2(18f, 0f);
+            checkRect.sizeDelta = new Vector2(36f, 36f);
+            checkBackground.GetComponent<Image>().color = new Color(0.05f, 0.3f, 0.4f, 1f);
+
+            var checkmark = new GameObject("Checkmark", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            checkmark.layer = row.layer;
+            var markRect = checkmark.GetComponent<RectTransform>();
+            markRect.SetParent(checkRect, false);
+            markRect.anchorMin = new Vector2(0.2f, 0.2f);
+            markRect.anchorMax = new Vector2(0.8f, 0.8f);
+            markRect.offsetMin = Vector2.zero;
+            markRect.offsetMax = Vector2.zero;
+            checkmark.GetComponent<Image>().color = new Color(0.3f, 0.95f, 1f, 1f);
+
+            var label = CreateRuntimeText(row.transform, "Label", "启用配置友军", 24, TextAnchor.MiddleLeft);
+            label.rectTransform.anchorMin = Vector2.zero;
+            label.rectTransform.anchorMax = Vector2.one;
+            label.rectTransform.offsetMin = new Vector2(70f, 0f);
+            label.rectTransform.offsetMax = new Vector2(-16f, 0f);
+
+            _useConfiguredAlliesToggle = row.GetComponent<Toggle>();
+            _useConfiguredAlliesToggle.targetGraphic = row.GetComponent<Image>();
+            _useConfiguredAlliesToggle.graphic = checkmark.GetComponent<Image>();
+            _useConfiguredAlliesToggle.isOn = false;
+            _useConfiguredAlliesToggle.onValueChanged.AddListener(_ => RefreshAllyFleetButton());
+            CreateAllyFleetButton(dialog);
+        }
+
+        private void CreateAllyFleetButton(Transform dialog)
+        {
+            var existing = dialog.Find("ConfigureAllyFleet");
+            if (existing == null)
+            {
+                var buttonObject = new GameObject("ConfigureAllyFleet", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button), typeof(LayoutElement));
+                buttonObject.layer = dialog.gameObject.layer;
+                buttonObject.transform.SetParent(dialog, false);
+                buttonObject.transform.SetAsLastSibling();
+                var layout = buttonObject.GetComponent<LayoutElement>();
+                layout.minHeight = layout.preferredHeight = 62f;
+                var label = CreateRuntimeText(buttonObject.transform, "Label", "配置友军舰队", 24, TextAnchor.MiddleCenter);
+                label.rectTransform.anchorMin = Vector2.zero;
+                label.rectTransform.anchorMax = Vector2.one;
+                label.rectTransform.offsetMin = label.rectTransform.offsetMax = Vector2.zero;
+                _configureAllyFleetButton = buttonObject.GetComponent<Button>();
+            }
+            else
+            {
+                _configureAllyFleetButton = existing.GetComponent<Button>();
+            }
+
+            _configureAllyFleetButton.onClick.RemoveAllListeners();
+            _configureAllyFleetButton.onClick.AddListener(OpenAllyFleetPanel);
+            RefreshAllyFleetButton();
+        }
+
+        private void RefreshAllyFleetButton()
+        {
+            if (_configureAllyFleetButton == null)
+                return;
+
+            var enabled = _useConfiguredAlliesToggle != null && _useConfiguredAlliesToggle.isOn;
+            _configureAllyFleetButton.interactable = enabled;
+            var image = _configureAllyFleetButton.GetComponent<Image>();
+            if (image != null)
+                image.color = enabled ? new Color(0.03f, 0.28f, 0.38f, 0.98f) : new Color(0.09f, 0.12f, 0.15f, 0.9f);
+        }
+
         private void OpenEnemyFleetPanel()
         {
-            if (_enemyFleetPanel != null) { _enemyFleetPanel.SetActive(true); return; }
+            OpenFleetPanel(false);
+        }
+
+        private void OpenAllyFleetPanel()
+        {
+            OpenFleetPanel(true);
+        }
+
+        private void OpenFleetPanel(bool ally)
+        {
+            var existingPanel = ally ? _allyFleetPanel : _enemyFleetPanel;
+            if (existingPanel != null)
+            {
+                existingPanel.SetActive(true);
+                return;
+            }
+
             var canvas = GetComponentInParent<Canvas>() ?? FindObjectOfType<Canvas>();
             if (canvas == null) return;
-            _enemyFleetPanel = new GameObject("QuickEnemyFleetPanel", typeof(RectTransform), typeof(Canvas), typeof(GraphicRaycaster), typeof(CanvasRenderer), typeof(Image));
-            _enemyFleetPanel.layer = canvas.gameObject.layer;
-            var root = _enemyFleetPanel.GetComponent<RectTransform>();
+            var fleetPanel = new GameObject(ally ? "QuickAllyFleetPanel" : "QuickEnemyFleetPanel", typeof(RectTransform), typeof(Canvas), typeof(GraphicRaycaster), typeof(CanvasRenderer), typeof(Image));
+            fleetPanel.layer = canvas.gameObject.layer;
+            if (ally) _allyFleetPanel = fleetPanel; else _enemyFleetPanel = fleetPanel;
+            var root = fleetPanel.GetComponent<RectTransform>();
             root.SetParent(canvas.transform, false);
             root.anchorMin = new Vector2(0.08f, 0.06f); root.anchorMax = new Vector2(0.92f, 0.94f);
             root.offsetMin = root.offsetMax = Vector2.zero;
-            _enemyFleetPanel.GetComponent<Image>().color = new Color(0.015f, 0.07f, 0.11f, 0.99f);
-            var overlayCanvas = _enemyFleetPanel.GetComponent<Canvas>();
+            fleetPanel.GetComponent<Image>().color = new Color(0.015f, 0.07f, 0.11f, 0.99f);
+            var overlayCanvas = fleetPanel.GetComponent<Canvas>();
             overlayCanvas.overrideSorting = true;
             overlayCanvas.sortingOrder = canvas.sortingOrder + 100;
-            _enemyFleetPanel.transform.SetAsLastSibling();
+            fleetPanel.transform.SetAsLastSibling();
 
-            var title = CreateRuntimeText(root, "Title", "指定敌方舰队", 30, TextAnchor.MiddleCenter);
+            var title = CreateRuntimeText(root, "Title", ally ? "指定友军舰队" : "指定敌方舰队", 30, TextAnchor.MiddleCenter);
             title.rectTransform.anchorMin = new Vector2(0f, 0.91f); title.rectTransform.anchorMax = Vector2.one;
             title.rectTransform.offsetMin = new Vector2(20f, 0f); title.rectTransform.offsetMax = new Vector2(-20f, 0f);
 
             var viewportObject = new GameObject("Viewport", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Mask), typeof(ScrollRect));
-            viewportObject.layer = _enemyFleetPanel.layer;
+            viewportObject.layer = fleetPanel.layer;
             var viewport = viewportObject.GetComponent<RectTransform>();
             viewport.SetParent(root, false);
             viewport.anchorMin = new Vector2(0.03f, 0.12f); viewport.anchorMax = new Vector2(0.97f, 0.9f);
@@ -290,7 +414,7 @@ namespace Gui.MainMenu
             viewportObject.GetComponent<Mask>().showMaskGraphic = true;
 
             var contentObject = new GameObject("Content", typeof(RectTransform), typeof(VerticalLayoutGroup), typeof(ContentSizeFitter));
-            contentObject.layer = _enemyFleetPanel.layer;
+            contentObject.layer = fleetPanel.layer;
             var content = contentObject.GetComponent<RectTransform>();
             content.SetParent(viewport, false);
             content.anchorMin = new Vector2(0f, 1f); content.anchorMax = Vector2.one;
@@ -304,15 +428,19 @@ namespace Gui.MainMenu
             foreach (var build in _database.ShipBuildList.Where(item => item != null && item.Ship != null)
                          .GroupBy(item => item.Ship.Id.Value).Select(items => items.First())
                          .OrderBy(item => (int)item.Ship.SizeClass).ThenBy(item => item.Ship.Id.Value))
-                CreateEnemyFleetRow(content, build);
+                CreateFleetRow(content, build, ally);
 
             var done = CreateRuntimeButton(root, "Done", "完成", new Vector2(0.54f, 0.02f), new Vector2(0.95f, 0.105f));
-            done.onClick.AddListener(() => _enemyFleetPanel.SetActive(false));
+            done.onClick.AddListener(() => fleetPanel.SetActive(false));
             var clear = CreateRuntimeButton(root, "Clear", "清空", new Vector2(0.05f, 0.02f), new Vector2(0.46f, 0.105f));
-            clear.onClick.AddListener(() => { _quickEnemyCounts.Clear(); RefreshEnemyFleetCounts(); });
+            clear.onClick.AddListener(() =>
+            {
+                GetFleetCounts(ally).Clear();
+                RefreshFleetCounts(ally);
+            });
         }
 
-        private void CreateEnemyFleetRow(RectTransform parent, ShipBuild build)
+        private void CreateFleetRow(RectTransform parent, ShipBuild build, bool ally)
         {
             var row = new GameObject("Ship_" + build.Id.Value, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(LayoutElement));
             row.layer = parent.gameObject.layer; row.transform.SetParent(parent, false);
@@ -325,30 +453,36 @@ namespace Gui.MainMenu
             var count = CreateRuntimeText(row.transform, "Count", "0", 22, TextAnchor.MiddleCenter);
             count.rectTransform.anchorMin = new Vector2(0.76f, 0f); count.rectTransform.anchorMax = new Vector2(0.87f, 1f);
             count.rectTransform.offsetMin = count.rectTransform.offsetMax = Vector2.zero;
-            _quickEnemyCountTexts[build.Id.Value] = count;
+            GetFleetCountTexts(ally)[build.Id.Value] = count;
             var plus = CreateRuntimeButton(row.GetComponent<RectTransform>(), "Plus", "+", new Vector2(0.88f, 0.12f), new Vector2(0.98f, 0.88f));
-            minus.onClick.AddListener(() => SetEnemyFleetCount(build.Id.Value, -1));
-            plus.onClick.AddListener(() => SetEnemyFleetCount(build.Id.Value, 1));
-            RefreshEnemyFleetCount(build.Id.Value);
+            minus.onClick.AddListener(() => SetFleetCount(build.Id.Value, -1, ally));
+            plus.onClick.AddListener(() => SetFleetCount(build.Id.Value, 1, ally));
+            RefreshFleetCount(build.Id.Value, ally);
         }
 
-        private void SetEnemyFleetCount(int id, int delta)
+        private Dictionary<int, int> GetFleetCounts(bool ally) => ally ? _quickAllyCounts : _quickEnemyCounts;
+
+        private Dictionary<int, Text> GetFleetCountTexts(bool ally) => ally ? _quickAllyCountTexts : _quickEnemyCountTexts;
+
+        private void SetFleetCount(int id, int delta, bool ally)
         {
-            _quickEnemyCounts.TryGetValue(id, out var count);
+            var counts = GetFleetCounts(ally);
+            counts.TryGetValue(id, out var count);
             count = Mathf.Clamp(count + delta, 0, 99);
-            if (count == 0) _quickEnemyCounts.Remove(id); else _quickEnemyCounts[id] = count;
-            RefreshEnemyFleetCount(id);
+            if (count == 0) counts.Remove(id); else counts[id] = count;
+            RefreshFleetCount(id, ally);
         }
 
-        private void RefreshEnemyFleetCounts()
+        private void RefreshFleetCounts(bool ally)
         {
-            foreach (var id in _quickEnemyCountTexts.Keys.ToArray()) RefreshEnemyFleetCount(id);
+            foreach (var id in GetFleetCountTexts(ally).Keys.ToArray()) RefreshFleetCount(id, ally);
         }
 
-        private void RefreshEnemyFleetCount(int id)
+        private void RefreshFleetCount(int id, bool ally)
         {
-            if (_quickEnemyCountTexts.TryGetValue(id, out var text))
-                text.text = _quickEnemyCounts.TryGetValue(id, out var count) ? count.ToString() : "0";
+            var counts = GetFleetCounts(ally);
+            if (GetFleetCountTexts(ally).TryGetValue(id, out var text))
+                text.text = counts.TryGetValue(id, out var count) ? count.ToString() : "0";
         }
 
         private static Text CreateRuntimeText(Transform parent, string name, string value, int fontSize, TextAnchor alignment)
@@ -494,8 +628,13 @@ namespace Gui.MainMenu
         private ISessionData _gameSession;
         private IGuiManager _guiManager;
         private Toggle _useMyFleetToggle;
+        private Toggle _useConfiguredAlliesToggle;
         private GameObject _enemyFleetPanel;
+        private GameObject _allyFleetPanel;
+        private Button _configureAllyFleetButton;
         private readonly Dictionary<int, int> _quickEnemyCounts = new();
         private readonly Dictionary<int, Text> _quickEnemyCountTexts = new();
+        private readonly Dictionary<int, int> _quickAllyCounts = new();
+        private readonly Dictionary<int, Text> _quickAllyCountTexts = new();
     }
 }
