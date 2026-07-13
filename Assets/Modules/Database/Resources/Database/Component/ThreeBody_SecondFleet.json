@@ -1,0 +1,15 @@
+{
+  "ItemType": 1,
+  "Id": 936,
+  "Name": "$ThreeBody_SecondFleet",
+  "Description": "$ThreeBody_SecondFleetDescription",
+  "ContentSource": 1,
+  "DisplayCategory": 6,
+  "Availability": 1,
+  "ComponentStatsId": 282,
+  "Faction": 22,
+  "Level": 1,
+  "Icon": "jammer",
+  "Color": "#D6E8FF",
+  "Layout": "1"
+}

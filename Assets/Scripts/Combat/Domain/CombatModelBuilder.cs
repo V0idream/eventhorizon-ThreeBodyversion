@@ -7,6 +7,7 @@ using GameDatabase;
 using GameDatabase.DataModel;
 using GameServices.Player;
 using Model.Military;
+using Constructor.Ships;
 using Zenject;
 
 namespace Combat.Domain
@@ -35,6 +36,7 @@ namespace Combat.Domain
 
         public CombatRules Rules { get; set; }
         public int StarLevel { get; set; }
+        public ShipBuild DefenseStarbaseBuild { get; set; }
 
         public void AddSpecialReward(IProduct item)
         {
@@ -67,6 +69,14 @@ namespace Combat.Domain
 
 			model.SpecialRewards = specialLoot != null ? _specialReward.Concat(specialLoot) : _specialReward;
 			model.Rules = rules;
+
+            if (DefenseStarbaseBuild != null && DefenseStarbaseBuild != ShipBuild.DefaultValue)
+            {
+                var station = new CommonShip(DefenseStarbaseBuild, _database);
+                var stationSpec = station.CreateBuilder().Build(_database.ShipSettings);
+                model.DefenseStarbase = new ShipInfo(station, stationSpec, UnitSide.Player);
+                model.IsStarbaseDefense = true;
+            }
 
             return model;
         }

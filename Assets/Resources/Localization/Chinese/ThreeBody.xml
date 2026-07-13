@@ -39,6 +39,8 @@
     <string name="TrisolarisAntimatterBatteryDescription">以多重磁场稳定封存反物质的高密度能源仓，为三体舰船提供庞大能量储备。</string>
     <string name="ThreeBody_StarshipEarth">星舰地球占位科技</string>
     <string name="ThreeBody_Trisolaris">三体占位科技</string>
+    <string name="ThreeBody_SecondFleet">第二舰队科技</string>
+    <string name="ThreeBody_SecondFleetDescription">完成现有三体科技体系后，通向第二舰队技术路线的预留节点。</string>
     <string name="ThreeBody_Singer">歌者占位科技</string>
     <string name="ThreeBody_Returners">归零者占位科技</string>
     <string name="ThreeBody_RimWorld">边缘世界占位科技</string>

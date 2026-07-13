@@ -60,6 +60,11 @@ namespace ViewModel
                 OnEnable();
         }
 
+        public void DefendBase()
+        {
+            _motherShip.CurrentStar.DefendBase();
+        }
+
         public static bool IncludeStarshipEarthAllies { get; private set; }
 
         public bool MissionsAvailable
@@ -91,6 +96,7 @@ namespace ViewModel
 		    {
                 SetJointControlsVisible(false);
 		        SetPeacefulTransferVisible(false);
+		        SetDefenseVisible(true);
 		        CaptureButton.gameObject.SetActive(false);
 		        CaptureDescription.gameObject.SetActive(false);
 		        MilitaryPowerPanel.gameObject.SetActive(false);
@@ -103,6 +109,7 @@ namespace ViewModel
 		    }
 
             CaptureButton.gameObject.SetActive(true);
+            SetDefenseVisible(false);
             SetJointControlsVisible(true);
 		    CaptureDescription.gameObject.SetActive(true);
 		    MilitaryPowerPanel.gameObject.SetActive(true);
@@ -161,6 +168,7 @@ namespace ViewModel
             _jointAttackButton = GetComponentsInChildren<Transform>(true)
                 .FirstOrDefault(item => item.name == "Preview5JointAttackButton")?.gameObject;
 			EnsurePeacefulTransferButton();
+			EnsureDefenseButton();
             if (_alliedAttackPanel != null && _jointAttackButton != null)
                 return;
 
@@ -376,6 +384,57 @@ namespace ViewModel
                 _peacefulTransferButton.SetActive(visible);
         }
 
+        private void EnsureDefenseButton()
+        {
+            _defenseButton = GetComponentsInChildren<Transform>(true)
+                .FirstOrDefault(item => item.name == "StarbaseDefenseButton")?.gameObject;
+            if (_defenseButton != null)
+                return;
+
+            var buttonObject = new GameObject("StarbaseDefenseButton", typeof(RectTransform), typeof(CanvasRenderer),
+                typeof(Image), typeof(Button), typeof(LayoutElement), typeof(Outline));
+            var rect = buttonObject.GetComponent<RectTransform>();
+            rect.SetParent(CaptureButton.transform.parent, false);
+            rect.sizeDelta = new Vector2(410f, 78f);
+            var layout = buttonObject.GetComponent<LayoutElement>();
+            layout.minWidth = layout.preferredWidth = 410f;
+            layout.minHeight = layout.preferredHeight = 78f;
+            layout.flexibleWidth = 0f;
+            buttonObject.GetComponent<Image>().color = new Color(0.05f, 0.31f, 0.58f, 1f);
+            var outline = buttonObject.GetComponent<Outline>();
+            outline.effectColor = new Color(0.32f, 0.78f, 1f, 0.95f);
+            outline.effectDistance = new Vector2(2f, -2f);
+            buttonObject.GetComponent<Button>().onClick.AddListener(DefendBase);
+
+            var template = CaptureButton.GetComponentInChildren<Text>(true);
+            var label = template != null
+                ? Instantiate(template, rect)
+                : new GameObject("Label", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text)).GetComponent<Text>();
+            if (template == null)
+            {
+                label.transform.SetParent(rect, false);
+                label.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            }
+            label.name = "Label";
+            label.rectTransform.anchorMin = Vector2.zero;
+            label.rectTransform.anchorMax = Vector2.one;
+            label.rectTransform.offsetMin = new Vector2(8f, 4f);
+            label.rectTransform.offsetMax = new Vector2(-8f, -4f);
+            label.text = "防卫";
+            label.alignment = TextAnchor.MiddleCenter;
+            label.resizeTextForBestFit = true;
+            label.resizeTextMinSize = 14;
+            label.resizeTextMaxSize = 26;
+            label.color = Color.white;
+            _defenseButton = buttonObject;
+        }
+
+        private void SetDefenseVisible(bool visible)
+        {
+            if (_defenseButton != null)
+                _defenseButton.SetActive(visible);
+        }
+
         private void SetJointControlsVisible(bool visible)
         {
             if (_jointAttackButton != null)
@@ -387,5 +446,6 @@ namespace ViewModel
         private GameObject _jointAttackButton;
         private GameObject _alliedAttackPanel;
         private GameObject _peacefulTransferButton;
+        private GameObject _defenseButton;
 	}
 }

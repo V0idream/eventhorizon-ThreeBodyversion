@@ -75,7 +75,9 @@ namespace Combat.Domain
             var rotation = random.Next(360);
 
             IShip ship;
-            if (_shipData.Model.ShipType == ShipType.Starbase)
+            if (_shipData.Model.ShipType == ShipType.Starbase && _unitSide == UnitSide.Player)
+                ship = factory.CreatePlayerStarbase(_shipSpec, position, rotation);
+            else if (_shipData.Model.ShipType == ShipType.Starbase)
                 ship = factory.CreateStarbase(_shipSpec, position, rotation, _unitSide);
             else if (_unitSide == UnitSide.Player)
                 ship = factory.CreatePlayerShip(_shipSpec, position, rotation);

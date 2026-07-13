@@ -74,6 +74,15 @@ namespace Gui.MainMenu
         
         public void StartBattle()
         {
+            // The difficulty window is pooled.  Never keep references to controls
+            // or overlays from an earlier opening of the quick-combat dialog.
+            _useMyFleetToggle = null;
+            _useConfiguredAlliesToggle = null;
+            _configureAllyFleetButton = null;
+            if (_enemyFleetPanel != null) Destroy(_enemyFleetPanel);
+            if (_allyFleetPanel != null) Destroy(_allyFleetPanel);
+            _enemyFleetPanel = null;
+            _allyFleetPanel = null;
             _guiManager.OpenWindow(Common.WindowNames.SelectDifficultyDialog, OnDialogClosed);
             StartCoroutine(ConfigureQuickBattleFleetToggle());
         }
@@ -179,8 +188,14 @@ namespace Gui.MainMenu
 
         private IEnumerator ConfigureQuickBattleFleetToggle()
         {
-            yield return null;
-            var dialog = GameObject.Find(Common.WindowNames.SelectDifficultyDialog);
+            GameObject dialog = null;
+            // Depending on frame rate and whether the pooled window was used
+            // before, it may be instantiated several frames after OpenWindow.
+            for (var frame = 0; frame < 30 && dialog == null; frame++)
+            {
+                yield return null;
+                dialog = GameObject.Find(Common.WindowNames.SelectDifficultyDialog);
+            }
             if (dialog == null)
                 yield break;
 
@@ -188,6 +203,7 @@ namespace Gui.MainMenu
             if (existing != null)
             {
                 _useMyFleetToggle = existing.GetComponent<Toggle>();
+                _useMyFleetToggle.interactable = _gameSession.IsGameStarted();
                 CreateEnemyFleetButton(dialog.transform);
                 CreateAllyFleetToggle(dialog.transform);
                 yield break;
@@ -278,6 +294,9 @@ namespace Gui.MainMenu
             if (existing != null)
             {
                 _useConfiguredAlliesToggle = existing.GetComponent<Toggle>();
+                _useConfiguredAlliesToggle.interactable = true;
+                _useConfiguredAlliesToggle.onValueChanged.RemoveAllListeners();
+                _useConfiguredAlliesToggle.onValueChanged.AddListener(_ => RefreshAllyFleetButton());
                 CreateAllyFleetButton(dialog);
                 return;
             }
@@ -360,10 +379,12 @@ namespace Gui.MainMenu
                 return;
 
             var enabled = _useConfiguredAlliesToggle != null && _useConfiguredAlliesToggle.isOn;
-            _configureAllyFleetButton.interactable = enabled;
+            // Keep the configuration page reachable even before the checkbox is
+            // enabled. Opening it implicitly enables the configured ally fleet.
+            _configureAllyFleetButton.interactable = true;
             var image = _configureAllyFleetButton.GetComponent<Image>();
             if (image != null)
-                image.color = enabled ? new Color(0.03f, 0.28f, 0.38f, 0.98f) : new Color(0.09f, 0.12f, 0.15f, 0.9f);
+                image.color = enabled ? new Color(0.03f, 0.34f, 0.45f, 0.98f) : new Color(0.03f, 0.23f, 0.31f, 0.96f);
         }
 
         private void OpenEnemyFleetPanel()
@@ -373,6 +394,8 @@ namespace Gui.MainMenu
 
         private void OpenAllyFleetPanel()
         {
+            if (_useConfiguredAlliesToggle != null)
+                _useConfiguredAlliesToggle.isOn = true;
             OpenFleetPanel(true);
         }
 

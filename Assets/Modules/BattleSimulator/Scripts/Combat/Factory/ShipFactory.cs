@@ -32,6 +32,7 @@ using Collider2DOptimization;
 using Combat.Component.Unit;
 using Combat.Collision.Manager;
 using Combat.Component.Ship;
+using Combat.Component.Ship.Effects.Special;
 using GameDatabase.Extensions;
 
 namespace Combat.Factory
@@ -145,6 +146,11 @@ namespace Combat.Factory
 
             shipGameObject.IsActive = true;
 
+            // Every unit enters through the same short warp-in sequence.  It is
+            // attached before the unit/controller enters the scene so collision
+            // and weapon suppression are already active on the first frame.
+            ship.AddEffect(new ShipArrivalEffect(ship, shipGameObject));
+
             _scene.AddUnit(ship);
             _aiManager.Add(controllerFactory.Create(ship));
 
@@ -236,6 +242,14 @@ namespace Combat.Factory
         public Ship CreateStarbase(IShipSpecification spec, Vector2 position, float rotation, UnitSide unitSide)
         {
             var ship = CreateShip(spec, _controllerFactory.CreateStarbaseController(spec.CustomAi, true), position, rotation, null, unitSide, _settings.Shadows);
+            ship.Engine = new StarbaseEngine(10f);
+            return ship;
+        }
+
+        public Ship CreatePlayerStarbase(IShipSpecification spec, Vector2 position, float rotation)
+        {
+            var ship = CreateShip(spec, _controllerFactory.CreateKeyboardController(), position, rotation, null,
+                UnitSide.Player, _settings.Shadows);
             ship.Engine = new StarbaseEngine(10f);
             return ship;
         }

@@ -93,6 +93,37 @@ namespace Galaxy.StarContent
             return true;
         }
 
+        public void Defend(int starId)
+        {
+            if (!IsExists(starId))
+                throw new System.InvalidOperationException();
+
+            var region = _starData.GetRegion(starId);
+            if (!region.IsCaptured)
+                return;
+
+            var builder = _combatModelBuilderFactory.Create();
+            builder.PlayerFleet = new Model.Military.PlayerFleet(_database, _playerFleet);
+            builder.AllyFleet = Fleet.StarbaseDefenseAllies(region, starId ^ 0x444546, _database);
+            builder.EnemyFleet = Fleet.StarbaseDefenseEnemies(region, starId ^ 0x454E4D, _database);
+            builder.DefenseStarbaseBuild = Fleet.StarbaseForFaction(region, _database);
+            builder.Rules = _database.GalaxySettings.StarbaseCombatRules ?? _database.CombatSettings.DefaultCombatRules;
+            builder.StarLevel = region.HomeStarLevel;
+            CombatRelations.SetRelation(0, region.Faction.Id.Value, true);
+            var model = builder.Build();
+            _startBattleTrigger.Fire(model, result => OnDefenseCompleted(starId, result));
+        }
+
+        private void OnDefenseCompleted(int starId, ICombatModel result)
+        {
+            if (!result.IsVictory())
+                return;
+
+            var region = _starData.GetRegion(starId);
+            region.BaseDefensePower = UnityEngine.Mathf.CeilToInt(region.BaseDefensePower * 1.5f);
+            _starContentChangedTrigger.Fire(starId);
+        }
+
         private void OnCombatCompleted(int starId, ICombatModel result)
         {
             if (!result.IsVictory())
@@ -113,6 +144,7 @@ namespace Galaxy.StarContent
 			public bool IsExists => _starbase.IsExists(_starId);
 			public void Attack() => _starbase.Attack(_starId);
 			public bool PeacefulTransfer() => _starbase.PeacefulTransfer(_starId);
+			public void Defend() => _starbase.Defend(_starId);
 			public ICombatModel CreateCombatModel() => _starbase.CreateCombatModel(_starId);
 
 			private readonly StarBase _starbase;

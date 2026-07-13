@@ -110,6 +110,74 @@ namespace Model
 				return new CommonFleet(database, fleet.All, distance, random.Next());
 			}
 
+            public static IFleet StarbaseDefenseAllies(GameModel.Region region, int seed, IDatabase database)
+            {
+                var random = new Random(seed);
+                var builds = new List<ShipBuild>();
+                AddDefenseClass(builds, region.Faction, SizeClass.Titan, 1, region.HomeStarLevel, random, database);
+                AddDefenseClass(builds, region.Faction, SizeClass.Battleship, 3, region.HomeStarLevel, random, database);
+                AddDefenseClass(builds, region.Faction, SizeClass.Cruiser, 5, region.HomeStarLevel, random, database);
+                AddDefenseClass(builds, region.Faction, SizeClass.Destroyer, 10, region.HomeStarLevel, random, database);
+                AddDefenseClass(builds, region.Faction, SizeClass.Frigate, 20, region.HomeStarLevel, random, database);
+                return new CommonFleet(database, builds.OrderBy(_ => random.Next()), region.HomeStarLevel, random.Next(),
+                    Maths.Distance.AiLevel(region.HomeStarLevel));
+            }
+
+            public static IFleet StarbaseDefenseEnemies(GameModel.Region region, int seed, IDatabase database)
+            {
+                var random = new Random(seed);
+                var level = UnityEngine.Mathf.Max(1, UnityEngine.Mathf.RoundToInt(region.HomeStarLevel * 1.5f));
+                var available = ShipBuildQuery.EnemyShips(database)
+                    .FilterByStarDistance(level, ShipBuildQuery.FilterMode.SizeAndDifficulty)
+                    .Where(item => item.Faction != region.Faction)
+                    .All.ToList();
+                if (available.Count == 0)
+                    available = ShipBuildQuery.EnemyShips(database).Where(item => item.Faction != region.Faction).All.ToList();
+
+                var factions = available.Select(item => item.Faction).Distinct().ToList();
+                if (factions.Count > 0)
+                {
+                    var faction = factions[random.Next(factions.Count)];
+                    available = available.Where(item => item.Faction == faction).ToList();
+                }
+
+                var builds = new List<ShipBuild>();
+                for (var i = 0; i < 15 && available.Count > 0; i++)
+                    builds.Add(available[random.Next(available.Count)]);
+                return new CommonFleet(database, builds.OrderBy(_ => random.Next()), level, random.Next(), Maths.Distance.AiLevel(level));
+            }
+
+            public static ShipBuild StarbaseForFaction(GameModel.Region region, IDatabase database)
+            {
+                if (region.Faction.Id.Value == 21)
+                    return database.GetShipBuild(new ItemId<ShipBuild>(94000));
+
+                var starbaseClass = region.HomeStarLevel < 40 ? DifficultyClass.Default : DifficultyClass.Class1;
+                return ShipBuildQuery.Starbases(database)
+                           .BelongToFaction(region.Faction)
+                           .WithDifficulty(starbaseClass, starbaseClass)
+                           .Random(new Random(region.HomeStar))
+                       ?? database.GalaxySettings.DefaultStarbaseBuild;
+            }
+
+            private static void AddDefenseClass(List<ShipBuild> output, Faction faction, SizeClass sizeClass,
+                int count, int level, Random random, IDatabase database)
+            {
+                var candidates = ShipBuildQuery.EnemyShips(database)
+                    .BelongToFaction(faction)
+                    .WithSizeClass(sizeClass, sizeClass)
+                    .FilterByStarDistance(level, ShipBuildQuery.FilterMode.Difficulty)
+                    .All.ToList();
+                if (candidates.Count == 0)
+                    candidates = ShipBuildQuery.EnemyShips(database)
+                        .BelongToFaction(faction)
+                        .WithSizeClass(sizeClass, sizeClass)
+                        .All.ToList();
+
+                for (var i = 0; i < count && candidates.Count > 0; i++)
+                    output.Add(candidates[random.Next(candidates.Count)]);
+            }
+
             public static IFleet Ruins(int distance, int seed, IDatabase database)
             {
                 var random = new Random(seed);

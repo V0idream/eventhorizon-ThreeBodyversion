@@ -108,7 +108,9 @@ namespace Combat.Manager
             // create the first enemy. That leaves the battlefield empty during
             // scene startup and lets the counter prefab display its placeholder
             // value. Create the complete initial wave here instead.
-            var initialEnemies = Mathf.Max(1, _combatModel.Rules.InitialEnemyShips);
+            var initialEnemies = _combatModel.IsStarbaseDefense
+                ? _combatModel.EnemyFleet.Ships.Count
+                : Mathf.Max(1, _combatModel.Rules.InitialEnemyShips);
             var enemiesToCreate = Mathf.Max(0, initialEnemies - ActiveEnemyCount());
             foreach (var ship in _combatModel.EnemyFleet.Ships
                          .Where(item => item.Status == ShipStatus.Ready)
@@ -364,6 +366,9 @@ namespace Combat.Manager
 
             if (!player.IsActive())
             {
+				if (TryDeployDefenseStarbase())
+                    return;
+
 				if (!_manualShipChangePending && _hasActivatedPlayerShip && ThreeBodySkillState.CollaborativeCombatUnlocked && TakeControlOfLargestCollaborator())
                     return;
 
@@ -567,7 +572,11 @@ namespace Combat.Manager
 
         private bool IsPlayerDefeated()
         {
-            if (_combatModel.Rules.ShipSelection == PlayerShipSelectionMode.OnlyOneShip && 
+            if (_combatModel.DefenseStarbase != null &&
+                _combatModel.DefenseStarbase.Status != ShipStatus.Destroyed)
+                return false;
+
+            if (_combatModel.Rules.ShipSelection == PlayerShipSelectionMode.OnlyOneShip &&
                 _scene.PlayerShip != null && _scene.PlayerShip.State == UnitState.Destroyed)
                 return true;
 
@@ -575,6 +584,19 @@ namespace Combat.Manager
                 return true;
 
             return false;
+        }
+
+        private bool TryDeployDefenseStarbase()
+        {
+            var station = _combatModel.DefenseStarbase;
+            if (station == null || station.Status != ShipStatus.Ready || _combatModel.PlayerFleet.IsAnyShipAlive())
+                return false;
+
+            var position = new Vector2(_scene.Settings.AreaWidth * 0.5f, _scene.Settings.AreaHeight * 0.5f);
+            CreateShip(station, position);
+            _nextPlayerShipCooldown = 0f;
+            _manualShipChangePending = false;
+            return true;
         }
 
         private bool _canCallNextEnemy;
