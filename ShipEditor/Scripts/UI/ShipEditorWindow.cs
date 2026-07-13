@@ -211,7 +211,7 @@ namespace ShipEditor.UI
 
 			var command = new RemoveComponentCommand(_shipEditor, component);
 			if (_commandList.TryExecute(command))
-				_draggableComponent.Initialize(new DraggableComponent.Content(component.Info, component.KeyBinding, component.Behaviour), eventData);
+				_draggableComponent.Initialize(new DraggableComponent.Content(component.Info, component.KeyBinding, component.Behaviour, component.PersistedBarrelId), eventData);
 		}
 
 		public void OnZoom(float zoom)
@@ -363,7 +363,7 @@ namespace ShipEditor.UI
 		private ICommand CreateInstallCommand(ShipElementType shipElementType, DraggableComponent.Content item, Vector2 position)
 		{
 			var cell = _shipView.WorldToCell(position, shipElementType, item.Layout.Size);
-			var settings = new ComponentSettings(item.KeyBinding, item.Behaviour, false);
+			var settings = new ComponentSettings(item.KeyBinding, item.Behaviour, false, item.PersistedBarrelId);
 			return new InstallComponentCommand(_shipEditor, shipElementType, cell, item.Component, settings);
 		}
 	}

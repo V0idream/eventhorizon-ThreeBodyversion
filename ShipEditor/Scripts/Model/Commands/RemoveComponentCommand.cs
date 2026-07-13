@@ -22,7 +22,8 @@
 		public bool TryRollback()
 		{
 			var position = new UnityEngine.Vector2Int(_component.X, _component.Y);
-			var settings = new ComponentSettings(_component.KeyBinding, _component.Behaviour, _component.Locked);
+			var settings = new ComponentSettings(_component.KeyBinding, _component.Behaviour,
+				_component.Locked, _component.PersistedBarrelId);
 			return _shipEditor.TryInstallComponent(_component.Location, position, _component.Info, settings);
 		}
 	}

@@ -102,14 +102,16 @@ namespace ShipEditor.UI
             public readonly ComponentInfo Component;
             public readonly int KeyBinding;
             public readonly int Behaviour;
+            public readonly int PersistedBarrelId;
             public Layout Layout => Component.Data.Layout;
             public SpriteId Icon => Component.Data.Icon;
             public Color Color => Component.Data.Color;
-            public Content(ComponentInfo component, int keyBinding = 0, int behaviour = 0)
+            public Content(ComponentInfo component, int keyBinding = 0, int behaviour = 0, int persistedBarrelId = int.MinValue)
             {
                 Component = component;
                 KeyBinding = keyBinding;
                 Behaviour = behaviour;
+                PersistedBarrelId = persistedBarrelId;
             }
         }
     }

@@ -59,6 +59,7 @@ namespace ShipEditor.Model
 
 		void SetComponentKeyBinding(IComponentModel component, int key);
 		void SetComponentBehaviour(IComponentModel component, int behaviour);
+		void SetComponentPersistedBarrelId(IComponentModel component, int barrelId);
 
 		bool CanBeUnlocked(IComponentModel component);
 		void UnlockComponent(IComponentModel component);
@@ -182,13 +183,19 @@ namespace ShipEditor.Model
 		public void SetComponentKeyBinding(IComponentModel component, int key)
 		{
 			if (key != component.KeyBinding)
-				UpdateComponent(component, new ComponentSettings(key, component.Behaviour, component.Locked));
+				UpdateComponent(component, new ComponentSettings(key, component.Behaviour, component.Locked, component.PersistedBarrelId));
 		}
 
 		public void SetComponentBehaviour(IComponentModel component, int behaviour)
 		{
 			if (behaviour != component.Behaviour)
-				UpdateComponent(component, new ComponentSettings(component.KeyBinding, behaviour, component.Locked));
+				UpdateComponent(component, new ComponentSettings(component.KeyBinding, behaviour, component.Locked, component.PersistedBarrelId));
+		}
+
+		public void SetComponentPersistedBarrelId(IComponentModel component, int barrelId)
+		{
+			if (barrelId != component.PersistedBarrelId)
+				UpdateComponent(component, new ComponentSettings(component.KeyBinding, component.Behaviour, component.Locked, barrelId));
 		}
 
 
@@ -210,7 +217,7 @@ namespace ShipEditor.Model
 			if (!_context.Inventory.TryPayForUnlock(component.Info))
 				throw new InvalidOperationException();
 
-			UpdateComponent(component, new ComponentSettings(component.KeyBinding, component.Behaviour, false));
+				UpdateComponent(component, new ComponentSettings(component.KeyBinding, component.Behaviour, false, component.PersistedBarrelId));
 		}
 
 		public bool TryInstallComponent(ShipElementType shipElement, UnityEngine.Vector2Int position, ComponentInfo componentInfo, ComponentSettings settings)
@@ -321,8 +328,16 @@ namespace ShipEditor.Model
                     continue;
                 }
 
-                layout.InstallComponent(component.X, component.Y, component.Info,
-                    new ComponentSettings(component.KeyBinding, component.Behaviour, component.Locked));
+				var keyBinding = component.KeyBinding;
+				var persistedBarrelId = component.BarrelId;
+				if (component.Info.Data.Id.Value == ThreeBodyContentRules.CreativeWorkshopComponentId && persistedBarrelId < 0)
+				{
+					persistedBarrelId = keyBinding;
+					keyBinding = 0;
+				}
+
+				layout.InstallComponent(component.X, component.Y, component.Info,
+					new ComponentSettings(keyBinding, component.Behaviour, component.Locked, persistedBarrelId));
             }
 
             return result;
@@ -362,8 +377,13 @@ namespace ShipEditor.Model
 		{
 			if (layout == null) yield break;
 			foreach (var model in layout.Components.OrderBy(GetComponentSortOrder))
-				yield return new IntegratedComponent(model.Info, model.X, model.Y, 
-					layout.GetBarrelId(model), model.KeyBinding, model.Behaviour, model.Locked);
+			{
+				var barrelId = model.Data.Id.Value == ThreeBodyContentRules.CreativeWorkshopComponentId
+					? (model.PersistedBarrelId == int.MinValue ? 0 : model.PersistedBarrelId)
+					: layout.GetBarrelId(model);
+				yield return new IntegratedComponent(model.Info, model.X, model.Y,
+					barrelId, model.KeyBinding, model.Behaviour, model.Locked);
+			}
 		}
 
         private static int GetComponentSortOrder(IComponentModel componentModel)
@@ -401,8 +421,19 @@ namespace ShipEditor.Model
 					continue;
 				}
 
+				var keyBinding = component.KeyBinding;
+				var persistedBarrelId = component.BarrelId;
+				if (component.Info.Data.Id.Value == ThreeBodyContentRules.CreativeWorkshopComponentId && persistedBarrelId < 0)
+				{
+					// Alpha 1.4 stored the build selector's high byte in the
+					// key field. Migrate it once and release the key for the
+					// player's normal action binding.
+					persistedBarrelId = keyBinding;
+					keyBinding = 0;
+				}
+
 				layout.InstallComponent(component.X, component.Y, component.Info,
-					new ComponentSettings(component.KeyBinding, component.Behaviour, component.Locked));
+					new ComponentSettings(keyBinding, component.Behaviour, component.Locked, persistedBarrelId));
 			}
 
 			layout.DataChanged = false;

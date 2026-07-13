@@ -33,16 +33,7 @@ namespace ShipEditor.UI
 
 		public void Initialize(GameDatabase.DataModel.Component component, int key, int defaultKey, int componentMode)
 		{
-			if (component.Id.Value == ThreeBodyContentRules.CreativeWorkshopComponentId)
-			{
-				// The workshop uses the two persisted control bytes to store the
-				// selected drone build. Its dedicated selector is shown by
-				// ComponentPanel, so ordinary key/mode controls must not overwrite
-				// that selection.
-				gameObject.SetActive(false);
-				return;
-			}
-
+			var isCreativeWorkshop = component.Id.Value == ThreeBodyContentRules.CreativeWorkshopComponentId;
 			var activationType = component.GetActivationType();
 			if (activationType == ActivationType.None)
 			{
@@ -64,7 +55,9 @@ namespace ShipEditor.UI
             _keyBinding = -1;
 		    _componentMode = componentMode;
 
-            _droneBehaviourGroup.gameObject.SetActive(component.DroneBay != null);
+			// Creative Workshop reserves the behaviour byte for its selected
+			// ship-build index, but its ordinary action key remains configurable.
+			_droneBehaviourGroup.gameObject.SetActive(component.DroneBay != null && !isCreativeWorkshop);
             _droneBehaviourGroup.Value = _componentMode;
 
             if (activationType == ActivationType.Mixed && key < 0)

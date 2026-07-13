@@ -67,10 +67,10 @@ namespace ShipEditor.UI
 
 		public void OnDragStarted(UnityEngine.EventSystems.PointerEventData eventData)
 		{
-			var isCreativeWorkshop = _componentInfo.Data.Id.Value == ThreeBodyContentRules.CreativeWorkshopComponentId;
-			var keyBinding = isCreativeWorkshop && _componentModel != null ? _componentModel.KeyBinding : _controlsPanel.KeyBinding;
-			var behaviour = isCreativeWorkshop && _componentModel != null ? _componentModel.Behaviour : _controlsPanel.ComponentMode;
-			var content = new DraggableComponent.Content(_componentInfo, keyBinding, behaviour);
+			var keyBinding = _componentModel != null ? _componentModel.KeyBinding : _controlsPanel.KeyBinding;
+			var behaviour = _componentModel != null ? _componentModel.Behaviour : _controlsPanel.ComponentMode;
+			var persistedBarrelId = _componentModel?.PersistedBarrelId ?? int.MinValue;
+			var content = new DraggableComponent.Content(_componentInfo, keyBinding, behaviour, persistedBarrelId);
 			_draggableComponent.Initialize(content, eventData);
 		}
 
@@ -177,7 +177,7 @@ namespace ShipEditor.UI
 
 			EnsureCreativeWorkshopSelector();
 			_creativeWorkshopButton.gameObject.SetActive(true);
-			if (ThreeBodyContentRules.TryGetCreativeWorkshopDrone(_database, model.KeyBinding, model.Behaviour, out var build))
+			if (ThreeBodyContentRules.TryGetCreativeWorkshopDrone(_database, model.PersistedBarrelId, model.Behaviour, out var build))
 				_creativeWorkshopLabel.text = "无人机配置：" + _localization.GetString(build.Ship.Name) + " #" + build.Id.Value;
 			else
 				_creativeWorkshopLabel.text = "无人机配置：默认（观众）";
@@ -305,10 +305,10 @@ namespace ShipEditor.UI
 
 		private void SelectCreativeWorkshopBuild(ShipBuild build)
 		{
-			if (_componentModel == null || !ThreeBodyContentRules.TryEncodeCreativeWorkshopDrone(_database, build, out var keyBinding, out var behaviour))
+			if (_componentModel == null || !ThreeBodyContentRules.TryEncodeCreativeWorkshopDrone(_database, build, out var persistedBarrelId, out var behaviour))
 				return;
 
-			_shipEditor.SetComponentKeyBinding(_componentModel, keyBinding);
+			_shipEditor.SetComponentPersistedBarrelId(_componentModel, persistedBarrelId);
 			_shipEditor.SetComponentBehaviour(_componentModel, behaviour);
 			if (_creativeWorkshopModal != null)
 				_creativeWorkshopModal.SetActive(false);

@@ -10,6 +10,7 @@ namespace ShipEditor.Model
 		int Y { get; }
 		int KeyBinding { get; }
 		int Behaviour { get; }
+		int PersistedBarrelId { get; }
 		bool Locked { get; }
 		Component Data { get; }
 		ComponentInfo Info { get; }
@@ -18,16 +19,18 @@ namespace ShipEditor.Model
 
 	public readonly struct ComponentSettings
 	{
-		public ComponentSettings(int keyBinding, int behaviour, bool locked)
+		public ComponentSettings(int keyBinding, int behaviour, bool locked, int persistedBarrelId = int.MinValue)
 		{
 			KeyBinding = keyBinding;
 			Behaviour = behaviour;
 			Locked = locked;
+			PersistedBarrelId = persistedBarrelId;
 		}
 
 		public readonly bool Locked;
 		public readonly int KeyBinding;
 		public readonly int Behaviour;
+		public readonly int PersistedBarrelId;
 	}
 
 	public class ComponentModel : IComponentModel
@@ -50,6 +53,7 @@ namespace ShipEditor.Model
 		public bool Locked => Settings.Locked;
 		public int KeyBinding => Settings.KeyBinding;
 		public int Behaviour => Settings.Behaviour;
+		public int PersistedBarrelId => Settings.PersistedBarrelId;
 		public ComponentSettings Settings { get; set; }
 		public ShipElementType Location { get; }
 	}
