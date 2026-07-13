@@ -26,8 +26,8 @@ namespace Combat.Component.Ship.Effects.Special
             CreateBeam();
 
             _direction = RotationHelpers.Direction(_ship.Body.Rotation);
-            _normalSpeed = Mathf.Clamp(_ship.Engine.MaxVelocity, 8f, 40f);
-            _entrySpeed = Mathf.Max(80f, _normalSpeed * 3f);
+            _normalSpeed = Mathf.Max(8f, _ship.Engine.MaxVelocity);
+            _entrySpeed = Mathf.Max(120f, _normalSpeed * 3.5f);
             SetVelocity(_direction * _entrySpeed);
         }
 
@@ -79,18 +79,25 @@ namespace Combat.Component.Ship.Effects.Special
                 return;
 
             var reveal = Mathf.Clamp01((_elapsed - BeamLeadTime) / RevealDuration);
+            var fade = _elapsed < BeamLeadTime
+                ? Mathf.Clamp01(_elapsed / 0.1f)
+                : 1f - Mathf.Clamp01((_elapsed - (Duration - 0.65f)) / 0.65f);
             foreach (var item in _materials)
                 if (item.RevealMaterial != null)
                     item.RevealMaterial.SetFloat(RevealId, reveal);
 
             if (_beam != null)
             {
-                var fade = _elapsed < BeamLeadTime
-                    ? Mathf.Clamp01(_elapsed / 0.06f)
-                    : 1f - Mathf.Clamp01((_elapsed - 0.72f) / (Duration - 0.72f));
                 var color = new Color(0.5f, 0.92f, 1f, Mathf.Clamp01(fade));
                 _beam.startColor = color;
                 _beam.endColor = new Color(0.12f, 0.62f, 1f, color.a * 0.15f);
+            }
+
+            if (_beamGlow != null)
+            {
+                var glowColor = new Color(0.25f, 0.65f, 1f, Mathf.Clamp01(fade) * 0.2f);
+                _beamGlow.startColor = glowColor;
+                _beamGlow.endColor = new Color(0.08f, 0.3f, 1f, glowColor.a * 0.12f);
             }
         }
 
@@ -131,7 +138,7 @@ namespace Combat.Component.Ship.Effects.Special
 
         private void CreateBeam()
         {
-            var mainRenderer = _root.GetComponent<SpriteRenderer>();
+            var mainRenderer = _root.GetComponentInChildren<SpriteRenderer>(true);
             if (mainRenderer == null || mainRenderer.sprite == null)
                 return;
 
@@ -150,6 +157,20 @@ namespace Combat.Component.Ship.Effects.Special
             var shader = Shader.Find("Sprites/Default");
             if (shader != null)
                 _beamMaterial = _beam.material = new Material(shader) { name = "ShipArrivalBeam (Runtime)" };
+
+            var glowObject = new GameObject("ArrivalBeamGlow");
+            glowObject.transform.SetParent(_root, false);
+            _beamGlow = glowObject.AddComponent<LineRenderer>();
+            _beamGlow.useWorldSpace = false;
+            _beamGlow.positionCount = 2;
+            _beamGlow.SetPosition(0, new Vector3(0f, -length * 0.58f, -0.025f));
+            _beamGlow.SetPosition(1, new Vector3(0f, length * 0.58f, -0.025f));
+            _beamGlow.widthMultiplier = _beam.widthMultiplier * 3.2f;
+            _beamGlow.numCapVertices = 6;
+            _beamGlow.sortingLayerID = mainRenderer.sortingLayerID;
+            _beamGlow.sortingOrder = mainRenderer.sortingOrder + 7;
+            if (shader != null)
+                _beamGlowMaterial = _beamGlow.material = new Material(shader) { name = "ShipArrivalBeamGlow (Runtime)" };
         }
 
         private void RestoreVisuals()
@@ -171,8 +192,14 @@ namespace Combat.Component.Ship.Effects.Special
                 Object.Destroy(_beam.gameObject);
             if (_beamMaterial != null)
                 Object.Destroy(_beamMaterial);
+            if (_beamGlow != null)
+                Object.Destroy(_beamGlow.gameObject);
+            if (_beamGlowMaterial != null)
+                Object.Destroy(_beamGlowMaterial);
             _beam = null;
             _beamMaterial = null;
+            _beamGlow = null;
+            _beamGlowMaterial = null;
         }
 
         private readonly struct RendererMaterial
@@ -189,9 +216,9 @@ namespace Combat.Component.Ship.Effects.Special
             public Material RevealMaterial { get; }
         }
 
-        private const float Duration = 1.0f;
-        private const float BeamLeadTime = 0.12f;
-        private const float RevealDuration = 0.72f;
+        private const float Duration = 1.55f;
+        private const float BeamLeadTime = 0.22f;
+        private const float RevealDuration = 1.12f;
         private static readonly int RevealId = Shader.PropertyToID("_Reveal");
         private readonly IShip _ship;
         private readonly Transform _root;
@@ -204,5 +231,7 @@ namespace Combat.Component.Ship.Effects.Special
         private bool _visualsRestored;
         private LineRenderer _beam;
         private Material _beamMaterial;
+        private LineRenderer _beamGlow;
+        private Material _beamGlowMaterial;
     }
 }

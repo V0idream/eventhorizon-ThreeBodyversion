@@ -189,6 +189,7 @@ namespace Combat.Component.Ship
         protected override void OnUpdatePhysics(float elapsedTime)
         {
             var hasEnergy = Stats.Energy.Value > 0;
+            ClampExternalVelocityBeforeEngine();
             Engine.Course = Controls.Course;
             Engine.Throttle = Controls.Throttle;
             Engine.Update(elapsedTime, Body, hasEnergy);
@@ -196,6 +197,35 @@ namespace Combat.Component.Ship
             Features.UpdatePhysics(elapsedTime, Collider);
             UpdateSystems(elapsedTime);
             ApplyVelocityLimit();
+        }
+
+        private void ClampExternalVelocityBeforeEngine()
+        {
+            foreach (var effect in Effects.All)
+                if (effect is ShipArrivalEffect)
+                    return;
+
+            foreach (var system in Systems.All)
+                if (system is WarpDrive warpDrive && warpDrive.IsWarping)
+                    return;
+
+            var engineLimit = Engine?.MaxVelocity ?? 0f;
+            if (engineLimit <= 0f || float.IsInfinity(engineLimit) || float.IsNaN(engineLimit))
+                return;
+
+            var velocity = Body.Velocity;
+            if (velocity.sqrMagnitude <= engineLimit * engineLimit)
+                return;
+
+            // Keep the velocity direction, but remove the excess impulse
+            // before ShipEngine computes its steering correction.  Without
+            // this, the engine sees an over-limit velocity and can leave the
+            // vessel with no usable propulsion vector until the impulse fades.
+            var limited = velocity.normalized * engineLimit;
+            if (Body is RigidBodyAdapter rigidBody)
+                rigidBody.Velocity = limited;
+            else
+                Body.ApplyAcceleration(limited - velocity);
         }
 
         private void ApplyVelocityLimit()

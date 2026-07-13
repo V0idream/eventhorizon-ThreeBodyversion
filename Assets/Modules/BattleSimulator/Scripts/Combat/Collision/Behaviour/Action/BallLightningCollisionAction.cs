@@ -13,13 +13,9 @@ namespace Combat.Collision.Behaviour.Action
         {
             if (!collisionData.IsNew || target == null || !target.IsActive())
                 return;
-            if (target.Type.Class == UnitClass.Missile || target.Type.Class == UnitClass.EnergyBolt ||
-                target.Type.Class == UnitClass.AreaOfEffect)
-                return;
-
             if (self is Combat.Component.Bullet.Bullet bullet &&
                 bullet.Controller is BallLightningController controller &&
-                !CombatRelations.AreAllies(self.Type, target.Type))
+                target != bullet.Type.Owner)
                 controller.Arm();
         }
 
