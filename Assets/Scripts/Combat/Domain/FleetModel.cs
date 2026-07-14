@@ -15,7 +15,8 @@ namespace Combat.Domain
             IDatabase database,
             int level,
             PlayerSkills playerSkills = null,
-            IEnumerable<IShip> collaborativeShips = null)
+            IEnumerable<IShip> collaborativeShips = null,
+            int? factionIdOverride = null)
         {
             var settings = database.ShipSettings;
             AiLevel = level;
@@ -30,7 +31,8 @@ namespace Combat.Domain
                     ship.CreateBuilder().Build(settings);
 
                 var shipInfo = new ShipInfo(ship, shipSpec, unitSide,
-                    unitSide == UnitSide.Ally && collaborative != null && collaborative.Contains(ship));
+                    unitSide == UnitSide.Ally && collaborative != null && collaborative.Contains(ship),
+                    factionIdOverride);
                 _ships.Add(shipInfo);
             }
         }

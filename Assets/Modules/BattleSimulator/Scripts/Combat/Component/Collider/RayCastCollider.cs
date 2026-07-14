@@ -70,7 +70,8 @@ namespace Combat.Component.Collider
 
                 if (target == null) 
                     continue;
-				if (Source != null && (target.Unit == Source || target.Unit.Type.Owner == Source))
+				if (Source != null && (target.Unit == Source ||
+                    target.Unit.Type.Owner == Source && !IsBallLightning(target.Unit)))
 					continue;
 
                 ProcessCollision(target, position, hit.point, elapsedTime, !collisionFound);
@@ -137,5 +138,11 @@ namespace Combat.Component.Collider
         private float _maxRange;
         private bool _needUpdateView;
         private bool _enabled = true;
+
+        private static bool IsBallLightning(IUnit unit)
+        {
+            return unit is Combat.Component.Bullet.Bullet bullet &&
+                   bullet.Controller is Combat.Component.Controller.BallLightningController;
+        }
     }
 }

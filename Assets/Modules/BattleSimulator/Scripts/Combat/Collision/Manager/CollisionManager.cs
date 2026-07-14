@@ -24,6 +24,16 @@ namespace Combat.Collision.Manager
 
         private void ProcessCollision(IUnit first, IUnit second, CollisionData collisionData)
         {
+            // Unity can report the same projectile contact from either
+            // collider first.  When the macro-electron is reported first,
+            // process the incoming projectile as the attacker so its actual
+            // weapon damage reaches BallLightningDamageHandler.
+            if (IsBallLightning(first) && IsProjectile(second) && !IsBallLightning(second))
+            {
+                ProcessProjectileHit(second, first, collisionData);
+                return;
+            }
+
             var behaviour = first.CollisionBehaviour;
             if (behaviour == null)
                 return;
@@ -53,13 +63,35 @@ namespace Combat.Collision.Manager
 
         private static bool IsBallLightningInteraction(IUnit first, IUnit second)
         {
-            return IsBallLightning(first) || IsBallLightning(second);
+            return IsBallLightning(first) && IsProjectile(second) ||
+                   IsBallLightning(second) && IsProjectile(first);
         }
 
         private static bool IsBallLightning(IUnit unit)
         {
             return unit is Combat.Component.Bullet.Bullet bullet &&
                    bullet.Controller is Combat.Component.Controller.BallLightningController;
+        }
+
+        private static bool IsProjectile(IUnit unit)
+        {
+            return unit is Combat.Component.Bullet.Bullet;
+        }
+
+        private static void ProcessProjectileHit(IUnit projectile, IUnit target, CollisionData collisionData)
+        {
+            if (!projectile.IsActive() || !target.IsActive())
+                return;
+
+            var behaviour = projectile.CollisionBehaviour;
+            if (behaviour == null)
+                return;
+
+            var projectileImpact = new Impact();
+            var targetImpact = new Impact();
+            behaviour.Process(projectile, target, collisionData, ref projectileImpact, ref targetImpact);
+            projectile.OnCollision(projectileImpact, target, collisionData);
+            target.OnCollision(targetImpact, projectile, collisionData);
         }
     }
 }

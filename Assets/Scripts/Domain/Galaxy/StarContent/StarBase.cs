@@ -43,6 +43,10 @@ namespace Galaxy.StarContent
 				builder.AllyFleet = Fleet.StarshipEarthAllies(region.HomeStarLevel, starId ^ 0x5345, _database);
             }
 			builder.EnemyFleet = defenderFleet;
+            // A fallback/dedicated station build may carry a database faction
+            // different from the region's faction.  All defenders in this
+            // station assault still belong to the same defending force.
+            builder.EnemyFactionIdOverride = region.Faction.Id.Value;
             builder.Rules = _database.GalaxySettings.StarbaseCombatRules ?? _database.CombatSettings.DefaultCombatRules;
 			builder.AddSpecialReward(_lootGenerator.GetStarBaseSpecialReward(region));
             builder.StarLevel = region.HomeStarLevel;

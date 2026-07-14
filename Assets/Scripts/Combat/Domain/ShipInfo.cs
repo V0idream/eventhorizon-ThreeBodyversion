@@ -25,12 +25,14 @@ namespace Combat.Domain
 {
     public class ShipInfo : IShipInfo
     {
-        public ShipInfo(Constructor.Ships.IShip shipData, IShipSpecification shipSpec, UnitSide unitSide, bool isCollaborativeAlly = false)
+        public ShipInfo(Constructor.Ships.IShip shipData, IShipSpecification shipSpec, UnitSide unitSide,
+            bool isCollaborativeAlly = false, int? factionIdOverride = null)
         {
             _unitSide = unitSide;
             _shipData = shipData;
             _shipSpec = shipSpec;
             IsCollaborativeAlly = isCollaborativeAlly;
+            _factionIdOverride = factionIdOverride;
         }
 
         public ShipStatus Status
@@ -84,7 +86,9 @@ namespace Combat.Domain
             else
                 ship = factory.CreateAiShip(_shipSpec, position, rotation, aiLevel, _unitSide);
 
-            ship.Type.FactionId = _unitSide == UnitSide.Player ? 0 : _shipData.Model.Faction.Id.Value;
+            ship.Type.FactionId = _unitSide == UnitSide.Player
+                ? 0
+                : _factionIdOverride ?? _shipData.Model.Faction.Id.Value;
 
             if (ShipUnit != null && ShipUnit.State == UnitState.Inactive)
             {
@@ -107,6 +111,7 @@ namespace Combat.Domain
         private readonly UnitSide _unitSide;
         private readonly Constructor.Ships.IShip _shipData;
         private readonly IShipSpecification _shipSpec;
+        private readonly int? _factionIdOverride;
 
         private class DeadShip : IShip
         {

@@ -38,6 +38,7 @@ namespace Combat.Domain
         public int StarLevel { get; set; }
         public ShipBuild DefenseStarbaseBuild { get; set; }
         public int DefenseStarbaseLevel { get; set; }
+        public int? EnemyFactionIdOverride { get; set; }
 
         public void AddSpecialReward(IProduct item)
         {
@@ -64,7 +65,8 @@ namespace Combat.Domain
             var model = new CombatModel(
                 new FleetModel(playerShips, UnitSide.Player, _database, playerFleet.AiLevel, useBonuses ? _playerSkills : null),
                 new FleetModel(allAllyShips, UnitSide.Ally, _database, allyFleet.AiLevel, null, collaborativeShips),
-                new FleetModel(enemyFleet.Ships, UnitSide.Enemy, _database, enemyFleet.AiLevel), _shipDestroyedSignal);
+                new FleetModel(enemyFleet.Ships, UnitSide.Enemy, _database, enemyFleet.AiLevel,
+                    factionIdOverride: EnemyFactionIdOverride), _shipDestroyedSignal);
 
 			var rules = Rules.Create(StarLevel, _playerSkills.HasRescueUnit);
 
