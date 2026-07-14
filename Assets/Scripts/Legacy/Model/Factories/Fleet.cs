@@ -152,7 +152,7 @@ namespace Model
                 }
 
                 var builds = new List<ShipBuild>();
-                for (var i = 0; i < 200 && available.Count > 0; i++)
+                for (var i = 0; i < 100 && available.Count > 0; i++)
                     builds.Add(available[random.Next(available.Count)]);
                 return new CommonFleet(database, builds.OrderBy(_ => random.Next()), level, random.Next(), Maths.Distance.AiLevel(level));
             }
