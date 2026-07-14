@@ -189,7 +189,7 @@ namespace Combat.Component.Ship
         protected override void OnUpdatePhysics(float elapsedTime)
         {
             var hasEnergy = Stats.Energy.Value > 0;
-            ClampExternalVelocityBeforeEngine();
+            RestoreSteeringAuthority(elapsedTime);
             Engine.Course = Controls.Course;
             Engine.Throttle = Controls.Throttle;
             Engine.Update(elapsedTime, Body, hasEnergy);
@@ -199,25 +199,32 @@ namespace Combat.Component.Ship
             ApplyVelocityLimit();
         }
 
-        private void ClampExternalVelocityBeforeEngine()
+        private void RestoreSteeringAuthority(float elapsedTime)
         {
             foreach (var system in Systems.All)
                 if (system is WarpDrive warpDrive && warpDrive.IsWarping)
                     return;
 
-            var engineLimit = Engine?.MaxVelocity ?? 0f;
-            if (engineLimit <= 0f || float.IsInfinity(engineLimit) || float.IsNaN(engineLimit))
+            var limit = EffectiveVelocityLimit();
+            if (limit <= 0f || float.IsInfinity(limit) || float.IsNaN(limit))
                 return;
 
             var velocity = Body.Velocity;
-            if (velocity.sqrMagnitude <= engineLimit * engineLimit)
+            var speed = velocity.magnitude;
+            if (speed < limit * 0.98f || speed < 0.001f)
                 return;
 
-            // Keep the velocity direction, but remove the excess impulse
-            // before ShipEngine computes its steering correction.  Without
-            // this, the engine sees an over-limit velocity and can leave the
-            // vessel with no usable propulsion vector until the impulse fades.
-            var limited = velocity.normalized * engineLimit;
+            // At (or above) the cap, propulsion alone can no longer rotate a
+            // large externally-applied velocity vector reliably. Rotate the
+            // velocity toward the requested course at the ship's normal turn
+            // rate, then clamp it before the engine update. This restores
+            // steering without granting extra speed or affecting warp travel.
+            var desiredCourse = Controls.Course ?? Body.Rotation;
+            var currentCourse = RotationHelpers.Angle(velocity);
+            var steeringRate = Mathf.Max(15f, Engine.MaxAngularVelocity);
+            var steeredCourse = Mathf.MoveTowardsAngle(currentCourse, desiredCourse,
+                steeringRate * Mathf.Max(0f, elapsedTime));
+            var limited = RotationHelpers.Direction(steeredCourse) * Mathf.Min(speed, limit);
             if (Body is RigidBodyAdapter rigidBody)
                 rigidBody.Velocity = limited;
             else
@@ -230,11 +237,7 @@ namespace Combat.Component.Ship
                 if (system is WarpDrive warpDrive && warpDrive.IsWarping)
                     return;
 
-            var limit = Type.Side == UnitSide.Player
-                ? PlayerPrefs.GetInt(EngineThrottleKey, 0) != 0
-                    ? Mathf.Clamp(PlayerPrefs.GetFloat(EngineThrottleLimitKey, 40f), 20f, 120f)
-                    : float.PositiveInfinity
-                : 40f;
+            var limit = EffectiveVelocityLimit();
             var velocity = Body.Velocity;
             if (velocity.sqrMagnitude <= limit * limit)
                 return;
@@ -244,6 +247,20 @@ namespace Combat.Component.Ship
                 rigidBody.Velocity = limited;
             else
                 Body.ApplyAcceleration(limited - velocity);
+        }
+
+        private float EffectiveVelocityLimit()
+        {
+            var engineLimit = Engine?.MaxVelocity ?? 0f;
+            var combatLimit = Type.Side == UnitSide.Player
+                ? PlayerPrefs.GetInt(EngineThrottleKey, 0) != 0
+                    ? Mathf.Clamp(PlayerPrefs.GetFloat(EngineThrottleLimitKey, 40f), 20f, 120f)
+                    : float.PositiveInfinity
+                : 40f;
+
+            if (engineLimit <= 0f || float.IsNaN(engineLimit))
+                return combatLimit;
+            return Mathf.Min(engineLimit, combatLimit);
         }
 
         protected override void OnUpdateView(float elapsedTime)

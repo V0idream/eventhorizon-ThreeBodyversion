@@ -184,6 +184,15 @@ namespace Combat.Factory
                 unitClass = UnitClass.AreaOfEffect;
 
             var unitType = new UnitType(unitClass, UnitSide.Neutral, _owner, _ammunition.Body.FriendlyFire);
+            if (_ammunition.Id.Value == 166)
+            {
+                // Macro-electrons keep their real owner/faction for radar and
+                // targeting, but use a neutral physics layer.  Same-side
+                // projectile layers can be filtered by Unity before our
+                // collision manager sees them; the neutral layer guarantees
+                // that player and allied weapons reach the damage handler.
+                unitType.CollisionSideOverride = UnitSide.Neutral;
+            }
             var bullet = new Bullet(body, view, new Lifetime(_stats.GetBulletLifetime()), unitType, options);
 
             bullet.Physics = gameObject.GetComponent<PhysicsManager>();

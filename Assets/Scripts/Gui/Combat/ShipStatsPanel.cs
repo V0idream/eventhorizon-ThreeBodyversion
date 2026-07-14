@@ -34,10 +34,12 @@ namespace Gui.Combat
         private BallLightningController _ballLightning;
         private Sprite _projectileIcon;
         private Texture2D _projectileTexture;
+        private readonly Text[] _resourceValues = new Text[3];
 
         public void Close()
         {
             _ballLightning = null;
+            SetResourceValuesVisible(false);
             ReleaseProjectileIcon();
             GetComponent<AnimatedWindow>().Close(WindowExitCode.Ok);
         }
@@ -55,9 +57,16 @@ namespace Gui.Combat
                 _icon.color = Color.white;
 
             if (_ship == ship)
+            {
+                EnsureResourceValues();
+                SetResourceValuesVisible(true);
                 return;
+            }
 
             _ship = ship;
+
+            EnsureResourceValues();
+            SetResourceValuesVisible(true);
 
             if (_icon)
                 _icon.sprite = _resourceLocator.GetSprite(ship.Specification.Stats.ShipModel.IconImage) ??
@@ -93,6 +102,7 @@ namespace Gui.Combat
             _armorPoints.gameObject.SetActive(false);
             _shieldPoints.gameObject.SetActive(false);
             _energyPoints.gameObject.SetActive(false);
+            SetResourceValuesVisible(false);
             HideResistanceRows();
             UpdateBallLightningIcon();
         }
@@ -238,6 +248,68 @@ namespace Gui.Combat
                 _energyPoints.Y1 = energy;
                 _energyPoints.SetAllDirty();
             }
+
+            UpdateResourceValues();
+        }
+
+        private void EnsureResourceValues()
+        {
+            if (_resourceValues[0] != null || _icon == null)
+                return;
+
+            var isPlayerPanel = gameObject.name.IndexOf("Left", System.StringComparison.OrdinalIgnoreCase) >= 0;
+            var iconRect = _icon.rectTransform;
+            var horizontalOffset = iconRect.rect.width * 0.5f + 8f;
+            var colors = new[]
+            {
+                new Color(0.35f, 1f, 0.35f, 1f),
+                new Color(0.3f, 0.7f, 1f, 1f),
+                new Color(1f, 0.9f, 0.2f, 1f)
+            };
+
+            for (var i = 0; i < _resourceValues.Length; i++)
+            {
+                var valueObject = new GameObject("ResourceValue" + i, typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
+                var rect = valueObject.GetComponent<RectTransform>();
+                rect.SetParent(iconRect, false);
+                rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
+                rect.sizeDelta = new Vector2(190f, 25f);
+                rect.pivot = new Vector2(isPlayerPanel ? 0f : 1f, 0.5f);
+                rect.anchoredPosition = new Vector2(isPlayerPanel ? horizontalOffset : -horizontalOffset, 25f - i * 25f);
+
+                var text = valueObject.GetComponent<Text>();
+                text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+                text.fontSize = 19;
+                text.fontStyle = FontStyle.Bold;
+                text.alignment = isPlayerPanel ? TextAnchor.MiddleLeft : TextAnchor.MiddleRight;
+                text.color = colors[i];
+                text.raycastTarget = false;
+                text.horizontalOverflow = HorizontalWrapMode.Overflow;
+                text.verticalOverflow = VerticalWrapMode.Overflow;
+                _resourceValues[i] = text;
+            }
+        }
+
+        private void UpdateResourceValues()
+        {
+            if (_ship == null || _resourceValues[0] == null)
+                return;
+
+            _resourceValues[0].text = FormatResource(_ship.Stats.Armor.Value, _ship.Stats.Armor.MaxValue);
+            _resourceValues[1].text = FormatResource(_ship.Stats.Shield.Value, _ship.Stats.Shield.MaxValue);
+            _resourceValues[2].text = FormatResource(_ship.Stats.Energy.Value, _ship.Stats.Energy.MaxValue);
+        }
+
+        private void SetResourceValuesVisible(bool visible)
+        {
+            foreach (var value in _resourceValues)
+                if (value != null)
+                    value.gameObject.SetActive(visible);
+        }
+
+        private static string FormatResource(float value, float maximum)
+        {
+            return Mathf.Max(0, Mathf.RoundToInt(value)) + "/" + Mathf.Max(0, Mathf.RoundToInt(maximum));
         }
 
         private void UpdateBallLightningIcon()
