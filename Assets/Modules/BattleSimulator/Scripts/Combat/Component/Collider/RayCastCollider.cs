@@ -66,16 +66,43 @@ namespace Combat.Component.Collider
             // allowed there. Scan all physics layers, then retain the original
             // mask for every ordinary target and make only ball lightning the
             // explicit exception.
-            var hits = Physics2D.RaycastNonAlloc(position, direction, _buffer, effectiveRange, Physics2D.AllLayers);
+            // Macro-electrons use trigger colliders. Query triggers explicitly
+            // instead of inheriting Physics2D.queriesHitTriggers, otherwise
+            // lasers can pass straight through them on battle configurations
+            // where global trigger queries are disabled.
+            var contactFilter = new ContactFilter2D();
+            contactFilter.NoFilter();
+            contactFilter.SetLayerMask(Physics2D.AllLayers);
+            contactFilter.useTriggers = true;
+            var hits = Physics2D.Raycast(position, direction, contactFilter, _buffer, effectiveRange);
+            // RaycastNonAlloc does not guarantee hit ordering.  The old loop
+            // could therefore stop at a farther collider before reaching a
+            // macro-electron that was visibly in front of it.  Keep beam
+            // collision deterministic by sorting the populated range.
+            for (var i = 1; i < hits; ++i)
+            {
+                var value = _buffer[i];
+                var j = i - 1;
+                while (j >= 0 && _buffer[j].distance > value.distance)
+                {
+                    _buffer[j + 1] = _buffer[j];
+                    --j;
+                }
+                _buffer[j + 1] = value;
+            }
             bool collisionFound = false;
 			for (int i = 0; i < hits; ++i)
 			{
-                ref var hit = ref _buffer[_passThrough ? hits - i - 1 : i];
+                ref var hit = ref _buffer[i];
 				var collider = hit.collider;
 				if (collider == null) continue;
-                var target = collider.GetComponent<ICollider>();
+                // Several projectile prefabs keep the Unity Collider2D on a
+                // child while their combat collider is attached to the root.
+                // GetComponent alone made those targets (notably ball
+                // lightning) invisible to laser beams.
+                var target = collider.GetComponent<ICollider>() ?? collider.GetComponentInParent<ICollider>();
 
-                if (target == null)
+                if (target == null || target.Unit == null)
                     continue;
                 var nativeLayer = (Unit.Type.CollisionMask & (1 << collider.gameObject.layer)) != 0;
                 if (!nativeLayer && !IsBallLightning(target.Unit))
