@@ -37,11 +37,15 @@ namespace Combat.Component.Controller
             // the macro-electron is rendered as a translucent spherical orb
             // below and therefore remains visible while it is travelling or
             // waiting to discharge.
-            _bullet.View.Size = 0f;
+            HideProjectileView();
             CreateOrbVisual();
         }
 
         public bool IsArmed => _armed;
+        public bool IsActive => _bullet.IsActive();
+        public int DisplayTier => Mathf.Clamp(_chargedVisualTier, 0, TierNames.Length - 1);
+        public string DisplayTextureName => _armed ? TierNames[DisplayTier] : "MacroAtom";
+        public Color DisplayColor => _armed ? TierColors[DisplayTier] : Color.white;
 
         public void ReceiveDamage(float damage)
         {
@@ -62,8 +66,6 @@ namespace Combat.Component.Controller
             _tickTimer = 0f;
             _origin = _bullet.Body.WorldPosition();
             _bullet.Body.ApplyAcceleration(-_bullet.Body.Velocity);
-            if (_bullet.Collider != null)
-                _bullet.Collider.Enabled = false;
             UpdateChargedVisual(0, false);
         }
 
@@ -72,7 +74,7 @@ namespace Combat.Component.Controller
             if (!_bullet.IsActive())
                 return;
 
-            _bullet.View.Size = 0f;
+            HideProjectileView();
             if (!_lockRequested && _owner.Type.Side == UnitSide.Player)
             {
                 _scene.LockUnit(_bullet);
@@ -99,10 +101,14 @@ namespace Combat.Component.Controller
             if (_armTimer > 0f)
                 return;
 
+            if (_bullet.Collider != null)
+                _bullet.Collider.Enabled = false;
+
             _tickTimer -= elapsedTime;
             if (!_discharged)
             {
                 UpdateChargedVisual(Mathf.Clamp(Mathf.FloorToInt(_receivedDamage / 200f), 0, 6), true);
+                TransferPlayerLockToNearestEnemy();
                 Discharge();
                 _discharged = true;
                 _tickTimer = 0.5f;
@@ -241,7 +247,12 @@ namespace Combat.Component.Controller
                 var target = units[i];
                 if (target == null || !target.IsActive() || target == _bullet || target == _owner)
                     continue;
-                if (!CombatRelations.AreEnemies(_owner.Type, target.Type))
+                var targetIsBallLightning = IsBallLightning(target);
+                // Ball lightning is a valid target even for ships on the same
+                // side. This lets the emitter and allied ball lightning
+                // charge one another without making ordinary friendly fire
+                // possible for other units.
+                if (!targetIsBallLightning && !CombatRelations.AreEnemies(_owner.Type, target.Type))
                     continue;
 
                 var targetPosition = target.Body.WorldPosition();
@@ -254,7 +265,7 @@ namespace Combat.Component.Controller
                     targetShip.Affect(new Impact { EnergyDamage = damage }, _owner);
                     targetShip.Body.ApplyAcceleration(-targetShip.Body.Velocity * 0.7f);
                 }
-                else if (IsBallLightning(target))
+                else if (targetIsBallLightning)
                 {
                     // An activated macro-electron can excite an opposing
                     // unarmed macro-electron.  Deliver the hit through the
@@ -283,6 +294,41 @@ namespace Combat.Component.Controller
         {
             return unit is Combat.Component.Bullet.Bullet bullet &&
                    bullet.Controller is BallLightningController;
+        }
+
+        private void TransferPlayerLockToNearestEnemy()
+        {
+            if (_owner.Type.Side != UnitSide.Player || _scene.LockedTarget != _bullet)
+                return;
+
+            IShip nearest = null;
+            var nearestDistance = float.MaxValue;
+            lock (_scene.Ships.LockObject)
+            {
+                foreach (var ship in _scene.Ships.Items)
+                {
+                    if (!ship.IsActive() || !CombatRelations.AreEnemies(_owner.Type, ship.Type))
+                        continue;
+
+                    var distance = Vector2.SqrMagnitude(ship.Body.WorldPosition() - _bullet.Body.WorldPosition());
+                    if (distance < nearestDistance)
+                    {
+                        nearestDistance = distance;
+                        nearest = ship;
+                    }
+                }
+            }
+
+            _scene.LockTarget(nearest);
+        }
+
+        private void HideProjectileView()
+        {
+            // The rocket prefab still carries a ship-shaped sprite. Keep its
+            // collision body for targeting, but never expose that fallback
+            // sprite behind the macro-electron orb.
+            _bullet.View.Size = 0f;
+            _bullet.View.Color = Color.clear;
         }
 
         private void CreateDischargeArc(Vector2 source, Vector2 target, Color color)

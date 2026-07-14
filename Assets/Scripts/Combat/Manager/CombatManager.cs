@@ -3,6 +3,8 @@ using System.Linq;
 using Combat.Ai;
 using Combat.Component.Ship;
 using Combat.Component.Triggers;
+using Combat.Component.Bullet;
+using Combat.Component.Controller;
 using Combat.Component.Unit.Classification;
 using Combat.Domain;
 using Combat.Factory;
@@ -398,13 +400,24 @@ namespace Combat.Manager
                      !TargetingHelpers.CantDetectTarget(player, enemy))
             {
                 _playerStatsPanel.Open(player);
-                _enemyStatsPanel.Open(enemy);
+                OpenLockedTargetPanel(enemy);
             }
             else if (player.IsActive() && !IsGamePaused)
             {
                 _playerStatsPanel.Open(player);
-                _enemyStatsPanel.Close();
+                OpenLockedTargetPanel(null);
             }
+        }
+
+        private void OpenLockedTargetPanel(IShip fallbackEnemy)
+        {
+            var target = _scene.LockedTarget;
+            if (target is Combat.Component.Bullet.Bullet bullet && bullet.Controller is BallLightningController ballLightning && ballLightning.IsActive)
+                _enemyStatsPanel.OpenBallLightning(ballLightning);
+            else if (fallbackEnemy != null && fallbackEnemy.IsActive())
+                _enemyStatsPanel.Open(fallbackEnemy);
+            else
+                _enemyStatsPanel.Close();
         }
 
         private void DeployCollaborativeAllies(IShip player)

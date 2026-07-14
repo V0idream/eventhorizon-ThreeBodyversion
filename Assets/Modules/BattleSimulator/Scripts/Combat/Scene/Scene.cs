@@ -85,7 +85,8 @@ namespace Combat.Scene
             // lock separate from LockedEnemyShip so weapon auto-aim continues
             // to use the enemy ship lock when one is selected.
             if (unit.Type.Owner == _activePlayerShip ||
-                CombatRelations.AreEnemies(_activePlayerShip.Type, unit.Type))
+                CombatRelations.AreEnemies(_activePlayerShip.Type, unit.Type) ||
+                CombatRelations.AreAllies(_activePlayerShip.Type, unit.Type))
                 _lockedTarget = unit;
         }
         

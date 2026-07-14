@@ -1,5 +1,6 @@
 ﻿using Combat.Component.Ship;
 using Combat.Unit;
+using Combat.Component.Controller;
 using Gui.Controls;
 using Gui.Windows;
 using Services.Gui;
@@ -30,9 +31,14 @@ namespace Gui.Combat
         [SerializeField] private Text _kineticResistText;
         private GameObject _corrosiveResistIcon;
         private Text _corrosiveResistText;
+        private BallLightningController _ballLightning;
+        private Sprite _projectileIcon;
+        private Texture2D _projectileTexture;
 
         public void Close()
         {
+            _ballLightning = null;
+            ReleaseProjectileIcon();
             GetComponent<AnimatedWindow>().Close(WindowExitCode.Ok);
         }
 
@@ -42,6 +48,11 @@ namespace Gui.Combat
                 return;
 
             GetComponent<AnimatedWindow>().Open();
+
+            _ballLightning = null;
+            ReleaseProjectileIcon();
+            if (_icon)
+                _icon.color = Color.white;
 
             if (_ship == ship)
                 return;
@@ -63,6 +74,27 @@ namespace Gui.Combat
 
             _shieldPoints.gameObject.SetActive(_hasShield);
             _armorPoints.gameObject.SetActive(_hasArmor);
+        }
+
+        public void OpenBallLightning(BallLightningController controller)
+        {
+            if (controller == null || !controller.IsActive)
+                return;
+
+            if (_ballLightning == controller)
+            {
+                UpdateBallLightningIcon();
+                return;
+            }
+
+            GetComponent<AnimatedWindow>().Open();
+            _ship = null;
+            _ballLightning = controller;
+            _armorPoints.gameObject.SetActive(false);
+            _shieldPoints.gameObject.SetActive(false);
+            _energyPoints.gameObject.SetActive(false);
+            HideResistanceRows();
+            UpdateBallLightningIcon();
         }
 
         private void UpdateResistance()
@@ -152,6 +184,21 @@ namespace Gui.Combat
 
         private void Update()
         {
+            if (_ballLightning != null)
+            {
+                if (!_ballLightning.IsActive)
+                {
+                    Close();
+                    return;
+                }
+
+                UpdateBallLightningIcon();
+                return;
+            }
+
+            if (_ship == null)
+                return;
+
             if (!_ship.IsActive())
             {
                 Close();
@@ -191,6 +238,49 @@ namespace Gui.Combat
                 _energyPoints.Y1 = energy;
                 _energyPoints.SetAllDirty();
             }
+        }
+
+        private void UpdateBallLightningIcon()
+        {
+            if (_icon == null || _ballLightning == null)
+                return;
+
+            var texture = Resources.Load<Texture2D>("Textures/BallLightning/" + _ballLightning.DisplayTextureName);
+            if (texture != null && texture != _projectileTexture)
+            {
+                ReleaseProjectileIcon();
+                _projectileTexture = texture;
+                _projectileIcon = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
+                    new Vector2(0.5f, 0.5f), 512f);
+            }
+
+            _icon.sprite = _projectileIcon;
+            _icon.color = _ballLightning.DisplayColor;
+        }
+
+        private void HideResistanceRows()
+        {
+            _fireResistIcon?.SetActive(false);
+            _energyResistIcon?.SetActive(false);
+            _kineticResistIcon?.SetActive(false);
+            _corrosiveResistIcon?.SetActive(false);
+            _fireResistText?.gameObject.SetActive(false);
+            _energyResistText?.gameObject.SetActive(false);
+            _kineticResistText?.gameObject.SetActive(false);
+            _corrosiveResistText?.gameObject.SetActive(false);
+        }
+
+        private void ReleaseProjectileIcon()
+        {
+            if (_projectileIcon != null)
+                Destroy(_projectileIcon);
+            _projectileIcon = null;
+            _projectileTexture = null;
+        }
+
+        private void OnDestroy()
+        {
+            ReleaseProjectileIcon();
         }
 
         private float _updateResistanceCooldown;

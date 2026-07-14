@@ -4,6 +4,8 @@ using System.Linq;
 using Combat.Collision;
 using Combat.Domain;
 using Combat.Component.Triggers;
+using Combat.Component.Bullet;
+using Combat.Component.Controller;
 using Combat.Component.Unit;
 using Combat.Component.Unit.Classification;
 using Combat.Factory;
@@ -144,7 +146,10 @@ namespace Combat.Manager
 
             TryStartNearbyObjectiveScan();
 
-            if (_scene.EnemyShip.IsActive())
+            var target = _scene.LockedTarget;
+            if (target is Combat.Component.Bullet.Bullet bullet && bullet.Controller is BallLightningController ballLightning && ballLightning.IsActive)
+                _enemyStatsPanel.OpenBallLightning(ballLightning);
+            else if (_scene.EnemyShip.IsActive())
                 _enemyStatsPanel.Open(_scene.EnemyShip);
             else
                 _enemyStatsPanel.Close();

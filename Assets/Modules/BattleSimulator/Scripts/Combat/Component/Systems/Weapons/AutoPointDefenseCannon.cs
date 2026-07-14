@@ -57,7 +57,7 @@ namespace Combat.Component.Systems.Weapons
                 foreach (var unit in _scene.Units.Items)
                 {
                     if (!unit.IsActive() || !IsInterceptableProjectile(unit) ||
-                        !CombatRelations.AreEnemies(unit.Type, _owner.Type))
+                        !CanTargetProjectile(unit))
                         continue;
                     var distance = Vector2.SqrMagnitude(unit.Body.WorldPosition() - position);
                     if (distance > rangeSquared || distance >= nearestDistance)
@@ -88,6 +88,17 @@ namespace Combat.Component.Systems.Weapons
         {
             return unit.Type.Class == UnitClass.Missile ||
                    unit is Combat.Component.Bullet.Bullet bullet && bullet.Controller is BallLightningController;
+        }
+
+        private bool CanTargetProjectile(IUnit unit)
+        {
+            return IsMacroElectron(unit) || CombatRelations.AreEnemies(unit.Type, _owner.Type);
+        }
+
+        private static bool IsMacroElectron(IUnit unit)
+        {
+            return unit is Combat.Component.Bullet.Bullet bullet &&
+                   bullet.Controller is BallLightningController;
         }
     }
 }
