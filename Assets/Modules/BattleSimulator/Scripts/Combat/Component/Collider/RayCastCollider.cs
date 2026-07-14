@@ -59,16 +59,26 @@ namespace Combat.Component.Collider
             if (blockedByWarpTrail)
                 effectiveRange = trailRange;
 
-            var hits = Physics2D.RaycastNonAlloc(position, direction, _buffer, effectiveRange, Unit.Type.CollisionMask);
+            // A player-owned macro-electron intentionally lives on a neutral
+            // missile layer so both sides can target it. That layer is not in
+            // an allied laser's normal collision mask, therefore the beam
+            // never reached CollisionManager even though friendly charging is
+            // allowed there. Scan all physics layers, then retain the original
+            // mask for every ordinary target and make only ball lightning the
+            // explicit exception.
+            var hits = Physics2D.RaycastNonAlloc(position, direction, _buffer, effectiveRange, Physics2D.AllLayers);
             bool collisionFound = false;
 			for (int i = 0; i < hits; ++i)
 			{
                 ref var hit = ref _buffer[_passThrough ? hits - i - 1 : i];
 				var collider = hit.collider;
 				if (collider == null) continue;
-				var target = collider.GetComponent<ICollider>();
+                var target = collider.GetComponent<ICollider>();
 
-                if (target == null) 
+                if (target == null)
+                    continue;
+                var nativeLayer = (Unit.Type.CollisionMask & (1 << collider.gameObject.layer)) != 0;
+                if (!nativeLayer && !IsBallLightning(target.Unit))
                     continue;
 				if (Source != null && (target.Unit == Source ||
                     target.Unit.Type.Owner == Source && !IsBallLightning(target.Unit)))
@@ -134,7 +144,7 @@ namespace Combat.Component.Collider
         }
 
         private HashSet<IUnit> _collisions = new();
-        private RaycastHit2D[] _buffer = new RaycastHit2D[8];
+        private RaycastHit2D[] _buffer = new RaycastHit2D[64];
         private float _maxRange;
         private bool _needUpdateView;
         private bool _enabled = true;

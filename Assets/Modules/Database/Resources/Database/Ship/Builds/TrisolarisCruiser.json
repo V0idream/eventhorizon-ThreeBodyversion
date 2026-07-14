@@ -58,16 +58,6 @@
       "Behaviour": 0
     },
     {
-      "ComponentId": 941,
-      "Quality": 0,
-      "Modification": 0,
-      "X": 27,
-      "Y": 30,
-      "BarrelId": -1,
-      "KeyBinding": 1,
-      "Behaviour": 0
-    },
-    {
       "ComponentId": 935,
       "Quality": 0,
       "Modification": 0,
@@ -78,71 +68,31 @@
       "Behaviour": 0
     },
     {
-      "ComponentId": 941,
-      "Quality": 0,
-      "Modification": 0,
-      "X": 25,
-      "Y": 32,
-      "BarrelId": -1,
-      "KeyBinding": 1,
-      "Behaviour": 0
-    },
-    {
-      "ComponentId": 941,
-      "Quality": 0,
-      "Modification": 0,
-      "X": 27,
-      "Y": 32,
-      "BarrelId": -1,
-      "KeyBinding": 1,
-      "Behaviour": 0
-    },
-    {
-      "ComponentId": 941,
-      "Quality": 0,
-      "Modification": 0,
-      "X": 29,
-      "Y": 32,
-      "BarrelId": -1,
-      "KeyBinding": 1,
-      "Behaviour": 0
-    },
-    {
-      "ComponentId": 941,
-      "Quality": 0,
-      "Modification": 0,
-      "X": 25,
-      "Y": 34,
-      "BarrelId": -1,
-      "KeyBinding": 1,
-      "Behaviour": 0
-    },
-    {
-      "ComponentId": 941,
-      "Quality": 0,
-      "Modification": 0,
-      "X": 27,
-      "Y": 34,
-      "BarrelId": -1,
-      "KeyBinding": 1,
-      "Behaviour": 0
-    },
-    {
-      "ComponentId": 941,
-      "Quality": 0,
-      "Modification": 0,
-      "X": 29,
-      "Y": 34,
-      "BarrelId": -1,
-      "KeyBinding": 1,
-      "Behaviour": 0
-    },
-    {
       "ComponentId": 942,
       "Quality": 0,
       "Modification": 0,
       "X": 27,
       "Y": 36,
+      "BarrelId": -1,
+      "KeyBinding": 1,
+      "Behaviour": 0
+    },
+    {
+      "ComponentId": 941,
+      "Quality": 0,
+      "Modification": 0,
+      "X": 25,
+      "Y": 32,
+      "BarrelId": -1,
+      "KeyBinding": 1,
+      "Behaviour": 0
+    },
+    {
+      "ComponentId": 941,
+      "Quality": 0,
+      "Modification": 0,
+      "X": 29,
+      "Y": 32,
       "BarrelId": -1,
       "KeyBinding": 1,
       "Behaviour": 0
