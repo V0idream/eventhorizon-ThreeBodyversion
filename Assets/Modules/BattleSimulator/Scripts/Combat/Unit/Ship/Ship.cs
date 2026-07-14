@@ -256,7 +256,7 @@ namespace Combat.Component.Ship
                 ? PlayerPrefs.GetInt(EngineThrottleKey, 0) != 0
                     ? Mathf.Clamp(PlayerPrefs.GetFloat(EngineThrottleLimitKey, 40f), 20f, 120f)
                     : float.PositiveInfinity
-                : 40f;
+                : Specification.Info.Id.Value == 166 ? 60f : 40f;
 
             if (engineLimit <= 0f || float.IsNaN(engineLimit))
                 return combatLimit;
