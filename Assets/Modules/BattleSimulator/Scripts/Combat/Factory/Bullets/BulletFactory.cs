@@ -159,7 +159,10 @@ namespace Combat.Factory
             if (_ammunition.Id.Value == 166)
                 collisionBehaviour.AddAction(new BallLightningCollisionAction());
 
-            if (impactType == BulletImpactType.HitFirstTarget)
+            // The macro-electron becomes a stationary ball-lightning source
+            // when it reaches a target. Do not let the generic hit-first
+            // detonation action destroy it before its controller can arm it.
+            if (impactType == BulletImpactType.HitFirstTarget && _ammunition.Id.Value != 166)
             {
                 if (_ammunition.Body.HitPoints > 0)
                     collisionBehaviour.AddAction(new DetonateAtTargetAction());

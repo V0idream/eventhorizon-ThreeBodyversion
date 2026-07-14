@@ -49,6 +49,12 @@ namespace Combat.Component.Controller
 
         public void ReceiveDamage(float damage)
         {
+            // Once the discharge has completed the macro-electron is fully
+            // energized. Late collision callbacks must not add more charge
+            // or change its colour.
+            if (_discharged)
+                return;
+
             if (damage > 0f)
                 _receivedDamage += damage;
             Arm();
@@ -217,10 +223,23 @@ namespace Combat.Component.Controller
             {
                 foreach (var unit in _scene.Units.Items)
                 {
-                    if (unit == null || unit == _bullet || unit == _owner || !unit.IsActive())
+                    if (unit == null || unit == _bullet || unit == _owner ||
+                        unit.Type.Owner == _owner || !unit.IsActive())
                         continue;
                     if (unit.Type.Class == UnitClass.BackgroundObject || unit.Type.Class == UnitClass.Loot)
                         continue;
+
+                    // Only an enemy ship or another macro-electron ends the
+                    // flight. Ignore the emitter's other units and transient
+                    // projectiles so the shot cannot arm at its launch point.
+                    if (unit is IShip ship)
+                    {
+                        if (!CombatRelations.AreEnemies(_owner.Type, ship.Type))
+                            continue;
+                    }
+                    else if (!IsBallLightning(unit))
+                        continue;
+
                     if (Vector2.Distance(origin, unit.Body.WorldPosition()) <= hitRadius + unit.Body.WorldScale() * 0.5f)
                         return true;
                 }
@@ -231,7 +250,7 @@ namespace Combat.Component.Controller
         private void Discharge()
         {
             var tier = Mathf.Clamp(Mathf.FloorToInt(_receivedDamage / 200f), 0, 6);
-            var damage = 50f * Mathf.Pow(1.5f, tier);
+            var damage = 80f * Mathf.Pow(1.7f, tier);
             var color = TierColors[tier];
 
             if (!_durationInitialized)

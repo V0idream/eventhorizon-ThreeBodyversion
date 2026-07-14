@@ -31,7 +31,8 @@ namespace Combat.Collision.Manager
             if (!first.IsActive() || !second.IsActive())
                 return;
             if (CombatRelations.AreAllies(first.Type, second.Type) &&
-                !first.Type.CanHitAllies && !second.Type.CanHitAllies)
+                !first.Type.CanHitAllies && !second.Type.CanHitAllies &&
+                !IsBallLightningInteraction(first, second))
                 return;
 
             // Waterdrop interactions have to be resolved before the incoming
@@ -48,6 +49,17 @@ namespace Combat.Collision.Manager
 
             first.OnCollision(selfImpact, second, collisionData);
             second.OnCollision(targetImpact, first, collisionData);
+        }
+
+        private static bool IsBallLightningInteraction(IUnit first, IUnit second)
+        {
+            return IsBallLightning(first) || IsBallLightning(second);
+        }
+
+        private static bool IsBallLightning(IUnit unit)
+        {
+            return unit is Combat.Component.Bullet.Bullet bullet &&
+                   bullet.Controller is Combat.Component.Controller.BallLightningController;
         }
     }
 }

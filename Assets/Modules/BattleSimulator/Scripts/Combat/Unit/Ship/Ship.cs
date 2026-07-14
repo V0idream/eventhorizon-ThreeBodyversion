@@ -201,10 +201,6 @@ namespace Combat.Component.Ship
 
         private void ClampExternalVelocityBeforeEngine()
         {
-            foreach (var effect in Effects.All)
-                if (effect is ShipArrivalEffect)
-                    return;
-
             foreach (var system in Systems.All)
                 if (system is WarpDrive warpDrive && warpDrive.IsWarping)
                     return;
@@ -230,13 +226,6 @@ namespace Combat.Component.Ship
 
         private void ApplyVelocityLimit()
         {
-            // Arrival owns the complete velocity curve for its first second.
-            // Applying the normal AI throttle cap here would flatten the entry
-            // burst and create a visible discontinuity.
-            foreach (var effect in Effects.All)
-                if (effect is ShipArrivalEffect)
-                    return;
-
             foreach (var system in Systems.All)
                 if (system is WarpDrive warpDrive && warpDrive.IsWarping)
                     return;

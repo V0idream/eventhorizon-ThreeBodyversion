@@ -126,10 +126,10 @@ namespace Combat.Component.Platform
             if (!IsValidTarget(_target))
                 _target = null;
 
-            if (_parent.Type.Side == UnitSide.Player && _scene.LockedEnemyShip.IsActive() &&
-                Vector2.Distance(WorldPosition(), _scene.LockedEnemyShip.Body.WorldPosition()) <= _weaponRange)
+            if (_parent.Type.Side == UnitSide.Player && IsValidLockedTarget(_scene.LockedTarget) &&
+                Vector2.Distance(WorldPosition(), _scene.LockedTarget.Body.WorldPosition()) <= _weaponRange)
             {
-                ActiveTarget = _scene.LockedEnemyShip;
+                ActiveUnitTarget = _scene.LockedTarget;
                 return;
             }
 
@@ -143,11 +143,29 @@ namespace Combat.Component.Platform
 		private bool IsValidTarget(IUnit target)
 		{
 			if (target == null) return false;
+			if (IsMacroElectron(target)) return true;
 			if (CombatRelations.AreAllies(target.Type, _parent.Type)) return false;
 			if (target is not IShip ship) return true;
 			if (ship.Features.TargetPriority == TargetPriority.None) return false;
 			return true;
 		}
+
+        private bool IsValidLockedTarget(IUnit target)
+        {
+            if (!IsValidTarget(target) || !target.IsActive())
+                return false;
+
+            // Scene.LockUnit enforces ownership/alliance rules.  Ordinary
+            // weapons may additionally follow a player's locked macro-
+            // electron, which is not an IShip.
+            return target is IShip || IsMacroElectron(target);
+        }
+
+        private static bool IsMacroElectron(IUnit target)
+        {
+            return target is Combat.Component.Bullet.Bullet bullet &&
+                   bullet.Controller is Combat.Component.Controller.BallLightningController;
+        }
 
         private void Initialize(IScene scene, IUnit parent, Vector2 position, float rotation, float offset, float maxAngle, float rotationSpeed, bool hasTurret)
         {
