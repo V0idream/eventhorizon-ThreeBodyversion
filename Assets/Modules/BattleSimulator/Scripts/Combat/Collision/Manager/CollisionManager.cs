@@ -33,6 +33,15 @@ namespace Combat.Collision.Manager
                 ProcessProjectileHit(second, first, collisionData);
                 return;
             }
+            if (IsBallLightning(second) && IsProjectile(first) && !IsBallLightning(first))
+            {
+                // Ray-cast laser bullets are normally reported as the first
+                // collider. Route them through the same explicit projectile
+                // path as physical rounds so allied laser damage can charge a
+                // macro-electron instead of being discarded as friendly fire.
+                ProcessProjectileHit(first, second, collisionData);
+                return;
+            }
 
             var behaviour = first.CollisionBehaviour;
             if (behaviour == null)

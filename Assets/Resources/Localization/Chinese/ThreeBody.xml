@@ -27,6 +27,10 @@
     <string name="TrisolarisFlagshipDescription">三体舰队的核心旗舰，拥有多套高威胁默认配装。</string>
     <string name="TrisolarisAntimatterEngine">先进反物质引擎</string>
     <string name="TrisolarisAntimatterEngineDescription">以反物质湮灭产物直接驱动的先进推进装置，拥有卓越的加速与转向能力。</string>
+    <string name="TrisolarisFleetEngine">舰队引擎</string>
+    <string name="TrisolarisFleetEngineDescription">为三体主力舰队设计的重型推进阵列，可同时提供极高直线推力与姿态控制能力。</string>
+    <string name="TrisolarisAntimatterReactor">反物质反应堆</string>
+    <string name="TrisolarisAntimatterReactorDescription">以受控正反物质湮灭持续供能的高功率反应堆。</string>
     <string name="TrisolarisSimArmor">强互作用力甲</string>
     <string name="TrisolarisSimArmorDescription">以强互作用力锁定物质结构的致密装甲，能够承受极端战场环境。</string>
     <string name="TrisolarisAntimatterProjector">反物质投射器</string>

@@ -25,6 +25,7 @@ namespace GameDatabase.DataModel
             Id = new ItemId<Faction>(id);
             Color = color;
             Name = name;
+            Icon = "faction_0";
         }
 
         public Range HomeStarRange { get; private set; }

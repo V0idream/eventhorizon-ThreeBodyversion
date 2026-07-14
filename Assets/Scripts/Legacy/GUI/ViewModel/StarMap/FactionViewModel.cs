@@ -40,7 +40,7 @@ namespace ViewModel
 			var color = faction.Color;
             // Keep the technology-page faction strip compact so custom
             // factions do not crowd the research-point controls.
-            FactionIconUtility.Apply(Icon, faction, 24f);
+            FactionIconUtility.Apply(Icon, faction, 18f);
 			Background.color = new Color(color.R, color.G, color.B, 0.5f);
 			Name.text = unlocked ? _localization.GetString(faction.Name) : "???";
 			var researchPoints = _research.GetAvailablePoints(faction);

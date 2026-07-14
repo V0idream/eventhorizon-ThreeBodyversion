@@ -10,7 +10,7 @@
   "Faction": 21,
   "Level": 55,
   "Icon": "starship_earth_laser",
-  "Color": "#72F6FF",
+  "Color": "#FFFFFF",
   "Layout": "010010010",
   "CellType": "4",
   "WeaponId": 136,

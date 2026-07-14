@@ -10,7 +10,7 @@
   "Faction": 21,
   "Level": 75,
   "Icon": "starship_earth_standard_missile",
-  "Color": "#F4F7FF",
+  "Color": "#FFFFFF",
   "Layout": "1010",
   "CellType": "4",
   "WeaponId": 104,
