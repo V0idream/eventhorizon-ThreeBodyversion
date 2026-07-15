@@ -38,7 +38,7 @@ namespace ShipEditor
 		private Model.IShipLayoutModel _shipLayout;
 		private Vector2Int _selectedPosition;
 
-		public void Initialize(Model.IShipLayoutModel layout, Sprite sprite, float cellSize)
+		public void Initialize(Model.IShipLayoutModel layout, Sprite sprite, float cellSize, float imageScaleMultiplier = 1f)
 		{
 			_cellSize = cellSize;
 			_shipLayout = layout;
@@ -60,7 +60,7 @@ namespace ShipEditor
                 // Every ship sprite now uses the database grid's native 1.0 scale.
                 // Per-name multipliers caused both visual/grid mismatch and editor
                 // pointer-offset reports when switching between ship variants.
-                var imageScale = size * _cellSize;
+                var imageScale = size * _cellSize * Mathf.Max(0.01f, imageScaleMultiplier);
 				// Keep the source aspect ratio.  The circular hull sections are the
 				// calibration reference: any per-axis correction turns them into an
 				// ellipse and makes the artwork look stretched against the grid.

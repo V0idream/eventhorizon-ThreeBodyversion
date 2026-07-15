@@ -327,7 +327,11 @@ namespace ShipEditor.UI
 			if (layout == null)
 				_shipView.RemoveSatellite(location);
 			else
-				_shipView.InitializeSatellite(location, layout, _resourceLocator.GetSprite(_shipEditor.Satellite(location).ModelImage));
+			{
+				var satellite = _shipEditor.Satellite(location);
+				var imageScale = satellite.Id.Value == 950 || satellite.Id.Value == 951 ? 0.45f : 1f;
+				_shipView.InitializeSatellite(location, layout, _resourceLocator.GetSprite(satellite.ModelImage), imageScale);
+			}
 
 			_commandList.Clear(location.ToShipElement());
 		}

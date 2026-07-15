@@ -33,9 +33,9 @@ namespace ShipEditor.UI
 		}
 
 		public void RemoveSatellite(SatelliteLocation location) => InitializeSatellite(location, null, null);
-		public void InitializeSatellite(SatelliteLocation location, IShipLayoutModel layout, Sprite sprite)
+		public void InitializeSatellite(SatelliteLocation location, IShipLayoutModel layout, Sprite sprite, float imageScaleMultiplier = 1f)
 		{
-			_elements[location].Initialize(layout, sprite, _cellSize);
+			_elements[location].Initialize(layout, sprite, _cellSize, imageScaleMultiplier);
 			UpdateSatellitePosition(location);
 		}
 
