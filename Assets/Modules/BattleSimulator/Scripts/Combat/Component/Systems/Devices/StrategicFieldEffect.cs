@@ -27,7 +27,7 @@ namespace Combat.Component.Systems.Devices
             effect._position = position;
             effect._radius = kind switch
             {
-                FieldKind.DarkDomain => 28f,
+                FieldKind.DarkDomain => 10f,
                 FieldKind.BlackHole => 10f,
                 _ => 1f
             };
@@ -93,7 +93,16 @@ namespace Combat.Component.Systems.Devices
                             unit.Vanish();
                             continue;
                         }
-                        unit.Body.ApplyAcceleration(delta.normalized * 45f * elapsed);
+                        var distance = Mathf.Max(0.35f, delta.magnitude);
+                        var direction = delta / distance;
+                        // A steep inverse-square pull with strong edge force makes
+                        // the field effective against heavy ships as well as small
+                        // units, while velocity damping prevents orbiting escape.
+                        var normalizedDistance = Mathf.Clamp01(distance / _radius);
+                        var pullStrength = Mathf.Lerp(12000f, 2200f, normalizedDistance);
+                        var pull = direction * pullStrength * elapsed;
+                        var damping = -unit.Body.Velocity * (2.5f * elapsed);
+                        unit.Body.ApplyAcceleration(pull + damping);
                         if (unit is IShip blackHoleTarget)
                             blackHoleTarget.Affect(new Impact { TrueDamage = 500f * elapsed }, _owner);
                     }
@@ -139,7 +148,12 @@ namespace Combat.Component.Systems.Devices
             _line.useWorldSpace = true;
             _line.loop = true;
             _line.positionCount = 64;
-            _line.widthMultiplier = _kind == FieldKind.DualVectorFoil ? 1.3f : 0.7f;
+            _line.widthMultiplier = _kind switch
+            {
+                FieldKind.DualVectorFoil => 1.3f,
+                FieldKind.DarkDomain => 4.5f,
+                _ => 0.9f
+            };
             _line.material = new Material(Shader.Find("Sprites/Default"));
             _line.sortingOrder = 25;
             _line.startColor = _line.endColor = _kind switch
