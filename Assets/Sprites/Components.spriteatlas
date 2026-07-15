@@ -78,6 +78,7 @@ SpriteAtlas:
     - 8c8e4441521014d4da938f5e7bd5685a: 21300000
     - 7e0c8d51570068244a5b88293ef666d1: 21300000
     - 2c4f2171c6a3e6e46bb507c0f2cc3649: 21300000
+    - 712e6c91cff351b46838c0dfa2c58746: 21300000
     - 563b0db197519074d94bc0153acd884e: 21300000
     - ff8a55c1fb2d0b7489fa40d36291044a: 21300000
     - 9bc2ecf1912e5fc46b36cb6c8a230a4c: 21300000
@@ -200,6 +201,7 @@ SpriteAtlas:
     - 3d4473ed9d0e30b44a95c54c980bf2b3: 21300000
     - c1944c0ec4a3ee74aad7c5d487ea0817: 21300000
     - 8e4da03e4fd3eb34092a255f2e37a590: 21300000
+    - 31fcc53e7145b7443944fc71ea781b96: 21300000
     - 1b42fd8e3776558408635e7cf1601811: 21300000
     - 77edcdae94d8a2a42b2a9d2d9c3e574c: 21300000
     - 692615be3ec5c4446a110fa12100c1ec: 21300000
@@ -242,6 +244,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 8c8e4441521014d4da938f5e7bd5685a, type: 3}
   - {fileID: 21300000, guid: 7e0c8d51570068244a5b88293ef666d1, type: 3}
   - {fileID: 21300000, guid: 2c4f2171c6a3e6e46bb507c0f2cc3649, type: 3}
+  - {fileID: 21300000, guid: 712e6c91cff351b46838c0dfa2c58746, type: 3}
   - {fileID: 21300000, guid: 563b0db197519074d94bc0153acd884e, type: 3}
   - {fileID: 21300000, guid: ff8a55c1fb2d0b7489fa40d36291044a, type: 3}
   - {fileID: 21300000, guid: 9bc2ecf1912e5fc46b36cb6c8a230a4c, type: 3}
@@ -364,6 +367,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 3d4473ed9d0e30b44a95c54c980bf2b3, type: 3}
   - {fileID: 21300000, guid: c1944c0ec4a3ee74aad7c5d487ea0817, type: 3}
   - {fileID: 21300000, guid: 8e4da03e4fd3eb34092a255f2e37a590, type: 3}
+  - {fileID: 21300000, guid: 31fcc53e7145b7443944fc71ea781b96, type: 3}
   - {fileID: 21300000, guid: 1b42fd8e3776558408635e7cf1601811, type: 3}
   - {fileID: 21300000, guid: 77edcdae94d8a2a42b2a9d2d9c3e574c, type: 3}
   - {fileID: 21300000, guid: 692615be3ec5c4446a110fa12100c1ec, type: 3}
@@ -405,6 +409,7 @@ SpriteAtlas:
   - engine5
   - energy_wave
   - armor33
+  - dual_vector_foil_projectile
   - dark_domain_confinement
   - torpedo2
   - fueltank13
@@ -527,6 +532,7 @@ SpriteAtlas:
   - ArmoredTank1
   - focus1
   - starship_earth_superconducting_battery
+  - low_dimensional_projection_device
   - drone_replicator3
   - radar_array_l
   - intertial_damper1

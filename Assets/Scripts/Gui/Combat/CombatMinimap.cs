@@ -437,7 +437,9 @@ namespace Gui.Combat
 
             if (IsLockableProjectile(unit))
             {
-                var macroColor = friendly
+                var macroColor = IsDualVectorFoil(unit)
+                    ? Color.white
+                    : friendly
                     ? new Color(0.2f, 0.65f, 1f, 1f)
                     : new Color(1f, 0.16f, 0.08f, 1f);
                 marker.Image.color = new Color(macroColor.r, macroColor.g, macroColor.b, 0.22f);
@@ -563,6 +565,12 @@ namespace Gui.Combat
         {
             return IsMacroElectron(unit) || unit is Bullet bullet &&
                 bullet.Controller is StrategicWeaponController controller &&
+                controller.Kind == StrategicWeaponController.WeaponKind.DualVectorFoil;
+        }
+
+        private static bool IsDualVectorFoil(IUnit unit)
+        {
+            return unit is Bullet bullet && bullet.Controller is StrategicWeaponController controller &&
                 controller.Kind == StrategicWeaponController.WeaponKind.DualVectorFoil;
         }
 

@@ -116,4 +116,6 @@
     <string name="MiniBlackHoleLauncherDescription">释放短暂存在的小型黑洞，吞噬射弹、阻断激光并撕裂接触目标。</string>
     <string name="DarkDomainConfinement">黑域禁锢</string>
     <string name="DarkDomainConfinementDescription">命中后制造永久小型黑域，将目标禁锢于低光速区域。</string>
+  <string name="LowDimensionalProjectionDevice">低维投影装置</string>
+  <string name="LowDimensionalProjectionDeviceDescription">预先创建的低维投影使舰船能在降维后继续战斗</string>
 </resources>

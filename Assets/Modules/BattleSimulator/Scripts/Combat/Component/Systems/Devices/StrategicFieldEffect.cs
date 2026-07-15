@@ -26,6 +26,8 @@ namespace Combat.Component.Systems.Devices
             effect._kind = kind;
             effect._position = position;
             effect._radius = kind == FieldKind.DarkDomain || kind == FieldKind.BlackHole ? 10f : 1f;
+            if (kind == FieldKind.DualVectorFoil)
+                effect._foilRadii = Enumerable.Repeat(1f, 64).ToArray();
             effect._lifetime = kind == FieldKind.BlackHole ? 5f : float.PositiveInfinity;
             effect.CreateVisual();
             ActiveFields.Add(effect);
@@ -42,8 +44,18 @@ namespace Combat.Component.Systems.Devices
                 return;
             }
 
-            if (_kind == FieldKind.DualVectorFoil && !IsBlockedByDarkDomain(_position, _radius))
-                _radius += 150f * elapsed;
+            if (_kind == FieldKind.DualVectorFoil)
+            {
+                for (var i = 0; i < _foilRadii.Length; ++i)
+                {
+                    var angle = i * Mathf.PI * 2f / _foilRadii.Length;
+                    var direction = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+                    var nextRadius = _foilRadii[i] + 150f * elapsed;
+                    if (!IsPointBlockedByDarkDomain(_position + direction * nextRadius))
+                        _foilRadii[i] = nextRadius;
+                }
+                _radius = _foilRadii.Max();
+            }
 
             if (_kind == FieldKind.BlackHole)
             {
@@ -78,9 +90,16 @@ namespace Combat.Component.Systems.Devices
                     {
                         if (unit is IShip foilTarget)
                         {
+                            if (_owner != null && !CombatRelations.AreEnemies(_owner.Type, foilTarget.Type)) continue;
+                            if (foilTarget.Systems.All.OfType<LowDimensionalProjectionDevice>().Any()) continue;
+                            var angle = Mathf.Atan2(-delta.y, -delta.x);
+                            if (angle < 0f) angle += Mathf.PI * 2f;
+                            var segment = Mathf.FloorToInt(angle / (Mathf.PI * 2f) * _foilRadii.Length) % _foilRadii.Length;
+                            if (delta.magnitude > _foilRadii[segment]) continue;
                             foilTarget.Affect(new Impact { TrueDamage = 2100000000f * elapsed }, _owner);
                             var noise = Random.value > 0.5f ? 0.18f : 0.42f;
                             foilTarget.View.Color = new Color(noise, noise, noise, 0.65f);
+                            if (!foilTarget.IsActive()) CreateMosaicRemnant(foilTarget.Body.Position, foilTarget.Body.Scale);
                         }
                     }
                     else if (_kind == FieldKind.DarkDomain)
@@ -127,7 +146,8 @@ namespace Combat.Component.Systems.Devices
             for (var i = 0; i < _line.positionCount; ++i)
             {
                 var angle = i * Mathf.PI * 2f / _line.positionCount;
-                _line.SetPosition(i, _position + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * _radius);
+                var radius = _kind == FieldKind.DualVectorFoil && _foilRadii != null ? _foilRadii[i] : _radius;
+                _line.SetPosition(i, _position + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius);
             }
         }
 
@@ -156,6 +176,36 @@ namespace Combat.Component.Systems.Devices
                                             Vector2.Distance(item._position, position) <= item._radius + radius);
         }
 
+        private static bool IsPointBlockedByDarkDomain(Vector2 position)
+        {
+            if (WarpTrailEffect.IsInsideAnyTrail(position, 0f)) return true;
+            return ActiveFields.Any(item => item != null && item._kind == FieldKind.DarkDomain &&
+                                            Vector2.Distance(item._position, position) <= item._radius);
+        }
+
+        private static void CreateMosaicRemnant(Vector2 position, float scale)
+        {
+            var root = new GameObject("DimensionalMosaicRemnant");
+            root.transform.position = position;
+            for (var x = -2; x <= 2; ++x)
+            for (var y = -2; y <= 2; ++y)
+            {
+                if (Random.value < 0.22f) continue;
+                var block = new GameObject("MosaicBlock");
+                block.transform.SetParent(root.transform, false);
+                block.transform.localPosition = new Vector3(x, y, 0f) * Mathf.Max(0.2f, scale * 0.16f);
+                block.transform.localScale = Vector3.one * Mathf.Max(0.25f, scale * Random.Range(0.13f, 0.22f));
+                var renderer = block.AddComponent<SpriteRenderer>();
+                renderer.sprite = MosaicSprite;
+                var shade = Random.Range(0.08f, 0.55f);
+                renderer.color = new Color(shade, shade, shade, 0.95f);
+                renderer.sortingOrder = 40;
+            }
+        }
+
+        private static Sprite MosaicSprite => _mosaicSprite ??= Sprite.Create(Texture2D.whiteTexture,
+            new Rect(0, 0, 1, 1), new Vector2(0.5f, 0.5f), 1f);
+
         public static void ClearAll()
         {
             foreach (var field in ActiveFields.ToArray())
@@ -174,5 +224,7 @@ namespace Combat.Component.Systems.Devices
         private float _lifetime;
         private float _age;
         private LineRenderer _line;
+        private float[] _foilRadii;
+        private static Sprite _mosaicSprite;
     }
 }

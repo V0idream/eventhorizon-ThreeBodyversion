@@ -38,6 +38,9 @@ namespace Combat.Factory
                     ship.Type.Side == UnitSide.Enemy ? -1 : deviceData.KeyBinding >= 0 ? deviceData.KeyBinding : 0,
                     _scene);
 
+            if (deviceData.ComponentId == 947)
+                return new LowDimensionalProjectionDevice(stats);
+
             SystemBase device;
             ConditionType soundEffectCondition = ConditionType.OnActivate;
 

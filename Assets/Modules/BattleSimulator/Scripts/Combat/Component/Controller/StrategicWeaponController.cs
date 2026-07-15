@@ -37,13 +37,27 @@ namespace Combat.Component.Controller
                 ApplyAreaDamage(_bullet.Body.WorldPosition(), 24f, 8000f, false);
                 _bullet.Vanish();
             }
-            else if (_kind == WeaponKind.DualVectorFoil && _elapsed >= 15f)
+            else if (_kind == WeaponKind.DualVectorFoil)
             {
-                StrategicFieldEffect.Create(_scene, _owner, _bullet.Body.WorldPosition(), StrategicFieldEffect.FieldKind.DualVectorFoil);
-                _bullet.Vanish();
+                var collision = _bullet.Collider.ActiveCollision;
+                if (!_foilStopped && (travelled >= _range || collision != null &&
+                    (collision.Type.Class == UnitClass.Ship || collision.Type.Class == UnitClass.Drone)))
+                    _foilStopped = true;
+
+                if (_foilStopped)
+                {
+                    _bullet.Body.ApplyAcceleration(-_bullet.Body.Velocity);
+                    if (_elapsed >= 15f)
+                    {
+                        StrategicFieldEffect.Create(_scene, _owner, _bullet.Body.WorldPosition(), StrategicFieldEffect.FieldKind.DualVectorFoil);
+                        _bullet.Vanish();
+                    }
+                }
             }
             else if ((_kind == WeaponKind.BlackHole || _kind == WeaponKind.DarkDomain) &&
-                     (_bullet.Collider.ActiveCollision != null || travelled >= _range))
+                     _bullet.Collider.ActiveCollision != null &&
+                     (_bullet.Collider.ActiveCollision.Type.Class == UnitClass.Ship ||
+                      _bullet.Collider.ActiveCollision.Type.Class == UnitClass.Drone))
             {
                 var fieldKind = _kind == WeaponKind.BlackHole
                     ? StrategicFieldEffect.FieldKind.BlackHole
@@ -79,5 +93,6 @@ namespace Combat.Component.Controller
         private readonly WeaponKind _kind;
         private readonly Vector2 _start;
         private float _elapsed;
+        private bool _foilStopped;
     }
 }
