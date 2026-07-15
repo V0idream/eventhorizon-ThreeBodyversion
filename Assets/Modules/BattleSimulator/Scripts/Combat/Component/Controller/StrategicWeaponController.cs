@@ -14,6 +14,8 @@ namespace Combat.Component.Controller
     {
         public enum WeaponKind { Photon, DualVectorFoil, BlackHole, DarkDomain }
 
+        public WeaponKind Kind => _kind;
+
         public StrategicWeaponController(Combat.Component.Bullet.Bullet bullet, IScene scene, IShip owner, float range, WeaponKind kind)
         {
             _bullet = bullet;

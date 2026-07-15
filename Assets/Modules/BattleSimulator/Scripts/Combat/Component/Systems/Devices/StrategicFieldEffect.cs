@@ -25,7 +25,7 @@ namespace Combat.Component.Systems.Devices
             effect._owner = owner;
             effect._kind = kind;
             effect._position = position;
-            effect._radius = kind == FieldKind.DarkDomain ? 10f : 1f;
+            effect._radius = kind == FieldKind.DarkDomain || kind == FieldKind.BlackHole ? 10f : 1f;
             effect._lifetime = kind == FieldKind.BlackHole ? 5f : float.PositiveInfinity;
             effect.CreateVisual();
             ActiveFields.Add(effect);
@@ -44,6 +44,16 @@ namespace Combat.Component.Systems.Devices
 
             if (_kind == FieldKind.DualVectorFoil && !IsBlockedByDarkDomain(_position, _radius))
                 _radius += 150f * elapsed;
+
+            if (_kind == FieldKind.BlackHole)
+            {
+                foreach (var field in ActiveFields.ToArray())
+                {
+                    if (field == null || field == this || field._kind != FieldKind.DualVectorFoil) continue;
+                    if (Vector2.Distance(_position, field._position) <= _radius + field._radius)
+                        Destroy(field.gameObject);
+                }
+            }
 
             lock (_scene.Units.LockObject)
             {

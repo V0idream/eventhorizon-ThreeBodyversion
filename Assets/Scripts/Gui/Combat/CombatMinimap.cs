@@ -242,18 +242,18 @@ namespace Gui.Combat
                 .Where(s => s.IsActive() && s != player && s.Type.Side == UnitSide.Ally)
                 .Where(s => Vector2.Distance(player.Body.Position, s.Body.Position) <= radarRange)
                 .ToArray();
-            var detectedMacroElectrons = GetDetectedMacroElectrons(player, radarRange);
+            var detectedLockableProjectiles = GetDetectedLockableProjectiles(player, radarRange);
             var lockedTarget = _scene.LockedTarget;
             var lockedShip = _scene.LockedEnemyShip;
-            var lockedMacroElectron = IsMacroElectron(lockedTarget);
+            var lockedProjectile = IsLockableProjectile(lockedTarget);
             var lockedTargetVisible = lockedShip != null && detected.Contains(lockedShip) ||
-                                      lockedMacroElectron && IsProjectileVisible(lockedTarget, player, radarRange);
+                                      lockedProjectile && IsProjectileVisible(lockedTarget, player, radarRange);
             if (!lockedTargetVisible)
             {
                 _scene.LockTarget(null);
                 IUnit nearestTarget = detected
                     .Cast<IUnit>()
-                    .Concat(detectedMacroElectrons)
+                    .Concat(detectedLockableProjectiles)
                     .OrderBy(s => Vector2.SqrMagnitude(s.Body.Position - player.Body.Position))
                     .FirstOrDefault();
                 if (nearestTarget != null)
@@ -261,7 +261,7 @@ namespace Gui.Combat
             }
             var displayRange = Mathf.Max(100f, detected.Concat(allies)
                 .Select(s => Vector2.Distance(player.Body.Position, s.Body.Position))
-                .Concat(detectedMacroElectrons.Select(m => Vector2.Distance(player.Body.Position, m.Body.WorldPosition())))
+                .Concat(detectedLockableProjectiles.Select(m => Vector2.Distance(player.Body.Position, m.Body.WorldPosition())))
                 .DefaultIfEmpty(100f).Max());
 
             var detectedSet = new HashSet<IShip>(detected);
@@ -382,7 +382,7 @@ namespace Gui.Combat
             if (!unit.IsActive())
                 return false;
 
-            if (!IsMacroElectron(unit) && unit.Type.Class != UnitClass.Missile &&
+            if (!IsLockableProjectile(unit) && unit.Type.Class != UnitClass.Missile &&
                 unit.Type.Class != UnitClass.EnergyBolt)
                 return false;
 
@@ -391,17 +391,17 @@ namespace Gui.Combat
 
         private UnitMarker CreateProjectileMarker(IUnit unit)
         {
-            var isMacroElectron = IsMacroElectron(unit);
-            var go = new GameObject(isMacroElectron ? "MacroElectronBlip" : unit.Type.Class == UnitClass.Missile ? "MissileBlip" : "LaserTrace", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            var isLockable = IsLockableProjectile(unit);
+            var go = new GameObject(isLockable ? "LockableProjectileBlip" : unit.Type.Class == UnitClass.Missile ? "MissileBlip" : "LaserTrace", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
             var rect = go.GetComponent<RectTransform>();
             rect.SetParent(_map, false);
             var image = go.GetComponent<Image>();
             image.sprite = MarkerSprite;
-            image.raycastTarget = isMacroElectron;
+            image.raycastTarget = isLockable;
 
             GameObject cross = null;
             Text symbol = null;
-            if (isMacroElectron)
+            if (isLockable)
             {
                 var button = go.AddComponent<Button>();
                 button.onClick.AddListener(() => _scene.LockUnit(unit));
@@ -435,7 +435,7 @@ namespace Gui.Combat
             var relative = (worldPosition - player.Body.Position) / displayRange;
             marker.Rect.anchorMin = marker.Rect.anchorMax = new Vector2(0.5f + relative.x * 0.47f, 0.5f + relative.y * 0.47f);
 
-            if (IsMacroElectron(unit))
+            if (IsLockableProjectile(unit))
             {
                 var macroColor = friendly
                     ? new Color(0.2f, 0.65f, 1f, 1f)
@@ -482,17 +482,17 @@ namespace Gui.Combat
             var target = _scene.Ships.Items.Where(s => s.IsActive() && CombatRelations.AreEnemies(player.Type, s.Type))
                 .Where(s => Vector2.Distance(player.Body.Position, s.Body.Position) <= GetRadarRange(player))
                 .Cast<IUnit>()
-                .Concat(GetDetectedMacroElectrons(player, GetRadarRange(player)))
+                .Concat(GetDetectedLockableProjectiles(player, GetRadarRange(player)))
                 .OrderBy(s => Vector2.SqrMagnitude(s.Body.WorldPosition() - player.Body.Position)).FirstOrDefault();
             Lock(target);
         }
 
-        private IUnit[] GetDetectedMacroElectrons(IShip player, float radarRange)
+        private IUnit[] GetDetectedLockableProjectiles(IShip player, float radarRange)
         {
             lock (_scene.Units.LockObject)
             {
                 return _scene.Units.Items
-                    .Where(unit => IsMacroElectron(unit) &&
+                    .Where(unit => IsLockableProjectile(unit) &&
                                    CombatRelations.AreEnemies(player.Type, unit.Type) &&
                                    IsProjectileVisible(unit, player, radarRange))
                     .ToArray();
@@ -557,6 +557,13 @@ namespace Gui.Combat
         private static bool IsMacroElectron(IUnit unit)
         {
             return unit is Bullet bullet && bullet.Controller is BallLightningController;
+        }
+
+        private static bool IsLockableProjectile(IUnit unit)
+        {
+            return IsMacroElectron(unit) || unit is Bullet bullet &&
+                bullet.Controller is StrategicWeaponController controller &&
+                controller.Kind == StrategicWeaponController.WeaponKind.DualVectorFoil;
         }
 
         private static Sprite MarkerSprite
