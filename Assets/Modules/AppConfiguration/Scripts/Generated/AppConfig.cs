@@ -1,9 +1,9 @@
 public static class AppConfig
 {
     public const string bundleIdentifier = "com.threebody.EventHorizon";
-    public const string version = "Alpha 1.22";
-    public const int versionCode = 113922;
-    public const int buildNumber = 1826;
+    public const string version = "Alpha 1.23";
+    public const int versionCode = 113923;
+    public const int buildNumber = 1827;
     public const string localizationFile = "Languages";
     public const bool testMode = false;
     public const bool enableCheats = true;
