@@ -9,7 +9,7 @@
   "IconImage": "starship_earth_battleship_preview5",
   "IconScale": 1.0,
   "ModelImage": "starship_earth_battleship_preview5",
-  "ModelScale": 13.0,
+  "ModelScale": 10.833333,
   "EngineColor": "#FF0000",
   "Engines": [
     {
