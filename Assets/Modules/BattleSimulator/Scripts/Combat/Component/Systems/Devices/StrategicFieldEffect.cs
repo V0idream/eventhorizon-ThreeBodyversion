@@ -25,7 +25,12 @@ namespace Combat.Component.Systems.Devices
             effect._owner = owner;
             effect._kind = kind;
             effect._position = position;
-            effect._radius = kind == FieldKind.DarkDomain || kind == FieldKind.BlackHole ? 10f : 1f;
+            effect._radius = kind switch
+            {
+                FieldKind.DarkDomain => 28f,
+                FieldKind.BlackHole => 10f,
+                _ => 1f
+            };
             if (kind == FieldKind.DualVectorFoil)
                 effect._foilRadii = Enumerable.Repeat(1f, 64).ToArray();
             effect._lifetime = kind == FieldKind.BlackHole ? 5f : float.PositiveInfinity;
@@ -59,6 +64,12 @@ namespace Combat.Component.Systems.Devices
 
             if (_kind == FieldKind.BlackHole)
             {
+                if (_blackHoleVisual != null)
+                {
+                    _blackHoleVisual.Rotate(0f, 0f, 38f * elapsed, Space.Self);
+                    var pulse = 1f + Mathf.Sin(_age * 7f) * 0.035f;
+                    _blackHoleVisual.localScale = _blackHoleBaseScale * pulse;
+                }
                 foreach (var field in ActiveFields.ToArray())
                 {
                     if (field == null || field == this || field._kind != FieldKind.DualVectorFoil) continue;
@@ -139,6 +150,8 @@ namespace Combat.Component.Systems.Devices
             };
             if (_kind == FieldKind.DualVectorFoil)
                 CreateFoilMosaicVisual();
+            else if (_kind == FieldKind.BlackHole)
+                CreateBlackHoleVisual();
             UpdateVisual();
         }
 
@@ -160,8 +173,10 @@ namespace Combat.Component.Systems.Devices
             var filter = gameObject.AddComponent<MeshFilter>();
             filter.sharedMesh = _mosaicMesh;
             _mosaicRenderer = gameObject.AddComponent<MeshRenderer>();
-            _mosaicMaterial = new Material(Shader.Find("Sprites/Default"));
-            _mosaicMaterial.mainTexture = FoilMosaicTexture;
+            var shader = Resources.Load<Shader>("DualVectorFoilBackgroundMosaic") ??
+                         Shader.Find("ThreeBody/DualVectorFoilBackgroundMosaic");
+            _mosaicMaterial = new Material(shader);
+            _mosaicMaterial.SetFloat("_PixelSize", 24f);
             _mosaicRenderer.sharedMaterial = _mosaicMaterial;
             _mosaicRenderer.sortingOrder = -8;
 
@@ -189,9 +204,7 @@ namespace Combat.Component.Systems.Devices
                 var angle = segment * Mathf.PI * 2f / count;
                 var local = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * _foilRadii[segment];
                 vertices[i + 1] = local;
-                // One source texel spans roughly six world units, producing the
-                // requested coarse background mosaic instead of fine noise.
-                uv[i + 1] = local / 48f;
+                uv[i + 1] = local;
             }
             _mosaicMesh.Clear();
             _mosaicMesh.vertices = vertices;
@@ -200,28 +213,62 @@ namespace Combat.Component.Systems.Devices
             _mosaicMesh.RecalculateBounds();
         }
 
-        private static Texture2D FoilMosaicTexture
+        private void CreateBlackHoleVisual()
+        {
+            var visual = new GameObject("BlackHoleAccretionDisk");
+            visual.transform.SetParent(transform, false);
+            _blackHoleVisual = visual.transform;
+            _blackHoleBaseScale = new Vector3(_radius * 2.8f, _radius * 1.75f, 1f);
+            _blackHoleVisual.localScale = _blackHoleBaseScale;
+            var renderer = visual.AddComponent<SpriteRenderer>();
+            renderer.sprite = BlackHoleSprite;
+            renderer.color = Color.white;
+            renderer.sortingOrder = 31;
+        }
+
+        private static Sprite BlackHoleSprite
         {
             get
             {
-                if (_foilMosaicTexture != null) return _foilMosaicTexture;
-                _foilMosaicTexture = new Texture2D(8, 8, TextureFormat.RGBA32, false)
+                if (_blackHoleSprite != null) return _blackHoleSprite;
+                const int size = 192;
+                var texture = new Texture2D(size, size, TextureFormat.RGBA32, false)
                 {
-                    name = "DualVectorFoilMosaicTexture",
-                    filterMode = FilterMode.Point,
-                    wrapMode = TextureWrapMode.Repeat
+                    name = "BlackHoleAccretionDisk",
+                    filterMode = FilterMode.Bilinear,
+                    wrapMode = TextureWrapMode.Clamp
                 };
-                var pixels = new Color32[64];
-                var random = new System.Random(24701);
-                for (var i = 0; i < pixels.Length; ++i)
+                var pixels = new Color32[size * size];
+                var center = (size - 1) * 0.5f;
+                for (var y = 0; y < size; ++y)
+                for (var x = 0; x < size; ++x)
                 {
-                    var shade = (byte)random.Next(28, 115);
-                    var violet = (byte)Mathf.Min(150, shade + random.Next(8, 34));
-                    pixels[i] = new Color32(shade, (byte)(shade * 0.72f), violet, (byte)random.Next(45, 95));
+                    var dx = (x - center) / center;
+                    var dy = (y - center) / center;
+                    var distance = Mathf.Sqrt(dx * dx + dy * dy);
+                    var angle = Mathf.Atan2(dy, dx);
+                    Color color;
+                    if (distance < 0.30f)
+                        color = new Color(0f, 0f, 0.008f, 1f);
+                    else if (distance < 0.52f)
+                    {
+                        var ring = Mathf.Clamp01(1f - Mathf.Abs(distance - 0.405f) / 0.115f);
+                        var streak = 0.72f + 0.28f * Mathf.Sin(angle * 9f + distance * 38f);
+                        color = Color.Lerp(new Color(0.38f, 0.04f, 0.85f, ring),
+                            new Color(1f, 0.46f, 0.06f, ring), streak);
+                    }
+                    else
+                    {
+                        var glow = Mathf.Clamp01((0.92f - distance) / 0.40f);
+                        color = new Color(0.18f, 0.03f, 0.48f, glow * 0.42f);
+                    }
+                    pixels[y * size + x] = color;
                 }
-                _foilMosaicTexture.SetPixels32(pixels);
-                _foilMosaicTexture.Apply(false, true);
-                return _foilMosaicTexture;
+                texture.SetPixels32(pixels);
+                texture.Apply(false, true);
+                _blackHoleSprite = Sprite.Create(texture, new Rect(0, 0, size, size),
+                    new Vector2(0.5f, 0.5f), size);
+                return _blackHoleSprite;
             }
         }
 
@@ -309,6 +356,8 @@ namespace Combat.Component.Systems.Devices
         private MeshRenderer _mosaicRenderer;
         private Material _mosaicMaterial;
         private int[] _mosaicTriangles;
-        private static Texture2D _foilMosaicTexture;
+        private Transform _blackHoleVisual;
+        private Vector3 _blackHoleBaseScale;
+        private static Sprite _blackHoleSprite;
     }
 }

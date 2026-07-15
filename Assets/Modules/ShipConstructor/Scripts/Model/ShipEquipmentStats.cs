@@ -94,9 +94,9 @@ namespace Constructor.Model
 
             stats.EnginePower = component.EnginePower * multiplier;
             stats.TurnRate = component.TurnRate * multiplier;
-            // The Trisolaris fleet engine is component 942. Component-stats id
-            // 312 is not the component id and therefore never matched here.
-            stats.HasFleetEngine = component.Id.Value == 942;
+            // This method receives ComponentStats, not the component definition.
+            // The Trisolaris fleet engine component (942) references stats 312.
+            stats.HasFleetEngine = component.Id.Value == 312;
 
             if (component.EnergyRechargeRate >= 0 && component.EnginePower > 0)
                 stats.EnginePowerWithoutEnergy += component.EnginePower * multiplier;

@@ -40,9 +40,10 @@ namespace Combat.Component.Systems.Weapons
 
             // Re-read after validation so a destroyed/changed lock cannot create
             // a field or consume resources in the same physics tick.
-            var target = Platform.ActiveTarget;
+            var target = CurrentLockedShip();
             if (!IsInRange(target) || !TryConsumeEnergy(_energyConsumption)) return;
 
+            Platform.ActiveTarget = target;
             StrategicFieldEffect.Create(_scene, _owner, target.Body.WorldPosition(), _fieldKind);
             Platform.OnShot();
             TimeFromLastUse = 0f;
@@ -51,8 +52,10 @@ namespace Combat.Component.Systems.Weapons
 
         protected override void OnDispose() { }
 
-        private bool HasValidTarget() => IsInRange(Platform.ActiveTarget) &&
+        private bool HasValidTarget() => IsInRange(CurrentLockedShip()) &&
                                          Platform.EnergyPoints.Value >= _energyConsumption;
+
+        private IShip CurrentLockedShip() => _scene.LockedTarget as IShip;
 
         private bool IsInRange(IShip target)
         {
