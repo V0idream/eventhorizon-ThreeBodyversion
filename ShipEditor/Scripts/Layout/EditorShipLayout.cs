@@ -64,21 +64,8 @@ namespace ShipEditor
 				// Keep the source aspect ratio.  The circular hull sections are the
 				// calibration reference: any per-axis correction turns them into an
 				// ellipse and makes the artwork look stretched against the grid.
-                var spriteName = sprite.name.ToLowerInvariant();
-                var isCruiser = spriteName.Contains("starship_earth_cruiser");
-                var isBattleship = spriteName.Contains("starship_earth_battleship");
-                var artworkScale = isCruiser || isBattleship ? 1.2f : 1f;
-
-                // Scale these two hulls uniformly and keep their rear engine edge
-                // at the old grid position. Their source images are rotated 90° in
-                // the prefab, so the source X correction becomes local Y here.
-                if (isCruiser)
-                    imagePosition.y += imageScale * 0.0683f;
-                else if (isBattleship)
-                    imagePosition.y += imageScale * 0.0549f;
-
                 _shipImage.transform.localPosition = imagePosition;
-				_shipImage.transform.localScale = imageScale * artworkScale * Vector3.one;
+				_shipImage.transform.localScale = imageScale * Vector3.one;
 			}
 
 			_content.localPosition = new Vector3(-Width / 2, Height / 2, 0);
