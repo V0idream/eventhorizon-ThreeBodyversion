@@ -137,6 +137,8 @@ namespace Combat.Component.Systems.Devices
                 FieldKind.BlackHole => new Color(0.35f, 0.1f, 0.8f, 0.9f),
                 _ => new Color(0.01f, 0.01f, 0.02f, 0.95f)
             };
+            if (_kind == FieldKind.DualVectorFoil)
+                CreateFoilMosaicVisual();
             UpdateVisual();
         }
 
@@ -148,6 +150,78 @@ namespace Combat.Component.Systems.Devices
                 var angle = i * Mathf.PI * 2f / _line.positionCount;
                 var radius = _kind == FieldKind.DualVectorFoil && _foilRadii != null ? _foilRadii[i] : _radius;
                 _line.SetPosition(i, _position + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius);
+            }
+            UpdateFoilMosaicVisual();
+        }
+
+        private void CreateFoilMosaicVisual()
+        {
+            _mosaicMesh = new Mesh { name = "DualVectorFoilMosaicMesh" };
+            var filter = gameObject.AddComponent<MeshFilter>();
+            filter.sharedMesh = _mosaicMesh;
+            _mosaicRenderer = gameObject.AddComponent<MeshRenderer>();
+            _mosaicMaterial = new Material(Shader.Find("Sprites/Default"));
+            _mosaicMaterial.mainTexture = FoilMosaicTexture;
+            _mosaicRenderer.sharedMaterial = _mosaicMaterial;
+            _mosaicRenderer.sortingOrder = -8;
+
+            var triangles = new int[_foilRadii.Length * 3];
+            for (var i = 0; i < _foilRadii.Length; ++i)
+            {
+                triangles[i * 3] = 0;
+                triangles[i * 3 + 1] = i + 1;
+                triangles[i * 3 + 2] = i + 2;
+            }
+            _mosaicTriangles = triangles;
+        }
+
+        private void UpdateFoilMosaicVisual()
+        {
+            if (_mosaicMesh == null || _foilRadii == null) return;
+            var count = _foilRadii.Length;
+            var vertices = new Vector3[count + 2];
+            var uv = new Vector2[count + 2];
+            vertices[0] = Vector3.zero;
+            uv[0] = Vector2.zero;
+            for (var i = 0; i <= count; ++i)
+            {
+                var segment = i % count;
+                var angle = segment * Mathf.PI * 2f / count;
+                var local = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * _foilRadii[segment];
+                vertices[i + 1] = local;
+                // One source texel spans roughly six world units, producing the
+                // requested coarse background mosaic instead of fine noise.
+                uv[i + 1] = local / 48f;
+            }
+            _mosaicMesh.Clear();
+            _mosaicMesh.vertices = vertices;
+            _mosaicMesh.uv = uv;
+            _mosaicMesh.triangles = _mosaicTriangles;
+            _mosaicMesh.RecalculateBounds();
+        }
+
+        private static Texture2D FoilMosaicTexture
+        {
+            get
+            {
+                if (_foilMosaicTexture != null) return _foilMosaicTexture;
+                _foilMosaicTexture = new Texture2D(8, 8, TextureFormat.RGBA32, false)
+                {
+                    name = "DualVectorFoilMosaicTexture",
+                    filterMode = FilterMode.Point,
+                    wrapMode = TextureWrapMode.Repeat
+                };
+                var pixels = new Color32[64];
+                var random = new System.Random(24701);
+                for (var i = 0; i < pixels.Length; ++i)
+                {
+                    var shade = (byte)random.Next(28, 115);
+                    var violet = (byte)Mathf.Min(150, shade + random.Next(8, 34));
+                    pixels[i] = new Color32(shade, (byte)(shade * 0.72f), violet, (byte)random.Next(45, 95));
+                }
+                _foilMosaicTexture.SetPixels32(pixels);
+                _foilMosaicTexture.Apply(false, true);
+                return _foilMosaicTexture;
             }
         }
 
@@ -213,7 +287,12 @@ namespace Combat.Component.Systems.Devices
             ActiveFields.Clear();
         }
 
-        private void OnDestroy() => ActiveFields.Remove(this);
+        private void OnDestroy()
+        {
+            ActiveFields.Remove(this);
+            if (_mosaicMaterial != null) Destroy(_mosaicMaterial);
+            if (_mosaicMesh != null) Destroy(_mosaicMesh);
+        }
 
         private static readonly List<StrategicFieldEffect> ActiveFields = new();
         private IScene _scene;
@@ -226,5 +305,10 @@ namespace Combat.Component.Systems.Devices
         private LineRenderer _line;
         private float[] _foilRadii;
         private static Sprite _mosaicSprite;
+        private Mesh _mosaicMesh;
+        private MeshRenderer _mosaicRenderer;
+        private Material _mosaicMaterial;
+        private int[] _mosaicTriangles;
+        private static Texture2D _foilMosaicTexture;
     }
 }
