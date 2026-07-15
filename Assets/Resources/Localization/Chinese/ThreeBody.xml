@@ -107,4 +107,13 @@
     <string name="StarshipEarthInterceptorLaserDescription">主动拦截防御武器，可以拦截攻击导弹并提前引爆，运气够好可以拦截动能弹药</string>
     <string name="SophonSimPointDefense">SIM弹头近防炮</string>
     <string name="SophonSimPointDefenseDescription">一格L槽自主近防炮，以每秒10发的射速发射SIM实弹，单发造成5点物理伤害并穿透目标80%的动能抗性；360°旋转并始终优先拦截射程内导弹。</string>
+    <string name="WeaponTestPlatform">武器测试平台</string>
+    <string name="PhotonProjectileLauncher">光粒发射器</string>
+    <string name="PhotonProjectileLauncherDescription">歌者文明的高速光粒武器，贯穿航路上的一切目标，并在射程极限释放毁灭性冲击。</string>
+    <string name="DualVectorFoilLauncher">二向箔发射器</string>
+    <string name="DualVectorFoilLauncherDescription">发射封装二向箔；十五秒后展开，并以不可逆的二维化区域吞没范围内单位。</string>
+    <string name="MiniBlackHoleLauncher">小型黑洞发射器</string>
+    <string name="MiniBlackHoleLauncherDescription">释放短暂存在的小型黑洞，吞噬射弹、阻断激光并撕裂接触目标。</string>
+    <string name="DarkDomainConfinement">黑域禁锢</string>
+    <string name="DarkDomainConfinementDescription">命中后制造永久小型黑域，将目标禁锢于低光速区域。</string>
 </resources>

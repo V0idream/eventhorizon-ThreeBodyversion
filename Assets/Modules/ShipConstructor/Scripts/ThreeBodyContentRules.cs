@@ -55,7 +55,8 @@ namespace Constructor
 
         public static bool IsRestrictedSatellite(Satellite satellite)
         {
-            return satellite != null && satellite.Id.Value == 950; // 实验性装备搭载平台
+            return satellite != null && (satellite.Id.Value == 950 || // 实验性装备搭载平台
+                                         satellite.Id.Value == 951);  // 武器测试平台
         }
 
         public static IReadOnlyList<ShipBuild> GetCreativeWorkshopBuilds(IDatabase database)

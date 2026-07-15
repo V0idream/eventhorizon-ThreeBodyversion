@@ -180,6 +180,10 @@ namespace Combat.Component.Ship
 
         public void Affect(Impact impact, IUnit source)
         {
+            var dimensional = impact.TrueDamage > 0f ||
+                              (source != null && ShipStats.IsFourDimensionalUnit(source));
+            if (Features.Invulnerable && !dimensional)
+                return;
             impact.ApplyImpulse(Body);
             Stats.ApplyDamage(impact, this, source);
 

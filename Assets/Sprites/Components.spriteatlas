@@ -78,6 +78,7 @@ SpriteAtlas:
     - 8c8e4441521014d4da938f5e7bd5685a: 21300000
     - 7e0c8d51570068244a5b88293ef666d1: 21300000
     - 2c4f2171c6a3e6e46bb507c0f2cc3649: 21300000
+    - 563b0db197519074d94bc0153acd884e: 21300000
     - ff8a55c1fb2d0b7489fa40d36291044a: 21300000
     - 9bc2ecf1912e5fc46b36cb6c8a230a4c: 21300000
     - b4f1c5027bfd899488504b9a8de8436c: 21300000
@@ -135,6 +136,7 @@ SpriteAtlas:
     - 9cd1a3f6bd163764598a3d24815ba99f: 21300000
     - 8d0cfaf65d5ff2247ac346c1ae33f092: 21300000
     - 2a30bd271f1164441946e605225e0239: 21300000
+    - a925c8477b464a340a7087b53fea9151: 21300000
     - e4bf4d47033f0e5459dd3cbee038eb91: 21300000
     - 4cae709786cc1074b9e515457f97e68a: 21300000
     - fd1876972262e2b47b617f82514f94f5: 21300000
@@ -152,6 +154,7 @@ SpriteAtlas:
     - beec8b993ad760242b367fbb9e336898: 21300000
     - 926100a9a978f5f488fe24207c035483: 21300000
     - 9ebd61a9253a7cd4187ea6ae5264ba2a: 21300000
+    - 084fded959ef8bf428337bfcb161c5b3: 21300000
     - 180d41e9f118e164ca9ddfd6ce91c0eb: 21300000
     - 3b7499f991834224582efea431515e7f: 21300000
     - c37c330a77d3a7342ad4ceea54efe3b8: 21300000
@@ -201,6 +204,7 @@ SpriteAtlas:
     - 77edcdae94d8a2a42b2a9d2d9c3e574c: 21300000
     - 692615be3ec5c4446a110fa12100c1ec: 21300000
     - 926fa9be71c34d64aa3781b09e982b68: 21300000
+    - 6c2147cea28ae9344a9171200d564151: 21300000
     - e86e3fcefc36a4640aef4253b2b549c7: 21300000
     - d46dd3ee77a010d4fa653e62347eaf4c: 21300000
     - 5cb585eef7dd09c488d38b6170d65332: 21300000
@@ -238,6 +242,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 8c8e4441521014d4da938f5e7bd5685a, type: 3}
   - {fileID: 21300000, guid: 7e0c8d51570068244a5b88293ef666d1, type: 3}
   - {fileID: 21300000, guid: 2c4f2171c6a3e6e46bb507c0f2cc3649, type: 3}
+  - {fileID: 21300000, guid: 563b0db197519074d94bc0153acd884e, type: 3}
   - {fileID: 21300000, guid: ff8a55c1fb2d0b7489fa40d36291044a, type: 3}
   - {fileID: 21300000, guid: 9bc2ecf1912e5fc46b36cb6c8a230a4c, type: 3}
   - {fileID: 21300000, guid: b4f1c5027bfd899488504b9a8de8436c, type: 3}
@@ -295,6 +300,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 9cd1a3f6bd163764598a3d24815ba99f, type: 3}
   - {fileID: 21300000, guid: 8d0cfaf65d5ff2247ac346c1ae33f092, type: 3}
   - {fileID: 21300000, guid: 2a30bd271f1164441946e605225e0239, type: 3}
+  - {fileID: 21300000, guid: a925c8477b464a340a7087b53fea9151, type: 3}
   - {fileID: 21300000, guid: e4bf4d47033f0e5459dd3cbee038eb91, type: 3}
   - {fileID: 21300000, guid: 4cae709786cc1074b9e515457f97e68a, type: 3}
   - {fileID: 21300000, guid: fd1876972262e2b47b617f82514f94f5, type: 3}
@@ -312,6 +318,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: beec8b993ad760242b367fbb9e336898, type: 3}
   - {fileID: 21300000, guid: 926100a9a978f5f488fe24207c035483, type: 3}
   - {fileID: 21300000, guid: 9ebd61a9253a7cd4187ea6ae5264ba2a, type: 3}
+  - {fileID: 21300000, guid: 084fded959ef8bf428337bfcb161c5b3, type: 3}
   - {fileID: 21300000, guid: 180d41e9f118e164ca9ddfd6ce91c0eb, type: 3}
   - {fileID: 21300000, guid: 3b7499f991834224582efea431515e7f, type: 3}
   - {fileID: 21300000, guid: c37c330a77d3a7342ad4ceea54efe3b8, type: 3}
@@ -361,6 +368,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 77edcdae94d8a2a42b2a9d2d9c3e574c, type: 3}
   - {fileID: 21300000, guid: 692615be3ec5c4446a110fa12100c1ec, type: 3}
   - {fileID: 21300000, guid: 926fa9be71c34d64aa3781b09e982b68, type: 3}
+  - {fileID: 21300000, guid: 6c2147cea28ae9344a9171200d564151, type: 3}
   - {fileID: 21300000, guid: e86e3fcefc36a4640aef4253b2b549c7, type: 3}
   - {fileID: 21300000, guid: d46dd3ee77a010d4fa653e62347eaf4c, type: 3}
   - {fileID: 21300000, guid: 5cb585eef7dd09c488d38b6170d65332, type: 3}
@@ -397,6 +405,7 @@ SpriteAtlas:
   - engine5
   - energy_wave
   - armor33
+  - dark_domain_confinement
   - torpedo2
   - fueltank13
   - lightweight1
@@ -454,6 +463,7 @@ SpriteAtlas:
   - armor23
   - starship_earth_railgun
   - zygote1
+  - dual_vector_foil_launcher
   - armor43
   - gun7
   - armor22
@@ -471,6 +481,7 @@ SpriteAtlas:
   - RepairBay
   - shock1
   - drone_replicator2
+  - mini_black_hole_launcher
   - camouflage
   - shield1
   - trisolaris_antimatter_reactor
@@ -520,6 +531,7 @@ SpriteAtlas:
   - radar_array_l
   - intertial_damper1
   - shield_capacitor3
+  - photon_projectile_launcher
   - armor51
   - dronebay1
   - laser2

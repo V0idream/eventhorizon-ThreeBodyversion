@@ -284,6 +284,18 @@ namespace Combat.Factory
         {
             if (_ammunition.Id.Value == 166)
                 return new BallLightningController(bullet, _scene, _effectFactory, _owner, _stats.Range);
+            if (_ammunition.Id.Value == 167)
+                return new StrategicWeaponController(bullet, _scene, _owner, _stats.Range,
+                    StrategicWeaponController.WeaponKind.Photon);
+            if (_ammunition.Id.Value == 168)
+                return new StrategicWeaponController(bullet, _scene, _owner, _stats.Range,
+                    StrategicWeaponController.WeaponKind.DualVectorFoil);
+            if (_ammunition.Id.Value == 169)
+                return new StrategicWeaponController(bullet, _scene, _owner, _stats.Range,
+                    StrategicWeaponController.WeaponKind.BlackHole);
+            if (_ammunition.Id.Value == 170)
+                return new StrategicWeaponController(bullet, _scene, _owner, _stats.Range,
+                    StrategicWeaponController.WeaponKind.DarkDomain);
 
             var range = _stats.Range;
             var weight = _stats.Weight;

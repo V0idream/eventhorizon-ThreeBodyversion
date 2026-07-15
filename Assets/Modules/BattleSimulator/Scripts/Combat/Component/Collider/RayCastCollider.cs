@@ -58,6 +58,8 @@ namespace Combat.Component.Collider
             var blockedByWarpTrail = WarpTrailEffect.TryBlockRay(position, direction, MaxRange, out var trailRange);
             if (blockedByWarpTrail)
                 effectiveRange = trailRange;
+            if (StrategicFieldEffect.TryBlockRay(position, direction, effectiveRange, out var strategicRange))
+                effectiveRange = Mathf.Min(effectiveRange, strategicRange);
 
             // A player-owned macro-electron intentionally lives on a neutral
             // missile layer so both sides can target it. That layer is not in

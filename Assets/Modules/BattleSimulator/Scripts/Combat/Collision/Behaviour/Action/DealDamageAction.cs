@@ -25,7 +25,11 @@ namespace Combat.Collision.Behaviour.Action
                 target.Type.Class != Combat.Component.Unit.Classification.UnitClass.Drone)
                 return;
 
-            var damage = _ignoreDefenseBonus ? _damage * target.DefenseMultiplier : _damage;
+            // Dimensional damage is absolute: it ignores defense multipliers
+            // in addition to shield and resistance handling in ShipStats.
+            var damage = _damageType == DamageType.True
+                ? _damage
+                : (_ignoreDefenseBonus ? _damage * target.DefenseMultiplier : _damage);
 
             if (_impactType == BulletImpactType.DamageOverTime)
             {

@@ -1,0 +1,10 @@
+{
+  "ItemType": 7,
+  "Id": 951,
+  "Name": "$WeaponTestPlatform",
+  "ModelImage": "weapon_test_platform",
+  "ModelScale": 0.8,
+  "SizeClass": 4,
+  "Layout": "6666666666666666666666666",
+  "Barrels": []
+}
