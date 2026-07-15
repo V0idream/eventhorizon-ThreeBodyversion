@@ -131,7 +131,9 @@ namespace Model
                 var stationLevel = UnityEngine.Mathf.Max(1, region.BaseDefendersLevel);
                 var level = UnityEngine.Mathf.Max(1, UnityEngine.Mathf.RoundToInt(stationLevel * 1.5f));
                 var allAvailable = ShipBuildQuery.EnemyShips(database)
-                    .Where(item => item.Faction != region.Faction).All.ToList();
+                    .Where(item => item.Faction != region.Faction)
+                    .Where(item => item.Ship.ModelImage.Id != "worm_head" && item.Ship.ModelImage.Id != "worm_head2")
+                    .All.ToList();
                 var factions = allAvailable.Select(item => item.Faction).Distinct().ToList();
                 var differentFactions = factions.Where(item => item.Id.Value != excludedFactionId).ToList();
                 if (differentFactions.Count > 0)
@@ -146,6 +148,7 @@ namespace Model
                     available = ShipBuildQuery.EnemyShips(database)
                         .BelongToFaction(faction)
                         .FilterByStarDistance(level, ShipBuildQuery.FilterMode.SizeAndDifficulty)
+                        .Where(item => item.Ship.ModelImage.Id != "worm_head" && item.Ship.ModelImage.Id != "worm_head2")
                         .All.ToList();
                     if (available.Count == 0)
                         available = allAvailable.Where(item => item.Faction == faction).ToList();

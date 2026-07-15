@@ -55,9 +55,9 @@ namespace Combat.Component.Controller
                 }
             }
             else if ((_kind == WeaponKind.BlackHole || _kind == WeaponKind.DarkDomain) &&
-                     _bullet.Collider.ActiveCollision != null &&
+                     (travelled >= _range || _bullet.Collider.ActiveCollision != null &&
                      (_bullet.Collider.ActiveCollision.Type.Class == UnitClass.Ship ||
-                      _bullet.Collider.ActiveCollision.Type.Class == UnitClass.Drone))
+                      _bullet.Collider.ActiveCollision.Type.Class == UnitClass.Drone)))
             {
                 var fieldKind = _kind == WeaponKind.BlackHole
                     ? StrategicFieldEffect.FieldKind.BlackHole

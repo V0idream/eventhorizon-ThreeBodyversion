@@ -41,6 +41,7 @@ namespace Constructor.Model
         public float EnginePowerWithoutEnergy;
         public float TurnRateWithoutEnergy;
         public float EngineEnergyConsumption;
+        public bool HasFleetEngine;
 
         public bool Autopilot;
 
@@ -93,6 +94,7 @@ namespace Constructor.Model
 
             stats.EnginePower = component.EnginePower * multiplier;
             stats.TurnRate = component.TurnRate * multiplier;
+            stats.HasFleetEngine = component.Id.Value == 312;
 
             if (component.EnergyRechargeRate >= 0 && component.EnginePower > 0)
                 stats.EnginePowerWithoutEnergy += component.EnginePower * multiplier;
@@ -156,6 +158,7 @@ namespace Constructor.Model
             EnginePowerWithoutEnergy += other.EnginePowerWithoutEnergy;
             TurnRateWithoutEnergy += other.TurnRateWithoutEnergy;
             EngineEnergyConsumption += other.EngineEnergyConsumption;
+            HasFleetEngine |= other.HasFleetEngine;
 
             Autopilot |= other.Autopilot;
 

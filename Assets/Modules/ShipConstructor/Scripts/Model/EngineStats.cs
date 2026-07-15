@@ -25,8 +25,18 @@ namespace Constructor.Model
 
         public bool IsNull => Propulsion <= _threshold && TurnRate <= _threshold;
 
-        public EngineStats(float enginePower, float turnRate, float shipWeight, int shipCellCount, ShipSettings shipSettings)
+        public EngineStats(float enginePower, float turnRate, float shipWeight, int shipCellCount, ShipSettings shipSettings, bool forceFleetEngine = false)
         {
+            if (forceFleetEngine)
+            {
+                Propulsion = 1000f;
+                Velocity = 1000f;
+                TurnRateInUnits = 1000f / _unitsToDegrees;
+                AngularVelocityInUnits = 1000f / _unitsToDegrees;
+                VelocityLimit = 1000f;
+                AngularVelocityLimit = 1000f;
+                return;
+            }
             var sqrtWeight = Mathf.Sqrt(shipWeight);
             VelocityLimit = shipSettings.MaxVelocity;
             AngularVelocityLimit = shipSettings.MaxAngularVelocity * _unitsToDegrees;

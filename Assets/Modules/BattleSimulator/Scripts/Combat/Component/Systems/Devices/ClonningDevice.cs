@@ -162,6 +162,7 @@ namespace Combat.Component.Systems.Devices
             public float TurnRateWihoutEnergy => _stats.TurnRateWihoutEnergy;
             public float ShieldCorrosiveResistancePercentage => _stats.ShieldCorrosiveResistancePercentage;
             public float EngineEnergyConsumption => _stats.EngineEnergyConsumption;
+            public bool HasFleetEngine => _stats.HasFleetEngine;
 
             private readonly float _size;
             private readonly float _attack;

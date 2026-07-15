@@ -30,6 +30,7 @@ namespace Constructor.Model
         float EnginePowerWihoutEnergy { get; }
         float TurnRateWihoutEnergy { get; }
         float EngineEnergyConsumption { get; }
+        bool HasFleetEngine { get; }
 
         StatMultiplier WeaponDamageMultiplier { get; }
         StatMultiplier WeaponFireRateMultiplier { get; }
@@ -168,6 +169,7 @@ namespace Constructor.Model
         }
 
         public float EngineEnergyConsumption => EquipmentStats.EngineEnergyConsumption;
+        public bool HasFleetEngine => EquipmentStats.HasFleetEngine;
 
         public float ShieldCorrosiveResistancePercentage => ShipSettings.ShieldCorrosiveResistance;
 
