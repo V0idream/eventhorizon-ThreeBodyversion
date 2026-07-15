@@ -112,6 +112,7 @@
     <string name="ClassCruiser">巡洋舰</string>
     <string name="ClassBattleship">战舰</string>
     <string name="ClassTitan">旗舰</string>
+    <string name="ClassTitanP">泰坦</string>
     <string name="ClassStarbase">空间站</string>
     <string name="GroupAll">所有组件</string>
     <string name="GroupWeapon">武器</string>

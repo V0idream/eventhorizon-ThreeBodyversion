@@ -137,6 +137,7 @@
     <string name="ClassCruiser">Cruiser</string>
     <string name="ClassBattleship">Battleship</string>
     <string name="ClassTitan">Capital Ship</string>
+    <string name="ClassTitanP">TitanP</string>
     <string name="ClassStarbase">Starbase</string>
     <string name="GroupAll">All modules</string>
     <string name="GroupWeapon">Weapons</string>

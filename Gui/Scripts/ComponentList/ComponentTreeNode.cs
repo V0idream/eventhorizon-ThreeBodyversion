@@ -238,14 +238,35 @@ namespace Gui.ComponentList
         {
             _parent = parent;
 
-            foreach (var slot in weaponSlots.Slots)
+            // WeaponSlots is user/mod content and older saves or third-party mods may
+            // provide a settings file that predates one of the built-in groups.  The
+            // component list must still be able to classify every component in that
+            // case; otherwise D-slot components (and any future slot) are reported as
+            // "Undefined weapon slot" and presets appear to fail to load.
+            foreach (var slot in weaponSlots?.Slots ?? Enumerable.Empty<WeaponSlot>())
                 if (_groupMap.TryAdd(slot.Letter, _groups.Count))
                     _groups.Add(CreateNode(slot.Name, slot.Icon));
                 else
                     GameDiagnostics.Trace.LogError($"Duplicate weapon slot - {slot.Letter}");
 
+            EnsureBuiltinSlot('C', "$GroupWeaponC", "icon_weapon_c");
+            EnsureBuiltinSlot('L', "$GroupWeaponL", "icon_weapon_l");
+            EnsureBuiltinSlot('M', "$GroupWeaponM", "icon_weapon_m");
+            EnsureBuiltinSlot('T', "$GroupWeaponT", "icon_weapon_t");
+            EnsureBuiltinSlot('S', "$GroupWeaponS", "icon_weapon_s");
+            EnsureBuiltinSlot('D', "$GroupWeaponD", "icon_weapon_s");
+
             _groupMap.Add(default, _groups.Count);
-            _groups.Add(CreateNode(weaponSlots?.DefaultSlotName, weaponSlots.DefaultSlotIcon));
+            _groups.Add(CreateNode(weaponSlots?.DefaultSlotName ?? "$GroupWeaponAny",
+                weaponSlots?.DefaultSlotIcon ?? new SpriteId("icon_weapon_s", SpriteId.Type.GuiIcon)));
+        }
+
+        private void EnsureBuiltinSlot(char letter, string name, string icon)
+        {
+            if (_groupMap.ContainsKey(letter)) return;
+
+            _groupMap.Add(letter, _groups.Count);
+            _groups.Add(CreateNode(name, new SpriteId(icon, SpriteId.Type.GuiIcon)));
         }
 
         public IComponentTreeNode Parent { get { return _parent; } }
