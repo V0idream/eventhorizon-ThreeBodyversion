@@ -1,9 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Constructor.Ships;
 using Services.Gui;
 using Services.Resources;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace ShipEditor.UI
@@ -13,7 +15,8 @@ namespace ShipEditor.UI
     /// an opaque image replaces hull pixels while an image with alpha blends
     /// over them. The imported image is manipulated directly with touch.
     /// </summary>
-    public sealed class ShipTextureCustomizationPanel : MonoBehaviour
+    public sealed class ShipTextureCustomizationPanel : MonoBehaviour,
+        IPointerDownHandler, IPointerUpHandler, IDragHandler, IScrollHandler
     {
         private ShipEditorWindow _owner;
         private Sprite _baseSprite;
@@ -26,13 +29,14 @@ namespace ShipEditor.UI
         private float _scaleValue = 1f;
         private float _rotationDegrees;
         private Vector2 _normalizedOffset;
-        private bool _gestureActive;
-        private bool _mouseDragging;
         private bool _rotationDragging;
         private float _rotationStartAngle;
         private float _rotationStartValue;
-        private Vector2 _lastMousePosition;
         private RectTransform _rotationHandle;
+        private readonly Dictionary<int, Vector2> _pointers = new Dictionary<int, Vector2>();
+        private Vector2 _gestureCenter;
+        private float _gestureDistance;
+        private float _gestureAngle;
 
         public static void Open(ShipEditorWindow owner)
         {
@@ -82,7 +86,9 @@ namespace ShipEditor.UI
             previewObject.transform.SetParent(transform, false);
             _previewImage = previewObject.GetComponent<RawImage>();
             _previewImage.color = Color.white;
-            _previewImage.raycastTarget = false;
+            // This graphic is the gesture surface. Pointer events bubble to
+            // this panel, so every device gets the same album-style controls.
+            _previewImage.raycastTarget = true;
             previewObject.AddComponent<Mask>().showMaskGraphic = true;
 
             var overlayObject = new GameObject("ImportedArtwork", typeof(RectTransform), typeof(RawImage));
@@ -101,7 +107,7 @@ namespace ShipEditor.UI
             _status = CreateText("请选择一张图片", 18);
             SetRect(_status.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
                 new Vector2(-460, 20), new Vector2(460, 55));
-            var help = CreateText("单指拖动图片 · 双指捏合缩放", 18);
+            var help = CreateText("单指拖动 · 双指缩放并旋转", 18);
             SetRect(help.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
                 new Vector2(-360, -245), new Vector2(360, -205));
             CreateRotationHandle();
@@ -187,83 +193,106 @@ namespace ShipEditor.UI
                 return;
             }
 
-            if (_overlay == null || _previewImage == null)
-                return;
-
-            if (Input.touchCount >= 2)
-            {
-                _rotationDragging = false;
-                var first = Input.GetTouch(0);
-                var second = Input.GetTouch(1);
-                var center = (first.position + second.position) * 0.5f;
-                if (!IsInsidePreview(center)) return;
-
-                var previousFirst = first.position - first.deltaPosition;
-                var previousSecond = second.position - second.deltaPosition;
-                var previousCenter = (previousFirst + previousSecond) * 0.5f;
-                TranslateByScreenDelta(center - previousCenter);
-
-                var previousDistance = Vector2.Distance(previousFirst, previousSecond);
-                var currentDistance = Vector2.Distance(first.position, second.position);
-                if (previousDistance > 0.01f)
-                    _scaleValue = Mathf.Clamp(_scaleValue * currentDistance / previousDistance, 0.1f, 8f);
-                UpdateOverlayTransform();
-                _gestureActive = true;
-                return;
-            }
-
+            // The separate rotation handle remains available for one-finger
+            // precision, while the hull itself is handled by EventSystem.
+            if (_overlay == null || Input.touchCount > 1) return;
             if (Input.touchCount == 1)
             {
                 var touch = Input.GetTouch(0);
-                if (touch.phase == TouchPhase.Began)
+                if (touch.phase == TouchPhase.Began && IsInsideRotationHandle(touch.position))
                 {
-                    _rotationDragging = IsInsideRotationHandle(touch.position);
-                    _gestureActive = !_rotationDragging && IsInsidePreview(touch.position);
-                    if (_rotationDragging) BeginRotation(touch.position);
+                    _rotationDragging = true;
+                    BeginRotation(touch.position);
                 }
                 if (_rotationDragging && touch.phase == TouchPhase.Moved)
                     UpdateRotation(touch.position);
-                if (_gestureActive && touch.phase == TouchPhase.Moved)
-                {
-                    TranslateByScreenDelta(touch.deltaPosition);
-                    UpdateOverlayTransform();
-                }
                 if (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled)
-                {
-                    _gestureActive = false;
                     _rotationDragging = false;
+            }
+            else
+            {
+                if (Input.GetMouseButtonDown(0) && IsInsideRotationHandle(Input.mousePosition))
+                {
+                    _rotationDragging = true;
+                    BeginRotation(Input.mousePosition);
                 }
+                if (_rotationDragging && Input.GetMouseButton(0))
+                    UpdateRotation(Input.mousePosition);
+                if (Input.GetMouseButtonUp(0))
+                    _rotationDragging = false;
+            }
+        }
+
+        public void OnPointerDown(PointerEventData eventData)
+        {
+            if (_overlay == null || !IsInsidePreview(eventData.position)) return;
+            _pointers[eventData.pointerId] = eventData.position;
+            RebasePointerGesture();
+        }
+
+        public void OnPointerUp(PointerEventData eventData)
+        {
+            if (!_pointers.Remove(eventData.pointerId)) return;
+            RebasePointerGesture();
+        }
+
+        public void OnDrag(PointerEventData eventData)
+        {
+            if (_overlay == null || !_pointers.ContainsKey(eventData.pointerId)) return;
+            _pointers[eventData.pointerId] = eventData.position;
+
+            GetPointerGesture(out var center, out var distance, out var angle);
+            TranslateByScreenDelta(center - _gestureCenter);
+            if (_pointers.Count >= 2)
+            {
+                if (_gestureDistance > 0.01f)
+                    _scaleValue = Mathf.Clamp(_scaleValue * distance / _gestureDistance, 0.1f, 8f);
+                _rotationDegrees += Mathf.DeltaAngle(_gestureAngle, angle);
+            }
+
+            _gestureCenter = center;
+            _gestureDistance = distance;
+            _gestureAngle = angle;
+            UpdateOverlayTransform();
+        }
+
+        public void OnScroll(PointerEventData eventData)
+        {
+            if (_overlay == null || !IsInsidePreview(eventData.position)) return;
+            _scaleValue = Mathf.Clamp(_scaleValue * Mathf.Pow(1.12f, eventData.scrollDelta.y), 0.1f, 8f);
+            UpdateOverlayTransform();
+        }
+
+        private void RebasePointerGesture()
+        {
+            if (_pointers.Count == 0)
+            {
+                _gestureCenter = Vector2.zero;
+                _gestureDistance = 0f;
+                _gestureAngle = 0f;
+                return;
+            }
+            GetPointerGesture(out _gestureCenter, out _gestureDistance, out _gestureAngle);
+        }
+
+        private void GetPointerGesture(out Vector2 center, out float distance, out float angle)
+        {
+            var enumerator = _pointers.Values.GetEnumerator();
+            enumerator.MoveNext();
+            var first = enumerator.Current;
+            if (_pointers.Count < 2 || !enumerator.MoveNext())
+            {
+                center = first;
+                distance = 0f;
+                angle = 0f;
                 return;
             }
 
-            if (Input.GetMouseButtonDown(0))
-            {
-                _rotationDragging = IsInsideRotationHandle(Input.mousePosition);
-                _mouseDragging = !_rotationDragging && IsInsidePreview(Input.mousePosition);
-                if (_rotationDragging) BeginRotation(Input.mousePosition);
-                _lastMousePosition = Input.mousePosition;
-            }
-            if (_rotationDragging && Input.GetMouseButton(0))
-                UpdateRotation(Input.mousePosition);
-            if (_mouseDragging && Input.GetMouseButton(0))
-            {
-                var current = (Vector2)Input.mousePosition;
-                TranslateByScreenDelta(current - _lastMousePosition);
-                _lastMousePosition = current;
-                UpdateOverlayTransform();
-            }
-            if (Input.GetMouseButtonUp(0))
-            {
-                _mouseDragging = false;
-                _rotationDragging = false;
-            }
-
-            var scroll = Input.mouseScrollDelta.y;
-            if (Mathf.Abs(scroll) > 0.001f && IsInsidePreview(Input.mousePosition))
-            {
-                _scaleValue = Mathf.Clamp(_scaleValue * Mathf.Pow(1.12f, scroll), 0.1f, 8f);
-                UpdateOverlayTransform();
-            }
+            var second = enumerator.Current;
+            center = (first + second) * 0.5f;
+            distance = Vector2.Distance(first, second);
+            var delta = second - first;
+            angle = Mathf.Atan2(delta.y, delta.x) * Mathf.Rad2Deg;
         }
 
         private void RefreshBasePreview()
