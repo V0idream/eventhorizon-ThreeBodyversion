@@ -121,12 +121,24 @@ namespace GameStateMachine.States
             {
                 var preset = new ShipPreset(ship);
                 _shipPresets.Add(preset);
+                Persist();
                 return preset;
+            }
+
+            public void Update(IShipPreset preset)
+            {
+                // The object is already held by _shipPresets.  Re-serializing
+                // here is important because satellite layouts are edited after
+                // Create() and Android may leave the editor without disposing
+                // this state first.
+                if (preset != null && _shipPresets.Contains(preset))
+                    Persist();
             }
 
             public void Delete(IShipPreset preset)
             {
                 _shipPresets.Remove(preset);
+                Persist();
             }
 
             public IEnumerable<IShipPreset> GetPresets(Ship ship)
@@ -136,6 +148,16 @@ namespace GameStateMachine.States
 
             public void Dispose()
             {
+                Persist();
+            }
+
+            private void Persist()
+            {
+                // Presets (including both satellite layouts) used to be copied
+                // into session data only when the editor state was disposed.
+                // Android can tear down the state without disposing the Zenject
+                // container, so save immediately after every create/delete and
+                // also after the final edit.
                 _session.ShipPresets.UpdatePresets(_shipPresets);
             }
         }

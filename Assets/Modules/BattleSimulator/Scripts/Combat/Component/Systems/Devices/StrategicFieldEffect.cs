@@ -124,7 +124,10 @@ namespace Combat.Component.Systems.Devices
                     }
                     else if (_kind == FieldKind.DarkDomain)
                     {
-                        if (ShipStats.IsFourDimensionalUnit(unit)) continue;
+                        // Imported Trisolaris ships (faction 22) are not exempt
+                        // from black-domain slowing even if an old build marked
+                        // them as four-dimensional.
+                        if (ShipStats.IsFourDimensionalUnit(unit) && unit.Type.FactionId != 22) continue;
                         if (unit.Type.Class == UnitClass.Missile || unit.Type.Class == UnitClass.EnergyBolt)
                         {
                             unit.Vanish();

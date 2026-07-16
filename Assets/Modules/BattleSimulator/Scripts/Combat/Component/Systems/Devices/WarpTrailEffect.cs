@@ -80,7 +80,10 @@ namespace Combat.Component.Systems.Devices
 
                         if (unit is IShip ship && ship.Systems.All.OfType<WarpDrive>().Any(drive => drive.IsWarping))
                             break;
-                        if (ShipStats.IsFourDimensionalUnit(unit))
+                        // Trisolaris vessels are ordinary three-dimensional units.
+                        // Imported builds may carry a stale FourDimensional flag;
+                        // faction 22 must still be slowed by black-domain trails.
+                        if (ShipStats.IsFourDimensionalUnit(unit) && unit.Type.FactionId != 22)
                             break;
                         if (unit.Type.Class == UnitClass.Ship || unit.Type.Class == UnitClass.Drone)
                             slowed.Add(unit);
