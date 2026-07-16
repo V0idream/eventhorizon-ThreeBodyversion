@@ -60,7 +60,6 @@ namespace ShipEditor.UI
 		private string _shipInitialName;
 		private bool _overviewMode;
 		private UnityEngine.UI.Button _paintButton;
-		private UnityEngine.UI.Button _stickerButton;
 		private UnityEngine.UI.Button _restoreArtworkButton;
 		private GameObject _artworkToolbar;
 
@@ -198,8 +197,7 @@ namespace ShipEditor.UI
 			_closeEditorTrigger?.Fire();
 		}
 
-		public void OpenPaintCustomization() => OpenTextureCustomization(false);
-		public void OpenStickerCustomization() => OpenTextureCustomization(true);
+		public void OpenPaintCustomization() => OpenTextureCustomization();
 
 		public void RestoreCustomArtwork()
 		{
@@ -309,7 +307,7 @@ namespace ShipEditor.UI
             UpdateBackButton();
 		}
 
-		private void OpenTextureCustomization(bool sticker)
+		private void OpenTextureCustomization()
 		{
 			if (_shipEditor?.Ship == null || CurrentShipId <= 0 || CurrentShipSprite == null)
 				return;
@@ -318,12 +316,12 @@ namespace ShipEditor.UI
 				ShipTextureDisclaimerPanel.Open(this, () =>
 				{
 					PlayerShipTextureOverrides.HasConsent = true;
-					ShipTextureCustomizationPanel.Open(this, sticker);
+					ShipTextureCustomizationPanel.Open(this);
 				});
 				return;
 			}
 
-			ShipTextureCustomizationPanel.Open(this, sticker);
+			ShipTextureCustomizationPanel.Open(this);
 		}
 
 		private void EnsureArtworkButtons()
@@ -346,12 +344,11 @@ namespace ShipEditor.UI
 			toolbarRect.anchorMax = new Vector2(0.5f, 0f);
 			toolbarRect.pivot = new Vector2(0.5f, 0f);
 			toolbarRect.anchoredPosition = new Vector2(0f, 18f);
-			toolbarRect.sizeDelta = new Vector2(450f, 64f);
+			toolbarRect.sizeDelta = new Vector2(302f, 64f);
 			_artworkToolbar.GetComponent<UnityEngine.UI.Image>().color = new Color(0.015f, 0.08f, 0.14f, 0.92f);
 
 			_paintButton = CreateArtworkButton(_artworkToolbar.transform, "涂装", OpenPaintCustomization, 0);
-			_stickerButton = CreateArtworkButton(_artworkToolbar.transform, "贴纸", OpenStickerCustomization, 1);
-			_restoreArtworkButton = CreateArtworkButton(_artworkToolbar.transform, "还原贴图", RestoreCustomArtwork, 2);
+			_restoreArtworkButton = CreateArtworkButton(_artworkToolbar.transform, "还原贴图", RestoreCustomArtwork, 1);
 		}
 
 		private static UnityEngine.UI.Button CreateArtworkButton(Transform parent, string text,
@@ -369,7 +366,7 @@ namespace ShipEditor.UI
 			rect.anchorMax = new Vector2(0f, 0.5f);
 			rect.pivot = new Vector2(0f, 0.5f);
 			rect.anchoredPosition = new Vector2(8f + index * 148f, 0f);
-			rect.sizeDelta = new Vector2(index == 2 ? 140f : 136f, 48f);
+			rect.sizeDelta = new Vector2(136f, 48f);
 
 			var labelObject = new GameObject("Label", typeof(RectTransform), typeof(UnityEngine.UI.Text));
 			labelObject.transform.SetParent(buttonObject.transform, false);

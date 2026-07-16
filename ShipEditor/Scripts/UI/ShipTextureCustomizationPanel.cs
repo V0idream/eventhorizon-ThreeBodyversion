@@ -9,24 +9,32 @@ using UnityEngine.UI;
 namespace ShipEditor.UI
 {
     /// <summary>
-    /// A small self-contained artwork editor.  It intentionally lives above
-    /// the normal ship editor as a modal page so component placement remains
-    /// untouched while a player paints or adds a sticker.
+    /// A small self-contained artwork editor. It combines painting and decals:
+    /// an opaque image replaces hull pixels while an image with alpha blends
+    /// over them. The imported image is manipulated directly with touch.
     /// </summary>
     public sealed class ShipTextureCustomizationPanel : MonoBehaviour
     {
         private ShipEditorWindow _owner;
         private Sprite _baseSprite;
-        private bool _sticker;
         private Texture2D _overlay;
         private Texture2D _preview;
         private RawImage _previewImage;
-        private Slider _scale;
-        private Slider _offsetX;
-        private Slider _offsetY;
+        private RawImage _overlayImage;
         private Text _status;
+        private Canvas _canvas;
+        private float _scaleValue = 1f;
+        private float _rotationDegrees;
+        private Vector2 _normalizedOffset;
+        private bool _gestureActive;
+        private bool _mouseDragging;
+        private bool _rotationDragging;
+        private float _rotationStartAngle;
+        private float _rotationStartValue;
+        private Vector2 _lastMousePosition;
+        private RectTransform _rotationHandle;
 
-        public static void Open(ShipEditorWindow owner, bool sticker)
+        public static void Open(ShipEditorWindow owner)
         {
             if (owner == null) return;
             var canvas = owner.GetComponentInParent<Canvas>() ??
@@ -41,14 +49,17 @@ namespace ShipEditor.UI
             panelCanvas.overrideSorting = true;
             panelCanvas.sortingOrder = 500;
             panelObject.AddComponent<GraphicRaycaster>();
-            panel.Initialize(owner, sticker);
+            panel._canvas = canvas;
+            panel.Initialize(owner);
         }
 
-        private void Initialize(ShipEditorWindow owner, bool sticker)
+        private void Initialize(ShipEditorWindow owner)
         {
             _owner = owner;
-            _sticker = sticker;
-            _baseSprite = owner.CurrentShipSprite ?? owner.OriginalShipSprite;
+            // Always start from the database hull slice.  A previously saved
+            // override may have been produced from the complete sliced source
+            // sheet by older builds and must never become the next edit mask.
+            _baseSprite = owner.OriginalShipSprite;
 
             var rect = (RectTransform)transform;
             rect.anchorMin = Vector2.zero;
@@ -59,7 +70,7 @@ namespace ShipEditor.UI
             var background = gameObject.AddComponent<Image>();
             background.color = new Color(0.015f, 0.035f, 0.07f, 0.97f);
 
-            var title = CreateText(_sticker ? "贴纸编辑" : "涂装编辑", 30);
+            var title = CreateText("涂装编辑", 30);
             SetRect(title.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
                 new Vector2(-240, -70), new Vector2(240, -20));
 
@@ -72,36 +83,29 @@ namespace ShipEditor.UI
             _previewImage = previewObject.GetComponent<RawImage>();
             _previewImage.color = Color.white;
             _previewImage.raycastTarget = false;
-            SetRect(_previewImage.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
-                new Vector2(-260, -180), new Vector2(260, 180));
+            previewObject.AddComponent<Mask>().showMaskGraphic = true;
 
-            var scaleLabel = CreateText("缩放", 20);
-            SetRect(scaleLabel.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
-                new Vector2(-250, -250), new Vector2(-150, -215));
-            _scale = CreateSlider(new Vector2(-140, -250), new Vector2(250, -215), 0.25f, 3f, 1f);
-            _scale.onValueChanged.AddListener(_ => RefreshPreview());
-
-            var xLabel = CreateText("水平", 18);
-            SetRect(xLabel.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
-                new Vector2(-250, -305), new Vector2(-150, -275));
-            _offsetX = CreateSlider(new Vector2(-140, -305), new Vector2(250, -275), -1f, 1f, 0f);
-            _offsetX.onValueChanged.AddListener(_ => RefreshPreview());
-
-            var yLabel = CreateText("垂直", 18);
-            SetRect(yLabel.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
-                new Vector2(-250, -355), new Vector2(-150, -325));
-            _offsetY = CreateSlider(new Vector2(-140, -355), new Vector2(250, -325), -1f, 1f, 0f);
-            _offsetY.onValueChanged.AddListener(_ => RefreshPreview());
+            var overlayObject = new GameObject("ImportedArtwork", typeof(RectTransform), typeof(RawImage));
+            overlayObject.transform.SetParent(previewObject.transform, false);
+            _overlayImage = overlayObject.GetComponent<RawImage>();
+            _overlayImage.raycastTarget = false;
+            _overlayImage.color = Color.white;
+            _overlayImage.gameObject.SetActive(false);
 
             CreateButton("选择图片", new Vector2(-460, 190), new Vector2(-220, 245), SelectImage);
             CreateButton("应用", new Vector2(-130, 190), new Vector2(130, 245), Apply);
             CreateButton("还原原图", new Vector2(220, 190), new Vector2(460, 245), Restore);
-            CreateButton("关闭", new Vector2(220, -390), new Vector2(460, -335), Close);
+            CreateAnchoredButton("返回", Vector2.up, Vector2.up,
+                new Vector2(20, -82), new Vector2(180, -22), Close);
 
             _status = CreateText("请选择一张图片", 18);
             SetRect(_status.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
                 new Vector2(-460, 20), new Vector2(460, 55));
-            RefreshPreview();
+            var help = CreateText("单指拖动图片 · 双指捏合缩放", 18);
+            SetRect(help.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+                new Vector2(-360, -245), new Vector2(360, -205));
+            CreateRotationHandle();
+            RefreshBasePreview();
         }
 
         private void SelectImage()
@@ -122,8 +126,13 @@ namespace ShipEditor.UI
 
                     if (_overlay != null) Destroy(_overlay);
                     _overlay = texture;
+                    _scaleValue = 1f;
+                    _rotationDegrees = 0f;
+                    _normalizedOffset = Vector2.zero;
+                    _overlayImage.texture = _overlay;
+                    _overlayImage.gameObject.SetActive(true);
                     SetStatus("已载入：" + Path.GetFileName(path));
-                    RefreshPreview();
+                    UpdateOverlayTransform();
                 }
                 catch (Exception error)
                 {
@@ -143,8 +152,10 @@ namespace ShipEditor.UI
                 return;
             }
 
+            // Alpha blending covers both use cases: a fully opaque import is a
+            // paint layer, while transparent artwork behaves like a decal.
             if (PlayerShipTextureOverrides.Apply(_owner.CurrentShipId, _baseSprite, _overlay,
-                    _sticker, _scale.value, new Vector2(_offsetX.value, _offsetY.value), out var error))
+                    true, _scaleValue, _normalizedOffset, _rotationDegrees, out var error))
             {
                 _owner.RefreshShipArtwork();
                 SetStatus("已保存，原始贴图仍保留");
@@ -158,7 +169,7 @@ namespace ShipEditor.UI
             PlayerShipTextureOverrides.Restore(_owner.CurrentShipId);
             _owner.RefreshShipArtwork();
             SetStatus("已还原原始贴图");
-            RefreshPreview();
+            RefreshBasePreview();
         }
 
         private void Close()
@@ -168,16 +179,203 @@ namespace ShipEditor.UI
             Destroy(gameObject);
         }
 
-        private void RefreshPreview()
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                Close();
+                return;
+            }
+
+            if (_overlay == null || _previewImage == null)
+                return;
+
+            if (Input.touchCount >= 2)
+            {
+                _rotationDragging = false;
+                var first = Input.GetTouch(0);
+                var second = Input.GetTouch(1);
+                var center = (first.position + second.position) * 0.5f;
+                if (!IsInsidePreview(center)) return;
+
+                var previousFirst = first.position - first.deltaPosition;
+                var previousSecond = second.position - second.deltaPosition;
+                var previousCenter = (previousFirst + previousSecond) * 0.5f;
+                TranslateByScreenDelta(center - previousCenter);
+
+                var previousDistance = Vector2.Distance(previousFirst, previousSecond);
+                var currentDistance = Vector2.Distance(first.position, second.position);
+                if (previousDistance > 0.01f)
+                    _scaleValue = Mathf.Clamp(_scaleValue * currentDistance / previousDistance, 0.1f, 8f);
+                UpdateOverlayTransform();
+                _gestureActive = true;
+                return;
+            }
+
+            if (Input.touchCount == 1)
+            {
+                var touch = Input.GetTouch(0);
+                if (touch.phase == TouchPhase.Began)
+                {
+                    _rotationDragging = IsInsideRotationHandle(touch.position);
+                    _gestureActive = !_rotationDragging && IsInsidePreview(touch.position);
+                    if (_rotationDragging) BeginRotation(touch.position);
+                }
+                if (_rotationDragging && touch.phase == TouchPhase.Moved)
+                    UpdateRotation(touch.position);
+                if (_gestureActive && touch.phase == TouchPhase.Moved)
+                {
+                    TranslateByScreenDelta(touch.deltaPosition);
+                    UpdateOverlayTransform();
+                }
+                if (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled)
+                {
+                    _gestureActive = false;
+                    _rotationDragging = false;
+                }
+                return;
+            }
+
+            if (Input.GetMouseButtonDown(0))
+            {
+                _rotationDragging = IsInsideRotationHandle(Input.mousePosition);
+                _mouseDragging = !_rotationDragging && IsInsidePreview(Input.mousePosition);
+                if (_rotationDragging) BeginRotation(Input.mousePosition);
+                _lastMousePosition = Input.mousePosition;
+            }
+            if (_rotationDragging && Input.GetMouseButton(0))
+                UpdateRotation(Input.mousePosition);
+            if (_mouseDragging && Input.GetMouseButton(0))
+            {
+                var current = (Vector2)Input.mousePosition;
+                TranslateByScreenDelta(current - _lastMousePosition);
+                _lastMousePosition = current;
+                UpdateOverlayTransform();
+            }
+            if (Input.GetMouseButtonUp(0))
+            {
+                _mouseDragging = false;
+                _rotationDragging = false;
+            }
+
+            var scroll = Input.mouseScrollDelta.y;
+            if (Mathf.Abs(scroll) > 0.001f && IsInsidePreview(Input.mousePosition))
+            {
+                _scaleValue = Mathf.Clamp(_scaleValue * Mathf.Pow(1.12f, scroll), 0.1f, 8f);
+                UpdateOverlayTransform();
+            }
+        }
+
+        private void RefreshBasePreview()
         {
             if (_preview != null) Destroy(_preview);
-            _preview = _overlay == null
-                ? PlayerShipTextureOverrides.CreateBasePreview(_baseSprite)
-                : PlayerShipTextureOverrides.CreatePreview(_baseSprite, _overlay, _sticker,
-                    _scale.value, new Vector2(_offsetX.value, _offsetY.value));
+            _preview = PlayerShipTextureOverrides.CreateBasePreview(_baseSprite);
             _previewImage.texture = _preview;
             if (_preview != null)
+            {
                 _previewImage.uvRect = new Rect(0, 0, 1, 1);
+                var maximum = new Vector2(780f, 440f);
+                var factor = Mathf.Min(maximum.x / _preview.width, maximum.y / _preview.height);
+                var size = new Vector2(_preview.width, _preview.height) * factor;
+                var previewRect = _previewImage.rectTransform;
+                previewRect.anchorMin = previewRect.anchorMax = new Vector2(0.5f, 0.5f);
+                previewRect.pivot = new Vector2(0.5f, 0.5f);
+                previewRect.anchoredPosition = new Vector2(0f, 5f);
+                previewRect.sizeDelta = size;
+            }
+            UpdateOverlayTransform();
+        }
+
+        private void UpdateOverlayTransform()
+        {
+            if (_overlayImage == null || _preview == null || _overlay == null)
+                return;
+
+            var baseRect = _previewImage.rectTransform.rect;
+            var overlayRect = _overlayImage.rectTransform;
+            overlayRect.anchorMin = overlayRect.anchorMax = new Vector2(0.5f, 0.5f);
+            overlayRect.pivot = new Vector2(0.5f, 0.5f);
+            overlayRect.sizeDelta = new Vector2(
+                baseRect.width * _scaleValue * _overlay.width / _preview.width,
+                baseRect.height * _scaleValue * _overlay.height / _preview.height);
+            overlayRect.anchoredPosition = new Vector2(
+                _normalizedOffset.x * baseRect.width,
+                _normalizedOffset.y * baseRect.height);
+            overlayRect.localEulerAngles = new Vector3(0f, 0f, _rotationDegrees);
+        }
+
+        private void CreateRotationHandle()
+        {
+            var handleObject = new GameObject("RotationHandle", typeof(RectTransform), typeof(Image));
+            handleObject.transform.SetParent(transform, false);
+            _rotationHandle = (RectTransform)handleObject.transform;
+            _rotationHandle.anchorMin = _rotationHandle.anchorMax = new Vector2(0.5f, 0.5f);
+            _rotationHandle.pivot = new Vector2(0.5f, 0.5f);
+            _rotationHandle.anchoredPosition = new Vector2(435f, 5f);
+            _rotationHandle.sizeDelta = new Vector2(116f, 58f);
+            handleObject.GetComponent<Image>().color = new Color(0.1f, 0.48f, 0.64f, 1f);
+
+            var label = CreateText("拖动旋转 ↻", 17);
+            label.transform.SetParent(handleObject.transform, false);
+            label.raycastTarget = false;
+            SetRect(label.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+        }
+
+        private bool IsInsideRotationHandle(Vector2 screenPosition)
+        {
+            if (_rotationHandle == null) return false;
+            var camera = _canvas != null && _canvas.renderMode != RenderMode.ScreenSpaceOverlay
+                ? _canvas.worldCamera
+                : null;
+            return RectTransformUtility.RectangleContainsScreenPoint(_rotationHandle, screenPosition, camera);
+        }
+
+        private void BeginRotation(Vector2 screenPosition)
+        {
+            _rotationStartAngle = ScreenAngleAroundPreview(screenPosition);
+            _rotationStartValue = _rotationDegrees;
+        }
+
+        private void UpdateRotation(Vector2 screenPosition)
+        {
+            _rotationDegrees = _rotationStartValue +
+                               Mathf.DeltaAngle(_rotationStartAngle, ScreenAngleAroundPreview(screenPosition));
+            UpdateOverlayTransform();
+        }
+
+        private float ScreenAngleAroundPreview(Vector2 screenPosition)
+        {
+            var camera = _canvas != null && _canvas.renderMode != RenderMode.ScreenSpaceOverlay
+                ? _canvas.worldCamera
+                : null;
+            var center = RectTransformUtility.WorldToScreenPoint(camera,
+                _previewImage.rectTransform.TransformPoint(_previewImage.rectTransform.rect.center));
+            var delta = screenPosition - center;
+            return Mathf.Atan2(delta.y, delta.x) * Mathf.Rad2Deg;
+        }
+
+        private bool IsInsidePreview(Vector2 screenPosition)
+        {
+            if (_previewImage == null) return false;
+            var camera = _canvas != null && _canvas.renderMode != RenderMode.ScreenSpaceOverlay
+                ? _canvas.worldCamera
+                : null;
+            return RectTransformUtility.RectangleContainsScreenPoint(
+                _previewImage.rectTransform, screenPosition, camera);
+        }
+
+        private void TranslateByScreenDelta(Vector2 screenDelta)
+        {
+            var rect = _previewImage.rectTransform;
+            var camera = _canvas != null && _canvas.renderMode != RenderMode.ScreenSpaceOverlay
+                ? _canvas.worldCamera
+                : null;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(rect, Vector2.zero, camera, out var origin);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(rect, screenDelta, camera, out var destination);
+            var localDelta = destination - origin;
+            var size = rect.rect.size;
+            if (size.x > 0.01f && size.y > 0.01f)
+                _normalizedOffset += new Vector2(localDelta.x / size.x, localDelta.y / size.y);
         }
 
         private void SetStatus(string value)
@@ -213,28 +411,12 @@ namespace ShipEditor.UI
             return button;
         }
 
-        private Slider CreateSlider(Vector2 min, Vector2 max, float minValue, float maxValue, float value)
+        private Button CreateAnchoredButton(string value, Vector2 anchorMin, Vector2 anchorMax,
+            Vector2 min, Vector2 max, UnityEngine.Events.UnityAction action)
         {
-            var objectValue = new GameObject("Slider", typeof(RectTransform), typeof(Slider));
-            objectValue.transform.SetParent(transform, false);
-            var slider = objectValue.GetComponent<Slider>();
-            slider.minValue = minValue;
-            slider.maxValue = maxValue;
-            slider.value = value;
-            slider.targetGraphic = CreateImage(objectValue.transform, new Color(0.2f, 0.7f, 0.9f, 1f));
-            SetRect((RectTransform)objectValue.transform, new Vector2(0.5f, 0.5f),
-                new Vector2(0.5f, 0.5f), min, max);
-            return slider;
-        }
-
-        private Image CreateImage(Transform parent, Color color)
-        {
-            var imageObject = new GameObject("Graphic", typeof(RectTransform), typeof(Image));
-            imageObject.transform.SetParent(parent, false);
-            var image = imageObject.GetComponent<Image>();
-            image.color = color;
-            SetRect((RectTransform)imageObject.transform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
-            return image;
+            var button = CreateButton(value, min, max, action);
+            SetRect((RectTransform)button.transform, anchorMin, anchorMax, min, max);
+            return button;
         }
 
         private static void SetRect(RectTransform rect, Vector2 anchorMin, Vector2 anchorMax,
