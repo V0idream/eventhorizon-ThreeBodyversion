@@ -10,8 +10,8 @@ public static class AndroidDevelopmentBuild
 {
     private const string PackageName = "com.threebody.EventHorizon";
     private const string ProductName = "三体视界";
-    private const string VersionName = "Alpha 1.32";
-    private const int VersionCode = 113932;
+    private const string VersionName = "Alpha 1.33";
+    private const int VersionCode = 113933;
 
     [MenuItem("Build/Android/Development APK")]
     public static void BuildFromMenu()
@@ -35,7 +35,7 @@ public static class AndroidDevelopmentBuild
 
         var outputDirectory = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "Builds", "Android"));
         Directory.CreateDirectory(outputDirectory);
-        var outputPath = Path.Combine(outputDirectory, "ThreeBody-EventHorizon-Alpha-1.32.apk");
+        var outputPath = Path.Combine(outputDirectory, "ThreeBody-EventHorizon-Alpha-1.33.apk");
         BuildStreamingAssetBundles();
 
         var scenes = EditorBuildSettings.scenes
@@ -190,13 +190,16 @@ public static class AndroidDevelopmentBuild
 
     private static string FindComponentSpriteAsset(string icon)
     {
-        var folder = "Assets/Sprites/Components/";
-        foreach (var extension in new[] { ".png", ".jpg", ".jpeg", ".JPG", ".psd" })
+        foreach (var folder in new[] { "Assets/Sprites/Components/", "Assets/Resources/Textures/ThreeBody/" })
         {
-            var path = folder + icon + extension;
-            var absolutePath = Path.Combine(Application.dataPath, "Sprites", "Components", icon + extension);
-            if (File.Exists(absolutePath))
-                return path;
+            foreach (var extension in new[] { ".png", ".jpg", ".jpeg", ".JPG", ".psd" })
+            {
+                var path = folder + icon + extension;
+                var absolutePath = Path.Combine(Directory.GetParent(Application.dataPath).FullName,
+                    path.Replace('/', Path.DirectorySeparatorChar));
+                if (File.Exists(absolutePath))
+                    return path;
+            }
         }
 
         return null;

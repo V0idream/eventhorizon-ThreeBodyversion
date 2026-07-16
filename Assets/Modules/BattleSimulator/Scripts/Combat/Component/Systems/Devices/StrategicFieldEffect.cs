@@ -195,7 +195,11 @@ namespace Combat.Component.Systems.Devices
             _mosaicMaterial = new Material(shader);
             _mosaicMaterial.SetFloat("_PixelSize", 24f);
             _mosaicRenderer.sharedMaterial = _mosaicMaterial;
-            _mosaicRenderer.sortingOrder = -8;
+            // The old negative order was behind several starfield renderers on
+            // Android.  Render immediately below the foil rim so both player
+            // and enemy fields visibly replace the covered scene with the
+            // grabbed, pixelated background.
+            _mosaicRenderer.sortingOrder = 24;
 
             var triangles = new int[_foilRadii.Length * 3];
             for (var i = 0; i < _foilRadii.Length; ++i)

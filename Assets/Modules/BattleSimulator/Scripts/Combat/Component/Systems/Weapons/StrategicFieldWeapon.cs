@@ -2,6 +2,7 @@ using Combat.Component.Platform;
 using Combat.Component.Ship;
 using Combat.Component.Systems.Devices;
 using Combat.Component.Triggers;
+using Combat.Component.Unit;
 using Combat.Scene;
 using Combat.Unit;
 using GameDatabase.DataModel;
@@ -40,10 +41,13 @@ namespace Combat.Component.Systems.Weapons
 
             // Re-read after validation so a destroyed/changed lock cannot create
             // a field or consume resources in the same physics tick.
-            var target = CurrentLockedShip();
+            var target = CurrentLockedTarget();
             if (!IsInRange(target) || !TryConsumeEnergy(_energyConsumption)) return;
 
-            Platform.ActiveTarget = target;
+            if (Platform is IUnitTargetingPlatform unitTargetingPlatform)
+                unitTargetingPlatform.ActiveUnitTarget = target;
+            else
+                Platform.ActiveTarget = target as IShip;
             StrategicFieldEffect.Create(_scene, _owner, target.Body.WorldPosition(), _fieldKind);
             Platform.OnShot();
             TimeFromLastUse = 0f;
@@ -52,15 +56,26 @@ namespace Combat.Component.Systems.Weapons
 
         protected override void OnDispose() { }
 
-        private bool HasValidTarget() => IsInRange(CurrentLockedShip()) &&
+        private bool HasValidTarget() => IsInRange(CurrentLockedTarget()) &&
                                          Platform.EnergyPoints.Value >= _energyConsumption;
 
-        private IShip CurrentLockedShip() => _scene.LockedTarget as IShip;
+        private IUnit CurrentLockedTarget()
+        {
+            var target = _scene.LockedTarget;
+            return target is IShip || IsDualVectorFoil(target) ? target : null;
+        }
 
-        private bool IsInRange(IShip target)
+        private bool IsInRange(IUnit target)
         {
             if (target == null || !target.IsActive()) return false;
             return Vector2.Distance(_owner.Body.WorldPosition(), target.Body.WorldPosition()) <= _range;
+        }
+
+        private static bool IsDualVectorFoil(IUnit target)
+        {
+            return target is Combat.Component.Bullet.Bullet bullet &&
+                   bullet.Controller is Combat.Component.Controller.StrategicWeaponController controller &&
+                   controller.Kind == Combat.Component.Controller.StrategicWeaponController.WeaponKind.DualVectorFoil;
         }
 
         private readonly IScene _scene;

@@ -143,7 +143,7 @@ namespace Combat.Component.Platform
 		private bool IsValidTarget(IUnit target)
 		{
 			if (target == null) return false;
-			if (IsMacroElectron(target)) return true;
+			if (IsSpecialProjectile(target)) return true;
 			if (CombatRelations.AreAllies(target.Type, _parent.Type)) return false;
 			if (target is not IShip ship) return true;
 			if (ship.Features.TargetPriority == TargetPriority.None) return false;
@@ -158,13 +158,15 @@ namespace Combat.Component.Platform
             // Scene.LockUnit enforces ownership/alliance rules.  Ordinary
             // weapons may additionally follow a player's locked macro-
             // electron, which is not an IShip.
-            return target is IShip || IsMacroElectron(target);
+            return target is IShip || IsSpecialProjectile(target);
         }
 
-        private static bool IsMacroElectron(IUnit target)
+        private static bool IsSpecialProjectile(IUnit target)
         {
-            return target is Combat.Component.Bullet.Bullet bullet &&
-                   bullet.Controller is Combat.Component.Controller.BallLightningController;
+            if (target is not Combat.Component.Bullet.Bullet bullet) return false;
+            if (bullet.Controller is Combat.Component.Controller.BallLightningController) return true;
+            return bullet.Controller is Combat.Component.Controller.StrategicWeaponController controller &&
+                   controller.Kind == Combat.Component.Controller.StrategicWeaponController.WeaponKind.DualVectorFoil;
         }
 
         private void Initialize(IScene scene, IUnit parent, Vector2 position, float rotation, float offset, float maxAngle, float rotationSpeed, bool hasTurret)

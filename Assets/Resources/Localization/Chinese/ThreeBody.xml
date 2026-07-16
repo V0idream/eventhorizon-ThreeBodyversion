@@ -31,6 +31,10 @@
     <string name="TrisolarisAntimatterEngineDescription">以反物质湮灭产物直接驱动的先进推进装置，拥有卓越的加速与转向能力。</string>
     <string name="TrisolarisFleetEngine">舰队引擎</string>
     <string name="TrisolarisFleetEngineDescription">为三体主力舰队设计的重型推进阵列，可同时提供极高直线推力与姿态控制能力。</string>
+    <string name="TrisolarisSuperEngine">三体超级引擎</string>
+    <string name="TrisolarisSuperEngineDescription">将舰队级推进阵列与曲率技术融为一体的超级引擎，具备跨越星海的强大推进能力。</string>
+    <string name="TrisolarisAntigravityCore">反重力核心</string>
+    <string name="TrisolarisAntigravityCoreDescription">通过精密操控局部引力场抵消舰体质量，使大型舰船也能获得轻盈的运动特性。</string>
     <string name="TrisolarisAntimatterReactor">反物质反应堆</string>
     <string name="TrisolarisAntimatterReactorDescription">以受控正反物质湮灭持续供能的高功率反应堆。</string>
     <string name="TrisolarisSimArmor">强互作用力甲</string>

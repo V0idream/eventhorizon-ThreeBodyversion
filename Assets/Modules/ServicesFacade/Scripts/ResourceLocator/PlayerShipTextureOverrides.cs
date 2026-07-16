@@ -67,7 +67,7 @@ namespace Services.Resources
         }
 
         public static bool Apply(int shipId, Sprite baseSprite, Texture2D overlay,
-            bool sticker, float scale, Vector2 normalizedOffset, out string error)
+            bool sticker, float scale, Vector2 normalizedOffset, float rotationDegrees, out string error)
         {
             error = null;
             if (shipId <= 0 || baseSprite == null || overlay == null)
@@ -88,7 +88,7 @@ namespace Services.Resources
                     return false;
                 }
 
-                var result = Compose(source, layer, sticker, scale, normalizedOffset);
+                var result = Compose(source, layer, sticker, scale, normalizedOffset, rotationDegrees);
                 SaveOverride(shipId, result);
                 ReplaceCache(shipId, result, baseSprite.pixelsPerUnit);
                 UnityEngine.Object.Destroy(result);
@@ -121,7 +121,7 @@ namespace Services.Resources
         public static bool HasOverride(int shipId) => File.Exists(GetOverridePath(shipId));
 
         public static Texture2D CreatePreview(Sprite baseSprite, Texture2D overlay,
-            bool sticker, float scale, Vector2 normalizedOffset)
+            bool sticker, float scale, Vector2 normalizedOffset, float rotationDegrees = 0f)
         {
             var source = CopySprite(baseSprite);
             var layer = CopyTexture(overlay);
@@ -132,7 +132,7 @@ namespace Services.Resources
                 return null;
             }
 
-            var result = Compose(source, layer, sticker, scale, normalizedOffset);
+            var result = Compose(source, layer, sticker, scale, normalizedOffset, rotationDegrees);
             UnityEngine.Object.Destroy(source);
             UnityEngine.Object.Destroy(layer);
             return result;
@@ -144,17 +144,24 @@ namespace Services.Resources
         }
 
         private static Texture2D Compose(Texture2D source, Texture2D layer, bool sticker,
-            float scale, Vector2 normalizedOffset)
+            float scale, Vector2 normalizedOffset, float rotationDegrees)
         {
             var width = source.width;
             var height = source.height;
             var result = new Texture2D(width, height, TextureFormat.RGBA32, false);
             var basePixels = source.GetPixels32();
             var layerPixels = layer.GetPixels32();
+            // Texture2D's initial contents are platform-dependent. Explicitly
+            // clear every pixel so transparent parts of the original hull can
+            // never become white in a saved player override.
+            var resultPixels = new Color32[width * height];
             var sx = Mathf.Max(0.01f, scale) * layer.width;
             var sy = Mathf.Max(0.01f, scale) * layer.height;
-            var left = (width - sx) * 0.5f + normalizedOffset.x * width;
-            var bottom = (height - sy) * 0.5f + normalizedOffset.y * height;
+            var centerX = width * (0.5f + normalizedOffset.x);
+            var centerY = height * (0.5f + normalizedOffset.y);
+            var radians = rotationDegrees * Mathf.Deg2Rad;
+            var cosine = Mathf.Cos(radians);
+            var sine = Mathf.Sin(radians);
 
             for (var y = 0; y < height; y++)
             {
@@ -165,11 +172,15 @@ namespace Services.Resources
                     if (baseColor.a == 0)
                         continue;
 
-                    var u = (x - left) / sx;
-                    var v = (y - bottom) / sy;
+                    // Undo the preview rotation before sampling the imported
+                    // image so the persisted PNG exactly matches the gesture.
+                    var dx = x + 0.5f - centerX;
+                    var dy = y + 0.5f - centerY;
+                    var u = (cosine * dx + sine * dy) / sx + 0.5f;
+                    var v = (-sine * dx + cosine * dy) / sy + 0.5f;
                     if (u < 0 || u >= 1 || v < 0 || v >= 1)
                     {
-                        result.SetPixel(x, y, baseColor);
+                        resultPixels[index] = baseColor;
                         continue;
                     }
 
@@ -178,7 +189,7 @@ namespace Services.Resources
                     var layerColor = layerPixels[ly * layer.width + lx];
                     if (layerColor.a == 0)
                     {
-                        result.SetPixel(x, y, baseColor);
+                        resultPixels[index] = baseColor;
                         continue;
                     }
 
@@ -186,19 +197,20 @@ namespace Services.Resources
                     {
                         var alpha = layerColor.a / 255f;
                         var inv = 1f - alpha;
-                        result.SetPixel(x, y, new Color32(
+                        resultPixels[index] = new Color32(
                             (byte)(layerColor.r * alpha + baseColor.r * inv),
                             (byte)(layerColor.g * alpha + baseColor.g * inv),
                             (byte)(layerColor.b * alpha + baseColor.b * inv),
-                            baseColor.a));
+                            baseColor.a);
                     }
                     else
                     {
-                        result.SetPixel(x, y, new Color32(layerColor.r, layerColor.g, layerColor.b, baseColor.a));
+                        resultPixels[index] = new Color32(layerColor.r, layerColor.g, layerColor.b, baseColor.a);
                     }
                 }
             }
 
+            result.SetPixels32(resultPixels);
             result.Apply(false, false);
             result.wrapMode = TextureWrapMode.Clamp;
             result.filterMode = FilterMode.Bilinear;
@@ -251,7 +263,18 @@ namespace Services.Resources
         private static Texture2D CopySprite(Sprite sprite)
         {
             if (sprite == null || sprite.texture == null) return null;
-            var rect = sprite.rect;
+            // sprite.rect is the untrimmed logical rectangle.  For sliced or
+            // packed ship sheets it can address the complete source texture.
+            // textureRect is the exact hull slice shown by the renderer.
+            Rect rect;
+            try
+            {
+                rect = sprite.textureRect;
+            }
+            catch
+            {
+                rect = sprite.rect;
+            }
             try
             {
                 var copy = new Texture2D((int)rect.width, (int)rect.height, TextureFormat.RGBA32, false);

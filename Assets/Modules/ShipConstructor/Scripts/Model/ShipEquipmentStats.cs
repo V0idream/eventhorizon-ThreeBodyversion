@@ -41,7 +41,6 @@ namespace Constructor.Model
         public float EnginePowerWithoutEnergy;
         public float TurnRateWithoutEnergy;
         public float EngineEnergyConsumption;
-        public bool HasFleetEngine;
 
         public bool Autopilot;
 
@@ -94,16 +93,6 @@ namespace Constructor.Model
 
             stats.EnginePower = component.EnginePower * multiplier;
             stats.TurnRate = component.TurnRate * multiplier;
-            // Component 942 has a dedicated stats record.  Keeping it separate
-            // avoids the old collision with the photon launcher stats (312).
-            // The Trisolaris fleet engine is component 942 (stats record 323).
-            // Keep the stats-id check for the normal database path and the
-            // high-output fallback for imported copies whose stats id can be
-            // regenerated while retaining the same 1000/1000 engine values.
-            stats.HasFleetEngine = component.Id.Value == 323 ||
-                (component.EnginePower >= 900f && component.TurnRate >= 180f &&
-                 component.TurnRate <= 250f && component.EnergyRechargeRate >= 0f);
-
             if (component.EnergyRechargeRate >= 0 && component.EnginePower > 0)
                 stats.EnginePowerWithoutEnergy += component.EnginePower * multiplier;
             if (component.EnergyRechargeRate >= 0 && component.TurnRate > 0)
@@ -166,7 +155,6 @@ namespace Constructor.Model
             EnginePowerWithoutEnergy += other.EnginePowerWithoutEnergy;
             TurnRateWithoutEnergy += other.TurnRateWithoutEnergy;
             EngineEnergyConsumption += other.EngineEnergyConsumption;
-            HasFleetEngine |= other.HasFleetEngine;
 
             Autopilot |= other.Autopilot;
 

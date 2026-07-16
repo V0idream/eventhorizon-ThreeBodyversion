@@ -334,14 +334,14 @@ namespace Combat.Factory
 
         public IEngine CreateEngine(IShipStats stats, bool isDrone = false)
         {
-            var engineStats = new EngineStats(stats.EnginePower, stats.TurnRate, stats.Weight, stats.Layout.CellCount, _database.ShipSettings, stats.HasFleetEngine);
+            var engineStats = new EngineStats(stats.EnginePower, stats.TurnRate, stats.Weight, stats.Layout.CellCount, _database.ShipSettings);
 
             if (isDrone)
                 return new DroneEngine(engineStats);
             else
             {
                 var engineStatsWithoutEnergy = new EngineStats(stats.EnginePowerWihoutEnergy, stats.TurnRateWihoutEnergy,
-                    stats.Weight, stats.Layout.CellCount, _database.ShipSettings, stats.HasFleetEngine);
+                    stats.Weight, stats.Layout.CellCount, _database.ShipSettings);
 
                 return new ShipEngine(engineStats, engineStatsWithoutEnergy);
             }

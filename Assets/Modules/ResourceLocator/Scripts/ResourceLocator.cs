@@ -32,8 +32,8 @@ namespace Services.Resources
         private Dictionary<string, Sprite> _guiIcons;
         private Dictionary<string, AudioClip> _audio;
 
-		private Dictionary<string, Sprite> Ships => _ships ??= CreateSpriteDictionary(_shipSprites);
-		private Dictionary<string, Sprite> ShipIcons => _shipIcons ??= CreateSpriteDictionary(_shipIconSprites);
+		private Dictionary<string, Sprite> Ships => _ships ??= CreateSpriteDictionary(_shipSprites, true);
+        private Dictionary<string, Sprite> ShipIcons => _shipIcons ??= CreateSpriteDictionary(_shipIconSprites, true);
 		private Dictionary<string, Sprite> Components => _components ??= CreateSpriteDictionary(_componentSprites);
 		private Dictionary<string, Sprite> Satellites => _satellites ??= CreateSpriteDictionary(_satelliteSprites);
 		private Dictionary<string, Sprite> ControlButtons => _controlButtons ??= CreateSpriteDictionary(_controlButtonSprites);
@@ -138,21 +138,45 @@ namespace Services.Resources
         }
 #endif
 
-        private static Dictionary<string, Sprite> CreateSpriteDictionary(IEnumerable<Sprite> sprites)
+        private static Dictionary<string, Sprite> CreateSpriteDictionary(IEnumerable<Sprite> sprites,
+            bool preferLargestAlias = false)
         {
             var result = new Dictionary<string, Sprite>(StringComparer.OrdinalIgnoreCase);
             foreach (var sprite in sprites.Where(item => item != null))
             {
                 result[sprite.name] = sprite;
 
-                // Unity automatically names a single transparent slice "filename_0".
-                // Keep the database-facing id stable so imported mod artwork works without
-                // leaking Unity's slice suffix into content files.
+                // A sliced ship texture can contain engines, turrets and the hull.
+                // The old first-slice-wins alias frequently selected a small accessory
+                // (or the complete source sheet) as the database-facing ship sprite.
+                // The hull is consistently the largest slice, so retain the largest
+                // candidate for an unsuffixed id.
                 if (sprite.name.EndsWith("_0", StringComparison.OrdinalIgnoreCase))
-                    result.TryAdd(sprite.name.Substring(0, sprite.name.Length - 2), sprite);
+                {
+                    var id = sprite.name.Substring(0, sprite.name.Length - 2);
+                    if (preferLargestAlias) SetLargestAlias(result, id, sprite);
+                    else result.TryAdd(id, sprite);
+                }
+                else
+                {
+                    var separator = sprite.name.LastIndexOf('_');
+                    if (separator > 0 && int.TryParse(sprite.name.Substring(separator + 1), out _))
+                    {
+                        var id = sprite.name.Substring(0, separator);
+                        if (preferLargestAlias) SetLargestAlias(result, id, sprite);
+                        else result.TryAdd(id, sprite);
+                    }
+                }
             }
 
             return result;
+        }
+
+        private static void SetLargestAlias(IDictionary<string, Sprite> sprites, string id, Sprite candidate)
+        {
+            if (!sprites.TryGetValue(id, out var current) ||
+                candidate.rect.width * candidate.rect.height > current.rect.width * current.rect.height)
+                sprites[id] = candidate;
         }
 
 		private Sprite GetShipSprite(string id)
@@ -167,7 +191,9 @@ namespace Services.Resources
 		private Sprite GetShipIconSprite(string id) => ShipIcons.TryGetValue(id, out var sprite) || Ships.TryGetValue(id, out sprite)
             ? sprite
             : GetShipSprite(id);
-		private Sprite GetComponentSprite(string id) => Components.TryGetValue(id, out var sprite) ? sprite : null;
+        private Sprite GetComponentSprite(string id) => Components.TryGetValue(id, out var sprite)
+            ? sprite
+            : GetSprite("Textures/ThreeBody/" + id);
 		private Sprite GetSatelliteSprite(string id) => Satellites.TryGetValue(id, out var sprite) ? sprite : null;
 		private Sprite GetControlButtonSprite(string id) => ControlButtons.TryGetValue(id, out var sprite) ? sprite : null;
 		private Sprite GetGuiIcon(string id) => GuiIcons.TryGetValue(id, out var sprite) ? sprite : null;
