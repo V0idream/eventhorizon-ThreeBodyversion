@@ -101,7 +101,8 @@ namespace Constructor.Model
             // high-output fallback for imported copies whose stats id can be
             // regenerated while retaining the same 1000/1000 engine values.
             stats.HasFleetEngine = component.Id.Value == 323 ||
-                (component.EnginePower >= 900f && component.TurnRate >= 900f);
+                (component.EnginePower >= 900f && component.TurnRate >= 180f &&
+                 component.TurnRate <= 250f && component.EnergyRechargeRate >= 0f);
 
             if (component.EnergyRechargeRate >= 0 && component.EnginePower > 0)
                 stats.EnginePowerWithoutEnergy += component.EnginePower * multiplier;

@@ -31,10 +31,14 @@ namespace Constructor.Model
             {
                 Propulsion = 1000f;
                 Velocity = 1000f;
-                TurnRateInUnits = 1000f / _unitsToDegrees;
-                AngularVelocityInUnits = 1000f / _unitsToDegrees;
+                // Fleet engines keep their intended linear performance, but
+                // the old 1000-degree turn values made a large hull rotate its
+                // velocity vector almost instantaneously.  That looked like an
+                // uncontrolled speed boost and bypassed normal steering feel.
+                TurnRateInUnits = 200f / _unitsToDegrees;
+                AngularVelocityInUnits = 200f / _unitsToDegrees;
                 VelocityLimit = 1000f;
-                AngularVelocityLimit = 1000f;
+                AngularVelocityLimit = 200f;
                 return;
             }
             var sqrtWeight = Mathf.Sqrt(shipWeight);

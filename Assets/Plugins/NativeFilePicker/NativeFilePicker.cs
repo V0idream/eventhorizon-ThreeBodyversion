@@ -153,29 +153,15 @@ public static class NativeFilePicker
 	}
 
 	/// <summary>
-	/// Opens the platform document provider even when the legacy storage
-	/// permission used by older NativeFilePicker releases is unavailable.
-	/// Android 13+ deliberately does not grant READ_EXTERNAL_STORAGE, while
-	/// ACTION_OPEN_DOCUMENT is still allowed to read the selected file through
-	/// its URI grant.  The old PickFile method stops before launching the
-	/// provider in that case, which made preset and artwork imports appear to
-	/// do nothing.  We still make a fresh permission request first (so Android
-	/// 12 and earlier behave as before), then fall back to the document
-	/// provider when the request is denied.
+	/// Opens Android's Storage Access Framework directly.  ACTION_OPEN_DOCUMENT
+	/// grants access to the selected URI and does not require broad storage
+	/// permission on any supported Android version.  The bundled picker used to
+	/// gate this call behind READ_EXTERNAL_STORAGE; Android 13 permanently
+	/// denies that legacy permission, so the file window never appeared.
 	/// </summary>
 	public static Permission PickFileWithForcedPermission( FilePickedCallback callback, params string[] allowedFileTypes )
 	{
 #if !UNITY_EDITOR && UNITY_ANDROID
-		// Forget the cached ShouldAsk result so the Java side gets one real
-		// request after the user has explicitly chosen Import/Select image.
-		PlayerPrefs.DeleteKey( "NativeFilePickerPermission" );
-		PlayerPrefs.Save();
-		var permission = RequestPermission( true );
-		if( permission == Permission.Granted )
-			return PickFile( callback, allowedFileTypes );
-
-		// The system document picker does not require shared-storage permission.
-		// Call PickFiles directly instead of returning early from PickFile.
 		if( allowedFileTypes == null || allowedFileTypes.Length == 0 )
 			allowedFileTypes = new string[] { "*/*" };
 		if( !IsFilePickerBusy() )
@@ -186,7 +172,7 @@ public static class NativeFilePicker
 			return Permission.Granted;
 		}
 
-		return permission;
+		return Permission.Denied;
 #else
 		return PickFile( callback, allowedFileTypes );
 #endif
