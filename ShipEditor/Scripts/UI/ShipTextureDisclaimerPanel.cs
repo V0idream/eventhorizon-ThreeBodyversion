@@ -16,13 +16,18 @@ namespace ShipEditor.UI
         public static void Open(ShipEditorWindow owner, Action onAgree)
         {
             if (owner == null) return;
-            var canvas = owner.GetComponentInParent<Canvas>();
+            var canvas = owner.GetComponentInParent<Canvas>() ??
+                         owner.transform.root.GetComponentInChildren<Canvas>(true);
             if (canvas == null) return;
 
             var root = new GameObject("ShipTextureDisclaimer", typeof(RectTransform),
                 typeof(Image), typeof(CanvasGroup));
             root.transform.SetParent(canvas.transform, false);
             root.transform.SetAsLastSibling();
+            var overlayCanvas = root.AddComponent<Canvas>();
+            overlayCanvas.overrideSorting = true;
+            overlayCanvas.sortingOrder = 499;
+            root.AddComponent<GraphicRaycaster>();
 
             var rect = (RectTransform)root.transform;
             rect.anchorMin = Vector2.zero;

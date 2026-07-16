@@ -65,13 +65,23 @@ namespace ShipEditor.UI
 		private GameObject _artworkToolbar;
 
 		public int CurrentShipId => _shipEditor?.Ship?.Model?.OriginalShip?.Id.Value ?? 0;
+		public Sprite OriginalShipSprite
+		{
+			get
+			{
+				if (_shipEditor?.Ship == null) return null;
+				var sprite = _resourceLocator.GetSprite(_shipEditor.Ship.Model.ModelImage);
+				if (sprite != null) return sprite;
+				return _resourceLocator.GetSprite(_shipEditor.Ship.Model.OriginalShip.IconImage);
+			}
+		}
 		public Sprite CurrentShipSprite
 		{
 			get
 			{
-				if (_shipEditor == null || _shipEditor.Ship == null || _shipEditor.Ship is EditorModeShip)
+				if (_shipEditor == null || _shipEditor.Ship == null)
 					return null;
-				var fallback = _resourceLocator.GetSprite(_shipEditor.Ship.Model.ModelImage);
+				var fallback = OriginalShipSprite;
 				return PlayerShipTextureOverrides.Get(CurrentShipId, fallback);
 			}
 		}
@@ -201,7 +211,7 @@ namespace ShipEditor.UI
 		public void RefreshShipArtwork()
 		{
 			if (_shipEditor?.Ship == null) return;
-			var fallback = _resourceLocator.GetSprite(_shipEditor.Ship.Model.ModelImage);
+			var fallback = OriginalShipSprite;
 			var sprite = PlayerShipTextureOverrides.Get(CurrentShipId, fallback);
 			_shipView.InitializeShip(_shipEditor.Layout(ShipElementType.Ship), sprite);
 		}
@@ -301,8 +311,8 @@ namespace ShipEditor.UI
 
 		private void OpenTextureCustomization(bool sticker)
 		{
-			if (_shipEditor?.Ship == null || _shipEditor.Ship is EditorModeShip ||
-				CurrentShipId <= 0 || CurrentShipSprite == null) return;
+			if (_shipEditor?.Ship == null || CurrentShipId <= 0 || CurrentShipSprite == null)
+				return;
 			if (!PlayerShipTextureOverrides.HasConsent)
 			{
 				ShipTextureDisclaimerPanel.Open(this, () =>
@@ -318,14 +328,19 @@ namespace ShipEditor.UI
 
 		private void EnsureArtworkButtons()
 		{
-			if (_shipEditor?.Ship == null || _shipEditor.Ship is EditorModeShip || _paintButton != null)
+			if (_shipEditor?.Ship == null || _paintButton != null)
 				return;
 
-			var parent = _editorWindow != null ? _editorWindow : transform as RectTransform;
+			// The serialized _editorWindow is an animated child which can be
+			// hidden while the build/component panels are switched.  Put the
+			// toolbar on the ShipEditorWindow root so it is always visible and
+			// remains above the normal panel hierarchy.
+			var parent = transform as RectTransform;
 			if (parent == null) return;
 
 			_artworkToolbar = new GameObject("ArtworkToolbar", typeof(RectTransform), typeof(UnityEngine.UI.Image));
 			_artworkToolbar.transform.SetParent(parent, false);
+			_artworkToolbar.transform.SetAsLastSibling();
 			var toolbarRect = (RectTransform)_artworkToolbar.transform;
 			toolbarRect.anchorMin = new Vector2(0.5f, 0f);
 			toolbarRect.anchorMax = new Vector2(0.5f, 0f);
@@ -390,8 +405,9 @@ namespace ShipEditor.UI
 
             _commandList.Clear();
 			_camera.Position = data.Position;
-            _camera.Rotation = data.Rotation;
-            ZoomToShip();
+			_camera.Rotation = data.Rotation;
+			ZoomToShip();
+			EnsureArtworkButtons();
 		}
 
 		private void ZoomToShip()

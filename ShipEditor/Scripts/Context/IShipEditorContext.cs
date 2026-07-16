@@ -40,6 +40,7 @@ namespace ShipEditor.Context
     {
         IEnumerable<IShipPreset> GetPresets(Ship ship);
         IShipPreset Create(Ship ship);
+        void Update(IShipPreset preset);
         void Delete(IShipPreset preset);
     }
 }

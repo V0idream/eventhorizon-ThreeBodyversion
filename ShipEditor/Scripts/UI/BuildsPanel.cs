@@ -74,12 +74,18 @@ namespace ShipEditor.UI
                 var preset = _shipEditor.Presets.Create(_shipEditor.Ship.Model.OriginalShip);
                 _shipEditor.SaveShipToPreset(preset);
                 preset.Name = _newPresetName.text;
+                _shipEditor.Presets.Update(preset);
                 UpdateContent();
             }
             else
             {
                 _guiManager.ShowConfirmationDialog(_localization.GetString("$OverwritePresetConfirmation"),
-                    () => _shipEditor.SaveShipToPreset(_selectedItem));
+                    () =>
+                    {
+                        _shipEditor.SaveShipToPreset(_selectedItem);
+                        _shipEditor.Presets.Update(_selectedItem);
+                        UpdateContent();
+                    });
             }
         }
 
@@ -211,7 +217,7 @@ namespace ShipEditor.UI
                         return;
                     }
                     callback?.Invoke(path);
-                }, "application/json", "text/plain", "*/*");
+                }, "*/*");
             }, true);
         }
 

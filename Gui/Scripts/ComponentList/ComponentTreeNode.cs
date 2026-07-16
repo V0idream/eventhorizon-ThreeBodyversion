@@ -256,7 +256,10 @@ namespace Gui.ComponentList
             EnsureBuiltinSlot('S', "$GroupWeaponS", "icon_weapon_s");
             EnsureBuiltinSlot('D', "$GroupWeaponD", "icon_weapon_s");
 
-            _groupMap.Add(default, _groups.Count);
+            // A malformed/legacy database can contain a default slot entry with
+            // the NUL letter.  Do not throw when it is already present.
+            if (!_groupMap.ContainsKey(default))
+                _groupMap.Add(default, _groups.Count);
             _groups.Add(CreateNode(weaponSlots?.DefaultSlotName ?? "$GroupWeaponAny",
                 weaponSlots?.DefaultSlotIcon ?? new SpriteId("icon_weapon_s", SpriteId.Type.GuiIcon)));
         }
@@ -285,10 +288,17 @@ namespace Gui.ComponentList
                 return;
             }
 
-            if (!_groupMap.TryGetValue((char)componentInfo.Data.WeaponSlotType, out var groupId))
+            var letter = (char)componentInfo.Data.WeaponSlotType;
+            if (!_groupMap.TryGetValue(letter, out var groupId))
             {
-                GameDiagnostics.Trace.LogError($"Undefined weapon slot: {(char)componentInfo.Data.WeaponSlotType}");
-                groupId = _groups.Count - 1;
+                // Keep old saves and third-party databases loadable when they
+                // contain a newly introduced slot (notably D) but their slot
+                // table was serialized before that slot existed.  Add a visible
+                // group on demand instead of reporting an error and silently
+                // putting the component in the Any group.
+                EnsureBuiltinSlot(letter, "$GroupWeapon" + letter, "icon_weapon_s");
+                if (!_groupMap.TryGetValue(letter, out groupId))
+                    groupId = _groups.Count - 1;
             }
 
             _groups[groupId].Add(componentInfo);

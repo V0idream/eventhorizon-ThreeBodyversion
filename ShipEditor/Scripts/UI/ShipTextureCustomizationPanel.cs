@@ -29,12 +29,18 @@ namespace ShipEditor.UI
         public static void Open(ShipEditorWindow owner, bool sticker)
         {
             if (owner == null) return;
-            var canvas = owner.GetComponentInParent<Canvas>();
+            var canvas = owner.GetComponentInParent<Canvas>() ??
+                         owner.transform.root.GetComponentInChildren<Canvas>(true);
             if (canvas == null) return;
 
             var panelObject = new GameObject("ShipTextureCustomization", typeof(RectTransform));
             panelObject.transform.SetParent(canvas.transform, false);
+            panelObject.transform.SetAsLastSibling();
             var panel = panelObject.AddComponent<ShipTextureCustomizationPanel>();
+            var panelCanvas = panelObject.AddComponent<Canvas>();
+            panelCanvas.overrideSorting = true;
+            panelCanvas.sortingOrder = 500;
+            panelObject.AddComponent<GraphicRaycaster>();
             panel.Initialize(owner, sticker);
         }
 
@@ -42,7 +48,7 @@ namespace ShipEditor.UI
         {
             _owner = owner;
             _sticker = sticker;
-            _baseSprite = owner.CurrentShipSprite;
+            _baseSprite = owner.CurrentShipSprite ?? owner.OriginalShipSprite;
 
             var rect = (RectTransform)transform;
             rect.anchorMin = Vector2.zero;
@@ -124,7 +130,7 @@ namespace ShipEditor.UI
                     {
                         SetStatus("导入失败：" + error.Message);
                     }
-                }, "image/*");
+                }, "*/*");
             }, true);
         }
 

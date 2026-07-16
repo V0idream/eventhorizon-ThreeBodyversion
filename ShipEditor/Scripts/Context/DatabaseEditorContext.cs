@@ -113,6 +113,11 @@ namespace ShipEditor.Context
                 return preset;
             }
 
+            public void Update(IShipPreset preset)
+            {
+                // In-memory storage is already updated by reference.
+            }
+
             public void Delete(IShipPreset preset)
             {
                 _presets.Remove(preset);
