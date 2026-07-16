@@ -99,39 +99,33 @@ namespace ShipEditor.UI
 
         private void SelectImage()
         {
-            NativeFilePicker.RequestPermissionAsync(permission =>
+            var permission = NativeFilePicker.PickFileWithForcedPermission(path =>
             {
-                if (permission != NativeFilePicker.Permission.Granted)
+                if (string.IsNullOrWhiteSpace(path)) return;
+                try
                 {
-                    SetStatus("未获得存储读取权限");
-                    return;
+                    var bytes = File.ReadAllBytes(path);
+                    var texture = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+                    if (!texture.LoadImage(bytes, true))
+                    {
+                        Destroy(texture);
+                        SetStatus("无法读取图片");
+                        return;
+                    }
+
+                    if (_overlay != null) Destroy(_overlay);
+                    _overlay = texture;
+                    SetStatus("已载入：" + Path.GetFileName(path));
+                    RefreshPreview();
                 }
-
-                NativeFilePicker.PickFile(path =>
+                catch (Exception error)
                 {
-                    if (string.IsNullOrWhiteSpace(path)) return;
-                    try
-                    {
-                        var bytes = File.ReadAllBytes(path);
-                        var texture = new Texture2D(2, 2, TextureFormat.RGBA32, false);
-                        if (!texture.LoadImage(bytes, true))
-                        {
-                            Destroy(texture);
-                            SetStatus("无法读取图片");
-                            return;
-                        }
+                    SetStatus("导入失败：" + error.Message);
+                }
+            }, "image/*", "*/*");
 
-                        if (_overlay != null) Destroy(_overlay);
-                        _overlay = texture;
-                        SetStatus("已载入：" + Path.GetFileName(path));
-                        RefreshPreview();
-                    }
-                    catch (Exception error)
-                    {
-                        SetStatus("导入失败：" + error.Message);
-                    }
-                }, "*/*");
-            }, true);
+            if (permission != NativeFilePicker.Permission.Granted)
+                SetStatus("无法打开系统相册，请授予存储读取权限后重试");
         }
 
         private void Apply()

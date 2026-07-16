@@ -201,24 +201,21 @@ namespace ShipEditor.UI
 
         private void PickImportFile(Action<string> callback)
         {
-            NativeFilePicker.RequestPermissionAsync(permission =>
+            var permission = NativeFilePicker.PickFileWithForcedPermission(path =>
             {
-                if (permission != NativeFilePicker.Permission.Granted)
+                if (string.IsNullOrWhiteSpace(path))
                 {
-                    _guiManager.ShowMessage("未获得存储读取权限，无法导入配置");
+                    _guiManager.ShowMessage("未选择配置文件");
                     return;
                 }
+                callback?.Invoke(path);
+            }, "*/*");
 
-                NativeFilePicker.PickFile(path =>
-                {
-                    if (string.IsNullOrWhiteSpace(path))
-                    {
-                        _guiManager.ShowMessage("未选择配置文件");
-                        return;
-                    }
-                    callback?.Invoke(path);
-                }, "*/*");
-            }, true);
+            // On Android the forced helper falls back to the document provider
+            // when legacy storage permission is unavailable.  A non-granted
+            // result here therefore means the picker itself was busy/failed.
+            if (permission != NativeFilePicker.Permission.Granted)
+                _guiManager.ShowMessage("无法打开系统文件选择器，请授予存储读取权限后重试");
         }
 
         private Button _exportButton;
