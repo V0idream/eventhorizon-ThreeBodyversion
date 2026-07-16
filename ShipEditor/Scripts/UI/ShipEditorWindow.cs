@@ -59,6 +59,22 @@ namespace ShipEditor.UI
 
 		private string _shipInitialName;
 		private bool _overviewMode;
+		private UnityEngine.UI.Button _paintButton;
+		private UnityEngine.UI.Button _stickerButton;
+		private UnityEngine.UI.Button _restoreArtworkButton;
+		private GameObject _artworkToolbar;
+
+		public int CurrentShipId => _shipEditor?.Ship?.Model?.OriginalShip?.Id.Value ?? 0;
+		public Sprite CurrentShipSprite
+		{
+			get
+			{
+				if (_shipEditor == null || _shipEditor.Ship == null || _shipEditor.Ship is EditorModeShip)
+					return null;
+				var fallback = _resourceLocator.GetSprite(_shipEditor.Ship.Model.ModelImage);
+				return PlayerShipTextureOverrides.Get(CurrentShipId, fallback);
+			}
+		}
 
 		private void OnEnable()
 		{
@@ -87,6 +103,7 @@ namespace ShipEditor.UI
             _shipsButton.SetActive(_shipEditor.Inventory.Ships.Any());
             _shipNameInputField.interactable = _shipEditor.IsShipNameEditable;
             UpdateBackButton();
+			EnsureArtworkButtons();
 
             yield return new WaitForEndOfFrame();
 
@@ -169,6 +186,24 @@ namespace ShipEditor.UI
 
             _shipEditor.SaveShip();
 			_closeEditorTrigger?.Fire();
+		}
+
+		public void OpenPaintCustomization() => OpenTextureCustomization(false);
+		public void OpenStickerCustomization() => OpenTextureCustomization(true);
+
+		public void RestoreCustomArtwork()
+		{
+			if (CurrentShipId <= 0) return;
+			PlayerShipTextureOverrides.Restore(CurrentShipId);
+			RefreshShipArtwork();
+		}
+
+		public void RefreshShipArtwork()
+		{
+			if (_shipEditor?.Ship == null) return;
+			var fallback = _resourceLocator.GetSprite(_shipEditor.Ship.Model.ModelImage);
+			var sprite = PlayerShipTextureOverrides.Get(CurrentShipId, fallback);
+			_shipView.InitializeShip(_shipEditor.Layout(ShipElementType.Ship), sprite);
 		}
 
 		public void OnUndoListChanged()
@@ -264,12 +299,86 @@ namespace ShipEditor.UI
             UpdateBackButton();
 		}
 
+		private void OpenTextureCustomization(bool sticker)
+		{
+			if (_shipEditor?.Ship == null || _shipEditor.Ship is EditorModeShip ||
+				CurrentShipId <= 0 || CurrentShipSprite == null) return;
+			if (!PlayerShipTextureOverrides.HasConsent)
+			{
+				ShipTextureDisclaimerPanel.Open(this, () =>
+				{
+					PlayerShipTextureOverrides.HasConsent = true;
+					ShipTextureCustomizationPanel.Open(this, sticker);
+				});
+				return;
+			}
+
+			ShipTextureCustomizationPanel.Open(this, sticker);
+		}
+
+		private void EnsureArtworkButtons()
+		{
+			if (_shipEditor?.Ship == null || _shipEditor.Ship is EditorModeShip || _paintButton != null)
+				return;
+
+			var parent = _editorWindow != null ? _editorWindow : transform as RectTransform;
+			if (parent == null) return;
+
+			_artworkToolbar = new GameObject("ArtworkToolbar", typeof(RectTransform), typeof(UnityEngine.UI.Image));
+			_artworkToolbar.transform.SetParent(parent, false);
+			var toolbarRect = (RectTransform)_artworkToolbar.transform;
+			toolbarRect.anchorMin = new Vector2(0.5f, 0f);
+			toolbarRect.anchorMax = new Vector2(0.5f, 0f);
+			toolbarRect.pivot = new Vector2(0.5f, 0f);
+			toolbarRect.anchoredPosition = new Vector2(0f, 18f);
+			toolbarRect.sizeDelta = new Vector2(450f, 64f);
+			_artworkToolbar.GetComponent<UnityEngine.UI.Image>().color = new Color(0.015f, 0.08f, 0.14f, 0.92f);
+
+			_paintButton = CreateArtworkButton(_artworkToolbar.transform, "涂装", OpenPaintCustomization, 0);
+			_stickerButton = CreateArtworkButton(_artworkToolbar.transform, "贴纸", OpenStickerCustomization, 1);
+			_restoreArtworkButton = CreateArtworkButton(_artworkToolbar.transform, "还原贴图", RestoreCustomArtwork, 2);
+		}
+
+		private static UnityEngine.UI.Button CreateArtworkButton(Transform parent, string text,
+			UnityEngine.Events.UnityAction action, int index)
+		{
+			var buttonObject = new GameObject("Artwork" + index, typeof(RectTransform),
+				typeof(UnityEngine.UI.Image), typeof(UnityEngine.UI.Button));
+			buttonObject.transform.SetParent(parent, false);
+			buttonObject.name = "Artwork" + index;
+			var button = buttonObject.GetComponent<UnityEngine.UI.Button>();
+			button.onClick.AddListener(action);
+			buttonObject.GetComponent<UnityEngine.UI.Image>().color = new Color(0.05f, 0.3f, 0.46f, 1f);
+			var rect = (RectTransform)buttonObject.transform;
+			rect.anchorMin = new Vector2(0f, 0.5f);
+			rect.anchorMax = new Vector2(0f, 0.5f);
+			rect.pivot = new Vector2(0f, 0.5f);
+			rect.anchoredPosition = new Vector2(8f + index * 148f, 0f);
+			rect.sizeDelta = new Vector2(index == 2 ? 140f : 136f, 48f);
+
+			var labelObject = new GameObject("Label", typeof(RectTransform), typeof(UnityEngine.UI.Text));
+			labelObject.transform.SetParent(buttonObject.transform, false);
+			var label = labelObject.GetComponent<UnityEngine.UI.Text>();
+			label.text = text;
+			label.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+			label.fontSize = 20;
+			label.alignment = TextAnchor.MiddleCenter;
+			label.color = Color.white;
+			var labelRect = (RectTransform)labelObject.transform;
+			labelRect.anchorMin = Vector2.zero;
+			labelRect.anchorMax = Vector2.one;
+			labelRect.offsetMin = Vector2.zero;
+			labelRect.offsetMax = Vector2.zero;
+			return button;
+		}
+
 		private void OnShipChanged(IShip ship)
 		{
             if (!_shipEditor.ShipDataProvider.TryGet(ship, out var data))
                 data = _shipEditor.ShipDataProvider.Default;
 
-            var sprite = data.HasImage ? null : _resourceLocator.GetSprite(ship.Model.ModelImage);
+			var fallback = data.HasImage ? null : _resourceLocator.GetSprite(ship.Model.ModelImage);
+			var sprite = data.HasImage ? null : PlayerShipTextureOverrides.Get(ship.Model.OriginalShip.Id.Value, fallback);
 
             _shipView.InitializeShip(_shipEditor.Layout(ShipElementType.Ship), sprite);
 			_shipInitialName = _localization.GetString(_shipEditor.ShipName);

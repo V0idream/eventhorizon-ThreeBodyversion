@@ -13,10 +13,13 @@ namespace ShipEditor.UI
 		[SerializeField] private Text _classText;
 		[SerializeField] private Text _levelText;
 
-		public void Initialize(IShip ship, IResourceLocator resourceLocator, ILocalization localization)
+        public void Initialize(IShip ship, IResourceLocator resourceLocator, ILocalization localization)
         {
             Ship = ship;
             var icon = resourceLocator.GetSprite(ship.Model.IconImage);
+            if (!(ship is EditorModeShip))
+                icon = PlayerShipTextureOverrides.Get(ship.Model.OriginalShip.Id.Value,
+                    icon ?? resourceLocator.GetSprite(ship.Model.ModelImage));
             if (icon != null)
             {
                 _icon.sprite = icon;
