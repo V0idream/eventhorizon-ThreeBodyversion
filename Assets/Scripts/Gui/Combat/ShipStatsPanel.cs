@@ -32,6 +32,7 @@ namespace Gui.Combat
         private GameObject _corrosiveResistIcon;
         private Text _corrosiveResistText;
         private BallLightningController _ballLightning;
+        private StrategicWeaponController _strategicProjectile;
         private Sprite _projectileIcon;
         private Texture2D _projectileTexture;
         private readonly Text[] _resourceValues = new Text[3];
@@ -39,6 +40,7 @@ namespace Gui.Combat
         public void Close()
         {
             _ballLightning = null;
+            _strategicProjectile = null;
             SetResourceValuesVisible(false);
             ReleaseProjectileIcon();
             GetComponent<AnimatedWindow>().Close(WindowExitCode.Ok);
@@ -52,6 +54,7 @@ namespace Gui.Combat
             GetComponent<AnimatedWindow>().Open();
 
             _ballLightning = null;
+            _strategicProjectile = null;
             ReleaseProjectileIcon();
             if (_icon)
                 _icon.color = Color.white;
@@ -99,12 +102,31 @@ namespace Gui.Combat
             GetComponent<AnimatedWindow>().Open();
             _ship = null;
             _ballLightning = controller;
+            _strategicProjectile = null;
             _armorPoints.gameObject.SetActive(false);
             _shieldPoints.gameObject.SetActive(false);
             _energyPoints.gameObject.SetActive(false);
             SetResourceValuesVisible(false);
             HideResistanceRows();
             UpdateBallLightningIcon();
+        }
+
+        public void OpenStrategicProjectile(StrategicWeaponController controller)
+        {
+            if (controller == null || !controller.IsActive ||
+                controller.Kind != StrategicWeaponController.WeaponKind.DualVectorFoil)
+                return;
+
+            GetComponent<AnimatedWindow>().Open();
+            _ship = null;
+            _ballLightning = null;
+            _strategicProjectile = controller;
+            _armorPoints.gameObject.SetActive(false);
+            _shieldPoints.gameObject.SetActive(false);
+            _energyPoints.gameObject.SetActive(false);
+            SetResourceValuesVisible(false);
+            HideResistanceRows();
+            UpdateStrategicProjectileIcon();
         }
 
         private void UpdateResistance()
@@ -203,6 +225,17 @@ namespace Gui.Combat
                 }
 
                 UpdateBallLightningIcon();
+                return;
+            }
+
+            if (_strategicProjectile != null)
+            {
+                if (!_strategicProjectile.IsActive)
+                {
+                    Close();
+                    return;
+                }
+                UpdateStrategicProjectileIcon();
                 return;
             }
 
@@ -328,6 +361,16 @@ namespace Gui.Combat
 
             _icon.sprite = _projectileIcon;
             _icon.color = _ballLightning.DisplayColor;
+        }
+
+        private void UpdateStrategicProjectileIcon()
+        {
+            if (_icon == null || _strategicProjectile == null)
+                return;
+            ReleaseProjectileIcon();
+            _icon.sprite = _resourceLocator.GetSprite("dual_vector_foil_projectile") ??
+                           _resourceLocator.GetSprite("dual_vector_foil_launcher");
+            _icon.color = Color.white;
         }
 
         private void HideResistanceRows()

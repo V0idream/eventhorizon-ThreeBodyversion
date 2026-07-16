@@ -414,6 +414,10 @@ namespace Combat.Manager
             var target = _scene.LockedTarget;
             if (target is Combat.Component.Bullet.Bullet bullet && bullet.Controller is BallLightningController ballLightning && ballLightning.IsActive)
                 _enemyStatsPanel.OpenBallLightning(ballLightning);
+            else if (target is Combat.Component.Bullet.Bullet strategicBullet &&
+                     strategicBullet.Controller is StrategicWeaponController strategic &&
+                     strategic.Kind == StrategicWeaponController.WeaponKind.DualVectorFoil && strategic.IsActive)
+                _enemyStatsPanel.OpenStrategicProjectile(strategic);
             else if (fallbackEnemy != null && fallbackEnemy.IsActive())
                 _enemyStatsPanel.Open(fallbackEnemy);
             else

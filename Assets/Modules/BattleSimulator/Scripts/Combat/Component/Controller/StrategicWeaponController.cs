@@ -15,6 +15,7 @@ namespace Combat.Component.Controller
         public enum WeaponKind { Photon, DualVectorFoil, BlackHole, DarkDomain }
 
         public WeaponKind Kind => _kind;
+        public bool IsActive => _bullet != null && _bullet.IsActive();
 
         public StrategicWeaponController(Combat.Component.Bullet.Bullet bullet, IScene scene, IShip owner, float range, WeaponKind kind)
         {
