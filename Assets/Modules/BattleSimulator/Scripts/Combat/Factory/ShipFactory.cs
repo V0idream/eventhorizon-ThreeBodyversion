@@ -272,10 +272,8 @@ namespace Combat.Factory
             {
                 prefab = _prefabCache.LoadResourcePrefab("Combat/Ships/Default");
                 gameObject = new GameObjectHolder(prefab, _objectPool, false);
-                var sprite = _resourceLocator.GetSprite(stats.ShipModel.ModelImage);
-                if (unitSide == UnitSide.Player)
-                    sprite = PlayerShipTextureOverrides.Get(stats.ShipModel.Id.Value, sprite);
-                gameObject.GetComponent<SpriteRenderer>().sprite = sprite;
+                gameObject.GetComponent<SpriteRenderer>().sprite =
+                    _resourceLocator.GetSprite(stats.ShipModel.ModelImage);
 
                 if (stats.ShipModel.SizeClass == SizeClass.Undefined)
                     gameObject.AddComponent<CircleCollider2D>();
@@ -284,6 +282,15 @@ namespace Combat.Factory
                     var collider = gameObject.AddComponent<PolygonCollider2D>();
                     collider.Optimize(stats.ShipModel.ColliderTolerance);
                 }
+            }
+
+            if (unitSide == UnitSide.Player && PlayerShipTextureOverrides.HasOverride(stats.ShipModel.Id.Value))
+            {
+                var fallback = _resourceLocator.GetSprite(stats.ShipModel.ModelImage);
+                var overrideSprite = PlayerShipTextureOverrides.Get(stats.ShipModel.Id.Value, fallback);
+                var renderer = gameObject.GetComponent<SpriteRenderer>(true);
+                if (renderer != null)
+                    renderer.sprite = overrideSprite;
             }
 
             gameObject.GetComponent<ICollider>().Initialize(_collisionManager);
