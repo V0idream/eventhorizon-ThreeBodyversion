@@ -25,6 +25,8 @@
     <string name="TrisolarisBattleshipDescription">装备强相互作用力装甲与反物质武器的三体重型战舰。</string>
     <string name="TrisolarisFlagship">三体旗舰</string>
     <string name="TrisolarisFlagshipDescription">三体舰队的核心旗舰，拥有多套高威胁默认配装。</string>
+    <string name="TrisolarisTitan">三体泰坦</string>
+    <string name="TrisolarisTitanDescription">三体舰队的泰坦级主力舰，搭载大型武器阵列与高密度能源系统。</string>
     <string name="TrisolarisAntimatterEngine">先进反物质引擎</string>
     <string name="TrisolarisAntimatterEngineDescription">以反物质湮灭产物直接驱动的先进推进装置，拥有卓越的加速与转向能力。</string>
     <string name="TrisolarisFleetEngine">舰队引擎</string>

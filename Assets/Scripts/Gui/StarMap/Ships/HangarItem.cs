@@ -114,7 +114,8 @@ namespace Gui.StarMap
                 _icon.gameObject.SetActive(true);
                 _icon.transform.localScale = new Vector3(_ship.Model.SizeClass.IconSize(), _ship.Model.SizeClass.IconSize(), 1.0f);
 
-                _icon.sprite = _resourceLocator.GetSprite(_ship.Model.ModelImage);
+                _icon.sprite = PlayerShipTextureOverrides.Get(_ship.Model.Id.Value,
+                    _resourceLocator.GetSprite(_ship.Model.ModelImage));
                 _icon.color = _ship.ColorScheme.HsvColor;
             }
             else

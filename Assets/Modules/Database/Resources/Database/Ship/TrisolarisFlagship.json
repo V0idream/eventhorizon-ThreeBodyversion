@@ -33,7 +33,7 @@
         "y": 0.1
       },
       "AutoAimingArc": 360.0,
-      "WeaponClass": "CLMD"
+      "WeaponClass": "CLM"
     },
     {
       "Position": {
@@ -41,21 +41,21 @@
         "y": -0.1
       },
       "AutoAimingArc": 360.0,
-      "WeaponClass": "CLMD"
+      "WeaponClass": "CLM"
     },
     {
       "Position": {
         "y": 0.25
       },
       "Rotation": -5.0,
-      "WeaponClass": "CLMD"
+      "WeaponClass": "CLM"
     },
     {
       "Position": {
         "y": -0.25
       },
       "Rotation": 5.0,
-      "WeaponClass": "CLMD"
+      "WeaponClass": "CLM"
     },
     {
       "Position": {
@@ -63,7 +63,7 @@
         "y": 0.3
       },
       "Rotation": 90.0,
-      "WeaponClass": "CLMD"
+      "WeaponClass": "CLM"
     },
     {
       "Position": {
@@ -71,7 +71,7 @@
         "y": -0.3
       },
       "Rotation": -90.0,
-      "WeaponClass": "CLMD"
+      "WeaponClass": "CLM"
     },
     {
       "Position": {
@@ -79,7 +79,7 @@
         "y": 0.2
       },
       "Rotation": 180.0,
-      "WeaponClass": "CLMD"
+      "WeaponClass": "CLM"
     },
     {
       "Position": {
@@ -87,7 +87,7 @@
         "y": -0.2
       },
       "Rotation": 180.0,
-      "WeaponClass": "CLMD"
+      "WeaponClass": "CLM"
     },
     {
       "Position": {
@@ -96,7 +96,7 @@
       },
       "Rotation": -90.0,
       "AutoAimingArc": 360.0,
-      "WeaponClass": "CLMD"
+      "WeaponClass": "CLM"
     },
     {
       "Position": {
@@ -105,7 +105,7 @@
       },
       "Rotation": 90.0,
       "AutoAimingArc": 360.0,
-      "WeaponClass": "CLMD"
+      "WeaponClass": "CLM"
     },
     {
       "Position": {
@@ -114,7 +114,7 @@
       },
       "Rotation": -90.0,
       "AutoAimingArc": 360.0,
-      "WeaponClass": "CLMD"
+      "WeaponClass": "CLM"
     },
     {
       "Position": {
@@ -123,7 +123,7 @@
       },
       "Rotation": 90.0,
       "AutoAimingArc": 360.0,
-      "WeaponClass": "CLMD"
+      "WeaponClass": "CLM"
     },
     {
       "Position": {
@@ -132,7 +132,7 @@
       },
       "Rotation": 90.0,
       "AutoAimingArc": 360.0,
-      "WeaponClass": "CLMD"
+      "WeaponClass": "CLM"
     },
     {
       "Position": {
@@ -141,7 +141,7 @@
       },
       "Rotation": -90.0,
       "AutoAimingArc": 360.0,
-      "WeaponClass": "CLMD"
+      "WeaponClass": "CLM"
     },
     {
       "Position": {
@@ -150,7 +150,7 @@
       },
       "Rotation": 90.0,
       "AutoAimingArc": 360.0,
-      "WeaponClass": "CLMD"
+      "WeaponClass": "CLM"
     },
     {
       "Position": {
@@ -159,7 +159,7 @@
       },
       "Rotation": -90.0,
       "AutoAimingArc": 360.0,
-      "WeaponClass": "CLMD"
+      "WeaponClass": "CLM"
     },
     {
       "Position": {
@@ -168,7 +168,7 @@
       },
       "Rotation": 90.0,
       "AutoAimingArc": 360.0,
-      "WeaponClass": "CLMD"
+      "WeaponClass": "CLM"
     }
   ],
   "Features": {

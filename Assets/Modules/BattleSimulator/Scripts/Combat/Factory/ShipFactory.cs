@@ -78,7 +78,7 @@ namespace Combat.Factory
 
             var stats = spec.Stats;
 
-            var shipGameObject = CreateShipObject(stats, spec.Stats.ShipColor);
+            var shipGameObject = CreateShipObject(stats, spec.Stats.ShipColor, unitSide);
             var body = CreateBody(shipGameObject, stats, position, rotation);
             var collider = CreateCollider(shipGameObject);
             var view = CreateView(shipGameObject);
@@ -257,6 +257,11 @@ namespace Combat.Factory
 
         public GameObjectHolder CreateShipObject(IShipStats stats, ColorScheme colorScheme)
         {
+            return CreateShipObject(stats, colorScheme, UnitSide.Undefined);
+        }
+
+        private GameObjectHolder CreateShipObject(IShipStats stats, ColorScheme colorScheme, UnitSide unitSide)
+        {
             GameObjectHolder gameObject;
             var prefab = _prefabCache.LoadResourcePrefab("Combat/Ships/" + stats.ShipModel.ModelImage.Id, true);
             if (prefab != null)
@@ -268,6 +273,8 @@ namespace Combat.Factory
                 prefab = _prefabCache.LoadResourcePrefab("Combat/Ships/Default");
                 gameObject = new GameObjectHolder(prefab, _objectPool, false);
                 var sprite = _resourceLocator.GetSprite(stats.ShipModel.ModelImage);
+                if (unitSide == UnitSide.Player)
+                    sprite = PlayerShipTextureOverrides.Get(stats.ShipModel.Id.Value, sprite);
                 gameObject.GetComponent<SpriteRenderer>().sprite = sprite;
 
                 if (stats.ShipModel.SizeClass == SizeClass.Undefined)
