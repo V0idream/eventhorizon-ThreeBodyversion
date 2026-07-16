@@ -184,6 +184,22 @@ namespace Combat.Component.Stats
             if (ship == null)
                 return false;
 
+            // Trisolaris vessels are three-dimensional.  Some of their older
+            // generated builds were copied from the four-dimensional demo
+            // ships and can retain that feature flag, which incorrectly made
+            // them immune to black-domain slowing and ordinary damage.  Use
+            // the stable ship IDs as the source of truth for this faction.
+            var shipId = ship.Specification?.Info.Id.Value ?? -1;
+            if (shipId == 166 || (shipId >= 1145140 && shipId <= 1145143))
+                return false;
+
+            // Keep the faction-level fallback as well.  Imported Trisolaris
+            // variants may receive a different generated ship id, but they
+            // still belong to faction 22 and must remain ordinary
+            // three-dimensional units for black-domain and damage rules.
+            if (ship.Type != null && ship.Type.FactionId == 22)
+                return false;
+
             if (ship.Specification?.Stats?.ShipModel?.Features?.IsFourDimensional == true)
                 return true;
 
