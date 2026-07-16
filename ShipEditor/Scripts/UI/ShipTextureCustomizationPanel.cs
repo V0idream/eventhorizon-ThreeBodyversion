@@ -63,8 +63,15 @@ namespace ShipEditor.UI
             SetRect(title.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
                 new Vector2(-240, -70), new Vector2(240, -20));
 
-            _previewImage = gameObject.AddComponent<RawImage>();
+            // The preview must have its own RectTransform.  Adding RawImage to
+            // the panel root made SetRect resize the entire modal to 520x360;
+            // the preview then intercepted every raycast, hiding the proper
+            // editor page and making the Select Image button unreachable.
+            var previewObject = new GameObject("ShipPreview", typeof(RectTransform), typeof(RawImage));
+            previewObject.transform.SetParent(transform, false);
+            _previewImage = previewObject.GetComponent<RawImage>();
             _previewImage.color = Color.white;
+            _previewImage.raycastTarget = false;
             SetRect(_previewImage.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
                 new Vector2(-260, -180), new Vector2(260, 180));
 

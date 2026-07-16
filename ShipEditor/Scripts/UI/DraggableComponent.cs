@@ -30,7 +30,7 @@ namespace ShipEditor.UI
                 out var minX, out var minY, out var width, out var height);
             gameObject.SetActive(true);
             var size = new Vector2(width * blockSize.x, height * blockSize.y);
-            RectTransform.position = eventData.position;
+            SetScreenPosition(eventData);
             RectTransform.localEulerAngles = new Vector3(0, 0, _helper.GetShipRotation());
             RectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
             RectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
@@ -58,7 +58,7 @@ namespace ShipEditor.UI
 
         public void OnDrag(PointerEventData eventData)
         {
-            RectTransform.position = eventData.position;
+            SetScreenPosition(eventData);
             _dragging?.Invoke(_content, (Vector2)_helper.ScreenToWorld(eventData.position) + _dropWorldOffset);
         }
 
@@ -66,6 +66,19 @@ namespace ShipEditor.UI
         {
             gameObject.SetActive(false);
             _dropped?.Invoke(_content, (Vector2)_helper.ScreenToWorld(eventData.position) + _dropWorldOffset);
+        }
+
+        private void SetScreenPosition(PointerEventData eventData)
+        {
+            // A Screen Space Camera canvas applies its own scale factor. Direct
+            // assignment to RectTransform.position happened to work near the
+            // centre but accumulated a visible offset on large/zoomed layouts.
+            if (RectTransform.parent is RectTransform parent &&
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, eventData.position,
+                    eventData.pressEventCamera, out var localPosition))
+                RectTransform.anchoredPosition = localPosition;
+            else
+                RectTransform.position = eventData.position;
         }
 
         private static void GetOccupiedBounds(string data, int size, out int minX, out int minY,

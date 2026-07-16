@@ -13,12 +13,12 @@ namespace ShipEditor.UI
 
 		private void Awake()
 		{
-			_camera = Camera.main;
 			_canvas = GetComponent<Canvas>();
+			_camera = _canvas.worldCamera != null ? _canvas.worldCamera : Camera.main;
 			_rectTransform = GetComponent<RectTransform>();
 		}
 
-        public float GetShipRotation() => _shipView.transform.localEulerAngles.z - _camera.transform.localEulerAngles.z;
+        public float GetShipRotation() => _shipView.transform.eulerAngles.z - _camera.transform.eulerAngles.z;
         public float GetShipWorldRotation() => _shipView.transform.eulerAngles.z;
 
         public Vector2 GetCellSize() => GetUnitSquare() *_shipView.Scale;
@@ -36,7 +36,21 @@ namespace ShipEditor.UI
 
 		public Vector3 ScreenToWorld(Vector2 position)
 		{
-			return _camera.ScreenToWorldPoint(position);
+			// CameraController uses an off-centre custom projection matrix so that
+			// the ship occupies the free area beside the component panel. Unity's
+			// ScreenToWorldPoint may use the camera's orthographicSize instead of
+			// that matrix on some Unity/Android combinations. The resulting small
+			// screen-space error becomes dozens of cells on a Titan-sized layout.
+			// Invert the active projection explicitly so pointer and grid always
+			// use the exact same camera transform.
+			var viewport = _camera.ScreenToViewportPoint(position);
+			var clip = new Vector4(viewport.x * 2f - 1f, viewport.y * 2f - 1f, 0f, 1f);
+			var cameraPoint = _camera.projectionMatrix.inverse * clip;
+			if (Mathf.Abs(cameraPoint.w) > Mathf.Epsilon)
+				cameraPoint /= cameraPoint.w;
+			var world = _camera.cameraToWorldMatrix * cameraPoint;
+			world.z = _shipView.transform.position.z;
+			return world;
 		}
 	}
 }
