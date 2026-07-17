@@ -89,6 +89,7 @@ namespace Installers
             Container.BindInterfacesTo<SignalsTranslator>().AsSingle().NonLazy();
 
             BindPlayerData();
+            Container.BindInterfacesAndSelfTo<MultiplayerSession>().AsSingle().NonLazy();
             BindQuestManager();
             BindStarContent();
             BindDatabase();

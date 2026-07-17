@@ -14,6 +14,9 @@ namespace Services.Resources
     {
         private static readonly Dictionary<int, Sprite> Cache = new Dictionary<int, Sprite>();
         private static readonly Dictionary<int, Texture2D> Textures = new Dictionary<int, Texture2D>();
+        private static readonly Dictionary<int, byte[]> RemoteBytes = new Dictionary<int, byte[]>();
+        private static readonly Dictionary<int, Sprite> RemoteCache = new Dictionary<int, Sprite>();
+        private static readonly Dictionary<int, Texture2D> RemoteTextures = new Dictionary<int, Texture2D>();
         private const string FolderName = "PlayerShipTextures";
 
         public static bool HasConsent
@@ -119,6 +122,49 @@ namespace Services.Resources
         }
 
         public static bool HasOverride(int shipId) => File.Exists(GetOverridePath(shipId));
+
+        public static bool TryGetOverrideBytes(int shipId, out byte[] bytes)
+        {
+            bytes = null;
+            var path = GetOverridePath(shipId);
+            if (!File.Exists(path)) return false;
+            try { bytes = File.ReadAllBytes(path); return bytes.Length > 0; }
+            catch (Exception error) { Debug.LogWarning("Unable to read player ship texture: " + error.Message); return false; }
+        }
+
+        public static void SetRemoteOverride(int shipId, byte[] bytes)
+        {
+            if (shipId <= 0 || bytes == null || bytes.Length == 0) return;
+            RemoteBytes[shipId] = bytes;
+            if (RemoteCache.TryGetValue(shipId, out var sprite) && sprite != null) UnityEngine.Object.Destroy(sprite);
+            if (RemoteTextures.TryGetValue(shipId, out var texture) && texture != null) UnityEngine.Object.Destroy(texture);
+            RemoteCache.Remove(shipId);
+            RemoteTextures.Remove(shipId);
+        }
+
+        public static Sprite GetRemote(int shipId, Sprite fallback)
+        {
+            if (!RemoteBytes.TryGetValue(shipId, out var bytes) || fallback == null) return fallback;
+            if (RemoteCache.TryGetValue(shipId, out var cached) && cached != null) return cached;
+            var texture = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+            if (!texture.LoadImage(bytes, true)) { UnityEngine.Object.Destroy(texture); return fallback; }
+            texture.wrapMode = TextureWrapMode.Clamp;
+            texture.filterMode = FilterMode.Bilinear;
+            var sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
+                new Vector2(0.5f, 0.5f), Mathf.Max(1f, fallback.pixelsPerUnit), 0, SpriteMeshType.Tight);
+            RemoteTextures[shipId] = texture;
+            RemoteCache[shipId] = sprite;
+            return sprite;
+        }
+
+        public static void ClearRemoteSession()
+        {
+            foreach (var sprite in RemoteCache.Values) if (sprite != null) UnityEngine.Object.Destroy(sprite);
+            foreach (var texture in RemoteTextures.Values) if (texture != null) UnityEngine.Object.Destroy(texture);
+            RemoteBytes.Clear();
+            RemoteCache.Clear();
+            RemoteTextures.Clear();
+        }
 
         public static Texture2D CreatePreview(Sprite baseSprite, Texture2D overlay,
             bool sticker, float scale, Vector2 normalizedOffset, float rotationDegrees = 0f)

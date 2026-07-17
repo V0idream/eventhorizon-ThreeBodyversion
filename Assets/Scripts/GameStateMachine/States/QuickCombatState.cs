@@ -13,6 +13,7 @@ using Session;
 using Model.Military;
 using GameServices.Audio;
 using System.Text.RegularExpressions;
+using GameServices.Multiplayer;
 
 namespace GameStateMachine.States
 {
@@ -28,6 +29,7 @@ namespace GameStateMachine.States
             IMusicPlayer musicPlayer,
             DatabaseMusicPlaylist playlist,
             GameServices.Player.PlayerFleet playerFleet,
+			MultiplayerSession multiplayer,
 			ExitSignal exitSignal)
             : base(stateMachine, stateFactory)
         {
@@ -38,6 +40,7 @@ namespace GameStateMachine.States
 			_combatModelBuilderFactory = combatModelBuilderFactory;
             _playlist = playlist;
             _playerFleet = playerFleet;
+            _multiplayer = multiplayer;
 
             _exitSignal = exitSignal;
             _exitSignal.Event += OnCombatCompleted;
@@ -61,12 +64,25 @@ namespace GameStateMachine.States
 
         private void OnCombatCompleted()
         {
+			if (_settings.Multiplayer)
+				_multiplayer.Disconnect();
 			LoadState(StateFactory.CreateMainMenuState());
         }
 
 		private ICombatModel CreateCombatModel()
 		{
 			IFleet firstFleet, secondFleet;
+
+            if (_settings.Multiplayer && _multiplayer.IsActive && _multiplayer.RemoteFleet.Count > 0)
+            {
+                firstFleet = Model.Factories.Fleet.Player(_playerFleet, _database);
+                secondFleet = new NetworkFleet(_multiplayer.RemoteFleet);
+                var networkBuilder = _combatModelBuilderFactory.Create();
+                networkBuilder.PlayerFleet = firstFleet;
+                networkBuilder.EnemyFleet = secondFleet;
+                networkBuilder.Rules = _database.GalaxySettings.QuickCombatRules ?? _database.CombatSettings.DefaultCombatRules;
+                return networkBuilder.Build();
+            }
 
             var testShips = new Queue<ShipBuild>();
             var matches = Regex.Matches(_settings.TestShipId, @"\d+");
@@ -180,6 +196,7 @@ namespace GameStateMachine.States
 		private readonly CombatModelBuilder.Factory _combatModelBuilderFactory;
         private readonly DatabaseMusicPlaylist _playlist;
         private readonly GameServices.Player.PlayerFleet _playerFleet;
+        private readonly MultiplayerSession _multiplayer;
 
         public class Factory : Factory<Settings, QuickCombatState> { }
 
@@ -191,6 +208,7 @@ namespace GameStateMachine.States
 			public bool UseConfiguredAllies;
 			public string EnemyFleetSpec;
 			public string AllyFleetSpec;
+			public bool Multiplayer;
 		}
     }
 }

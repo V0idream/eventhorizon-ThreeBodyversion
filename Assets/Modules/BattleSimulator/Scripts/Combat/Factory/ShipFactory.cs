@@ -292,6 +292,14 @@ namespace Combat.Factory
                 if (renderer != null)
                     renderer.sprite = overrideSprite;
             }
+            else if (unitSide == UnitSide.Enemy)
+            {
+                var fallback = _resourceLocator.GetSprite(stats.ShipModel.ModelImage);
+                var overrideSprite = PlayerShipTextureOverrides.GetRemote(stats.ShipModel.Id.Value, fallback);
+                var renderer = gameObject.GetComponent<SpriteRenderer>(true);
+                if (renderer != null && overrideSprite != null)
+                    renderer.sprite = overrideSprite;
+            }
 
             gameObject.GetComponent<ICollider>().Initialize(_collisionManager);
 

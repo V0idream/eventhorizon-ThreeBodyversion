@@ -20,6 +20,7 @@ using Combat.Unit;
 using Constructor;
 using GameDatabase.Enums;
 using UnityEngine;
+using GameServices.Multiplayer;
 
 namespace Combat.Domain
 {
@@ -83,6 +84,10 @@ namespace Combat.Domain
                 ship = factory.CreateStarbase(_shipSpec, position, rotation, _unitSide);
             else if (_unitSide == UnitSide.Player)
                 ship = factory.CreatePlayerShip(_shipSpec, position, rotation);
+            else if (_unitSide == UnitSide.Enemy && MultiplayerSession.Instance != null && MultiplayerSession.Instance.IsActive)
+                ship = factory.CreateShip(_shipSpec,
+                    new MultiplayerController.Factory(MultiplayerSession.Instance.IsHost),
+                    _unitSide, position, rotation);
             else
                 ship = factory.CreateAiShip(_shipSpec, position, rotation, aiLevel, _unitSide);
 

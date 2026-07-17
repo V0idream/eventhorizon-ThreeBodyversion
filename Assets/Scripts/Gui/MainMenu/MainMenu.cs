@@ -19,6 +19,7 @@ using Services.Resources;
 using System.Text.RegularExpressions;
 using System.Collections;
 using System.Collections.Generic;
+using GameServices.Multiplayer;
 
 namespace Gui.MainMenu
 {
@@ -41,7 +42,9 @@ namespace Gui.MainMenu
 			OpenShipEditorSignal.Trigger openShipEditorTrigger,
 			IMessenger messenger,
             ISessionData gameSession,
-            IGuiManager guiManager)
+            IGuiManager guiManager,
+            MultiplayerSession multiplayer,
+            GameServices.Player.PlayerFleet playerFleet)
         {
             _startGameTrigger = startGameTrigger;
             _startBattleTrigger = startBattleTrigger;
@@ -49,6 +52,10 @@ namespace Gui.MainMenu
             _openEchopediaTrigger = openEchopediaTrigger;
             _gameSession = gameSession;
             _guiManager = guiManager;
+            _multiplayer = multiplayer;
+            _playerFleet = playerFleet;
+            _multiplayer.StatusChanged += OnMultiplayerStatusChanged;
+            _multiplayer.BattleReady += OnMultiplayerBattleReady;
 
             _inputField.text = _gameSettings.EditorText;
             ApplyThreeBodyBranding();
@@ -56,6 +63,13 @@ namespace Gui.MainMenu
             messenger.AddListener(EventType.SessionCreated, UpdateButtons);
             messenger.AddListener(EventType.DatabaseLoaded, OnDatabaseLoaded);
             OnDatabaseLoaded();
+        }
+
+        private void OnDestroy()
+        {
+            if (_multiplayer == null) return;
+            _multiplayer.StatusChanged -= OnMultiplayerStatusChanged;
+            _multiplayer.BattleReady -= OnMultiplayerBattleReady;
         }
 
         [SerializeField] private Button _startGameButton;
@@ -608,6 +622,104 @@ namespace Gui.MainMenu
             CreateBrandText(root.transform, template, "Title", "三体视界", 76, new Vector2(0, 0.6f), new Vector2(1, 1), Color.white);
             CreateBrandText(root.transform, template, "Developers", "策划&文案：白墨\n程序开发：V0idream\n舰船设计：Aqua\n音乐：巡洋舰零售\n特效：堂桔诃德\n测试群：908948524", 28, new Vector2(0, 0.12f), new Vector2(1, 0.66f), new Color(0.55f, 0.9f, 1f));
             CreateBrandText(root.transform, template, "OriginalAuthor", "原作者：Pavel Zinchenko（Event Horizon）", 22, new Vector2(0, 0.01f), new Vector2(1, 0.14f), new Color(0.72f, 0.76f, 0.82f));
+            CreateMultiplayerButton(canvas);
+        }
+
+        private void CreateMultiplayerButton(Canvas canvas)
+        {
+            if (GameObject.Find("ThreeBodyMultiplayerButton") != null) return;
+            var button = CreateRuntimeButton(canvas.GetComponent<RectTransform>(), "ThreeBodyMultiplayerButton", "联机  ·  MultiTest",
+                new Vector2(0.72f, 0.08f), new Vector2(0.96f, 0.16f));
+            button.onClick.AddListener(OpenMultiplayerPanel);
+        }
+
+        private void OpenMultiplayerPanel()
+        {
+            if (_multiplayerPanel != null) { _multiplayerPanel.SetActive(true); return; }
+            var canvas = GetComponentInParent<Canvas>() ?? FindObjectOfType<Canvas>();
+            if (canvas == null) return;
+
+            _multiplayerPanel = new GameObject("MultiplayerPanel", typeof(RectTransform), typeof(Canvas),
+                typeof(GraphicRaycaster), typeof(CanvasRenderer), typeof(Image));
+            _multiplayerPanel.layer = canvas.gameObject.layer;
+            var root = _multiplayerPanel.GetComponent<RectTransform>();
+            root.SetParent(canvas.transform, false);
+            root.anchorMin = new Vector2(0.2f, 0.22f); root.anchorMax = new Vector2(0.8f, 0.78f);
+            root.offsetMin = root.offsetMax = Vector2.zero;
+            _multiplayerPanel.GetComponent<Image>().color = new Color(0.01f, 0.07f, 0.11f, 0.985f);
+            var overlay = _multiplayerPanel.GetComponent<Canvas>();
+            overlay.overrideSorting = true; overlay.sortingOrder = canvas.sortingOrder + 150;
+
+            var title = CreateRuntimeText(root, "Title", "舰队联机 · MultiTest", 34, TextAnchor.MiddleCenter);
+            title.rectTransform.anchorMin = new Vector2(0.04f, 0.83f); title.rectTransform.anchorMax = new Vector2(0.96f, 0.98f);
+            title.rectTransform.offsetMin = title.rectTransform.offsetMax = Vector2.zero;
+            var hint = CreateRuntimeText(root, "Hint", "主机：在 SakuraFRP 中把 TCP 隧道转发到本机 8779 端口\n客机：输入 SakuraFRP 提供的域名/IP:端口",
+                20, TextAnchor.MiddleCenter);
+            hint.rectTransform.anchorMin = new Vector2(0.05f, 0.61f); hint.rectTransform.anchorMax = new Vector2(0.95f, 0.84f);
+            hint.rectTransform.offsetMin = hint.rectTransform.offsetMax = Vector2.zero;
+
+            var inputObject = new GameObject("FrpAddress", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(InputField));
+            inputObject.layer = root.gameObject.layer;
+            var inputRect = inputObject.GetComponent<RectTransform>(); inputRect.SetParent(root, false);
+            inputRect.anchorMin = new Vector2(0.08f, 0.48f); inputRect.anchorMax = new Vector2(0.92f, 0.59f);
+            inputRect.offsetMin = inputRect.offsetMax = Vector2.zero;
+            inputObject.GetComponent<Image>().color = new Color(0.04f, 0.17f, 0.22f, 1f);
+            var inputText = CreateRuntimeText(inputRect, "Text", PlayerPrefs.GetString("ThreeBody.MultiplayerAddress", string.Empty), 22, TextAnchor.MiddleLeft);
+            inputText.rectTransform.anchorMin = Vector2.zero; inputText.rectTransform.anchorMax = Vector2.one;
+            inputText.rectTransform.offsetMin = new Vector2(14f, 0); inputText.rectTransform.offsetMax = new Vector2(-14f, 0);
+            _multiplayerAddress = inputObject.GetComponent<InputField>();
+            _multiplayerAddress.textComponent = inputText;
+            _multiplayerAddress.text = inputText.text;
+            var placeholder = CreateRuntimeText(inputRect, "Placeholder", "例如：example.sakurafrp.com:12345", 20, TextAnchor.MiddleLeft);
+            placeholder.rectTransform.anchorMin = Vector2.zero; placeholder.rectTransform.anchorMax = Vector2.one;
+            placeholder.rectTransform.offsetMin = new Vector2(14f, 0); placeholder.rectTransform.offsetMax = new Vector2(-14f, 0);
+            placeholder.color = new Color(0.55f, 0.65f, 0.7f, 0.8f);
+            _multiplayerAddress.placeholder = placeholder;
+
+            var host = CreateRuntimeButton(root, "Host", "作为主机（本地 8779）", new Vector2(0.08f, 0.32f), new Vector2(0.48f, 0.44f));
+            host.onClick.AddListener(() => BeginMultiplayer(true));
+            var client = CreateRuntimeButton(root, "Client", "作为客机连接", new Vector2(0.52f, 0.32f), new Vector2(0.92f, 0.44f));
+            client.onClick.AddListener(() => BeginMultiplayer(false));
+
+            _multiplayerStatus = CreateRuntimeText(root, "Status", _multiplayer.Status, 19, TextAnchor.MiddleCenter);
+            _multiplayerStatus.rectTransform.anchorMin = new Vector2(0.05f, 0.14f); _multiplayerStatus.rectTransform.anchorMax = new Vector2(0.95f, 0.3f);
+            _multiplayerStatus.rectTransform.offsetMin = _multiplayerStatus.rectTransform.offsetMax = Vector2.zero;
+            var close = CreateRuntimeButton(root, "Close", "关闭", new Vector2(0.32f, 0.025f), new Vector2(0.68f, 0.125f));
+            close.onClick.AddListener(() => _multiplayerPanel.SetActive(false));
+        }
+
+        private void BeginMultiplayer(bool host)
+        {
+            if (!_gameSession.IsGameStarted() || !_playerFleet.ActiveShipGroup.Ships.Any())
+            {
+                OnMultiplayerStatusChanged("请先进入存档并配置本地出战舰队");
+                return;
+            }
+            if (host) _multiplayer.Host();
+            else
+            {
+                var address = _multiplayerAddress != null ? _multiplayerAddress.text.Trim() : string.Empty;
+                PlayerPrefs.SetString("ThreeBody.MultiplayerAddress", address); PlayerPrefs.Save();
+                _multiplayer.Connect(address);
+            }
+        }
+
+        private void OnMultiplayerStatusChanged(string status)
+        {
+            if (_multiplayerStatus != null) _multiplayerStatus.text = status;
+        }
+
+        private void OnMultiplayerBattleReady()
+        {
+            _startBattleTrigger.Fire(new QuickCombatState.Settings
+            {
+                Multiplayer = true,
+                UsePlayerFleet = true,
+                EasyMode = false,
+                TestShipId = string.Empty,
+                EnemyFleetSpec = string.Empty,
+                AllyFleetSpec = string.Empty,
+            });
         }
 
         private static void CreateBrandText(
@@ -659,5 +771,10 @@ namespace Gui.MainMenu
         private readonly Dictionary<int, Text> _quickEnemyCountTexts = new();
         private readonly Dictionary<int, int> _quickAllyCounts = new();
         private readonly Dictionary<int, Text> _quickAllyCountTexts = new();
+        private MultiplayerSession _multiplayer;
+        private GameServices.Player.PlayerFleet _playerFleet;
+        private GameObject _multiplayerPanel;
+        private InputField _multiplayerAddress;
+        private Text _multiplayerStatus;
     }
 }
