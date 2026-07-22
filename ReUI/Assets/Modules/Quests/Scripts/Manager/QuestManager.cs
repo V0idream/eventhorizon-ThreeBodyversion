@@ -1,0 +1,434 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using GameDatabase;
+using GameDatabase.DataModel;
+using GameDatabase.Enums;
+using Zenject;
+
+namespace Domain.Quests
+{
+	public class QuestManager : IQuestManager, IInitializable, IDisposable, ITickable
+	{
+	    public QuestManager(
+            IDatabase database,
+			QuestFactory questFactory,
+			RequirementsFactory requirementsFactory,
+			IQuestManagerContext questManagerContext)
+	    {
+			_database = database;
+			_factory = questFactory;
+			_requirementsFactory = requirementsFactory;
+			_context = questManagerContext;
+		}
+
+		public bool ActionRequired { get; private set; }
+
+	    public void InvokeAction(IQuestActionProcessor processor)
+	    {
+	        if (_activeQuest != null && _activeQuest.TryInvokeAction(processor))
+                _recentlyUpdatedQuests.Add(_activeQuest);
+	    }
+
+	    public IEnumerable<IQuest> Quests => _quests.Cast<IQuest>(); 
+
+        public bool IsQuestObjective(int starId)
+        {
+            return _questBeacons.Count > 0 && _questBeacons.Contains(starId);
+        }
+
+		public void Initialize()
+        {
+			_context.EventProvider.QuestEventOccured += OnQuestEvent;
+			_context.EventProvider.SessionLoaded += Reset;
+			_context.EventProvider.SessionCreated += LoadQuests;
+		}
+
+		public void Dispose()
+        {
+			_context.EventProvider.QuestEventOccured -= OnQuestEvent;
+			_context.EventProvider.SessionLoaded -= Reset;
+			_context.EventProvider.SessionCreated -= LoadQuests;
+		}
+
+		public void Tick()
+	    {
+			if (!_context.GameDataProvider.IsGameStarted) return;
+
+            var counter = 100;
+            while (_recentlyUpdatedQuests.Count > 0)
+            {
+                if (--counter == 0)
+                {
+                    var currentQuest = _recentlyUpdatedQuests.Last();
+                    UnityEngine.Debug.LogException(new InvalidOperationException(
+                        "QuestManager - infinite loop. Quest:" + currentQuest.Id + " Node:" + currentQuest.NodeId));
+                    UnityEngine.Debug.Break();
+                    break;
+                }
+
+                var index = _recentlyUpdatedQuests.Count - 1;
+                var quest = _recentlyUpdatedQuests[index];
+                _recentlyUpdatedQuests.RemoveAt(index);
+                OnQuestUpdated(quest);
+            }
+
+            if (_context.GameDataProvider.TotalPlayTime - _lastUpdateTime > UpdateCooldown)
+            {
+                _lastUpdateTime = _context.GameDataProvider.TotalPlayTime;
+				OnQuestEvent(SimpleEventData.Timer);
+            }
+        }
+
+        public void AbandonQuest(IQuest quest)
+	    {
+	        var result = _quests.Find(item => item == quest);
+	        if (result == null) return;
+
+    	    CompleteQuest(result);
+	        UpdateQuestBeacons();
+        }
+
+		private void Reset()
+	    {
+			_quests.Clear();
+	        _questBeacons.Clear();
+            _questBeaconsOld.Clear();
+            _recentlyUpdatedQuests.Clear();
+	        _activeQuest = null;
+            _lastUpdateTime = 0;
+
+            _beaconQuests.Clear();
+            _localEncounterQuests.Clear();
+            _arrivedAtStarQuests.Clear();
+            _newStarExploredQuests.Clear();
+            _factionQuests.Clear();
+            _dailyQuests.Clear();
+        }
+
+	    private void LoadQuests()
+	    {
+			var currentStarId = _context.StarMapDataProvider.CurrentStar.Id;
+			var discardedInvalidJourney = false;
+			foreach (var item in _context.QuestDataStorage.GetActiveQuests())
+			{
+				// Preview builds could start the journey quest on the current star
+				// when the destination origin could not be resolved.  Its ComeToOrigin
+				// node then completed on the next tick and removed the task.  Discard
+				// that invalid in-progress entry so the prologue can create a real
+				// destination below instead of loading an already-completed task.
+				if (item.QuestId.Value == ThreeBodyJourneyQuestId && item.StarId == currentStarId)
+				{
+					_context.QuestDataStorage.SetQuestCancelled(item.QuestId.Value, item.StarId);
+					discardedInvalidJourney = true;
+					continue;
+				}
+
+				Add(_factory.Create(item));
+			}
+
+	        var starId = currentStarId;
+			// GameStart is emitted for both a newly-created session and a loaded
+			// session in the original service layer.  Only evaluate this condition
+			// for a genuinely new save; otherwise the opening transmission can be
+			// offered again every time the application is launched.
+			var isNewGame = !_context.GameDataProvider.IsGameStarted;
+
+            foreach (var questData in _database.QuestList)
+	                if (isNewGame && questData.StartCondition == StartCondition.GameStart && questData.CanBeStarted(_context.QuestDataStorage, starId))
+	                Add(_factory.Create(questData, starId));
+
+			// Recover saves made by the builds that either skipped the StartQuest
+			// node or completed the destination objective on the current star.  A
+			// completed prologue is the authoritative prerequisite; the journey is
+			// still singleton, so this cannot duplicate a valid completed task.
+			if (!isNewGame && (discardedInvalidJourney ||
+				_context.QuestDataStorage.HasBeenCompleted(ThreeBodyPrologueQuestId)) &&
+				!_context.QuestDataStorage.IsActiveOrCompleted(ThreeBodyJourneyQuestId))
+			{
+				var journey = _database.GetQuest(new GameDatabase.Model.ItemId<QuestModel>(ThreeBodyJourneyQuestId));
+				if (journey != null && journey != QuestModel.DefaultValue)
+					StartQuest(journey);
+			}
+
+            var seed = _context.GameDataProvider.GameSeed;
+            _beaconQuests.Assign(_database.QuestList.Where(item => item.StartCondition == StartCondition.Beacon), _requirementsFactory, seed);
+	        _localEncounterQuests.Assign(_database.QuestList.Where(item => item.StartCondition == StartCondition.LocalEncounter), _requirementsFactory, seed);
+	        _arrivedAtStarQuests.Assign(_database.QuestList.Where(item => item.StartCondition == StartCondition.ArrivedAtStar), _requirementsFactory, seed);
+	        _newStarExploredQuests.Assign(_database.QuestList.Where(item => item.StartCondition == StartCondition.NewStarExplored), _requirementsFactory, seed);
+            _factionQuests.Assign(_database.QuestList.Where(item => item.StartCondition == StartCondition.FactionMission), _requirementsFactory, seed);
+			_dailyQuests.Assign(_database.QuestList.Where(item => item.StartCondition == StartCondition.Daily), _requirementsFactory, seed);
+        }
+
+	    public void StartQuest(QuestModel questModel, int seedIncrement = 0)
+	    {
+            if (questModel == null) return;
+
+	        var starId = _context.StarMapDataProvider.CurrentStar.Id;
+            var seed = _context.QuestDataStorage.GenerateSeed(questModel, starId) + seedIncrement;
+
+            // This storyline objective is a destination 100+ light-years from
+            // the prologue system. Manual quests normally bind to the current
+            // star, which made ComeToOrigin true immediately and completed the
+            // task before the quest list could render it.
+            if (questModel.Id.Value == ThreeBodyJourneyQuestId)
+            {
+                var destination = _requirementsFactory.CreateQuestGiver(questModel.Origin)
+                    .GetStartSystem(starId, seed);
+                if (destination < 0 || destination == starId)
+                {
+                    UnityEngine.Debug.LogError("QuestManager.StartQuest: unable to resolve the journey destination");
+                    return;
+                }
+
+                starId = destination;
+            }
+
+	        if (questModel.StartCondition != StartCondition.Manual)
+	        {
+	            UnityEngine.Debug.LogException(new ArgumentException("QuestManager.StartQuest: Wrong start condition - " + questModel.StartCondition));
+	            return;
+	        }
+
+            if (!questModel.CanBeStarted(_context.QuestDataStorage, starId))
+	        {
+	            UnityEngine.Debug.LogError(new ArgumentException("QuestManager.StartQuest: Quest can't be started - " + questModel.Id.Value));
+                return;
+	        }
+
+	        if (!_requirementsFactory.CreateForQuest(questModel.Requirement, seed).CanStart(starId, seed))
+	        {
+	            UnityEngine.Debug.LogError(new ArgumentException("QuestManager.StartQuest: Requirements are not met - " + questModel.Id.Value));
+	            return;
+	        }
+
+            Add(_factory.Create(questModel, starId, seedIncrement));
+        }
+
+        private void Add(Quest quest)
+	    {
+			if (quest == null)
+	        {
+	            //UnityEngine.Debug.LogException(new ArgumentException("QuestManager: quest is null"));
+                return;
+	        }
+
+	        UnityEngine.Debug.Log("new quest: " + quest.Model.Name);
+
+	        _quests.Add(quest);
+            SaveQuestProgress(quest);
+
+            _recentlyUpdatedQuests.Add(quest);
+			_context.EventProvider.FireQuestsUpdatedEvent();
+	    }
+
+        private void OnQuestUpdated(Quest quest)
+        {
+            SaveQuestProgress(quest);
+
+            if (quest.Status.IsFinished())
+            {
+                CompleteQuest(quest);
+                FindActiveQuest();
+            }
+            else if (quest.Status == QuestStatus.ActionRequired)
+		    {
+		        if (_activeQuest == null || _activeQuest == quest || _activeQuest.Status != QuestStatus.ActionRequired || _quests.IndexOf(quest) > _quests.IndexOf(_activeQuest))
+		        {
+		            _activeQuest = quest;
+		            ActionRequired = true;
+					_context.EventProvider.FireActionRequiredEvent();
+				}
+            }
+            else if (quest == _activeQuest || _activeQuest == null)
+            {
+                FindActiveQuest();
+            }
+
+            UpdateQuestBeacons();
+        }
+
+	    private void UpdateQuestBeacons()
+	    {
+	        var temp = _questBeaconsOld;
+	        _questBeaconsOld = _questBeacons;
+	        _questBeacons = temp;
+
+	        _questBeacons.Clear();
+	        foreach (var quest in _quests)
+	            quest.TryGetBeacons(_questBeacons);
+
+            _questBeaconsOld.SymmetricExceptWith(_questBeacons);
+	        if (_questBeaconsOld.Count <= 0) return;
+
+	        foreach (var id in _questBeaconsOld)
+				_context.EventProvider.FireBeaconUpdatedEvent(id);
+	    }
+
+        private void FindActiveQuest()
+	    {
+	        _activeQuest = null;
+	        ActionRequired = false;
+
+	        for (var i = _quests.Count - 1; i >= 0; --i)
+	        {
+	            var item = _quests[i];
+	            if (item.Status != QuestStatus.ActionRequired)
+                    continue;
+
+                _activeQuest = item;
+	            ActionRequired = true;
+				_context.EventProvider.FireActionRequiredEvent();
+				break;
+	        }
+	    }
+
+        private void CompleteQuest(Quest quest)
+	    {
+            var completedFactionMission =
+                quest.Status == QuestStatus.Completed &&
+                quest.Model.StartCondition == StartCondition.FactionMission;
+			_quests.Remove(quest);
+	        _recentlyUpdatedQuests.Remove(quest);
+
+            if (quest.Model.QuestType == QuestType.Temporary) return; 
+
+	        switch (quest.Status)
+	        {
+                case QuestStatus.Completed:
+                    _context.QuestDataStorage.SetQuestCompleted(quest.Id, quest.StarId);
+                    if (completedFactionMission)
+                    {
+                        var region = _context.StarMapDataProvider.GetStarData(quest.StarId).Region;
+                        var homeStar = region.HomeStarId;
+                        var relation = _context.QuestDataStorage.GetFactionRelations(homeStar);
+                        _context.QuestDataStorage.SetFactionRelations(homeStar, relation + 5);
+                    }
+                    // The prologue's StartQuest action can be skipped when its
+                    // terminal transition and the dialog close happen in the same
+                    // frame.  Guarantee the storyline follow-up is persisted and
+                    // visible in the quest list after the prologue finishes.
+                    if (quest.Id == ThreeBodyPrologueQuestId)
+                    {
+                        var journey = _database.GetQuest(new GameDatabase.Model.ItemId<QuestModel>(ThreeBodyJourneyQuestId));
+                        if (journey != null && journey != QuestModel.DefaultValue &&
+                            journey.CanBeStarted(_context.QuestDataStorage, quest.StarId))
+                            StartQuest(journey);
+                    }
+                    break;
+	            case QuestStatus.Failed:
+                    _context.QuestDataStorage.SetQuestFailed(quest.Id, quest.StarId);
+                    break;
+                case QuestStatus.Cancelled:
+                case QuestStatus.InProgress:
+                    _context.QuestDataStorage.SetQuestCancelled(quest.Id, quest.StarId);
+	                break;
+                case QuestStatus.Error:
+                default:
+                    UnityEngine.Debug.LogException(new InvalidOperationException("QuestManager: Error has occured - " + quest.Model.Name));
+                    _context.QuestDataStorage.SetQuestCancelled(quest.Id, quest.StarId);
+                    break;
+            }
+
+            ProcessQuestEvent(SimpleEventData.Timer);
+            if (completedFactionMission)
+                CreateFactionMission(quest.StarId, _context.GameDataProvider.TotalPlayTime);
+            _context.EventProvider.FireQuestsUpdatedEvent();
+        }
+
+        private void OnQuestEvent(IQuestEventData data)
+	    {
+            var time = _context.GameDataProvider.TotalPlayTime;
+
+            if (data.Type == QuestEventType.BeaconActivated)
+	        {
+	            var eventData = (BeaconEventData)data;
+                _beaconQuests.UpdateQuests(eventData.StarId, eventData.Seed, time, _context);
+	            Add(_beaconQuests.CreateRandomWeighted(_factory, eventData.Seed));
+                return;
+	        }
+	        if (data.Type == QuestEventType.LocalEncounter)
+	        {
+	            var eventData = (LocalEncounterEventData)data;
+                _localEncounterQuests.UpdateQuests(eventData.StarId, eventData.Seed, time, _context);
+	            Add(_localEncounterQuests.CreateRandomWeighted(_factory, eventData.Seed));
+                return;
+	        }
+	        if (data.Type == QuestEventType.NewStarSystemSecured)
+	        {
+	            var eventData = (StarEventData)data;
+                var seed = _context.GameDataProvider.GameSeed + eventData.StarId;
+                _newStarExploredQuests.UpdateQuests(eventData.StarId, seed, time, _context);
+	            Add(_newStarExploredQuests.CreateRandomWeighted(_factory, seed));
+                return;
+	        }
+            if (data.Type == QuestEventType.FactionMissionAccepted)
+	        {
+	            var eventData = (StarEventData)data;
+                CreateFactionMission(eventData.StarId, time);
+                return;
+	        }
+
+	        if (data.Type == QuestEventType.ArrivedAtStarSystem)
+	        {
+	            var eventData = (StarEventData)data;
+	            var seed = _context.GameDataProvider.GameSeed + eventData.StarId + _context.QuestDataStorage.TotalQuestCount();
+                _arrivedAtStarQuests.UpdateQuests(eventData.StarId, seed, time, _context);
+	            Add(_arrivedAtStarQuests.CreateRandomWeighted(_factory, seed));
+	        }
+
+            if (data.Type == QuestEventType.Timer)
+            {
+                var seed = _context.GameDataProvider.GameSeed + (int)(time / TimeSpan.TicksPerMinute) + _context.QuestDataStorage.TotalQuestCount();
+                _dailyQuests.UpdateQuests(_context.StarMapDataProvider.CurrentStar.Id, seed, time, _context);
+                Add(_dailyQuests.CreateFirstAvailable(_factory));
+            }
+
+			ProcessQuestEvent(data);
+	    }
+
+        private void CreateFactionMission(int starId, long time)
+        {
+            var seed = _context.GameDataProvider.GameSeed + starId + _context.QuestDataStorage.TotalQuestCount() +
+                _context.StarMapDataProvider.GetStarData(starId).Region.Relations;
+            _factionQuests.UpdateQuests(starId, seed, time, _context);
+            Add(_factionQuests.CreateRandomWeighted(_factory, seed));
+        }
+
+        private void ProcessQuestEvent(IQuestEventData data)
+	    {
+	        foreach (var quest in _quests)
+	            if (quest.TryProcessEvent(data) && !_recentlyUpdatedQuests.Contains(quest))
+	                _recentlyUpdatedQuests.Add(quest);
+        }
+
+        private void SaveQuestProgress(Quest quest)
+        {
+            if (quest.Model.QuestType != QuestType.Temporary)
+                _context.QuestDataStorage.SetQuestProgress(new QuestProgress(quest.Id, quest.StarId, quest.NodeId, quest.Seed));
+        }
+
+        private Quest _activeQuest;
+	    private readonly List<Quest> _recentlyUpdatedQuests = new();
+        private readonly List<Quest> _quests = new();
+	    private readonly QuestCollection _beaconQuests = new();
+	    private readonly QuestCollection _localEncounterQuests = new();
+        private readonly QuestCollection _newStarExploredQuests = new();
+	    private readonly QuestCollection _arrivedAtStarQuests = new();
+        private readonly QuestCollection _factionQuests = new();
+        private readonly QuestCollection _dailyQuests = new();
+
+		private HashSet<int> _questBeacons = new();
+	    private HashSet<int> _questBeaconsOld = new();
+
+        private long _lastUpdateTime;
+		private readonly QuestFactory _factory;
+		private readonly RequirementsFactory _requirementsFactory;
+		private readonly IDatabase _database;
+		private readonly IQuestManagerContext _context;
+
+		private const long UpdateCooldown = 10 * TimeSpan.TicksPerSecond;
+		private const int ThreeBodyPrologueQuestId = 201;
+		private const int ThreeBodyJourneyQuestId = 202;
+	}
+}

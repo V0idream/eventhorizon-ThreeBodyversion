@@ -1,0 +1,22 @@
+[submodule "Assets/Modules/Database/.CodeGenerator"]
+	path = Assets/Modules/Database/.CodeGenerator
+	url = https://github.com/PavelZinchenko/DatabaseCodeGenerator
+[submodule "Assets/Modules/Database/.Editor"]
+	path = Assets/Modules/Database/.Editor
+	url = https://github.com/PavelZinchenko/EventHorizon-Editor
+[submodule "Assets/ModulesPrivate"]
+	path = Assets/ModulesPrivate
+	url = https://github.com/PavelZinchenko/event-horizon-private-stuff
+[submodule "Assets/ExpressionParser"]
+	path = Assets/ExpressionParser
+	url = https://github.com/PavelZinchenko/Expression-Parser
+[submodule "Assets/Modules/GameSession/.CodeGenerator"]
+	path = Assets/Modules/GameSession/.CodeGenerator
+	url = https://github.com/PavelZinchenko/event-horizon-session-code-generator
+[submodule "Assets/ModulesShared"]
+	path = Assets/ModulesShared
+	url = https://github.com/V0idream/eventhorizon-ThreeBodyversion.git
+	branch = modules-shared-preview5
+[submodule "Assets/Modules/Database/Plugins/NVorbis"]
+	path = Assets/Modules/Database/Plugins/NVorbis
+	url = https://github.com/PavelZinchenko/NVorbis

@@ -1,0 +1,22 @@
+{
+  "ItemType": 110,
+  "WindowColor": "#8B5CF6",
+  "ScrollBarColor": "#C08B5CF6",
+  "IconColor": "#C4A3FF",
+  "SelectionColor": "#B07CFF",
+  "ButtonColor": "#8B5CF6",
+  "ButtonFocusColor": "#408B5CF6",
+  "ButtonTextColor": "#D8C4FF",
+  "ButtonIconColor": "#E0D8C4FF",
+  "TextColor": "#D8C4FF",
+  "HeaderTextColor": "#E6D5FF",
+  "PaleTextColor": "#B9A8D8",
+  "BrightTextColor": "#F4EEFF",
+  "BackgroundDark": "#130A20",
+  "CommonQualityItemColor": "#C4A3FF",
+  "AvailableTechColor": "#E6D5FF",
+  "ObtainedTechColor": "#8B5CF6",
+  "HiddenTechColor": "#8A66CC",
+  "CreditsColor": "#C4A3FF",
+  "TokensColor": "#A875FF"
+}
