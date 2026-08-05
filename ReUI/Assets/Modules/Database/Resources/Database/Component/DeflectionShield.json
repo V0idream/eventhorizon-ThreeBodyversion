@@ -1,0 +1,18 @@
+{
+  "ItemType": 1,
+  "Id": 956,
+  "Name": "$DeflectionShield",
+  "Description": "$DeflectionShieldDescription",
+  "ContentSource": 1,
+  "DisplayCategory": 2,
+  "Availability": 1,
+  "ComponentStatsId": 929,
+  "Faction": 22,
+  "Level": 100,
+  "Icon": "shield_deflection",
+  "Color": "#55E7FF",
+  "Layout": "101111101",
+  "CellType": "2",
+  "DeviceId": 908,
+  "PossibleModifications": [15, 1, 2]
+}

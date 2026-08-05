@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Game.Exploration;
 using Services.Resources;
 using UnityEngine;
@@ -17,6 +17,9 @@ namespace Combat.Background
         public void Initialize(IResourceLocator resourceLocator, Planet planet)
         {
             _planet = planet;
+			_meshRenderer = gameObject.GetComponent<MeshRenderer>();
+			if (_meshRenderer == null)
+				_meshRenderer = gameObject.AddComponent<MeshRenderer>();
 
             // The old code made both sides of the mesh equal to
             // size * screenAspect.  On wide displays that produced a square
@@ -30,65 +33,35 @@ namespace Combat.Background
             switch (planet.Type)
             {
                 case PlanetType.Gas:
-                    InitializeGasMaterial();
+                    InitializeMaterial(_gasPlanetMaterial, Color.Lerp(_planet.Color, Color.black, 0.75f));
                     break;
                 case PlanetType.Infected:
-                    InitializeInfectedMaterial(resourceLocator);
+                    InitializeMaterial(_infectedPlanetMaterial, Color.Lerp(_planet.Color, Color.black, 0.3f));
                     break;
                 case PlanetType.Barren:
                 case PlanetType.Terran:
-                    InitializeBarrenMaterial(resourceLocator);
+                    InitializeMaterial(_barrenPlanetMaterial, Color.Lerp(_planet.Color, Color.black, 0.3f));
                     break;
                 default:
                     throw new ArgumentException("PlanetBackground: Wrong planet type - " + planet.Type);
             }
         }
 
-        private void InitializeGasMaterial()
+        private void InitializeMaterial(Material source, Color color)
         {
-            gameObject.AddComponent<MeshRenderer>().sharedMaterial = _gasPlanetMaterial;
+			if (_materialCopy != null)
+				Destroy(_materialCopy);
 
-            //var random = new System.Random(planet.Seed);
-            //_material.SetTexture("_DecalTex", resourceLocator.GetNebulaTexture(random.Next()));
-            //_material.SetTexture("_CloudsTex", resourceLocator.GetNebulaTexture(random.Next()));
-            _gasPlanetMaterial.color = Color.Lerp(_planet.Color, Color.black, 0.75f);
-        }
-
-        private void InitializeBarrenMaterial(IResourceLocator resourceLocator)
-        {
-            gameObject.AddComponent<MeshRenderer>().sharedMaterial = _barrenPlanetMaterial;
-
-            var random = new System.Random(_planet.Seed);
-            //_barrenPlanetMaterial.SetTexture("_CloudsTex", resourceLocator.GetNebulaTexture(random.Next()));
-            _barrenPlanetMaterial.color = Color.Lerp(_planet.Color, Color.black, 0.3f);
-        }
-
-        private void InitializeInfectedMaterial(IResourceLocator resourceLocator)
-        {
-            gameObject.AddComponent<MeshRenderer>().sharedMaterial = _infectedPlanetMaterial;
-
-            var random = new System.Random(_planet.Seed);
-            //_infectedPlanetMaterial.SetTexture("_CloudsTex", resourceLocator.GetNebulaTexture(random.Next()));
-            _infectedPlanetMaterial.color = Color.Lerp(_planet.Color, Color.black, 0.3f);
+			_meshRenderer.material = source;
+			_materialCopy = _meshRenderer.material;
+			_materialCopy.color = color;
+			_baseMainTextureScale = _materialCopy.mainTextureScale;
         }
 
         private void LateUpdate()
         {
             UpdateViewSize();
-
-            switch (_planet.Type)
-            {
-                case PlanetType.Gas:
-                    UpdateGasMaterial();
-                    break;
-                case PlanetType.Infected:
-                    UpdateInfectedMaterial();
-                    break;
-                case PlanetType.Barren:
-                case PlanetType.Terran:
-                    UpdateBarrenMaterial();
-                    break;
-            }
+			UpdateMaterial();
         }
 
         private void UpdateViewSize()
@@ -110,50 +83,53 @@ namespace Combat.Background
             transform.localScale = new Vector3(_width, _height, 1f);
         }
 
-        private void UpdateBarrenMaterial()
+        private void UpdateMaterial()
         {
-            var offset = transform.position;
+			if (_materialCopy == null)
+				return;
 
-            offset.x /= _width;
-            offset.y /= _height;
-            offset.x -= Mathf.FloorToInt(offset.x);
-            offset.y -= Mathf.FloorToInt(offset.y);
-            _barrenPlanetMaterial.mainTextureOffset = offset;
+			// A hostile hive station is instantiated only when the player enters its
+			// activation radius. The combat camera then expands to include it. The
+			// old offset divided by the changing viewport size, so the infected
+			// ground jumped and stretched exactly when the station appeared.
+			var camera = UnityEngine.Camera.main;
+			var cameraPosition = camera != null ? camera.transform.position : transform.position;
+			var worldTileSize = Mathf.Max(1f, _size);
+			_materialCopy.mainTextureScale = Vector2.Scale(
+				_baseMainTextureScale,
+				new Vector2(_width / worldTileSize, _height / worldTileSize));
+
+			var offset = Repeat01(new Vector2(
+				cameraPosition.x / worldTileSize,
+				cameraPosition.y / worldTileSize));
+			_materialCopy.mainTextureOffset = offset;
+
+			if (_planet.Type == PlanetType.Gas)
+			{
+				_materialCopy.SetTextureOffset("_DecalTex", Repeat01(offset * 2f));
+				_materialCopy.SetTextureOffset("_CloudsTex", Repeat01(offset * 3f));
+			}
         }
 
-        private void UpdateInfectedMaterial()
-        {
-            var offset = transform.position;
+		private static Vector2 Repeat01(Vector2 value)
+		{
+			value.x -= Mathf.Floor(value.x);
+			value.y -= Mathf.Floor(value.y);
+			return value;
+		}
 
-            offset.x /= _width;
-            offset.y /= _height;
-            offset.x -= Mathf.FloorToInt(offset.x);
-            offset.y -= Mathf.FloorToInt(offset.y);
-            _infectedPlanetMaterial.mainTextureOffset = offset;
-        }
-
-        private void UpdateGasMaterial()
-        {
-            var offset = transform.position;
-
-            offset.x /= _width;
-            offset.y /= _height;
-            offset.x -= Mathf.FloorToInt(offset.x);
-            offset.y -= Mathf.FloorToInt(offset.y);
-            _gasPlanetMaterial.mainTextureOffset = offset;
-
-            var decalOffset = offset * 2;
-            decalOffset.x -= Mathf.FloorToInt(offset.x);
-            decalOffset.y -= Mathf.FloorToInt(offset.y);
-            _gasPlanetMaterial.SetTextureOffset("_DecalTex", decalOffset);
-
-            var cloudOffset = offset * 3;
-            cloudOffset.x -= Mathf.FloorToInt(offset.x);
-            cloudOffset.y -= Mathf.FloorToInt(offset.y);
-            _gasPlanetMaterial.SetTextureOffset("_CloudsTex", cloudOffset);
-        }
+		private void OnDestroy()
+		{
+			if (_meshRenderer != null)
+				_meshRenderer.material = null;
+			if (_materialCopy != null)
+				Destroy(_materialCopy);
+		}
 
         private Planet _planet;
+		private MeshRenderer _meshRenderer;
+		private Material _materialCopy;
+		private Vector2 _baseMainTextureScale = Vector2.one;
         private float _width;
         private float _height;
 

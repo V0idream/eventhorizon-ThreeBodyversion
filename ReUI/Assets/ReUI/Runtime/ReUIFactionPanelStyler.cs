@@ -20,6 +20,7 @@ namespace ReUI
             "StarbaseDefenseButton",
             "PeacefulTransferButton",
             "Preview5JointAttackButton",
+            "StarbaseFacilityTypeButton",
         };
 
         internal static void Apply(Canvas canvas)

@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
@@ -204,8 +204,8 @@ namespace ShipEditor.UI
 
 		public void RestoreCustomArtwork()
 		{
-			if (CurrentShipId <= 0) return;
-			PlayerShipTextureOverrides.Restore(CurrentShipId);
+			if (_shipEditor?.Ship == null) return;
+			PlayerShipTextureOverrides.Restore(CurrentShipId, OriginalShipSprite);
 			RefreshShipArtwork();
 		}
 
@@ -214,7 +214,8 @@ namespace ShipEditor.UI
 			if (_shipEditor?.Ship == null) return;
 			var fallback = OriginalShipSprite;
 			var sprite = PlayerShipTextureOverrides.Get(CurrentShipId, fallback);
-			_shipView.InitializeShip(_shipEditor.Layout(ShipElementType.Ship), sprite);
+			var imageScaleMultiplier = CurrentShipId == 94009 ? 0.085f : 1f;
+			_shipView.InitializeShip(_shipEditor.Layout(ShipElementType.Ship), sprite, imageScaleMultiplier);
 		}
 
 		public void OnUndoListChanged()
@@ -312,7 +313,7 @@ namespace ShipEditor.UI
 
 		private void OpenTextureCustomization()
 		{
-			if (_shipEditor?.Ship == null || CurrentShipId <= 0 || CurrentShipSprite == null)
+			if (_shipEditor?.Ship == null || CurrentShipSprite == null)
 				return;
 			if (!PlayerShipTextureOverrides.HasConsent)
 			{
@@ -394,10 +395,15 @@ namespace ShipEditor.UI
             if (!_shipEditor.ShipDataProvider.TryGet(ship, out var data))
                 data = _shipEditor.ShipDataProvider.Default;
 
-			var fallback = data.HasImage ? null : _resourceLocator.GetSprite(ship.Model.ModelImage);
-			var sprite = data.HasImage ? null : PlayerShipTextureOverrides.Get(ship.Model.OriginalShip.Id.Value, fallback);
+			// External mods commonly provide their hull through the runtime database
+			// image table. Even when ShipDataProvider reports a custom image, retain
+			// that resolved sprite as the paint mask instead of suppressing it.
+			var fallback = OriginalShipSprite;
+			var shipId = ship.Model.OriginalShip.Id.Value;
+			var sprite = PlayerShipTextureOverrides.Get(shipId, fallback);
 
-            _shipView.InitializeShip(_shipEditor.Layout(ShipElementType.Ship), sprite);
+			var imageScaleMultiplier = shipId == 94009 ? 0.085f : 1f;
+            _shipView.InitializeShip(_shipEditor.Layout(ShipElementType.Ship), sprite, imageScaleMultiplier);
 			_shipInitialName = _localization.GetString(_shipEditor.ShipName);
 			_shipNameInputField.text = _shipInitialName;
 

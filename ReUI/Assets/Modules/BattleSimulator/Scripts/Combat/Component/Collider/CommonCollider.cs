@@ -99,7 +99,7 @@ namespace Combat.Component.Collider
             
             if (Source == null) return true;
             if (unit == Source) return false;
-            if (unit.Type.Owner == Source && !IsBallLightning(unit)) return false;
+            if (unit.Type.Owner == Source && !IsBallLightning(unit) && !IsOwnerBlockingShield(unit)) return false;
 
             return true;
         }
@@ -108,6 +108,11 @@ namespace Combat.Component.Collider
         {
             return unit is Combat.Component.Bullet.Bullet bullet &&
                    bullet.Controller is Combat.Component.Controller.BallLightningController;
+        }
+
+        private static bool IsOwnerBlockingShield(IUnit unit)
+        {
+            return unit is EnergyShield shield && shield.BlocksOwnerProjectiles;
         }
 
         private void OnTriggerEnter2D(Collider2D collider)

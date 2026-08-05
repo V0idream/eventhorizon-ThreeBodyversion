@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using ShipEditor.Model;
 
 namespace ShipEditor.UI
@@ -25,9 +25,9 @@ namespace ShipEditor.UI
         public float Scale { get => transform.localScale.z; set => transform.localScale = value * Vector3.one; }
         public float CellSize => _cellSize * transform.localScale.z;
 
-		public void InitializeShip(IShipLayoutModel layout, Sprite sprite)
+		public void InitializeShip(IShipLayoutModel layout, Sprite sprite, float imageScaleMultiplier = 1f)
 		{
-			_elements[ShipElementType.Ship].Initialize(layout, sprite, _cellSize);
+			_elements[ShipElementType.Ship].Initialize(layout, sprite, _cellSize, imageScaleMultiplier);
 			UpdateSatellitePosition(SatelliteLocation.Left);
 			UpdateSatellitePosition(SatelliteLocation.Right);
 		}

@@ -1,4 +1,4 @@
-﻿using CommonComponents.Signals;
+using CommonComponents.Signals;
 
 namespace Domain.Quests
 {
@@ -12,6 +12,11 @@ namespace Domain.Quests
         CombatCompleted,
         OccupantsDefeated,
         FactionMissionAccepted,
+        MothersTearsAccepted,
+        BeautifulProminenceAccepted,
+        ExplorationScanCompleted,
+        ExplorationHiveCompleted,
+        StarbaseDefenseCompleted,
         Timer,
     }
 

@@ -91,6 +91,8 @@ namespace Gui.Theme
     {
         private static UiTheme _current;
         private Font _defaultFont;
+        [System.NonSerialized] private bool _runtimeAccentEnabled;
+        [System.NonSerialized] private Color _runtimeAccent = Color.white;
 
         [SerializeField] private Color _windowColor = new Color32(80,192,255,255);
         [SerializeField] private Color _scrollBarColor = new Color32(80, 192, 255, 192);
@@ -167,6 +169,11 @@ namespace Gui.Theme
 
         public Color GetColor(ThemeColor themeColor)
         {
+            return ApplyRuntimeAccent(themeColor, GetAuthoredColor(themeColor));
+        }
+
+        public Color GetAuthoredColor(ThemeColor themeColor)
+        {
             switch (themeColor)
             {
                 case ThemeColor.Window: return _windowColor;
@@ -203,9 +210,26 @@ namespace Gui.Theme
                 case ThemeColor.Fuel: return _fuelColor;
                 case ThemeColor.Tokens: return _tokensColor;
                 case ThemeColor.Snowflakes: return _snowflakesColor;
+                default:
+                    throw new System.InvalidOperationException($"Invalid color type {themeColor}");
             }
+        }
 
-            throw new System.InvalidOperationException($"Invalid color type {themeColor}");
+        /// <summary>
+        /// Applies a local presentation accent without mutating database JSON or
+        /// save data. Semantic warning, premium and resource colours remain
+        /// authored; only the ordinary interface palette follows the selection.
+        /// </summary>
+        public void SetRuntimeAccent(Color accent)
+        {
+            accent.a = 1f;
+            _runtimeAccent = accent;
+            _runtimeAccentEnabled = true;
+        }
+
+        public void ClearRuntimeAccent()
+        {
+            _runtimeAccentEnabled = false;
         }
 
         public int GetFontSize(ThemeFontSize themeFontSize)
@@ -256,7 +280,8 @@ namespace Gui.Theme
             switch (quality)
             {
                 case Economy.ItemType.ItemQuality.Low: return _itemLowQualityColor;
-                case Economy.ItemType.ItemQuality.Common: return _itemCommonQualityColor;
+                case Economy.ItemType.ItemQuality.Common:
+                    return ApplyRuntimeAccent(ThemeColor.Icon, _itemCommonQualityColor);
                 case Economy.ItemType.ItemQuality.Medium: return _itemMediumQualityColor;
                 case Economy.ItemType.ItemQuality.High: return _itemHighQualityColor;
                 case Economy.ItemType.ItemQuality.Perfect: return _itemPerfectQualityColor;
@@ -269,10 +294,10 @@ namespace Gui.Theme
         {
             switch (currency)
             {
-                case Economy.Currency.Credits: return _creditsColor;
+                case Economy.Currency.Credits: return ApplyRuntimeAccent(ThemeColor.Credits, _creditsColor);
                 case Economy.Currency.Stars: return _starsColor;
                 case Economy.Currency.Money: return _moneyColor;
-                case Economy.Currency.Tokens: return _tokensColor;
+                case Economy.Currency.Tokens: return ApplyRuntimeAccent(ThemeColor.Tokens, _tokensColor);
                 case Economy.Currency.Snowflakes: return _snowflakesColor;
                 case Economy.Currency.None: return Color.white;
             }
@@ -284,10 +309,10 @@ namespace Gui.Theme
         {
             switch (techColor)
             {
-                case TechColor.Available: return _availableTechColor;
+                case TechColor.Available: return ApplyRuntimeAccent(ThemeColor.HeaderText, _availableTechColor);
                 case TechColor.NotAvailable: return _unavailableTechColor;
-                case TechColor.Obtained: return _obtainedTechColor;
-                case TechColor.Hidden: return _hiddenTechColor;
+                case TechColor.Obtained: return ApplyRuntimeAccent(ThemeColor.Window, _obtainedTechColor);
+                case TechColor.Hidden: return ApplyRuntimeAccent(ThemeColor.Selection, _hiddenTechColor);
             }
 
             throw new System.InvalidOperationException($"Invalid TechColor value {techColor}");
@@ -345,6 +370,95 @@ namespace Gui.Theme
 
             var snowflakes = database.GetQuestItem(GameDatabase.Model.ItemId<GameDatabase.DataModel.QuestItem>.Create(25)); // TODO: add ID to settings
             if (snowflakes != null) _snowflakesColor = snowflakes.Color;
+        }
+
+        private Color ApplyRuntimeAccent(ThemeColor themeColor, Color authored)
+        {
+            if (!_runtimeAccentEnabled || !UsesRuntimeAccent(themeColor))
+                return authored;
+
+            Color.RGBToHSV(_runtimeAccent, out float hue, out float saturation, out float brightness);
+            saturation = Mathf.Clamp01(Mathf.Max(0.18f, saturation));
+            brightness = Mathf.Clamp(brightness, 0.30f, 1f);
+
+            float targetSaturation;
+            float targetBrightness;
+            switch (themeColor)
+            {
+                case ThemeColor.BackgroundDark:
+                    targetSaturation = Mathf.Lerp(0.28f, 0.58f, saturation);
+                    targetBrightness = Mathf.Lerp(0.035f, 0.085f, brightness);
+                    break;
+                case ThemeColor.Window:
+                    targetSaturation = Mathf.Lerp(0.40f, 0.76f, saturation);
+                    targetBrightness = Mathf.Lerp(0.10f, 0.22f, brightness);
+                    break;
+                case ThemeColor.ScrollBar:
+                case ThemeColor.Button:
+                    targetSaturation = Mathf.Lerp(0.46f, 0.88f, saturation);
+                    targetBrightness = Mathf.Lerp(0.34f, 0.64f, brightness);
+                    break;
+                case ThemeColor.ButtonFocus:
+                case ThemeColor.Selection:
+                    targetSaturation = Mathf.Lerp(0.38f, 0.78f, saturation);
+                    targetBrightness = Mathf.Lerp(0.56f, 0.90f, brightness);
+                    break;
+                case ThemeColor.Icon:
+                case ThemeColor.ButtonIcon:
+                case ThemeColor.Credits:
+                case ThemeColor.Tokens:
+                    targetSaturation = Mathf.Lerp(0.40f, 0.82f, saturation);
+                    targetBrightness = Mathf.Lerp(0.78f, 1f, brightness);
+                    break;
+                case ThemeColor.Text:
+                case ThemeColor.ButtonText:
+                    targetSaturation = Mathf.Lerp(0.22f, 0.54f, saturation);
+                    targetBrightness = Mathf.Lerp(0.86f, 1f, brightness);
+                    break;
+                case ThemeColor.HeaderText:
+                    targetSaturation = Mathf.Lerp(0.20f, 0.50f, saturation);
+                    targetBrightness = Mathf.Lerp(0.90f, 1f, brightness);
+                    break;
+                case ThemeColor.PaleText:
+                    targetSaturation = Mathf.Lerp(0.12f, 0.34f, saturation);
+                    targetBrightness = Mathf.Lerp(0.72f, 0.94f, brightness);
+                    break;
+                case ThemeColor.BrightText:
+                    targetSaturation = Mathf.Lerp(0.04f, 0.16f, saturation);
+                    targetBrightness = Mathf.Lerp(0.96f, 1f, brightness);
+                    break;
+                default:
+                    return authored;
+            }
+
+            Color themed = Color.HSVToRGB(hue, targetSaturation, targetBrightness);
+            themed.a = authored.a;
+            return themed;
+        }
+
+        private static bool UsesRuntimeAccent(ThemeColor themeColor)
+        {
+            switch (themeColor)
+            {
+                case ThemeColor.Window:
+                case ThemeColor.ScrollBar:
+                case ThemeColor.Icon:
+                case ThemeColor.Selection:
+                case ThemeColor.Button:
+                case ThemeColor.ButtonFocus:
+                case ThemeColor.ButtonText:
+                case ThemeColor.ButtonIcon:
+                case ThemeColor.BackgroundDark:
+                case ThemeColor.Text:
+                case ThemeColor.HeaderText:
+                case ThemeColor.PaleText:
+                case ThemeColor.BrightText:
+                case ThemeColor.Credits:
+                case ThemeColor.Tokens:
+                    return true;
+                default:
+                    return false;
+            }
         }
 
         [System.Serializable]

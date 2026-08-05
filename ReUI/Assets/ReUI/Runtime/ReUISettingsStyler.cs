@@ -42,6 +42,7 @@ namespace ReUI
             if (combatMapSize != null) StyleCombatMapSize(combatMapSize);
 
             ReUIThemePalettePanel.Ensure(canvas, settings);
+            ReUIShieldStyleSelector.Ensure(settings);
         }
 
         private static Transform FindSettingsRoot(Transform root)

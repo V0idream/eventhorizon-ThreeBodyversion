@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Combat.Ai;
@@ -284,10 +284,11 @@ namespace Combat.Factory
                 }
             }
 
-            if (unitSide == UnitSide.Player && PlayerShipTextureOverrides.HasOverride(stats.ShipModel.Id.Value))
+            var localArtworkFallback = _resourceLocator.GetSprite(stats.ShipModel.ModelImage);
+            if (unitSide == UnitSide.Player &&
+                PlayerShipTextureOverrides.HasOverride(stats.ShipModel.Id.Value, localArtworkFallback))
             {
-                var fallback = _resourceLocator.GetSprite(stats.ShipModel.ModelImage);
-                var overrideSprite = PlayerShipTextureOverrides.Get(stats.ShipModel.Id.Value, fallback);
+                var overrideSprite = PlayerShipTextureOverrides.Get(stats.ShipModel.Id.Value, localArtworkFallback);
                 var renderer = gameObject.GetComponent<SpriteRenderer>(true);
                 if (renderer != null)
                     renderer.sprite = overrideSprite;
@@ -320,7 +321,8 @@ namespace Combat.Factory
 
         private void CreateDestructionEffect(Ship ship, GameDatabase.DataModel.Ship shipModel, Color shipColor)
         {
-            var isSmallShip = shipModel.ModelScale < 0.9f; // TODO: add DB parameter
+            var isSmallShip = shipModel.ModelScale < 0.9f &&
+                shipModel.Id.Value != ThreeBodyContentRules.WanNianFengXueShipId; // TODO: add DB parameter
             var explosionEffect = shipModel.VisualEffects.CustomExplosionEffect;
             var explosionSound = shipModel.VisualEffects.CustomExplosionSound;
 

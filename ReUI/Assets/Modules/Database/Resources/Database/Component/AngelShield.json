@@ -1,0 +1,18 @@
+{
+  "ItemType": 1,
+  "Id": 957,
+  "Name": "$AngelShield",
+  "Description": "$AngelShieldDescription",
+  "ContentSource": 1,
+  "DisplayCategory": 2,
+  "Availability": 1,
+  "ComponentStatsId": 930,
+  "Faction": 24,
+  "Level": 100,
+  "Icon": "shield_angel",
+  "Color": "#FFE7A0",
+  "Layout": "101111101",
+  "CellType": "2",
+  "DeviceId": 909,
+  "PossibleModifications": [15, 1, 2]
+}

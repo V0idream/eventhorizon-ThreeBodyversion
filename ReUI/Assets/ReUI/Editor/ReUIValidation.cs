@@ -295,6 +295,878 @@ namespace ReUI.Editor
                       "runtimeScope=settings-palette-plus-specialized-ship-editor-and-combat");
         }
 
+        [MenuItem("Tools/ReUI/Validate Beta5.2")]
+        public static void ValidateBeta52()
+        {
+            ValidateBeta5();
+            Debug.Log("[Beta5.2 Validation] picker=large-sv-square, hue=vertical-strip, " +
+                      "apply=explicit-and-persistent, classicTheme=live-refreshed");
+        }
+
+        [MenuItem("Tools/ReUI/Validate Beta6")]
+        public static void ValidateBeta6()
+        {
+            ValidateBeta52();
+
+            var database = new GameDatabase.Database();
+            database.LoadDefault();
+
+            var mothersTears = database.GetQuest(new ItemId<GameDatabase.DataModel.QuestModel>(203));
+            if (mothersTears == null || mothersTears == GameDatabase.DataModel.QuestModel.DefaultValue)
+                throw new InvalidOperationException("Beta6 Mother's Tears quest 203 is missing.");
+
+            DbTechnology sim = database.GetTechnology(new ItemId<DbTechnology>(390));
+            DbTechnology waterdrop = database.GetTechnology(new ItemId<DbTechnology>(417));
+            DbTechnology sophonLauncherTechnology = database.GetTechnology(new ItemId<DbTechnology>(418));
+            if (sim is not GameDatabase.DataModel.Technology_Component simComponent ||
+                !sim.Special || sim.Price != 114514 || sim.CustomCraftingLevel != 50 || sim.Dependencies.Any() ||
+                simComponent.Component == null || simComponent.Component.Id.Value != 314 ||
+                simComponent.Faction == null || simComponent.Faction.Id.Value != 21)
+                throw new InvalidOperationException(
+                    "Beta6.2 SIM point-defense is not an independent 114514-point Earth blueprint technology.");
+            if (waterdrop is not GameDatabase.DataModel.Technology_Ship waterdropShip ||
+                !waterdrop.Special || waterdrop.Price != 114514 || waterdrop.CustomCraftingLevel != 50 || waterdrop.Dependencies.Any() ||
+                waterdropShip.Ship == null ||
+                waterdropShip.Ship == GameDatabase.DataModel.Ship.DefaultValue ||
+                waterdropShip.Ship.Id.Value != 166 ||
+                waterdropShip.Ship.Faction == null || waterdropShip.Ship.Faction.Id.Value != 22)
+                throw new InvalidOperationException(
+                    "Beta6.2 Waterdrop is not an independent 114514-point Trisolaris blueprint technology.");
+            if (sophonLauncherTechnology is not GameDatabase.DataModel.Technology_Ship sophonLauncherShipTech ||
+                sophonLauncherTechnology.Special ||
+                sophonLauncherShipTech.Ship == null || sophonLauncherShipTech.Ship.Id.Value != 1145148 ||
+                sophonLauncherTechnology.Dependencies.Count() != 1 ||
+                sophonLauncherTechnology.Dependencies.Single().Id.Value != 397)
+                throw new InvalidOperationException(
+                    "Beta6.2 Sophon Launcher technology is not placed directly after the Trisolaris battleship.");
+
+            var sophonLauncherBuild = database.GetShipBuild(
+                new ItemId<GameDatabase.DataModel.ShipBuild>(1145148));
+            if (sophonLauncherBuild == null ||
+                sophonLauncherBuild == GameDatabase.DataModel.ShipBuild.DefaultValue ||
+                !sophonLauncherBuild.AvailableForPlayer || sophonLauncherBuild.AvailableForEnemy)
+                throw new InvalidOperationException(
+                    "Beta6.2 Sophon Launcher is still available to AI fleets or unavailable to researched players.");
+
+            DbComponent antigravity = database.GetComponent(new ItemId<DbComponent>(949));
+            if (antigravity == null || antigravity == DbComponent.DefaultValue ||
+                antigravity.CellType != GameDatabase.Enums.CellType.Special ||
+                antigravity.DisplayCategory != GameDatabase.Enums.ComponentCategory.Special)
+                throw new InvalidOperationException("Beta6 antigravity core is not a green special component.");
+
+            for (int index = 1; index <= 6; index++)
+            {
+                ValidatePreferredImage(
+                    $"Resources/Story/MothersTears/story_{index:00}",
+                    $"Resources/Embedded/MothersTears/story_{index:00}.bytes",
+                    1024,
+                    576,
+                    false,
+                    "Beta6.2 storyline illustration");
+            }
+
+            string questSource = File.ReadAllText(Path.Combine(
+                Application.dataPath,
+                "Modules/Quests/Scripts/Factory/MothersTearsQuestBuilder.cs"));
+            foreach (string token in new[]
+                     {
+                         "CreateComponent(", "ItemId<DatabaseComponent>(314)", "1145140",
+                         "114514,", "1145142, 1145142", "417, 417, 417",
+                         "CreateBlueprint("
+                     })
+            {
+                if (!questSource.Contains(token))
+                    throw new InvalidOperationException("Beta6 quest implementation is missing token: " + token);
+            }
+
+            string allySource = File.ReadAllText(Path.Combine(
+                Application.dataPath,
+                "Scripts/Legacy/Model/Factories/Fleet.cs"));
+            if (!allySource.Contains("MothersTearsAllies") ||
+                !allySource.Contains("SelectRandom(10") ||
+                !allySource.Contains("ItemId<ShipBuild>(94008)"))
+                throw new InvalidOperationException(
+                    "Beta6 special-battle support is not double station allies plus an Earth titan.");
+
+            DbComponent silentCore = database.GetComponent(new ItemId<DbComponent>(955));
+            if (silentCore == null || silentCore == DbComponent.DefaultValue ||
+                silentCore.DisplayCategory != GameDatabase.Enums.ComponentCategory.Special ||
+                silentCore.Availability != GameDatabase.Enums.Availability.Hidden ||
+                silentCore.CellType != GameDatabase.Enums.CellType.Weapon ||
+                silentCore.WeaponSlotType != 'S' ||
+                Vector4.Distance((Color)silentCore.Color, Color.white) > 0.001f ||
+                silentCore.Device == null || silentCore.Device == GameDatabase.DataModel.Device.DefaultValue ||
+                silentCore.Device.Id.Value != 907 ||
+                silentCore.Layout.Size != 5 || silentCore.Layout.CellCount != 15)
+                throw new InvalidOperationException(
+                    "Beta6 Silent Core is not a hidden 3x5 red S-slot special device.");
+
+            for (int y = 0; y < 5; y++)
+            for (int x = 0; x < 5; x++)
+            {
+                bool expectedOccupied = x >= 1 && x <= 3;
+                bool occupied = silentCore.Layout[x, y] != (char)GameDatabase.Enums.CellType.Empty;
+                if (occupied != expectedOccupied)
+                    throw new InvalidOperationException("Beta6 Silent Core layout is not vertical 3x5.");
+            }
+
+            var silentStats = silentCore.Device.Stats;
+            if (Mathf.Abs(silentStats.Power - 50000f) > 0.001f ||
+                Mathf.Abs(silentStats.Range - 50f) > 0.001f ||
+                Mathf.Abs(silentStats.Lifetime - 3f) > 0.001f)
+                throw new InvalidOperationException(
+                    "Beta6 Silent Core does not match Stellar Hydrogen Bomb damage/range and 3-second charge.");
+
+            var wanNianFengXue = database.GetShip(
+                new ItemId<GameDatabase.DataModel.Ship>(Constructor.ThreeBodyContentRules.WanNianFengXueShipId));
+            var wanNianFengXueBuild = database.GetShipBuild(
+                new ItemId<GameDatabase.DataModel.ShipBuild>(Constructor.ThreeBodyContentRules.WanNianFengXueBuildId));
+            if (wanNianFengXue == null || wanNianFengXue == GameDatabase.DataModel.Ship.DefaultValue ||
+                wanNianFengXue.SizeClass != GameDatabase.Enums.SizeClass.Destroyer ||
+                wanNianFengXue.Faction == null || wanNianFengXue.Faction.Id.Value != 21 ||
+                Mathf.Abs(wanNianFengXue.ModelScale - 0.65f) > 0.001f ||
+                Mathf.Abs(wanNianFengXue.IconScale - 0.18f) > 0.001f ||
+                wanNianFengXueBuild == null || wanNianFengXueBuild == GameDatabase.DataModel.ShipBuild.DefaultValue ||
+                wanNianFengXueBuild.Ship != wanNianFengXue ||
+                !wanNianFengXueBuild.AvailableForPlayer || wanNianFengXueBuild.AvailableForEnemy ||
+                !wanNianFengXueBuild.Components.Any(item =>
+                    item.Component != null && item.Component.Id.Value == 955 &&
+                    item.X == 11 && item.Y == 1 && item.BarrelId == 0))
+                throw new InvalidOperationException(
+                    "Beta6 Wan Nian Feng Xue is not a restricted Earth destroyer with a bow Silent Core.");
+
+            var wanNianFengXueTechnology = database.GetTechnology(
+                new ItemId<DbTechnology>(Domain.Quests.BeautifulProminenceQuestBuilder.WanNianFengXueTechnologyId));
+            if (!Constructor.ThreeBodyContentRules.IsRestrictedComponent(silentCore) ||
+                !Constructor.ThreeBodyContentRules.IsRestrictedShip(wanNianFengXue) ||
+                database.TechnologyList.OfType<GameDatabase.DataModel.Technology_Component>()
+                    .Any(item => item.Component != null && item.Component.Id.Value == 955) ||
+                wanNianFengXueTechnology is not GameDatabase.DataModel.Technology_Ship wanNianFengXueShipTechnology ||
+                !wanNianFengXueTechnology.Special || wanNianFengXueTechnology.Price != 114514 ||
+                wanNianFengXueShipTechnology.Ship == null ||
+                wanNianFengXueShipTechnology.Ship.Id.Value != Constructor.ThreeBodyContentRules.WanNianFengXueShipId)
+                throw new InvalidOperationException(
+                    "Beta7 special destroyer technology or Silent Core acquisition rules are invalid.");
+
+            foreach (var expected in new[]
+                     {
+                         (Name: "wan_nian_feng_xue", MinWidth: 1024, MinHeight: 1024, TransparentCorner: false),
+                         (Name: "silent_core", MinWidth: 700, MinHeight: 1400, TransparentCorner: true),
+                     })
+            {
+                ValidatePreferredImage(
+                    $"Resources/Textures/ThreeBody/{expected.Name}",
+                    $"Resources/Embedded/ThreeBody/{expected.Name}.bytes",
+                    expected.MinWidth,
+                    expected.MinHeight,
+                    expected.TransparentCorner,
+                    "Beta6.2 special-content artwork");
+            }
+
+            string managerSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "Modules/Quests/Scripts/Manager/QuestManager.cs"));
+            string offerSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "Modules/Quests/Scripts/Factory/MothersTearsQuestBuilder.cs"));
+            string questPanelSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "Scripts/Gui/Quests/QuestPanel.cs"));
+            if (!managerSource.Contains("TryOfferMothersTears(eventData.StarId)") ||
+                !managerSource.Contains("HasBeenCompleted(ThreeBodyJourneyQuestId)") ||
+                !managerSource.Contains("OnQuestUpdated(quest)") ||
+                !managerSource.Contains("Add(_factory.Create(quest, starId))") ||
+                managerSource.Contains("TryStartMothersTears") ||
+                !offerSource.Contains("MothersTearsOfferNode") ||
+                !offerSource.Contains("QuestEventType.MothersTearsAccepted") ||
+                !questPanelSource.Contains("ConfigureOffer"))
+                throw new InvalidOperationException(
+                    "Beta6 Mother's Tears is not offered after the next route with explicit acceptance.");
+
+            string modificationPanelSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "ModulesShared/ShipEditor/Scripts/UI/ComponentPanel.cs"));
+            if (!modificationPanelSource.Contains("new Vector2(0.08f, 0.02f)") ||
+                !modificationPanelSource.Contains("titleText.resizeTextForBestFit = true") ||
+                !modificationPanelSource.Contains("titleText.gameObject.AddComponent<Outline>()") ||
+                !modificationPanelSource.Contains("titleColor.a = 1f"))
+                throw new InvalidOperationException(
+                    "Beta6 modification selector does not reserve visible height for modification names.");
+
+            string silentCoreSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "Modules/BattleSimulator/Scripts/Combat/Component/Systems/Devices/SilentCoreDevice.cs"));
+            if (!silentCoreSource.Contains("EmpDuration = 60f") ||
+                !silentCoreSource.Contains("foreach (var ship in _scene.Ships.Items)") ||
+                !silentCoreSource.Contains("CreateStrongExplosion") ||
+                !silentCoreSource.Contains("CollisionEffect.Destroy") ||
+                !silentCoreSource.Contains("LightningStrike") ||
+                !silentCoreSource.Contains("\"Lightning\""))
+                throw new InvalidOperationException(
+                    "Beta6 Silent Core runtime is missing global EMP, lightning-cannon charge effects, or self-destruction.");
+
+            string resourceLocatorSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "Modules/ResourceLocator/Scripts/ResourceLocator.cs"));
+            string moduleMeshSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "ModulesShared/ShipEditor/Scripts/Layout/ModuleMeshBuilder.cs"));
+            string shipEditorWindowSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "ModulesShared/ShipEditor/Scripts/UI/ShipEditorWindow.cs"));
+            string cheatsSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "Scripts/Legacy/Debug/Cheats.cs"));
+            string consoleSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "Scripts/Legacy/GUI/ViewModel/MainMenu/DevConsoleViewModel.cs"));
+            if (!resourceLocatorSource.Contains("SpriteMeshType.FullRect") ||
+                !resourceLocatorSource.Contains("wan_nian_feng_xue") ||
+                !moduleMeshSource.Contains("component.Id.Value == 955") ||
+                !shipEditorWindowSource.Contains("shipId == 94009 ? 0.085f") ||
+                !cheatsSource.Contains("WanNianFengXueBuildId.ToString()") ||
+                !consoleSource.Contains("++_clickCount == 5"))
+                throw new InvalidOperationException(
+                    "Beta6.3 authored special artwork rotation/scaling or five-tap cheat acquisition is incomplete.");
+
+            string fleetSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "Scripts/Legacy/Model/Factories/Fleet.cs"));
+            string starbaseSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "Scripts/Domain/Galaxy/StarContent/StarBase.cs"));
+            if (!fleetSource.Contains("TrisolarisStationEscortLimit = 20") ||
+                !fleetSource.Contains("isTrisolarisStation ? null : GetStationAssaultTitan") ||
+                !fleetSource.Contains("TrisolarisStarbaseAssaultAllies") ||
+                !fleetSource.Contains("ItemId<ShipBuild>(94008)") ||
+                !fleetSource.Contains("ItemId<ShipBuild>(416)") ||
+                !starbaseSource.Contains("region.Faction.Id.Value == 22") ||
+                !starbaseSource.Contains("TrisolarisStarbaseAssaultAllies"))
+                throw new InvalidOperationException(
+                    "Beta6.3 Trisolaris starbase cap, Titan exclusion, or reinforced Earth allies are incomplete.");
+
+            string threeBodySkillSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "Scripts/Domain/Player/ThreeBodySkillState.cs"));
+            string motherShipSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "Scripts/Domain/Player/MotherShip.cs"));
+            string galaxyMapSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "Scripts/Legacy/Map/GalaxyMap.cs"));
+            string skillTreeSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "Scripts/Legacy/GUI/ViewModel/Skills/SkillTree.cs"));
+            if (!threeBodySkillSource.Contains("HyperspaceEngineUnlocked") ||
+                !threeBodySkillSource.Contains("0.05f") ||
+                !motherShipSource.Contains("ThreeBodySkillState.TravelFuelMultiplier") ||
+                !motherShipSource.Contains("if (ThreeBodySkillState.HyperspaceEngineUnlocked)") ||
+                !galaxyMapSource.Contains("SetActive(!ThreeBodySkillState.HyperspaceEngineUnlocked)") ||
+                !skillTreeSource.Contains("超空间\\n引擎") ||
+                !skillTreeSource.Contains("航行燃料消耗降低95%"))
+                throw new InvalidOperationException(
+                    "Beta6.3 Hyperspace Engine skill does not provide unlimited travel and 95% fuel reduction.");
+
+            Debug.Log("[Beta6 Validation] quest=MothersTears-4-stages, " +
+                      "sim=earth-independent-blueprint-114514, waterdrop=trisolaris-independent-blueprint-114514, " +
+                      "sophonLauncher=post-battleship-player-only, antigravity=green-special, modifications=detailed, " +
+                      "allies=double-plus-titan, storyImages=6-high-resolution, " +
+                      "questOffer=next-route-explicit-accept, modificationNames=visible, " +
+                      "wanNianFengXue=clockwise90-scaled-restricted-destroyer-cheat-acquirable, " +
+                      "trisolarisStarbase=max20-no-titan-earth-titan-plus-two-flagships, " +
+                      "hyperspaceEngine=unlimited-range-95-percent-fuel-reduction, " +
+                      "silentCore=authored-art-60s-emp-lightning-charge-3s-self-destruct");
+        }
+
+        [MenuItem("Tools/ReUI/Validate Beta7")]
+        public static void ValidateBeta7()
+        {
+            ValidateBeta6();
+
+            var database = new GameDatabase.Database();
+            database.LoadDefault();
+
+            var quest = database.GetQuest(new ItemId<GameDatabase.DataModel.QuestModel>(
+                Domain.Quests.BeautifulProminenceQuestBuilder.QuestId));
+            var confidentialFile = database.GetQuestItem(new ItemId<GameDatabase.DataModel.QuestItem>(
+                Domain.Quests.BeautifulProminenceQuestBuilder.ConfidentialFileItemId));
+            if (quest == null || quest == GameDatabase.DataModel.QuestModel.DefaultValue ||
+                confidentialFile == null || confidentialFile == GameDatabase.DataModel.QuestItem.DefaultValue)
+                throw new InvalidOperationException("Beta7 Beautiful Prominence quest or 2001 confidential file is missing.");
+
+            for (var index = 1; index <= 4; ++index)
+            {
+                ValidatePreferredImage(
+                    $"Resources/Story/BeautifulProminence/story_{index:00}",
+                    $"Resources/Embedded/BeautifulProminence/story_{index:00}.bytes",
+                    1600,
+                    900,
+                    false,
+                    "Beta7 Beautiful Prominence illustration");
+            }
+
+            var buildDirectory = Path.Combine(Application.dataPath,
+                "Modules/Database/Resources/Database/Ship/Builds");
+            var ballLightningReferences = Directory.GetFiles(buildDirectory, "*.json", SearchOption.AllDirectories)
+                .Where(path => File.ReadAllText(path).Contains("\"ComponentId\": 939") ||
+                               File.ReadAllText(path).Contains("\"ComponentId\":  939"))
+                .ToArray();
+            if (ballLightningReferences.Length > 0)
+                throw new InvalidOperationException(
+                    "Beta7 ship presets still contain Ball Lightning: " + string.Join(", ", ballLightningReferences));
+
+            string cheatsSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "Scripts/Legacy/Debug/Cheats.cs"));
+            int grantIndex = cheatsSource.IndexOf(
+                "command == ThreeBodyContentRules.WanNianFengXueBuildId.ToString()",
+                StringComparison.Ordinal);
+            int databaseCodeIndex = cheatsSource.IndexOf(
+                "_databaseCodesProcessor.TryExecuteDatabaseCommand(command)",
+                StringComparison.Ordinal);
+            if (grantIndex < 0 || databaseCodeIndex < 0 || grantIndex > databaseCodeIndex)
+                throw new InvalidOperationException(
+                    "Beta7 Wan Nian Feng Xue cheat is still intercepted by the generic database-code handler.");
+
+            string overrideSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "Modules/ServicesFacade/Scripts/ResourceLocator/PlayerShipTextureOverrides.cs"));
+            string editorSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "ModulesShared/ShipEditor/Scripts/UI/ShipEditorWindow.cs"));
+            if (!overrideSource.Contains("GetOverrideKey(int shipId, Sprite fallback)") ||
+                !overrideSource.Contains("ResolveOverridePath(int shipId, Sprite fallback, string key)") ||
+                !overrideSource.Contains("shipId + \"_*.png\"") ||
+                editorSource.Contains("data.HasImage ? null"))
+                throw new InvalidOperationException(
+                    "Beta7 paint overrides are not namespaced by source artwork or still suppress external-mod sprites.");
+
+            string builderSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "Modules/Quests/Scripts/Factory/BeautifulProminenceQuestBuilder.cs"));
+            string managerSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "Modules/Quests/Scripts/Manager/QuestManager.cs"));
+            string explorationSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "Scripts/Combat/Manager/ExplorationSceneManager.cs"));
+            string starbaseSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "Scripts/Domain/Galaxy/StarContent/StarBase.cs"));
+            foreach (var token in new[]
+                     {
+                         "BeautifulProminenceExplorationNode",
+                         "GetProgressKey(context, seed, \"stage1Hive\")",
+                         "BeautifulProminenceDefenseNode",
+                         "BeautifulProminenceNextRouteNode",
+                         "BeautifulProminence_FileExplanation",
+                         "BeautifulProminence_CoincidenceOption",
+                         "BeautifulProminence_Dialog3",
+                         "WanNianFengXueTechnologyId",
+                     })
+            {
+                if (!builderSource.Contains(token))
+                    throw new InvalidOperationException("Beta7 Beautiful Prominence builder is missing token: " + token);
+            }
+
+            if (!managerSource.Contains("TryOfferBeautifulProminence(eventData.StarId)") ||
+                !managerSource.Contains("AcceptBeautifulProminenceOffer") ||
+                !explorationSource.Contains("QuestEventType.ExplorationHiveCompleted") ||
+                !starbaseSource.Contains("QuestEventType.StarbaseDefenseCompleted"))
+                throw new InvalidOperationException(
+                    "Beta7 Beautiful Prominence offer, scan progression, or defense progression is incomplete.");
+
+            Debug.Log("[Beta7 Validation] wanNianFengXue=smaller-and-five-tap-grant, " +
+                      "ballLightning=removed-from-all-presets, externalModPainting=source-namespaced, " +
+                      "beautifulProminence=parallel-offer-three-stages-four-high-resolution-images-blueprint-reward");
+        }
+
+        [MenuItem("Tools/ReUI/Validate Beta8.1")]
+        public static void ValidateBeta81()
+        {
+            ValidateBeta7();
+
+            var database = new GameDatabase.Database();
+            database.LoadDefault();
+
+            var sim = database.GetTechnology(new ItemId<DbTechnology>(390));
+            var waterdrop = database.GetTechnology(new ItemId<DbTechnology>(417));
+            if (sim == null || waterdrop == null ||
+                sim.CustomCraftingLevel != 50 || waterdrop.CustomCraftingLevel != 50)
+                throw new InvalidOperationException(
+                    "Beta8 SIM point-defense and Waterdrop crafting levels are not both 50.");
+
+            string journeySource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "Modules/Database/Resources/Database/Quests/QuestsSpecial/ThreeBodyJourney.json"));
+            if (!journeySource.Contains("\"MinDistance\": 45") ||
+                !journeySource.Contains("\"MaxDistance\": 55"))
+                throw new InvalidOperationException("Beta8 Advance Four is not positioned around 50 light-years.");
+
+            string mothersTearsSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "Modules/Quests/Scripts/Factory/MothersTearsQuestBuilder.cs"));
+            foreach (var token in new[]
+                     {
+                         "GetTrisolarisStarbases(context, centerStarId, 100",
+                         "GetTrisolarisStarbases(context, centerStarId, 180",
+                         "GetTrisolarisStarbases(context, centerStarId, 350",
+                     })
+            {
+                if (!mothersTearsSource.Contains(token))
+                    throw new InvalidOperationException("Beta8 Mother's Tears nearby-target rule is missing: " + token);
+            }
+
+            string prominenceSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "Modules/Quests/Scripts/Factory/BeautifulProminenceQuestBuilder.cs"));
+            string starMapProviderSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "Scripts/Domain/Quests/StarMapDataProvider.cs"));
+            string explorationSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "Scripts/Combat/Manager/ExplorationSceneManager.cs"));
+            if (!prominenceSource.Contains("SelectNearestHiveStar") ||
+                !prominenceSource.Contains("QuestEventType.ExplorationHiveCompleted") ||
+                !prominenceSource.Contains("GetProgressKey(context, seed, \"stage1Hive\")") ||
+                !prominenceSource.Contains("GetOrCreateTarget(context, seed, \"stage1HiveTarget\"") ||
+                !starMapProviderSource.Contains("public bool HasHive(int starId)") ||
+                !explorationSource.Contains("objective.Type == ObjectiveType.Hive"))
+                throw new InvalidOperationException(
+                    "Beta8 Beautiful Prominence stage one is not bound to the nearest hive objective.");
+
+            string questCombatSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "Scripts/Domain/Quests/QuestCombatModelFacctory.cs"));
+            string questDialogSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "Scripts/Gui/Quests/QuestEventDialog.cs"));
+            if (questCombatSource.Contains("Quest combat resolved an empty enemy fleet") ||
+                questCombatSource.Contains("Model.Factories.Fleet.Common") ||
+                !questCombatSource.Contains("System.Array.Empty<GameDatabase.DataModel.ShipBuild>()") ||
+                !questDialogSource.Contains("hasEnemyPreview") ||
+                !questDialogSource.Contains("_fleet.gameObject.SetActive(false)"))
+                throw new InvalidOperationException(
+                    "Beta8.1 dialogue still fabricates an enemy fleet or displays an empty fleet preview.");
+
+            string actionProcessorSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "Modules/Quests/Scripts/Context/IQuestActionProcessor.cs"));
+            if (!prominenceSource.Contains("QuestEventType.StarbaseDefenseCompleted") ||
+                !prominenceSource.Contains("TryInvokeAction(IQuestActionProcessor processor) => false") ||
+                prominenceSource.Contains("processor.DefendStarbase") ||
+                actionProcessorSource.Contains("DefendStarbase"))
+                throw new InvalidOperationException(
+                    "Beta8.1 Beautiful Prominence still starts or modifies a defense battle instead of observing it.");
+
+            string questManagerSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "Modules/Quests/Scripts/Manager/QuestManager.cs"));
+            if (!mothersTearsSource.Contains("ThreeBody.MothersTears.Beta8.") ||
+                !questManagerSource.Contains("StarLayout.Distance(currentStarId, item.StarId) > 70"))
+                throw new InvalidOperationException(
+                    "Beta8 old-save target migration is incomplete for Advance Four or Mother's Tears.");
+
+            string silentCoreSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "Modules/BattleSimulator/Scripts/Combat/Component/Systems/Devices/SilentCoreDevice.cs"));
+            foreach (var token in new[]
+                     {
+                         "SpawnActivationBurst()",
+                         "SpawnCorePulse(progress)",
+                         "\"FlashAdditive\"",
+                         "\"EnergyField\"",
+                         "Mathf.Lerp(0.14f, 0.025f, progress)",
+                     })
+            {
+                if (!silentCoreSource.Contains(token))
+                    throw new InvalidOperationException("Beta8 Silent Core VFX is missing: " + token);
+            }
+
+            var wanNianFengXue = database.GetShip(
+                new ItemId<GameDatabase.DataModel.Ship>(Constructor.ThreeBodyContentRules.WanNianFengXueShipId));
+            string shipEditorSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "ModulesShared/ShipEditor/Scripts/UI/ShipEditorWindow.cs"));
+            if (wanNianFengXue == null ||
+                Mathf.Abs(wanNianFengXue.ModelScale - 0.65f) > 0.001f ||
+                Mathf.Abs(wanNianFengXue.IconScale - 0.18f) > 0.001f ||
+                !shipEditorSource.Contains("shipId == 94009 ? 0.085f"))
+                throw new InvalidOperationException("Beta8.1 Wan Nian Feng Xue artwork is still oversized.");
+
+            string planetBackgroundSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "Scripts/Combat/Background/PlanetBackground.cs"));
+            if (!planetBackgroundSource.Contains("worldTileSize") ||
+                !planetBackgroundSource.Contains("_materialCopy.mainTextureScale") ||
+                !planetBackgroundSource.Contains("_meshRenderer.material = source") ||
+                planetBackgroundSource.Contains("offset.x /= _width") ||
+                planetBackgroundSource.Contains("offset.y /= _height"))
+                throw new InvalidOperationException(
+                    "Beta8.1 infected-planet background is still tied to the changing combat viewport.");
+
+            Debug.Log("[Beta8.1 Validation] silentCore=high-visibility-charge, " +
+                      "beautifulProminence=nearest-hive-single-completion, " +
+                      "defense=observe-normal-battle, dialogue=no-empty-fleet-preview, " +
+                      "hiveBackground=stable-world-space-uv, advanceFour=45-to-55ly, " +
+                      "mothersTears=nearby-stations, wanNianFengXue=smaller, craftingLevel=50");
+        }
+
+        [MenuItem("Tools/ReUI/Validate Beta8.2")]
+        public static void ValidateBeta82()
+        {
+            ValidateBeta81();
+
+            string overrideSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "Modules/ServicesFacade/Scripts/ResourceLocator/PlayerShipTextureOverrides.cs"));
+            foreach (var token in new[]
+                     {
+                         "NormalizeTextureForSprite",
+                         "CreateOverrideSprite",
+                         "GetSourceSignature",
+                         "fallback.textureRectOffset",
+                         "fallback.pivot.x / logicalSize.x",
+                         "SpriteMeshType.FullRect",
+                     })
+            {
+                if (!overrideSource.Contains(token))
+                    throw new InvalidOperationException(
+                        "Beta8.2 external-mod paint geometry support is missing: " + token);
+            }
+
+            ValidateExternalModPaintGeometry();
+
+            Debug.Log("[Beta8.2 Validation] wanNianFengXue=slightly-smaller, " +
+                      "externalModPainting=logical-rect-pivot-preserved-pixel-signature-isolated");
+        }
+
+        [MenuItem("Tools/ReUI/Validate Beta8.3")]
+        public static void ValidateBeta83()
+        {
+            ValidateBeta82();
+
+            if (Galaxy.StarContent.CapturedStarbaseFacilities.CalculateTier(49) != 0 ||
+                Galaxy.StarContent.CapturedStarbaseFacilities.CalculateTier(50) != 1 ||
+                Galaxy.StarContent.CapturedStarbaseFacilities.CalculateTier(99) != 1 ||
+                Galaxy.StarContent.CapturedStarbaseFacilities.CalculateTier(100) != 2 ||
+                Galaxy.StarContent.CapturedStarbaseFacilities.CalculateTier(500) != 10 ||
+                Galaxy.StarContent.CapturedStarbaseFacilities.CalculateTier(9999) != 10)
+                throw new InvalidOperationException(
+                    "Beta8.3 captured-starbase tier boundaries are incorrect.");
+
+            var tradeColor = Galaxy.StarContent.CapturedStarbaseFacilities.GetMapColor(
+                Galaxy.StarContent.CapturedStarbaseFacilityType.Trade);
+            var borderColor = Galaxy.StarContent.CapturedStarbaseFacilities.GetMapColor(
+                Galaxy.StarContent.CapturedStarbaseFacilityType.Border);
+            var researchColor = Galaxy.StarContent.CapturedStarbaseFacilities.GetMapColor(
+                Galaxy.StarContent.CapturedStarbaseFacilityType.Research);
+            if (!(tradeColor.g > tradeColor.r && tradeColor.g > tradeColor.b) ||
+                !(borderColor.r > borderColor.g && borderColor.r > borderColor.b) ||
+                !(researchColor.b > researchColor.r && researchColor.b > researchColor.g))
+                throw new InvalidOperationException(
+                    "Beta8.3 star-map facility ring colors are not green/red/blue.");
+
+            string facilitiesSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "Scripts/Domain/Galaxy/StarContent/CapturedStarbaseFacilities.cs"));
+            foreach (var token in new[]
+                     {
+                         "LevelsPerTier = 50",
+                         "MaxTier = 10",
+                         "MaxExtraBattleships = 10",
+                         "CapturedStarbaseFacilityType.Trade",
+                         "PlayerPrefs.GetInt",
+                         "session.Regions.Regions",
+                         "Region.PlayerHomeRegionId",
+                         "region.CapturedStarbaseFacility != CapturedStarbaseFacilityType.Border",
+                     })
+            {
+                if (!facilitiesSource.Contains(token))
+                    throw new InvalidOperationException(
+                        "Beta8.3 captured-starbase facility persistence or aggregation is missing: " + token);
+            }
+
+            string dailyRewardSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "Scripts/Domain/Player/DailyReward.cs"));
+            foreach (var token in new[]
+                     {
+                         "tradeCredits += tier * 1000",
+                         "tradeStars += tier",
+                         "researchByFaction[region.Faction] = current + tier",
+                         "CreateResearchItem(pair.Key)",
+                     })
+            {
+                if (!dailyRewardSource.Contains(token))
+                    throw new InvalidOperationException(
+                        "Beta8.3 captured-starbase daily reward is missing: " + token);
+            }
+
+            string fleetSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "Scripts/Legacy/Model/Factories/Fleet.cs"));
+            foreach (var token in new[]
+                     {
+                         "int levelBonus = 0, int extraBattleships = 0",
+                         "distance + UnityEngine.Mathf.Max(0, levelBonus)",
+                         "UnityEngine.Mathf.Clamp(extraBattleships, 0, 10)",
+                         "SizeClass.Battleship",
+                     })
+            {
+                if (!fleetSource.Contains(token))
+                    throw new InvalidOperationException(
+                        "Beta8.3 border-station support fleet bonus is missing: " + token);
+            }
+
+            string factionPanelSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "Scripts/Legacy/GUI/ViewModel/StarMap/FactionPanelViewModel.cs"));
+            foreach (var token in new[]
+                     {
+                         "StarbaseFacilityTypeButton",
+                         "StarbaseFacilityTypePanel",
+                         "选择空间站类型",
+                         "贸易站",
+                         "边防站",
+                         "科研站",
+                         "SelectFacilityType",
+                         "_starContentChangedTrigger.Fire(region.HomeStar)",
+                     })
+            {
+                if (!factionPanelSource.Contains(token))
+                    throw new InvalidOperationException(
+                        "Beta8.3 captured-starbase type selector is missing: " + token);
+            }
+
+            string starMapSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "Scripts/Legacy/Map/Star.cs"));
+            foreach (var token in new[]
+                     {
+                         "ConfigureCapturedFacilityRing",
+                         "CapturedFacilityRing",
+                         "GetFacilityRingTexture",
+                         "CapturedStarbaseFacilities.GetMapColor",
+                         "ConfigureCapturedFacilityRing(homeIcon, star.Region)",
+                         "facility + \" · \" + tier",
+                     })
+            {
+                if (!starMapSource.Contains(token))
+                    throw new InvalidOperationException(
+                        "Beta8.3 star-map station ring or station information is missing: " + token);
+            }
+
+            Debug.Log("[Beta8.3 Validation] capturedStarbases=50-level-tiers-max10, " +
+                      "default=trade, dailyRewards=trade-and-research, " +
+                      "borderSupport=level-plus-battleship-max10, " +
+                      "selector=owned-stations, mapRings=green-red-blue-around-star");
+        }
+
+        [MenuItem("Tools/ReUI/Validate Beta8.4")]
+        public static void ValidateBeta84()
+        {
+            ValidateBeta83();
+
+            string databaseRoot = Path.Combine(Application.dataPath,
+                "Modules/Database/Resources/Database");
+            string[] names = { "DeflectionShield", "AngelShield", "SubspaceShield", "ElectronicShield" };
+            int[] componentIds = { 956, 957, 958, 959 };
+            int[] deviceIds = { 908, 909, 910, 911 };
+            int[] technologyIds = { 420, 421, 422, 423 };
+            for (int i = 0; i < names.Length; i++)
+            {
+                string component = ReadRequiredJson(databaseRoot, "Component", names[i]);
+                string device = ReadRequiredJson(databaseRoot, "Device", names[i]);
+                string stats = ReadRequiredJson(databaseRoot, "Component/Stats", names[i]);
+                string technology = ReadRequiredJson(databaseRoot, "Technology", names[i]);
+                RequireJsonId(component, componentIds[i], "component", names[i]);
+                RequireJsonId(device, deviceIds[i], "device", names[i]);
+                RequireJsonId(technology, technologyIds[i], "technology", names[i]);
+                if (!stats.Contains("\"ItemType\": 11"))
+                    throw new InvalidOperationException("Beta8.4 shield stats are invalid: " + names[i]);
+            }
+
+            string specialShieldSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "Modules/BattleSimulator/Scripts/Combat/Component/Systems/Devices/SpecialEnergyShieldDevice.cs"));
+            foreach (string token in new[]
+                     {
+                         "MaxValue * 0.6f",
+                         "_timeRemaining = _lifetime > 0f ? _lifetime : 20f",
+                         "_energyCost * Mathf.Max(0f, elapsedTime)",
+                         "_subspaceElapsedSeconds++",
+                         "Armor.MaxValue * _subspaceElapsedSeconds * 0.01f",
+                     })
+            {
+                if (!specialShieldSource.Contains(token))
+                    throw new InvalidOperationException("Beta8.4 special shield device behavior is missing: " + token);
+            }
+
+            string shieldSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "Modules/BattleSimulator/Scripts/Combat/Unit/Auxiliary/EnergyShield.cs"));
+            foreach (string token in new[]
+                     {
+                         "EnergyShieldInteractionMode.Deflection",
+                         "Vector2.Reflect",
+                         "target.Type.Owner = _parent",
+                         "UnitClass.Missile && target.Type.Class != UnitClass.Drone",
+                         "BlocksOwnerProjectiles",
+                         "CollisionSideOverride = UnitSide.Neutral",
+                     })
+            {
+                if (!shieldSource.Contains(token))
+                    throw new InvalidOperationException("Beta8.4 special shield collision behavior is missing: " + token);
+            }
+
+            string visualSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "Modules/BattleSimulator/Scripts/Combat/Unit/Auxiliary/EnergyShieldVisualStyle.cs"));
+            foreach (string token in new[]
+                     {
+                         "EnergyShieldVisualStyle.Classic",
+                         "EnergyShieldVisualStyle.Modern",
+                         "PolygonCollider2D",
+                         "OutlineScale = 1.08f",
+                         "StyleChanged",
+                     })
+            {
+                if (!visualSource.Contains(token))
+                    throw new InvalidOperationException("Beta8.4 shield visual style is missing: " + token);
+            }
+
+            string selectorSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "ReUI/Runtime/ReUIShieldStyleSelector.cs"));
+            foreach (string token in new[] { "护盾样式", "传统", "现代", "SettingsGeneral" })
+            {
+                if (!selectorSource.Contains(token))
+                    throw new InvalidOperationException("Beta8.4 shield style setting is missing: " + token);
+            }
+
+            Debug.Log("[Beta8.4 Validation] shields=deflection-angel-subspace-electronic, " +
+                      "visualStyles=classic-modern-hull-outline, version=Beta8.4");
+        }
+
+        private static string ReadRequiredJson(string databaseRoot, string folder, string name)
+        {
+            string path = Path.Combine(databaseRoot, folder, name + ".json");
+            if (!File.Exists(path))
+                throw new FileNotFoundException("Beta8.4 shield database entry is missing.", path);
+            return File.ReadAllText(path);
+        }
+
+        private static void RequireJsonId(string json, int id, string kind, string name)
+        {
+            if (!json.Contains("\"Id\": " + id))
+                throw new InvalidOperationException($"Beta8.4 {kind} ID is invalid: {name} expected {id}.");
+        }
+
+        private static void ValidateExternalModPaintGeometry()
+        {
+            const int syntheticShipId = -820082;
+            Texture2D firstTexture = null;
+            Texture2D secondTexture = null;
+            Texture2D overlay = null;
+            Sprite firstSprite = null;
+            Sprite secondSprite = null;
+            try
+            {
+                firstTexture = CreateValidationTexture(16, 12, new Color32(210, 50, 40, 255));
+                secondTexture = CreateValidationTexture(16, 12, new Color32(30, 100, 220, 255));
+                overlay = CreateValidationTexture(4, 4, new Color32(245, 220, 90, 190));
+
+                // External database images are often unnamed. Use identical
+                // dimensions and names to ensure the source pixel signature,
+                // rather than the numeric ship ID alone, isolates the override.
+                firstTexture.name = string.Empty;
+                secondTexture.name = string.Empty;
+                firstSprite = Sprite.Create(firstTexture, new Rect(0, 0, 16, 12),
+                    new Vector2(0.25f, 0.75f), 16f, 0, SpriteMeshType.FullRect);
+                secondSprite = Sprite.Create(secondTexture, new Rect(0, 0, 16, 12),
+                    new Vector2(0.25f, 0.75f), 16f, 0, SpriteMeshType.FullRect);
+                firstSprite.name = string.Empty;
+                secondSprite.name = string.Empty;
+
+                if (!PlayerShipTextureOverrides.Apply(
+                        syntheticShipId,
+                        firstSprite,
+                        overlay,
+                        true,
+                        0.75f,
+                        new Vector2(0.08f, -0.06f),
+                        17f,
+                        out var error))
+                    throw new InvalidOperationException(
+                        "Beta8.2 synthetic external-mod paint failed: " + error);
+
+                var painted = PlayerShipTextureOverrides.Get(syntheticShipId, firstSprite);
+                if (painted == null || ReferenceEquals(painted, firstSprite) ||
+                    Vector2.Distance(painted.pivot, firstSprite.pivot) > 0.001f ||
+                    Vector2.Distance(painted.rect.size, firstSprite.rect.size) > 0.001f ||
+                    Mathf.Abs(painted.pixelsPerUnit - firstSprite.pixelsPerUnit) > 0.001f)
+                    throw new InvalidOperationException(
+                        "Beta8.2 paint override does not preserve the source sprite pivot, logical size, or PPU.");
+
+                if (!PlayerShipTextureOverrides.HasOverride(syntheticShipId, firstSprite) ||
+                    PlayerShipTextureOverrides.HasOverride(syntheticShipId, secondSprite))
+                    throw new InvalidOperationException(
+                        "Beta8.2 unnamed mod sprites with the same ID and dimensions still share a paint override.");
+            }
+            finally
+            {
+                if (firstSprite != null)
+                    PlayerShipTextureOverrides.Restore(syntheticShipId, firstSprite);
+                if (secondSprite != null)
+                    PlayerShipTextureOverrides.Restore(syntheticShipId, secondSprite);
+                if (firstSprite != null) UnityEngine.Object.DestroyImmediate(firstSprite);
+                if (secondSprite != null) UnityEngine.Object.DestroyImmediate(secondSprite);
+                if (firstTexture != null) UnityEngine.Object.DestroyImmediate(firstTexture);
+                if (secondTexture != null) UnityEngine.Object.DestroyImmediate(secondTexture);
+                if (overlay != null) UnityEngine.Object.DestroyImmediate(overlay);
+            }
+        }
+
+        private static Texture2D CreateValidationTexture(int width, int height, Color32 color)
+        {
+            var texture = new Texture2D(width, height, TextureFormat.RGBA32, false);
+            var pixels = Enumerable.Repeat(color, width * height).ToArray();
+            // Transparent perimeter exercises the normal hull-mask path.
+            for (var x = 0; x < width; ++x)
+            {
+                pixels[x].a = 0;
+                pixels[(height - 1) * width + x].a = 0;
+            }
+            for (var y = 0; y < height; ++y)
+            {
+                pixels[y * width].a = 0;
+                pixels[y * width + width - 1].a = 0;
+            }
+            texture.SetPixels32(pixels);
+            texture.Apply(false, false);
+            return texture;
+        }
+
+        private static void ValidatePreferredImage(
+            string rawPathWithoutExtension,
+            string legacyBase64RelativePath,
+            int minimumWidth,
+            int minimumHeight,
+            bool requireTransparentCorner,
+            string label)
+        {
+            byte[] imageData = null;
+            string resolvedPath = null;
+            foreach (string extension in new[] { ".png", ".jpg", ".jpeg" })
+            {
+                string candidate = Path.Combine(Application.dataPath, rawPathWithoutExtension + extension);
+                if (!File.Exists(candidate))
+                    continue;
+
+                resolvedPath = candidate;
+                imageData = File.ReadAllBytes(candidate);
+                break;
+            }
+
+            if (imageData == null)
+            {
+                resolvedPath = Path.Combine(Application.dataPath, legacyBase64RelativePath);
+                if (!File.Exists(resolvedPath))
+                    throw new FileNotFoundException(label + " is missing.", resolvedPath);
+
+                string encoded = File.ReadAllText(resolvedPath).Trim();
+                if (encoded.Contains("__NEXT__"))
+                    throw new InvalidDataException(label + " still contains a patch placeholder: " + resolvedPath);
+                try
+                {
+                    imageData = Convert.FromBase64String(encoded);
+                }
+                catch (FormatException error)
+                {
+                    throw new InvalidDataException(label + " contains invalid base64: " + resolvedPath, error);
+                }
+            }
+
+            bool isJpeg = imageData.Length >= 2 && imageData[0] == 0xFF && imageData[1] == 0xD8;
+            bool isPng = imageData.Length >= 4 && imageData[0] == 0x89 && imageData[1] == 0x50 &&
+                         imageData[2] == 0x4E && imageData[3] == 0x47;
+            if (imageData.Length < 20000 || (!isJpeg && !isPng))
+                throw new InvalidDataException(label + " is not a usable PNG/JPEG: " + resolvedPath);
+
+            var texture = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+            try
+            {
+                if (!texture.LoadImage(imageData, false) ||
+                    texture.width < minimumWidth || texture.height < minimumHeight)
+                    throw new InvalidDataException(
+                        $"{label} is undersized: {resolvedPath} ({texture.width}x{texture.height}); " +
+                        $"required at least {minimumWidth}x{minimumHeight}.");
+
+                if (requireTransparentCorner && texture.GetPixel(0, 0).a > 0.05f)
+                    throw new InvalidDataException(label + " does not preserve its transparent background: " + resolvedPath);
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(texture);
+            }
+        }
+
         private static void ValidateBeta5ThemeAndAssets()
         {
             var database = new GameDatabase.Database();
@@ -702,23 +1574,97 @@ namespace ReUI.Editor
                 throw new InvalidOperationException("Settings theme palette launcher or panel was not created.");
 
             launcherButton.onClick.Invoke();
-            if (!panel.gameObject.activeSelf ||
-                panel.Find("Color Square")?.GetComponent<ReUIThemeColorSquareGraphic>() == null ||
-                panel.Find("Color Square")?.GetComponent<ReUIThemeColorSquareInput>() == null ||
-                panel.Find("Hue")?.GetComponent<Slider>() == null ||
-                panel.Find("Hue")?.GetComponent<ReUIThemeHueStripGraphic>() == null)
+            RectTransform panelRect = panel as RectTransform;
+            RectTransform squareRect = panel.Find("Color Square") as RectTransform;
+            Slider hueSlider = panel.Find("Hue")?.GetComponent<Slider>();
+            RectTransform hueRect = hueSlider != null ? hueSlider.transform as RectTransform : null;
+            Button applyButton = panel.Find("Apply Theme")?.GetComponent<Button>();
+            if (!panel.gameObject.activeSelf || panelRect == null || panelRect.sizeDelta.x < 1000f ||
+                squareRect == null || squareRect.sizeDelta.x < 480f || squareRect.sizeDelta.y < 480f ||
+                squareRect.GetComponent<ReUIThemeColorSquareGraphic>() == null ||
+                squareRect.GetComponent<ReUIThemeColorSquareInput>() == null ||
+                hueSlider == null || hueSlider.direction != Slider.Direction.BottomToTop ||
+                hueRect == null || hueRect.sizeDelta.y < 480f || hueRect.sizeDelta.x > 48f ||
+                hueSlider.GetComponent<ReUIThemeHueStripGraphic>() == null || applyButton == null)
                 throw new InvalidOperationException("Settings theme palette controls are incomplete.");
+
+            string[] hiddenPickerLabels =
+            {
+                "Title",
+                "Description",
+                "HueCaption",
+                "HueValue",
+                "PresetCaption",
+                "SaturationLabel",
+                "SaturationValue",
+                "BrightnessLabel",
+                "BrightnessValue",
+                "Status",
+            };
+            if (hiddenPickerLabels.Any(name => panel.Find(name) != null))
+                throw new InvalidOperationException("Theme picker still displays helper labels or percentage readouts.");
 
             Color original = ReUIPalette.ThemeColor;
             bool hadCustomTheme = ReUIPalette.HasCustomThemeColor;
-            Button preset = panel.Find("Preset 1")?.GetComponent<Button>();
-            if (preset == null)
-                throw new InvalidOperationException("Settings theme palette has no selectable preset.");
-            preset.onClick.Invoke();
-            if (Vector4.Distance(ReUIPalette.ThemeColor, original) < 0.001f)
-                throw new InvalidOperationException("Settings theme palette selection did not update the active colour.");
-            if (hadCustomTheme) ReUIPalette.SetThemeColor(original);
-            else ReUIPalette.ResetThemeColor();
+            Color originalClassicButton = Gui.Theme.UiTheme.Current.GetColor(Gui.Theme.ThemeColor.Button);
+            FieldInfo themeColorField = typeof(Gui.Theme.Wrappers.ThemedImage).GetField(
+                "_themeColor", BindingFlags.Instance | BindingFlags.NonPublic);
+            Gui.Theme.Wrappers.ThemedImage themedButton = scene.GetRootGameObjects()
+                .SelectMany(root => root.GetComponentsInChildren<Gui.Theme.Wrappers.ThemedImage>(true))
+                .FirstOrDefault(image => themeColorField != null &&
+                    (Gui.Theme.ThemeColor)themeColorField.GetValue(image) == Gui.Theme.ThemeColor.Button);
+            if (themedButton != null)
+                themedButton.RefreshThemeColor();
+            Color originalVisibleButton = themedButton != null ? themedButton.color : default;
+
+            GameObject plainProbeObject = new("Beta5.2 Plain Theme Probe", typeof(RectTransform),
+                typeof(CanvasRenderer), typeof(Image), typeof(Outline));
+            plainProbeObject.transform.SetParent(canvas.transform, false);
+            Image plainProbe = plainProbeObject.GetComponent<Image>();
+            Outline plainOutline = plainProbeObject.GetComponent<Outline>();
+            Color originalPlainButton = Gui.Theme.UiTheme.Current.GetAuthoredColor(Gui.Theme.ThemeColor.Button);
+            Color originalPlainOutline = Gui.Theme.UiTheme.Current.GetAuthoredColor(Gui.Theme.ThemeColor.Icon);
+            plainProbe.color = originalPlainButton;
+            plainOutline.effectColor = originalPlainOutline;
+
+            try
+            {
+                Button preset = Enumerable.Range(0, 8)
+                    .Select(index => panel.Find("Preset " + index)?.GetComponent<Button>())
+                    .FirstOrDefault(button => button != null && button.targetGraphic is Image image &&
+                        Vector4.Distance(image.color, original) > 0.10f);
+                Image preview = panel.Find("Preview")?.GetComponent<Image>();
+                if (preset == null || preview == null)
+                    throw new InvalidOperationException("Settings theme palette has no selectable preset or preview.");
+
+                preset.onClick.Invoke();
+                if (Vector4.Distance(ReUIPalette.ThemeColor, original) > 0.001f)
+                    throw new InvalidOperationException("Theme preview changed the saved theme before Apply was pressed.");
+                if (Vector4.Distance(preview.color, original) < 0.05f)
+                    throw new InvalidOperationException("Theme preset did not update the modern picker preview.");
+
+                applyButton.onClick.Invoke();
+                if (Vector4.Distance(ReUIPalette.ThemeColor, original) < 0.05f ||
+                    !ReUIPalette.HasCustomThemeColor)
+                    throw new InvalidOperationException("Theme Apply did not persist the selected colour.");
+
+                Color appliedClassicButton = Gui.Theme.UiTheme.Current.GetColor(Gui.Theme.ThemeColor.Button);
+                if (Vector4.Distance(appliedClassicButton, originalClassicButton) < 0.02f)
+                    throw new InvalidOperationException("Theme Apply did not update the classic UiTheme palette.");
+                if (themedButton != null && Vector4.Distance(themedButton.color, originalVisibleButton) < 0.02f)
+                    throw new InvalidOperationException("Theme Apply did not refresh an already loaded ThemedImage.");
+                if (Vector4.Distance(plainProbe.color, originalPlainButton) < 0.02f ||
+                    Vector4.Distance(plainOutline.effectColor, originalPlainOutline) < 0.02f)
+                    throw new InvalidOperationException(
+                        "Theme Apply did not recolour plain authored Images and Outlines in the loaded scene.");
+            }
+            finally
+            {
+                if (hadCustomTheme) ReUIPalette.SetThemeColor(original);
+                else ReUIPalette.ResetThemeColor();
+                ReUIBootstrap.RefreshTheme();
+                UnityEngine.Object.DestroyImmediate(plainProbeObject);
+            }
         }
 
         private static void ValidateStarMapIsUntouched()
@@ -728,17 +1674,18 @@ namespace ReUI.Editor
             if (canvas == null)
                 throw new InvalidOperationException("StarMapScene contains no Canvas.");
 
-            string[] before = CaptureImageSignatures(canvas.transform, null);
+            string[] before = CaptureImageStructureSignatures(canvas.transform, null);
             int motionBefore = canvas.GetComponentsInChildren<ReUIButtonMotion>(true).Length;
             int generatedBefore = canvas.GetComponentsInChildren<ReUIIconGraphic>(true).Length;
 
             ApplyScopedRuntimeOnce();
 
-            string[] after = CaptureImageSignatures(canvas.transform, null);
+            string[] after = CaptureImageStructureSignatures(canvas.transform, null);
             int motionAfter = canvas.GetComponentsInChildren<ReUIButtonMotion>(true).Length;
             int generatedAfter = canvas.GetComponentsInChildren<ReUIIconGraphic>(true).Length;
             if (!before.SequenceEqual(after) || motionBefore != motionAfter || generatedBefore != generatedAfter)
-                throw new InvalidOperationException("Star map UI was modified by the scoped ReUI runtime.");
+                throw new InvalidOperationException(
+                    "Star map UI structure was modified beyond the intended one-time theme recolour.");
         }
 
         private static void ValidateShipEditorDeviceListOnly()
@@ -851,6 +1798,20 @@ namespace ReUI.Editor
                     image.material != null ? image.material.GetInstanceID() : 0,
                     image.color.r.ToString("R"), image.color.g.ToString("R"),
                     image.color.b.ToString("R"), image.color.a.ToString("R"),
+                    image.enabled, image.gameObject.activeSelf))
+                .ToArray();
+        }
+
+        private static string[] CaptureImageStructureSignatures(Transform root, Func<Image, bool> predicate)
+        {
+            if (root == null) return Array.Empty<string>();
+            return root.GetComponentsInChildren<Image>(true)
+                .Where(image => image != null && (predicate == null || predicate(image)))
+                .OrderBy(image => image.GetInstanceID())
+                .Select(image => string.Join("|",
+                    image.GetInstanceID(),
+                    image.sprite != null ? image.sprite.GetInstanceID() : 0,
+                    image.material != null ? image.material.GetInstanceID() : 0,
                     image.enabled, image.gameObject.activeSelf))
                 .ToArray();
         }

@@ -17,11 +17,9 @@ namespace ReUI.Editor
     {
         private const string PackageName = "com.threebody.EventHorizon";
         private const string ProductName = "三体视界";
-        private const string VersionName = "Beta5.1";
-        // Keep the public Beta5.1 label, but advance the Android package code
-        // so it can replace the earlier, incorrectly scoped Beta5.1 build.
-        private const int VersionCode = 140003;
-        private const string OutputFileName = "ThreeBody-EventHorizon-Beta5.1.apk";
+        private const string VersionName = "Beta8.6";
+        private const int VersionCode = 140016;
+        private const string OutputFileName = "ThreeBody-EventHorizon-Beta8.6.apk";
 
         [MenuItem("Build/ReUI/Quick Android APK")]
         public static void Build()
@@ -42,7 +40,7 @@ namespace ReUI.Editor
             EditorUserBuildSettings.buildAppBundle = false;
 
             AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
-            ReUIValidation.ValidateBeta5();
+            ReUIValidation.ValidateBeta84();
 
             string[] scenes = EditorBuildSettings.scenes
                 .Where(scene => scene.enabled)

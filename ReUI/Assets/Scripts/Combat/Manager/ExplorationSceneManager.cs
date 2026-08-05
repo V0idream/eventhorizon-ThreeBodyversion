@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Combat.Collision;
@@ -18,6 +18,7 @@ using GameStateMachine.States;
 using Services.Messenger;
 using GameDatabase;
 using GameServices.Player;
+using Domain.Quests;
 using Services.Gui;
 using Services.Resources;
 using UniRx;
@@ -58,6 +59,7 @@ namespace Combat.Manager
         [Inject] private readonly PlayerSkills _playerSkills;
         [Inject] private readonly ExplorationData _exploration;
         [Inject] private readonly ExitSignal.Trigger _exitTrigger;
+		[Inject] private readonly QuestEventSignal.Trigger _questEventTrigger;
 
         [Inject] private readonly Gui.Combat.ShipStatsPanel _playerStatsPanel;
         [Inject] private readonly Gui.Combat.ShipStatsPanel _enemyStatsPanel;
@@ -127,11 +129,21 @@ namespace Combat.Manager
             if (!_objectives.TryGetValue(stationId, out var unit))
                 return;
 
+            var objective = _exploration.Objectives[stationId];
+
             _objectives.Remove(stationId);
             _radarPanel.RemoveBeacon(unit);
             _exploration.Complete(stationId);
+			_questEventTrigger.Fire(new StarEventData(
+				QuestEventType.ExplorationScanCompleted,
+				_exploration.StarId));
+			if (objective.Type == ObjectiveType.Hive)
+			{
+				_questEventTrigger.Fire(new StarEventData(
+					QuestEventType.ExplorationHiveCompleted,
+					_exploration.StarId));
+			}
 
-            var objective = _exploration.Objectives[stationId];
             var loot = _exploration.GetLoot(objective).ToList();
             loot.Consume();
             _guiManager.OpenWindow(Gui.Exploration.WindowNames.LootPanel, new WindowArgs(loot));

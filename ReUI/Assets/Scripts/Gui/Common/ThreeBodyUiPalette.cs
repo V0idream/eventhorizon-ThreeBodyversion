@@ -1,4 +1,5 @@
 using GameDatabase.DataModel;
+using Gui.Theme;
 using ReUI;
 using UnityEngine;
 
@@ -15,12 +16,41 @@ namespace Gui.Common
         public static Color Accent { get; private set; } = new(0.72f, 0.45f, 1f, 1f);
         public static Color AccentSoft { get; private set; } = new(0.86f, 0.74f, 1f, 1f);
         public static Color TextMuted { get; private set; } = new(0.78f, 0.72f, 0.88f, 1f);
+        private static UiSettings _settings;
 
         public static void Configure(UiSettings settings)
         {
             if (settings == null)
                 return;
 
+            _settings = settings;
+            ApplyDatabasePalette(settings);
+            ApplyLocalThemeOverride();
+        }
+
+        public static void RefreshLocalTheme()
+        {
+            if (_settings != null)
+            {
+                ApplyDatabasePalette(_settings);
+                ApplyLocalThemeOverride();
+                return;
+            }
+
+            UiTheme theme = UiTheme.Current;
+            PanelDeep = WithAlpha(theme.GetColor(ThemeColor.BackgroundDark), 0.985f);
+            Panel = WithAlpha(theme.GetColor(ThemeColor.Window), 0.97f);
+            PanelSoft = WithAlpha(theme.GetColor(ThemeColor.Selection), 0.70f);
+            PanelSelected = WithAlpha(theme.GetColor(ThemeColor.Selection), 0.98f);
+            Button = WithAlpha(theme.GetColor(ThemeColor.Button), 1f);
+            ButtonDim = Dim(WithAlpha(theme.GetColor(ThemeColor.Button), 0.97f), 0.70f);
+            Accent = WithAlpha(theme.GetColor(ThemeColor.Icon), 1f);
+            AccentSoft = WithAlpha(theme.GetColor(ThemeColor.HeaderText), 1f);
+            TextMuted = WithAlpha(theme.GetColor(ThemeColor.PaleText), 1f);
+        }
+
+        private static void ApplyDatabasePalette(UiSettings settings)
+        {
             PanelDeep = WithAlpha(settings.BackgroundDark, 0.985f);
             Panel = WithAlpha(settings.WindowColor, 0.97f);
             PanelSoft = WithAlpha(settings.SelectionColor, 0.70f);
@@ -30,8 +60,6 @@ namespace Gui.Common
             Accent = WithAlpha(settings.IconColor, 1f);
             AccentSoft = WithAlpha(settings.HeaderTextColor, 1f);
             TextMuted = WithAlpha(settings.PaleTextColor, 1f);
-
-            ApplyLocalThemeOverride();
         }
 
         /// <summary>

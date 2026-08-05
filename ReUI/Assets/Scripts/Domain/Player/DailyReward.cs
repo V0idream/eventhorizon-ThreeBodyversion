@@ -1,6 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using Economy;
+using Economy.ItemType;
 using Economy.Products;
+using Galaxy.StarContent;
+using GameDatabase.DataModel;
 using GameModel;
 using GameServices;
 using GameServices.Economy;
@@ -22,7 +27,9 @@ namespace Domain.Player
             DailyRewardAwailableSignal.Trigger rewardAvailableTrigger,
             SessionDataLoadedSignal sessionDataLoadedSignal,
             SessionCreatedSignal sessionCreatedSignal,
-            LootGenerator lootGenerator)
+            LootGenerator lootGenerator,
+            RegionMap regionMap,
+            ItemTypeFactory itemTypeFactory)
             : base(sessionDataLoadedSignal, sessionCreatedSignal)
         {
             _session = session;
@@ -31,6 +38,8 @@ namespace Domain.Player
             _internetTime = internetTime;
             _rewardAvailableTrigger = rewardAvailableTrigger;
             _serverTimeReceivedSignal = timeReceivedSignal;
+            _regionMap = regionMap;
+            _itemTypeFactory = itemTypeFactory;
             _serverTimeReceivedSignal.Event += CheckForReward;
         }
 
@@ -51,7 +60,56 @@ namespace Domain.Player
 
             var level = StarLayout.GetStarLevel(_session.StarMap.FurthestVisitedStar, 0);
             var seed = TimeToDays(_internetTime.DateTime);
-            return _lootGenerator.GetDailyReward(size, level, seed);
+            var rewards = _lootGenerator.GetDailyReward(size, level, seed).ToList();
+            AppendCapturedStarbaseRewards(rewards);
+            return rewards;
+        }
+
+        private void AppendCapturedStarbaseRewards(ICollection<IProduct> rewards)
+        {
+            var tradeCredits = 0;
+            var tradeStars = 0;
+            var researchByFaction = new Dictionary<Faction, int>();
+
+            foreach (var region in CapturedStarbaseFacilities.GetCapturedRegions(_session, _regionMap))
+            {
+                var tier = region.CapturedStarbaseTier;
+                if (tier <= 0)
+                    continue;
+
+                switch (region.CapturedStarbaseFacility)
+                {
+                    case CapturedStarbaseFacilityType.Trade:
+                        tradeCredits += tier * 1000;
+                        tradeStars += tier;
+                        break;
+
+                    case CapturedStarbaseFacilityType.Research:
+                        if (region.Faction == null || region.Faction == Faction.Empty)
+                            break;
+                        researchByFaction.TryGetValue(region.Faction, out var current);
+                        researchByFaction[region.Faction] = current + tier;
+                        break;
+                }
+            }
+
+            if (tradeCredits > 0)
+                rewards.Add(CommonProduct.Create(
+                    _itemTypeFactory.CreateCurrencyItem(Currency.Credits),
+                    tradeCredits));
+            if (tradeStars > 0)
+                rewards.Add(CommonProduct.Create(
+                    _itemTypeFactory.CreateCurrencyItem(Currency.Stars),
+                    tradeStars));
+
+            foreach (var pair in researchByFaction.OrderBy(item => item.Key.Id.Value))
+            {
+                if (pair.Value <= 0)
+                    continue;
+                rewards.Add(CommonProduct.Create(
+                    _itemTypeFactory.CreateResearchItem(pair.Key),
+                    pair.Value));
+            }
         }
 
         private void CheckForReward(DateTime time)
@@ -127,6 +185,8 @@ namespace Domain.Player
         private readonly ServerTimeReceivedSignal _serverTimeReceivedSignal;
         private readonly DailyRewardAwailableSignal.Trigger _rewardAvailableTrigger;
         private readonly LootGenerator _lootGenerator;
+        private readonly RegionMap _regionMap;
+        private readonly ItemTypeFactory _itemTypeFactory;
     }
 
     public class DailyRewardAwailableSignal : SmartWeakSignal<DailyRewardAwailableSignal> {}

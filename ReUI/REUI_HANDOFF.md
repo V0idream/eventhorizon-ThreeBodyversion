@@ -3,6 +3,64 @@
 > 本文件用于 ChatGPT、Codex 或其他开发会话继续处理 ReUI 独立 Unity 工程。
 > 后续每完成一个阶段，都应在“阶段记录”中追加：修改文件、修改目的、验证结果、已知问题和下一步。
 
+### 2026-07-23 Beta7：万年风雪号二次缩放、外部模组涂装兼容与“美丽的日珥”
+
+**根因与实现依据**
+
+- 万年风雪号在 Beta6.3 中虽然已顺时针旋转 90°，但 `ModelScale=3.2`、`IconScale=0.65` 和编辑器背景乘数 `0.42` 对其狭长有效像素区域仍然过大。Beta7 将其分别降至 `1.9`、`0.42` 和 `0.24`。
+- 五击版本号后输入 `94009` 未获得舰船，是因为通用五位数据库兑换处理器先消费了该字符串。Beta7 把项目自有的万年风雪号发放分支移到数据库兑换处理之前。
+- 涂装覆盖原先只以数值舰船 ID 命名并缓存。外部模组常复用原版 ID，且 `ShipDataProvider.HasImage` 为真时编辑器会主动把底图置空，导致无法进入涂装或不同模组舰船串用同一覆盖图。Beta7 按“舰船 ID + Sprite 名 + Texture 名 + Sprite 矩形”命名覆盖文件，并始终保留运行时解析到的模组 Sprite 作为涂装底图。
+- 《美丽的日珥》使用与《圣母的眼泪》相同的任务提案时点，可同时出现在任务列表并分别接取。任务按最新剧情稿加入文件说明对话及【何等的巧合】选项。
+
+**内容改动**
+
+- 从三体旗舰和三体泰坦预设中移除组件 `939`（球状闪电）；Beta7 构建验证会扫描全部舰船预设，拒绝任何残留引用。
+- 新增任务 `204`“美丽的日珥”和任务道具 `2001`“2001机密文件”。
+- 第一阶段：标记可探索星系，累计完成 5 次探索采集后发放机密文件。
+- 第二阶段：标记星舰地球空间站，要求接管目标并成功完成一次防守任务。
+- 第三阶段：下一次航线结束后播放四张剧情图、文件解释对话、三组剧情选项，最终发放万年风雪号蓝图。
+- 新增星舰地球特殊科技 `419`，目标为万年风雪号，科技价格 `114514`，蓝图限定。
+- SIM 近防炮科技 `390` 和水滴科技 `417` 的科技点价格仍为 `114514`，空间站制造等级均显式设为 `CustomCraftingLevel=50`。
+- 四张剧情图位于 `Assets/Resources/Story/BeautifulProminence/story_01.png` 至 `story_04.png`，使用原始 `1672×941` PNG；构建验证最低要求为 1600×900。
+
+**主要修改文件**
+
+- `Assets/Modules/Quests/Scripts/Factory/BeautifulProminenceQuestBuilder.cs`
+- `Assets/Modules/Quests/Scripts/Factory/QuestFactory.cs`
+- `Assets/Modules/Quests/Scripts/Manager/QuestManager.cs`
+- `Assets/Modules/Quests/Scripts/QuestEventType.cs`
+- `Assets/Scripts/Combat/Manager/ExplorationSceneManager.cs`
+- `Assets/Scripts/Domain/Galaxy/StarContent/StarBase.cs`
+- `Assets/Modules/ServicesFacade/Scripts/ResourceLocator/PlayerShipTextureOverrides.cs`
+- `Assets/ModulesShared/ShipEditor/Scripts/UI/ShipEditorWindow.cs`
+- `Assets/ModulesShared/ShipEditor/Scripts/UI/ShipTextureCustomizationPanel.cs`
+- `Assets/Modules/Database/Resources/Database/Ship/WanNianFengXue.json`
+- `Assets/Modules/Database/Resources/Database/Ship/Builds/WanNianFengXue.json`
+- `Assets/Modules/Database/Resources/Database/Technology/WanNianFengXue.json`
+- `Assets/Modules/Database/Resources/Database/Technology/SophonSimPointDefense.json`
+- `Assets/Modules/Database/Resources/Database/Technology/TrisolarisWaterdrop.json`
+- `Assets/Resources/Localization/Chinese/ThreeBody.xml`
+- `Assets/ReUI/Editor/ReUIValidation.cs`
+- `Assets/ReUI/Editor/ReUIQuickAndroidBuild.cs`
+
+**实际验证与构建**
+
+- Unity 6000.0.75f1 `ValidateBeta7` 通过，覆盖万年风雪号二次缩放、作弊码处理顺序、球状闪电预设清理、模组涂装命名隔离、三阶段任务、四张高清图片、最新版新增对话和蓝图奖励。
+- `ValidateReUI5Data` 通过。
+- 全部启用场景烟雾测试通过。
+- Android ARM64/IL2CPP 构建结果：`Succeeded`；最终构建耗时 `00:05:44.9315887`。
+- APK：`Builds/Android/ThreeBody-EventHorizon-Beta7.apk`。
+- 文件大小：`142,832,902` 字节。
+- SHA-256：`2F1D224849C4CD74652011C887A5FF130C42CD1E35F7DF46D8EEF62B8251A3D7`。
+- 包名：`com.threebody.EventHorizon`；应用名：`三体视界`；versionName：`Beta7`；versionCode：`140009`。
+- minSdk 23；target/compileSdk 34；ABI：`arm64-v8a`。
+- Android Debug 签名；APK Signature Scheme v1、v2 验证通过；ZIP 3405 个条目全部可读取。
+
+**尚未验证与剩余风险**
+
+- `adb devices -l` 无连接设备，未执行真机安装、任务完整流程、空间站防守完成事件、蓝图实际发放、五击版本号输入、万年风雪号视觉比例及外部模组舰船涂装实机检查。
+- 工作区根目录仍存在大量本任务之外的既有删除、缓存和生成文件状态，本轮未清理、回退或覆盖。
+
 ## 1. 工程位置与边界
 
 - 原项目根目录：`C:\Users\wjy25\Documents\Re-Threebody`
@@ -1860,3 +1918,476 @@ Unity 退出码为 0，无 `error CS`、`Shader error` 或脚本编译失败。
 - SHA-256: `55110CD48D99F7A460460E241CC52AEA80CBD5A09855EBE88FC9239530A836CA`
 - Package: `com.threebody.EventHorizon`; versionName: `Beta5`; versionCode: `140000`; minSdk: `23`; target/compileSdk: `34`; ABI: `arm64-v8a`.
 - APK signature verifies with v1 and v2 using the Android Debug certificate. No Android device was connected, so this build was not installed or exercised on-device.
+
+### 2026-07-23 Beta5.2：现代取色器与主题即时应用修复
+
+**根因与实现**
+
+- Beta5.1 的选择值只写入 `ReUIPalette`，原版多数 UGUI 仍从 `UiTheme.Current` 读取颜色；`ThemedImage` 和 `ThemedText` 又只在 `Start()` 时初始化一次，因此选色虽已保存，当前界面不会明显变化。
+- 主题选择器改为 1040×700 的现代面板，主体使用 500×500 饱和度/明度方框、竖直色相条、颜色预览、HEX 值、预设色和明确的“应用主题”按钮。
+- 方框和预设只更新草稿预览，不会在拖动过程中反复重刷整个界面；点击“应用主题”后才持久化到 PlayerPrefs。
+- `UiTheme` 新增本地运行时强调色层。普通窗口、按钮、图标、文字、科技状态和常用主题资源随所选色相更新；警告色、高级按钮色和具有独立语义的货币/资源颜色保持原设定。
+- `ThemedImage`、`ThemedText` 增加安全刷新入口，只刷新仍由主题管理的控件，不覆盖运行时明确设置的状态颜色。
+- `ReUIBootstrap.RefreshTheme()` 在用户确认应用时同步 `UiTheme.Current`、`ThreeBodyUiPalette` 和全部已加载主题控件；不存在周期扫描或逐帧遍历。
+
+**主要修改文件**
+
+- `Assets/ModulesShared/Gui/Scripts/Theme/UiTheme.cs`
+- `Assets/ModulesShared/Gui/Scripts/Theme/Wrappers/ThemedImage.cs`
+- `Assets/ModulesShared/Gui/Scripts/Theme/Wrappers/ThemedText.cs`
+- `Assets/Scripts/Gui/Common/ThreeBodyUiPalette.cs`
+- `Assets/ReUI/Runtime/ReUIBootstrap.cs`
+- `Assets/ReUI/Runtime/ReUIThemeColorPickerGraphic.cs`
+- `Assets/ReUI/Runtime/ReUIThemePalettePanel.cs`
+- `Assets/ReUI/Editor/ReUIValidation.cs`
+- `Assets/ReUI/Editor/ReUIQuickAndroidBuild.cs`
+
+**验证与构建**
+
+- Unity 6000.0.75f1 编译通过：0 个 C# 错误；警告均为项目既有过时 API/未使用字段等警告。
+- `ValidateBeta52` 通过：`picker=large-sv-square`、`hue=vertical-strip`、`apply=explicit-and-persistent`、`classicTheme=live-refreshed`。
+- 验证实际确认：预设选择只改变预览；点击应用后写入本地偏好、改变 `UiTheme.Current` 的按钮色，并刷新已加载的 `ThemedImage`。
+- ReUI5 数据验证通过：星舰地球科技 26、三体科技 18、导弹改装 4、二向箔 BulletPrefab 23、智子发射器顺时针 90°。
+- 全部启用场景烟雾测试通过：11 个场景、14 个 Canvas。
+- Android 构建结果：`Succeeded`；耗时 `00:09:07.7469672`。
+- APK：`Builds/Android/ThreeBody-EventHorizon-Beta5.2.apk`。
+- 文件大小：`118,842,114` 字节。
+- SHA-256：`300BAB5AAE6D6678E7FD334E06C2C90569450331F13B82241BF1E936C7F648EA`。
+- 包名：`com.threebody.EventHorizon`；应用名：`三体视界`。
+- versionName：`Beta5.2`；versionCode：`140004`；buildNumber：`1893`。
+- minSdk 23；target/compileSdk 34；ABI：`arm64-v8a`。
+- Android Debug 签名；APK Signature Scheme v1、v2 验证通过；证书 SHA-256：`12db3813c08e0d85d97884f7bf87e337d91c9e376e470a41e086a1f682402a96`。
+- 构建前后 `CommonGuiScene`、`SkillTreeScene`、`SettingsScene` 的 SHA-256 一致，源场景未被改写。
+- ADB 无连接设备，尚未执行真机触摸取色、重启持久化和全页面视觉检查。
+
+### 2026-07-23 Beta5.2：主题覆盖补全与取色器文字精简
+
+**根因与修正**
+
+- 部分 `ThemedImage` / `ThemedText` 在运行中被其他脚本写过颜色后，会被标记为非主题管理对象，显式应用主题时因此被跳过。现只要组件声明了非默认 `ThemeColor`，用户点击“应用主题”时就会重新读取当前主题色。
+- 设置页还包含普通 `Image`、`Text`、`Outline` 和 `Selectable.ColorBlock`，这些对象没有主题包装组件。现仅在应用主题与场景初始化时，将与原始主题色或上一主题色匹配的颜色映射到新主题，并支持常用透明度和亮度变体；不恢复逐帧或周期 Canvas 扫描。
+- 警告按钮、高级按钮、燃料和星币等独立语义颜色不参与普通主题映射。
+- 取色器移除标题、说明、“色相”、“常用颜色”、“饱和度”、“明度”、角度/百分比数值和底部状态说明，仅保留取色方框、色相条、HEX 值、预设色块及关闭/应用/恢复按钮。
+
+**验证与构建**
+
+- Unity 6000.0.75f1 编译通过：0 个 C# 错误。
+- `ValidateBeta52` 通过，并验证普通 `Image`、`Outline` 与已加载 `ThemedImage` 均会在应用主题后更新；被要求隐藏的辅助文字节点均不存在。
+- ReUI5 数据验证通过：星舰地球科技 26、三体科技 18、导弹改装 4、二向箔 BulletPrefab 23、智子发射器顺时针 90°。
+- 全部启用场景烟雾测试通过：11 个场景、14 个 Canvas。
+- Android 构建结果：`Succeeded`；耗时 `00:11:18.0805702`。
+- APK：`Builds/Android/ThreeBody-EventHorizon-Beta5.2.apk`。
+- 文件大小：`118,854,529` 字节。
+- SHA-256：`3EE99EFB07DE416C86034BB887AD19F8C176D233562DE4AB4D83A2676709BC06`。
+- 包名：`com.threebody.EventHorizon`；应用名：`三体视界`。
+- versionName：`Beta5.2`；versionCode：`140004`；buildNumber：`1894`。
+- minSdk 23；target/compileSdk 34；ABI：`arm64-v8a`。
+- Android Debug 签名；APK Signature Scheme v1、v2 验证通过；证书 SHA-256：`12db3813c08e0d85d97884f7bf87e337d91c9e376e470a41e086a1f682402a96`。
+- 构建前后 `CommonGuiScene`、`SkillTreeScene`、`SettingsScene` 的 SHA-256 一致，源场景未被改写。
+- ADB 无连接设备，尚未执行真机主题覆盖、触摸取色和重启持久化检查。
+
+### 2026-07-23 Beta6.1：圣母的眼泪、改装说明与“万年风雪号”特种内容
+
+**实现依据与根因**
+
+- 原“圣母的眼泪”实现直接在航线结束时启动任务，任务列表中的接取节点因此无法到达。现改为在“前进四”完成后的下一次航线结束时生成任务提案，玩家必须在任务列表点击“接取”后才进入剧情。
+- SIM 近防炮和水滴原可按普通科技研究，现均标记为蓝图科技；未取得任务奖励前只显示蓝图锁定说明，不显示可支付研究价格。
+- 反重力核心原仍是普通武器分类和红格要求，现改为特殊组件分类及绿色特殊格。
+- 改装选择器此前把名称与长说明挤在同一文本中，名称容易被裁剪；现扩大弹窗和选项行，名称、详细效果分层显示。`加护` 的数值来源改为全舰能量生产速度，而不是单个组件的产能。
+- 新增的特种舰船和装置必须避免进入普通商店、随机战利品、敌方随机舰队和科技树，因此统一纳入 `ThreeBodyContentRules` 的受限内容规则。
+
+**任务与科技改动**
+
+- 初始任务名称由“开始旅程”改为“前进四”。
+- 新增四阶段故事任务“圣母的眼泪”，包含六张嵌入式剧情图、任务进度文本、空间站目标、任务专用战斗、奖励及蓝图发放。
+- 任务触发逻辑：完成“前进四”后，再完成一次航线，任务列表出现提案；点击“接取”后立即保存并刷新任务状态。
+- SIM 近防炮科技 `390` 改为蓝图限定；水滴科技 `417` 改为蓝图限定舰船科技。
+- 三体反重力核心 `949` 改为 `ComponentCategory.Special` 和 `CellType.Special`。
+
+**改装系统修正**
+
+- 改装弹窗扩大为接近全屏的纵向布局，选项标题加粗并与详细效果分区显示，避免名称不可见或与说明重叠。
+- 按提供文档补全速射、超频、破甲、自锐、酸蚀、重甲弹、制导、穿透、扫射、引擎过载、自适应装甲、能量汲取、加护、护盾回流的数值说明。
+- `加护` 改为按全舰能量生产速度计算：每 100 点全舰产能，每件提供 1% 护甲，每件上限 25%；同类改装按件数累计。
+
+**新增特种舰船与装置**
+
+- 新增星舰地球驱逐舰“万年风雪号”：舰船/构筑 ID 均为 `94009`，使用提供的透明 PNG 作为舰体与图标，默认构筑不供玩家或普通敌人随机使用。
+- 新增“沉默核心”：组件 ID `955`、装置 ID `907`，竖向 3×5 红色 S 槽，隐藏且最多安装一件。
+- 沉默核心启动后立即对战场全部活动舰船施加 60 秒 EMP，并抽取 20% 初始能量；载舰表面在 3 秒内生成频率和数量逐渐增加的 `Lightning` / `LightningStrike` 电弧。
+- 3 秒充能结束后，以恒星级氢弹相同的 `50000` 伤害和 `50` 范围自爆；爆炸沿标准阵营碰撞规则不伤害友军，载舰随后被显式摧毁。
+- 舰船和组件贴图以 Base64 PNG 嵌入 `Resources/Embedded/ThreeBody`，`ResourceLocator` 增加项目内嵌资源回退，避免修改或刷新序列化资源定位 Prefab。
+
+**主要修改文件**
+
+- `Assets/Modules/Quests/Scripts/Factory/MothersTearsQuestBuilder.cs`
+- `Assets/Modules/Quests/Scripts/Manager/QuestManager.cs`
+- `Assets/Scripts/Gui/Quests/QuestPanel.cs`
+- `Assets/Scripts/Legacy/GUI/ViewModel/StarMap/QuestLogPanelViewModel.cs`
+- `Assets/Scripts/Domain/Quests/QuestCombatModelFacctory.cs`
+- `Assets/Scripts/Legacy/Model/Factories/Fleet.cs`
+- `Assets/Modules/ShipConstructor/Scripts/ThreeBodyComponentModifications.cs`
+- `Assets/ModulesShared/ShipEditor/Scripts/UI/ComponentPanel.cs`
+- `Assets/Modules/BattleSimulator/Scripts/Combat/Component/Systems/Devices/SilentCoreDevice.cs`
+- `Assets/Modules/BattleSimulator/Scripts/Combat/Factory/Systems/DeviceFactory.cs`
+- `Assets/Modules/ShipConstructor/Scripts/ThreeBodyContentRules.cs`
+- `Assets/Modules/ResourceLocator/Scripts/ResourceLocator.cs`
+- `Assets/Modules/Database/Resources/Database/Component/SilentCore.json`
+- `Assets/Modules/Database/Resources/Database/Device/SilentCore.json`
+- `Assets/Modules/Database/Resources/Database/Ship/WanNianFengXue.json`
+- `Assets/Modules/Database/Resources/Database/Ship/Builds/WanNianFengXue.json`
+- `Assets/Resources/Localization/Chinese/ThreeBody.xml`
+- `Assets/ReUI/Editor/ReUIValidation.cs`
+- `Assets/ReUI/Editor/ReUIQuickAndroidBuild.cs`
+
+**实际验证**
+
+- Unity 6000.0.75f1 脚本编译通过：0 个 C# 错误。
+- `ValidateBeta6` 通过，输出：`quest=MothersTears-4-stages`、`sim=blueprint-only`、`waterdrop=quest-only`、`antigravity=green-special`、`modifications=detailed`、`questOffer=next-route-explicit-accept`、`modificationNames=visible`、`wanNianFengXue=restricted-destroyer`、`silentCore=60s-emp-lightning-charge-3s-self-destruct`。
+- 数据验证确认“沉默核心”为隐藏的竖向 3×5 红色 S 槽装置，伤害、范围、充能时间与设计一致；万年风雪号构筑合法且组件无越界、重叠或格型不兼容。
+- Android 构建结果：`Succeeded`；最终构建耗时 `00:10:11.9841974`。
+- APK：`Builds/Android/ThreeBody-EventHorizon-Beta6.1.apk`。
+- 文件大小：`119,002,740` 字节。
+- SHA-256：`FD0D68D364D3F3028C11C481067243B33642740D531E30CFA671AB419C717EDF`。
+- 包名：`com.threebody.EventHorizon`；应用名：`三体视界`。
+- versionName：`Beta6.1`；versionCode：`140006`；源配置 buildNumber：`1898`。
+- minSdk 23；target/compileSdk 34；ABI：`arm64-v8a`。
+- Android Debug 签名；APK Signature Scheme v1、v2 验证通过；1 个签名者。
+
+**尚未验证与剩余风险**
+
+- `adb devices` 返回空设备列表，尚未执行真机安装、完整四阶段任务流程、存档重载、任务奖励发放、沉默核心实战和 Logcat 检查。
+- 沉默核心的友军免伤依赖项目现有碰撞阵营判定；静态验证和编译均通过，但仍应在真机战斗中确认大型爆炸不会误伤友军。
+- 工作区根目录原本已有大量与本轮无关的删除、生成工程文件和缓存状态；本轮未清理、回退或覆盖这些既有改动。
+
+### 2026-07-23 Beta6.2：智子发射器科技化、高清剧情资源与特种舰船资源修复
+
+**根因与实现依据**
+
+- 智子发射器构筑此前同时标记为玩家和敌人可用，因此会被 `ShipBuildQuery.EnemyShips` 纳入三体 AI 舰队候选。现保留玩家可用，关闭 `AvailableForEnemy`，并新增舰船科技 `418`，依赖三体战舰科技 `397`，使其位于三体战舰之后。
+- Beta6.1 内嵌的六张剧情图实际仅有 256×144～480×270；全屏剧情层只是把这些低分辨率 JPEG 放大，模糊根因在导入源而不是 UI 滤镜。现改用 `Resources/Story/MothersTears` 下的 1536×864 原始 PNG，旧 Base64 图仅作为缺失资源时的兼容回退。
+- 万年风雪号此前只有 512×512 内嵌回退图，且工程没有普通 Resources Sprite；沉默核心回退图仅 127×256，并受组件颜色乘算和方形网格显示影响。现加入 1280×1280 万年风雪号 PNG 和 774×1536 透明沉默核心 PNG，资源定位器优先读取原始 Sprite。
+- 科技数据运行时原把价格限制在 10000，JSON 中的 114514 会被静默截断。生成数据模型与编辑器模型的价格上限均扩展到 `int.MaxValue`，科技界面保留 114514 的真实显示。
+
+**科技与 AI 规则**
+
+- 智子发射器构筑 `1145148`：`AvailableForPlayer=true`、`AvailableForEnemy=false`。
+- 新增三体舰船科技 `418`，目标为智子发射器，唯一依赖为三体战舰科技 `397`。
+- SIM 近防炮科技 `390`：星舰地球阵营、独立节点、无依赖、蓝图限定、价格 114514。
+- 水滴科技 `417`：三体阵营、独立节点、无依赖、蓝图限定、价格 114514。
+- 未取得蓝图时两个节点继续显示在科技树中并显示 114514，但研究按钮保持锁定；任务蓝图仍是实际解锁方式。
+
+**资源与作弊入口**
+
+- 六张“圣母的眼泪”剧情图使用 1536×864 PNG，并在构建验证中强制要求不低于 1024×576。
+- 万年风雪号使用 1280×1280 原始 PNG；沉默核心使用 774×1536 透明 PNG。
+- 沉默核心组件颜色设为纯白，网格渲染对组件 `955` 使用原始贴图纵横比和 FullRect Sprite，不再染色或拉伸。
+- 主菜单版本号入口改为连续点击五次开启作弊面板；输入 `94009` 直接向玩家舰队添加一艘万年风雪号。该指令在通用五位服务器兑换分支之前处理。
+
+**主要修改文件**
+
+- `Assets/Modules/Database/Resources/Database/Ship/Builds/SophonLauncher.json`
+- `Assets/Modules/Database/Resources/Database/Technology/SophonLauncher.json`
+- `Assets/Modules/Database/Resources/Database/Technology/SophonSimPointDefense.json`
+- `Assets/Modules/Database/Resources/Database/Technology/TrisolarisWaterdrop.json`
+- `Assets/Modules/Database/Scripts/GeneratedGameCode/DataModel/Technology.cs`
+- `Assets/Modules/Database/.Editor/DatabaseModel/DatabaseModel/GeneratedEditorCode/DataModel/Technology.cs`
+- `Assets/Scripts/Legacy/Debug/Cheats.cs`
+- `Assets/Scripts/Legacy/GUI/ViewModel/MainMenu/DevConsoleViewModel.cs`
+- `Assets/Modules/ResourceLocator/Scripts/ResourceLocator.cs`
+- `Assets/ModulesShared/ShipEditor/Scripts/Layout/ModuleMeshBuilder.cs`
+- `Assets/Scripts/Gui/Quests/MothersTearsStoryImageCatalog.cs`
+- `Assets/Modules/Quests/Scripts/Nodes/TextNode.cs`
+- `Assets/Editor/TexturePostProcessor.cs`
+- `Assets/Scripts/Legacy/GUI/ViewModel/StarMap/TechItemViewModel.cs`
+- `Assets/ReUI/Editor/ReUIValidation.cs`
+- `Assets/ReUI/Editor/ReUIQuickAndroidBuild.cs`
+- `Assets/Resources/Story/MothersTears/story_01.png` ～ `story_06.png`
+- `Assets/Resources/Textures/ThreeBody/wan_nian_feng_xue.png`
+- `Assets/Resources/Textures/ThreeBody/silent_core.png`
+
+**实际验证与构建**
+
+- Unity 6000.0.75f1 `ValidateBeta6` 通过，确认：智子发射器为三体战舰后置且不供 AI 使用；SIM/水滴为独立 114514 点蓝图科技；六张剧情图为高清资源；万年风雪号与沉默核心使用原始高清贴图；五击版本号和 `94009` 作弊指令存在。
+- Unity C# 编译错误：0；仅有项目既有过时 API、未使用字段等警告。
+- `ValidateReUI5Data` 通过：星舰地球科技 27、三体科技 19、导弹改装 4、二向箔 BulletPrefab 23、智子发射器顺时针旋转修正正常。
+- 全部启用场景烟雾测试通过：11 个场景、14 个 Canvas。
+- Android ARM64/IL2CPP 构建结果：`Succeeded`；耗时 `00:14:44.3080239`。
+- APK：`Builds/Android/ThreeBody-EventHorizon-Beta6.2.apk`。
+- 文件大小：`131,415,269` 字节。
+- SHA-256：`D17AAF98031324A8D18F462A84317F9B856B1E77348623863C4127CD4E97255B`。
+- 包名：`com.threebody.EventHorizon`；应用名：`三体视界`；versionName：`Beta6.2`；versionCode：`140007`。
+- minSdk 23；target/compileSdk 34；ABI：`arm64-v8a`。
+- Android Debug 签名；APK Signature Scheme v1、v2 验证通过；1 个签名者；ZIP 结构可正常读取，共 3398 个条目。
+- 构建后源配置 buildNumber 已前进至 `1900`，供下一次构建使用。
+
+**尚未验证与剩余风险**
+
+- `adb devices -l` 无连接设备，因此未执行真机安装、科技树节点位置视觉检查、剧情图清晰度肉眼检查、五击版本号操作、`94009` 指令获取舰船、万年风雪号战斗贴图以及沉默核心实战。
+- 智子发射器节点依赖关系已验证为三体战舰科技 `397`，但科技树自动布局的具体屏幕位置仍需真机确认。
+- 工作区根目录仍存在大量此前已有的删除、缓存和生成文件状态，本轮未清理或回退。
+
+### 2026-07-23 Beta6.3：万年风雪号朝向缩放、三体空间站平衡与超空间引擎
+
+**根因与实现依据**
+
+- 万年风雪号原始 PNG 为 1280×1280，但非透明主体边界约为 499×1175，船体实际为纵向构图。数据库推进器位置位于负 X、炮口位于正 X，而原图推进器位于图像下端，因此按游戏坐标应顺时针旋转 90°，使推进器朝左、舰首朝右。
+- 万年风雪号此前 `ModelScale=10.67`，明显高于普通星舰地球驱逐舰的 `3.0`，导致战斗与编辑界面严重放大；同时舰船编辑器背景图始终按布局完整尺寸显示，没有为该特殊纵向原图保留单独缩放。
+- 三体空间站的首都防御舰队原按防御力持续增加普通舰船、旗舰和泰坦，后期数量与强度同时膨胀。现只对三体阵营设置 20 艘护航舰上限并彻底移除其空间站泰坦。
+- “三体1”原有技能为运行时生成的独立技能页，而不是数据库技能节点，因此“超空间引擎”沿用相同的 `PlayerPrefs` 状态模型，并同时接入航线合法性、燃料计算和星图范围边界。
+
+**万年风雪号修正**
+
+- `ResourceLocator` 对 `wan_nian_feng_xue` 的舰体图和舰船图标统一应用顺时针 90°旋转，复用已验证的智子发射器旋转像素管线。
+- 舰船数据库参数调整为 `IconScale=0.65`、`ModelScale=3.2`。
+- 舰船编辑器对舰船 ID `94009` 使用 `0.42` 的背景图缩放乘数，避免贴图盖住格子并保持与有效船体边界匹配。
+- 增加 `SHIPBUILD_94009=万年风雪号` 本地化，修复构筑列表和编辑器标题显示原始键名的问题。
+
+**三体空间站平衡**
+
+- 仅对 faction `22` 的空间站进攻战斗生效。
+- 三体空间站的护航舰总数最多 20 艘，不含空间站本体。
+- 三体空间站不再附加泰坦；其他阵营原有空间站行为不变。
+- 玩家选择星舰地球友军支援攻击三体空间站时，在原 5 艘常规友军基础上增加：
+  - 星舰地球泰坦构筑 `94008` ×1；
+  - 星舰地球旗舰构筑 `416` ×2。
+- 该增强支援不会应用到攻击其他阵营空间站。
+
+**超空间引擎**
+
+- 在“三体1”技能页新增左侧独立节点“超空间引擎”。
+- 解锁后：
+  - `MotherShip.IsStarReachable` 对任意星系直接放行；
+  - 星图航行范围边界隐藏；
+  - 航行燃料计算乘以 `0.05`，即减少 95%，但沿用原逻辑保证最低消耗 1 点燃料。
+- 技能状态纳入“三体1”重置逻辑与重置按钮状态判断。
+
+**主要修改文件**
+
+- `Assets/Modules/ResourceLocator/Scripts/ResourceLocator.cs`
+- `Assets/ModulesShared/ShipEditor/Scripts/UI/ShipView.cs`
+- `Assets/ModulesShared/ShipEditor/Scripts/UI/ShipEditorWindow.cs`
+- `Assets/Modules/Database/Resources/Database/Ship/WanNianFengXue.json`
+- `Assets/Scripts/Legacy/Model/Factories/Fleet.cs`
+- `Assets/Scripts/Domain/Galaxy/StarContent/StarBase.cs`
+- `Assets/Scripts/Domain/Player/ThreeBodySkillState.cs`
+- `Assets/Scripts/Domain/Player/MotherShip.cs`
+- `Assets/Scripts/Legacy/Map/GalaxyMap.cs`
+- `Assets/Scripts/Legacy/GUI/ViewModel/Skills/SkillTree.cs`
+- `Assets/Resources/Localization/Chinese/ThreeBody.xml`
+- `Assets/ReUI/Editor/ReUIValidation.cs`
+- `Assets/ReUI/Editor/ReUIQuickAndroidBuild.cs`
+
+**实际验证与构建**
+
+- Unity 6000.0.75f1 `ValidateBeta6` 通过，输出包含：
+  - `wanNianFengXue=clockwise90-scaled-restricted-destroyer-cheat-acquirable`
+  - `trisolarisStarbase=max20-no-titan-earth-titan-plus-two-flagships`
+  - `hyperspaceEngine=unlimited-range-95-percent-fuel-reduction`
+- Unity C# 编译错误：0。
+- `ValidateReUI5Data` 通过：星舰地球科技 27、三体科技 19、导弹改装 4、二向箔 BulletPrefab 23、智子发射器旋转修正正常。
+- 全部启用场景烟雾测试通过：11 个场景、14 个 Canvas。
+- Android ARM64/IL2CPP 构建结果：`Succeeded`；耗时 `00:12:09.3756662`。
+- APK：`Builds/Android/ThreeBody-EventHorizon-Beta6.3.apk`。
+- 文件大小：`131,420,095` 字节。
+- SHA-256：`088A061D0AA9B19AB49CB9D0FB2B74880D2A9F88108023CA66474217F8F709C4`。
+- 包名：`com.threebody.EventHorizon`；应用名：`三体视界`；versionName：`Beta6.3`；versionCode：`140008`。
+- minSdk 23；target/compileSdk 34；ABI：`arm64-v8a`。
+- Android Debug 签名；APK Signature Scheme v1、v2 验证通过；1 个签名者；ZIP 结构共 3398 个条目且无异常非空零压缩条目。
+
+**尚未验证与剩余风险**
+
+- `adb devices -l` 无连接设备，未执行真机安装、万年风雪号最终视觉比例检查、三体空间站实战计数、友军编队实际出场及超空间引擎触屏操作。
+- 万年风雪号旋转方向由实际透明边界、推进器位置和数据库炮口/引擎坐标共同确认；`0.42` 编辑器缩放与 `3.2` 模型缩放已通过数据验证，但最终视觉观感仍需真机截图确认。
+- 超空间引擎的燃料消耗最低仍为 1 点，这是沿用原有 `CalculateRequiredFuel` 的最低消耗约束；若设计要求真正允许 0 燃料航行，需要后续单独放宽该约束。
+
+### 2026-07-24 Beta8.1：巢穴背景、正常防卫战监听与纯文本对话修复
+
+**根因与实现依据**
+
+- 感染行星中的巢穴和守卫使用 `EnemySpawner` 延迟生成。玩家进入激活距离后，敌对空间站实例化，战斗相机随即扩大视野以同时容纳玩家和空间站。原 `PlanetBackground` 用实时变化的视口宽高计算纹理偏移，导致敌站出现时地表纹理跳变、拉伸；同时脚本直接修改共享材质，可能把错误状态带入后续探索。
+- “美丽的日珥”第二阶段此前通过任务节点主动调用 `DefendStarbase`，相当于由任务另开一场防卫战。用户要求实际是监控玩家通过正常空间站界面完成的防卫战，因此任务不应创建战斗、指定敌人或修改敌军编队。
+- 纯文本任务对话仍无条件调用敌舰预览。Beta8 又为“空敌舰数据”补造普通敌军，因此没有战斗内容的对话也显示了中间舰船和“难度：非常简单”。
+- 万年风雪号此前虽已缩小，但战斗模型、列表图标和编辑器背景仍偏大。
+
+**关键改动**
+
+- `PlanetBackground` 改为每次探索创建独立材质实例；地表 UV 以固定世界单位和相机世界坐标锚定，不再除以会随敌站出现而变化的视口宽高。相机缩放只改变纹理平铺数量，不再拉伸或跳动纹理。
+- “美丽的日珥”第二阶段改为纯监听节点：`ActionRequired=false`、不显示任务操作按钮、不创建目标信标、不调用防卫接口，只在收到正常系统发出的 `StarbaseDefenseCompleted` 后推进。完成任意一次正常空间站防卫战即可满足条件。
+- 删除任务动作接口和星图状态中的 `DefendStarbase` 任务入口，避免剧情代码绕过正常空间站战斗流程。
+- 撤销空任务敌军的普通舰队回退。`QuestCombatModelFacctory` 只使用任务真实提供的敌舰数据，不再生成或替换敌军列表。
+- `QuestEventDialog` 仅在存在真实有效敌舰数据时显示舰队与威胁面板；纯文本对话会隐藏中间舰船及“难度”文字。
+- 万年风雪号缩放调整为：战斗模型 `0.75`、列表图标 `0.20`、舰船编辑器背景倍率 `0.10`。同时保留其正常舰船爆炸效果，不因较小的 `ModelScale` 被误判为无人机。
+
+**主要修改文件**
+
+- `Assets/Scripts/Combat/Background/PlanetBackground.cs`
+- `Assets/Modules/Quests/Scripts/Factory/BeautifulProminenceQuestBuilder.cs`
+- `Assets/Modules/Quests/Scripts/Context/IQuestActionProcessor.cs`
+- `Assets/Scripts/GameStateMachine/States/StarMapState.cs`
+- `Assets/Scripts/Domain/Quests/QuestCombatModelFacctory.cs`
+- `Assets/Scripts/Gui/Quests/QuestEventDialog.cs`
+- `Assets/Modules/Database/Resources/Database/Ship/WanNianFengXue.json`
+- `Assets/ModulesShared/ShipEditor/Scripts/UI/ShipEditorWindow.cs`
+- `Assets/Modules/BattleSimulator/Scripts/Combat/Factory/ShipFactory.cs`
+- `Assets/Resources/Localization/Chinese/ThreeBody.xml`
+- `Assets/ReUI/Editor/ReUIValidation.cs`
+- `Assets/ReUI/Editor/ReUIQuickAndroidBuild.cs`
+- `Assets/Modules/AppConfiguration/Scripts/Generated/AppConfig.cs`
+- `ProjectSettings/ProjectSettings.asset`
+
+**实际验证与构建**
+
+- Unity 6000.0.75f1 `ValidateBeta81` 通过，确认：巢穴背景采用稳定世界空间 UV；防卫阶段只监听正常战斗；纯文本对话不生成或显示空敌军预览；万年风雪号进一步缩小。
+- Unity C# 编译错误：0。
+- `ValidateReUI5Data` 通过：`tech21=28`、`tech22=19`、`missileMods=4`、`foilPrefab=23`、`sophonRotation=Clockwise90`。
+- 全部启用场景烟雾测试通过：11 个场景、14 个 Canvas。
+- Android ARM64/IL2CPP 构建结果：`Succeeded`；耗时 `00:09:26.0621513`。
+- APK：`Builds/Android/ThreeBody-EventHorizon-Beta8.1.apk`。
+- 文件大小：`142,838,045` 字节。
+- SHA-256：`0EFD03550FA5B24060787146823B69B3CD08F241B8EE2AF55F6938B22A28B7D7`。
+- 包名：`com.threebody.EventHorizon`；应用名：`三体视界`；versionName：`Beta8.1`；versionCode：`140011`；源配置 buildNumber：`1908`。
+- minSdk 23；target/compileSdk 34；ABI：`arm64-v8a`。
+- Android Debug 签名；APK Signature Scheme v1、v2 验证通过；1 个签名者；ZIP 共 3405 个条目且无损坏条目。
+
+**尚未验证与剩余风险**
+
+- `adb devices -l` 无连接设备，因此尚未在真机上实际靠近巢穴空间站观察背景、完成一次正常防卫战推进剧情、确认纯文本对话最终布局，以及检查万年风雪号的新比例。
+- 数据验证仍会输出项目既有的部分舰船炮口越界警告和编辑器模式资源销毁警告；本轮未扩大范围处理这些与当前四项反馈无直接关系的问题。
+
+### 2026-07-24 Beta8：沉默核心特效、巢穴任务、近距离剧情目标与舰体缩放
+
+**根因与实现依据**
+
+- 沉默核心原充能期只以较低频率生成小型 `Lightning` / `LightningStrike`，且缺少启动瞬间和持续核心脉冲，在大型舰体及缩放后的战斗画面中不够醒目。
+- “美丽的日珥”第一阶段原先把目标设为普通随机星系，并把该星系内任意探索目标累计到 5 次；这不等同于“探索巢穴”。感染行星的零号目标确定为 `ObjectiveType.Hive`，因此改为查找最近的真实巢穴星系，并只响应巢穴被摧毁完成的事件。
+- 用户反馈的“不刷怪”不是空间站防守战。排查确认剧情专用舰船 ID 均存在，阵营关系也不会把 `UnitSide.Enemy` 判作友军；真正缺少保护的是通用任务战斗构建：当数据库或模组过滤使任务敌舰集合为空时，原逻辑会静默创建空敌军战斗。现增加确定性的普通敌舰回退。
+- “前进四”原目标范围为 100～140 光年；“圣母的眼泪”空间站搜索可扩大到 2000 光年，导致目标等级过高。现分别收敛至约 50 光年和分级的近距离空间站搜索。
+- 万年风雪号已确认朝向正确，但源图有效船体为狭长构图，上一版的模型、图标和编辑器背景缩放仍然偏大，因此继续统一下调。
+- Beta7 存档会保留旧版任意行星目标、远距离“前进四”坐标和“圣母的眼泪”空间站坐标；Beta8 为这些目标增加迁移或新命名空间，避免必须新建存档。
+
+**关键改动**
+
+- 沉默核心：
+  - 启动时生成 `FlashAdditive`、`EnergyField`、`WaveStrong` 组合爆发并触发镜头扰动；
+  - 充能电弧间隔提高到约 `0.14 → 0.025` 秒；
+  - 单次电弧数量、尺寸、持续时间和覆盖范围显著增加；
+  - 充能期间持续生成扩张的能量场和白蓝闪光脉冲；
+  - 60 秒全场 EMP、3 秒后恒星级氢弹自爆及爆炸无友伤规则保持不变。
+- “美丽的日珥”第一阶段：
+  - 按距离环搜索最近的真实巢穴星系；
+  - 任务信标指向该星系的感染行星入口；
+  - 仅在完成 `ObjectiveType.Hive` 时发送 `ExplorationHiveCompleted`；
+  - 摧毁并探索一次巢穴即完成第一阶段；
+  - Beta7 的旧目标键替换为 `stage1HiveTarget`，旧任意星系目标不会继续沿用。
+- 任务战斗：
+  - `QuestCombatModelFacctory.CreateEnemyFleet` 过滤空或无效构筑；
+  - 如果任务敌舰集合为空，记录警告并使用同等级、同种子的普通敌军舰队，避免进入无敌人的战斗。
+- 距离和平衡：
+  - “前进四”目标改为 45～55 光年；
+  - 已有存档中距离当前星系超过 70 光年的活动“前进四”会取消并按新范围重建；
+  - “圣母的眼泪”第一阶段优先搜索 100 光年内空间站，不足时依次放宽至 180、300；
+  - 后续最近空间站目标依次搜索 120、220、350 光年；
+  - 任务目标 PlayerPrefs 命名空间更新为 `ThreeBody.MothersTears.Beta8`，旧远距离目标会重新生成；
+  - SIM 近防炮与水滴的 `CustomCraftingLevel` 均确认为 50。
+- 万年风雪号：
+  - `ModelScale`：`1.9 → 0.9`；
+  - `IconScale`：`0.42 → 0.24`；
+  - 舰船编辑器背景倍率：`0.24 → 0.12`；
+  - 顺时针 90°方向保持不变。
+
+**主要修改文件**
+
+- `Assets/Modules/BattleSimulator/Scripts/Combat/Component/Systems/Devices/SilentCoreDevice.cs`
+- `Assets/Modules/Quests/Scripts/Context/IQuestBuilderContext.cs`
+- `Assets/Modules/Quests/Scripts/Factory/BeautifulProminenceQuestBuilder.cs`
+- `Assets/Modules/Quests/Scripts/Factory/MothersTearsQuestBuilder.cs`
+- `Assets/Modules/Quests/Scripts/Manager/QuestManager.cs`
+- `Assets/Modules/Quests/Scripts/QuestEventType.cs`
+- `Assets/Scripts/Combat/Manager/ExplorationSceneManager.cs`
+- `Assets/Scripts/Domain/Quests/StarMapDataProvider.cs`
+- `Assets/Scripts/Domain/Quests/QuestCombatModelFacctory.cs`
+- `Assets/Modules/Database/Resources/Database/Quests/QuestsSpecial/ThreeBodyJourney.json`
+- `Assets/Modules/Database/Resources/Database/Ship/WanNianFengXue.json`
+- `Assets/ModulesShared/ShipEditor/Scripts/UI/ShipEditorWindow.cs`
+- `Assets/Resources/Localization/Chinese/ThreeBody.xml`
+- `Assets/ReUI/Editor/ReUIValidation.cs`
+- `Assets/ReUI/Editor/ReUIQuickAndroidBuild.cs`
+- `ProjectSettings/ProjectSettings.asset`
+
+**实际验证与构建**
+
+- Unity 6000.0.75f1 C# 编译通过，0 个编译错误。
+- `ValidateBeta8` 通过：`silentCore=high-visibility-charge`、`beautifulProminence=nearest-hive-single-completion`、`questCombat=non-empty-fallback`、`advanceFour=45-to-55ly`、`mothersTears=nearby-stations`、`wanNianFengXue=extra-small`、`craftingLevel=50`。
+- `ValidateReUI5Data` 通过。
+- 全部启用场景烟雾测试通过：11 个场景、14 个 Canvas。
+- Android ARM64/IL2CPP 构建结果：`Succeeded`；耗时 `00:05:14.4937459`。
+- APK：`Builds/Android/ThreeBody-EventHorizon-Beta8.apk`。
+- 文件大小：`142,840,815` 字节。
+- SHA-256：`294866208159940B854BC2C5A2B731B5866BBD3016BF77864D09011A906EC291`。
+- 包名：`com.threebody.EventHorizon`；应用名：`三体视界`；versionName：`Beta8`；versionCode：`140010`。
+- minSdk 23；target/compileSdk 34；ABI：`arm64-v8a`。
+- Android Debug 签名；APK Signature Scheme v1、v2 验证通过；1 个签名者。
+- ZIP 结构可正常读取，共 3405 个条目，无非空零压缩异常条目。
+
+**尚未验证与剩余风险**
+
+- 当前没有连接 Android 设备，尚未执行 APK 真机安装、Logcat、沉默核心实际视觉强度和万年风雪号最终显示比例检查。
+- “美丽的日珥”完整三阶段流程、真实巢穴击杀触发、任务战斗空舰队回退及旧存档目标迁移已通过编译和静态专项验证，但尚未在实际存档中完整跑通。
+- 工作区根目录仍存在大量与本轮无关的既有删除、缓存和生成文件；本轮未清理、回退或覆盖这些内容。
+
+### 2026-07-24 Beta8.2：模组舰船涂装坐标修复与万年风雪号微调
+
+**根因与实现依据**
+
+- 外部模组舰船的涂装错位并非简单的文件名冲突。旧实现只复制 `Sprite.textureRect` 中的可见像素，丢弃了 `Sprite.rect` 所代表的逻辑画布、透明裁边和 `textureRectOffset`；保存后又统一以中心 Pivot `(0.5, 0.5)` 重建 Sprite。对于非居中 Pivot、经过透明裁切或来自图集的模组舰船，涂装图因此会相对舰体和组件网格发生偏移。
+- 运行时导入的模组图片通常没有稳定的 Sprite/Texture 名称。旧的来源隔离键主要由舰船 ID、名称和尺寸组成；两个模组复用同一舰船 ID、相同尺寸且名称为空时，仍可能误用同一份涂装文件。
+- 万年风雪号在 Beta8.1 中已经接近目标比例，但实机截图仍显示略大，因此仅做小幅统一下调，不改变朝向和舰船布局。
+
+**关键改动**
+
+- `PlayerShipTextureOverrides` 现在按 `Sprite.rect` 建立涂装逻辑画布，并使用 `textureRectOffset` 将裁切后的可见像素放回原始逻辑位置。
+- 保存和加载涂装时保留原 Sprite 的归一化 Pivot、Pixels Per Unit 和逻辑尺寸，使用 `SpriteMeshType.FullRect` 重建，不再强制中心 Pivot。
+- 对旧版保存的、仅包含可见裁切区域的涂装 PNG，加载时会在尺寸匹配的情况下恢复到当前 Sprite 的逻辑画布。
+- 涂装来源键增加基于舰体几何和源像素采样的稳定签名。即使两个外部模组使用相同舰船 ID、相同尺寸且图片名称为空，也不会串用涂装。
+- 对没有稳定名称的运行时模组图片，不再回退到 Beta7 的旧来源键，避免旧文件误匹配另一艘同 ID 模组舰船；有稳定名称的既有来源级涂装仍可兼容读取。
+- 联机接收的自定义贴图也使用同一套 Pivot、逻辑尺寸和 PPU 恢复逻辑。
+- 万年风雪号缩放调整为：
+  - 战斗模型 `ModelScale`：`0.75 → 0.65`；
+  - 列表图标 `IconScale`：`0.20 → 0.18`；
+  - 舰船编辑器背景倍率：`0.10 → 0.085`。
+
+**主要修改文件**
+
+- `Assets/Modules/ServicesFacade/Scripts/ResourceLocator/PlayerShipTextureOverrides.cs`
+- `Assets/Modules/Database/Resources/Database/Ship/WanNianFengXue.json`
+- `Assets/ModulesShared/ShipEditor/Scripts/UI/ShipEditorWindow.cs`
+- `Assets/ReUI/Editor/ReUIValidation.cs`
+- `Assets/ReUI/Editor/ReUIQuickAndroidBuild.cs`
+- `Assets/Modules/AppConfiguration/Scripts/Generated/AppConfig.cs`
+- `ProjectSettings/ProjectSettings.asset`
+
+**实际验证与构建**
+
+- Unity 6000.0.75f1 `ValidateBeta82` 通过。
+- 专项测试实际创建了两张名称为空、舰船 ID 和尺寸均相同、但源像素不同的模拟模组舰船 Sprite，并验证：
+  - 涂装后 Pivot 不变；
+  - 逻辑尺寸不变；
+  - Pixels Per Unit 不变；
+  - 第一艘舰船的涂装不会被第二艘同 ID、同尺寸模组舰船误用。
+- 专项输出：`wanNianFengXue=slightly-smaller`、`externalModPainting=logical-rect-pivot-preserved-pixel-signature-isolated`。
+- `ValidateReUI5Data` 通过：`tech21=28`、`tech22=19`、`missileMods=4`、`foilPrefab=23`、`sophonRotation=Clockwise90`。
+- 全部启用场景烟雾测试通过：11 个场景、14 个 Canvas。
+- Android ARM64/IL2CPP 构建结果：`Succeeded`；耗时 `00:07:35.5869423`。
+- APK：`Builds/Android/ThreeBody-EventHorizon-Beta8.2.apk`。
+- 文件大小：`142,838,926` 字节。
+- SHA-256：`BFC3986B889E0E5CCE45F2D465BFB7F8E99A6AF181B981450852F96A1DD28C8F`。
+- 包名：`com.threebody.EventHorizon`；应用名：`三体视界`；versionName：`Beta8.2`；versionCode：`140012`；源配置 buildNumber：`1909`。
+- minSdk 23；target/compileSdk 34；ABI：`arm64-v8a`。
+- Android Debug 签名；APK Signature Scheme v1、v2 验证通过；1 个签名者；ZIP 共 3405 个条目，无损坏条目。
+
+**尚未验证与剩余风险**
+
+- 当前没有连接 Android 设备，因此尚未在真机上对用户实际导入的模组包执行涂装、保存、重新进入编辑器和战斗显示的完整视觉检查。
+- 合成测试覆盖了本次定位到的核心几何与来源冲突问题，但特殊图集旋转、第三方模组自行改变运行时 Sprite 的情况仍需通过具体模组实机验证。
+- 工作区根目录仍存在大量与本轮无关的既有删除、缓存和生成文件；本轮未清理、回退或覆盖这些内容。

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Economy;
 using GameServices.Gui;
@@ -85,7 +85,10 @@ namespace ViewModel.Skills
         public void ResetSkills()
         {
             if (_showingThreeBody
-                ? !ThreeBodySkillState.AdvancedRadarUnlocked && !ThreeBodySkillState.CollaborativeCombatUnlocked && !ThreeBodySkillState.GiantCannonsUnlocked
+                ? !ThreeBodySkillState.AdvancedRadarUnlocked &&
+                  !ThreeBodySkillState.CollaborativeCombatUnlocked &&
+                  !ThreeBodySkillState.GiantCannonsUnlocked &&
+                  !ThreeBodySkillState.HyperspaceEngineUnlocked
                 : _playerSkills.PointsSpent == 0)
                 return;
 
@@ -107,6 +110,8 @@ namespace ViewModel.Skills
                     UpdateCollaborativeCombatNode(_collaborativeCombatNode);
                 if (_giantCannonsNode != null)
                     UpdateGiantCannonsNode(_giantCannonsNode);
+                if (_hyperspaceEngineNode != null)
+                    UpdateHyperspaceEngineNode(_hyperspaceEngineNode);
             }
             else
             {
@@ -253,6 +258,24 @@ namespace ViewModel.Skills
             });
             _giantCannonsNode = giantCannonsNode;
 
+            var hyperspaceLine = new GameObject("HyperspaceEngineLine", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            var hyperspaceLineRect = hyperspaceLine.GetComponent<RectTransform>();
+            hyperspaceLineRect.SetParent(panelRect, false);
+            hyperspaceLineRect.anchorMin = hyperspaceLineRect.anchorMax = new Vector2(0.5f, 0.5f);
+            hyperspaceLineRect.pivot = new Vector2(1f, 0.5f);
+            hyperspaceLineRect.anchoredPosition = new Vector2(-62f, -126f);
+            hyperspaceLineRect.sizeDelta = new Vector2(76f, 5f);
+            hyperspaceLine.GetComponent<Image>().color = UiTheme.Current.GetColor(ThemeColor.HeaderText);
+
+            var hyperspaceNode = CreateThreeBodyNode(panelRect, "HyperspaceEngine", "超空间\n引擎", new Vector2(-172f, -126f));
+            hyperspaceNode.GetComponent<Button>().onClick.AddListener(() =>
+            {
+                ThreeBodySkillState.UnlockHyperspaceEngine();
+                UpdateHyperspaceEngineNode(hyperspaceNode);
+                UpdateResetPanel();
+            });
+            _hyperspaceEngineNode = hyperspaceNode;
+
             var description = new GameObject("DescriptionPanel", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Outline));
             var descriptionRect = description.GetComponent<RectTransform>();
             descriptionRect.SetParent(panelRect, false);
@@ -267,6 +290,7 @@ namespace ViewModel.Skills
             UpdateAdvancedRadarNode(node);
             UpdateCollaborativeCombatNode(collaborationNode);
             UpdateGiantCannonsNode(giantCannonsNode);
+            UpdateHyperspaceEngineNode(hyperspaceNode);
 
             originalButton.onClick.AddListener(() => ShowThreeBodyTree(false));
             threeBodyButton.onClick.AddListener(() => ShowThreeBodyTree(true));
@@ -394,6 +418,20 @@ namespace ViewModel.Skills
                 text.text = "巨舰大炮  已解锁\n前两个旗舰机库槽位可搭载泰坦\n槽位剪影以金色边框标识";
         }
 
+        private static void UpdateHyperspaceEngineNode(GameObject node)
+        {
+            var unlocked = ThreeBodySkillState.HyperspaceEngineUnlocked;
+            node.GetComponent<Image>().color = unlocked
+                ? UiTheme.Current.GetColor(ThemeColor.HeaderText)
+                : UiTheme.Current.GetColor(ThemeColor.Window);
+            var nodeLabel = node.transform.Find("NodeLabel")?.GetComponent<Text>();
+            if (nodeLabel != null)
+                nodeLabel.color = unlocked ? UiTheme.Current.GetColor(ThemeColor.Window) : UiTheme.Current.GetColor(ThemeColor.Icon);
+            var text = node.transform.parent.Find("DescriptionPanel/Description")?.GetComponent<Text>();
+            if (text != null && unlocked)
+                text.text = "超空间引擎  已解锁\n星图航行距离不再受限制\n航行燃料消耗降低95%";
+        }
+
         private void RebuildTree()
         {
             foreach (var item in NodeIds)
@@ -409,7 +447,10 @@ namespace ViewModel.Skills
             _resetPricePanel.gameObject.SetActive(price.Amount > 0);
             _resetPricePanel.Initialize(null, price, !isEnough);
             var hasPointsOnCurrentPage = _showingThreeBody
-                ? ThreeBodySkillState.AdvancedRadarUnlocked || ThreeBodySkillState.CollaborativeCombatUnlocked || ThreeBodySkillState.GiantCannonsUnlocked
+                ? ThreeBodySkillState.AdvancedRadarUnlocked ||
+                  ThreeBodySkillState.CollaborativeCombatUnlocked ||
+                  ThreeBodySkillState.GiantCannonsUnlocked ||
+                  ThreeBodySkillState.HyperspaceEngineUnlocked
                 : _playerSkills.PointsSpent > 0;
             _resetButton.interactable = isEnough && hasPointsOnCurrentPage;
         }
@@ -519,6 +560,7 @@ namespace ViewModel.Skills
         private GameObject _advancedRadarNode;
         private GameObject _collaborativeCombatNode;
         private GameObject _giantCannonsNode;
+        private GameObject _hyperspaceEngineNode;
         private bool _showingThreeBody;
     }
 }

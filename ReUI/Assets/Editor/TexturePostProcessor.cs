@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEditor;
 using System.Linq;
 using System.Collections.Generic;
@@ -19,7 +19,9 @@ class CollisionMapGenerator : AssetPostprocessor
             isShipSprite ||
             assetPath.StartsWith("Assets/Sprites/Components/") ||
             assetPath.StartsWith("Assets/Sprites/Satellites/") ||
-            assetPath.StartsWith("Assets/Resources/Textures/UI/");
+            assetPath.StartsWith("Assets/Resources/Textures/UI/") ||
+            assetPath.StartsWith("Assets/Resources/Textures/ThreeBody/") ||
+            assetPath.StartsWith("Assets/Resources/Story/MothersTears/");
 
         // PNG files added outside the Unity editor otherwise import as ordinary
         // textures and never reach ResourceLocator. Enforce the complete sprite

@@ -123,6 +123,10 @@ namespace Constructor
             foreach (var item in energyDependentComponents)
                 InstallComponent(ref data, ref stats, item.spec, item.component, true);
 
+            ThreeBodyComponentModifications.ApplyShipWide(
+                ref stats.EquipmentStats,
+                data.ThreeBodyModifications,
+                stats.EnergyRechargeRate);
             data.ApplyStats(stats);
 
 			return data;

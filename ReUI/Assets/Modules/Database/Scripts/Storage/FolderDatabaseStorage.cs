@@ -38,11 +38,21 @@ namespace GameDatabase.Storage
             var info = new DirectoryInfo(_path);
             foreach (var fileInfo in info.GetFiles("*.json", SearchOption.AllDirectories))
             {
-                var data = File.ReadAllText(fileInfo.FullName);
-                var settings = serializer.FromJson<Serializable.DatabaseSettingsSerializable>(data);
-                if (settings.ItemType != Enums.ItemType.DatabaseSettings) continue;
-                version = new Version(settings.DatabaseVersion, settings.DatabaseVersionMinor);
-                return true;
+                try
+                {
+                    var data = File.ReadAllText(fileInfo.FullName);
+                    var settings = serializer.FromJson<Serializable.DatabaseSettingsSerializable>(data);
+                    if (settings.ItemType != Enums.ItemType.DatabaseSettings) continue;
+                    version = new Version(settings.DatabaseVersion, settings.DatabaseVersionMinor);
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    // A single incompatible entry must not prevent the folder
+                    // from being registered as a mod.
+                    Debug.LogWarning(
+                        $"Skipping '{fileInfo.FullName}' while detecting the mod version: {e.Message}");
+                }
             }
 
             version = new();
@@ -52,7 +62,6 @@ namespace GameDatabase.Storage
         public void LoadContent(IContentLoader loader)
         {
             var info = new DirectoryInfo(_path);
-            var itemCount = 0;
             foreach (var fileInfo in info.GetFiles("*", SearchOption.AllDirectories))
             {
                 var file = fileInfo.FullName;
@@ -77,14 +86,20 @@ namespace GameDatabase.Storage
                 }
                 else if (fileInfo.Extension.Equals(".json", StringComparison.OrdinalIgnoreCase))
                 {
-                    var data = File.ReadAllText(file);
-                    loader.LoadJson(file, data);
-                    itemCount++;
+                    try
+                    {
+                        var data = File.ReadAllText(file);
+                        loader.LoadJson(file, data);
+                    }
+                    catch (Exception e)
+                    {
+                        // Load every entry the current game can understand and
+                        // ignore incompatible records instead of rejecting the
+                        // entire mod.
+                        Debug.LogWarning($"Skipping incompatible mod entry '{file}': {e.Message}");
+                    }
                 }
             }
-
-            if (itemCount == 0)
-                throw new FileNotFoundException("Invalid database - ", _path);
         }
 
         public string Name { get; }

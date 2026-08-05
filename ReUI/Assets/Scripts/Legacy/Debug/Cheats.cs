@@ -55,6 +55,21 @@ public class Cheats
 
     public bool TryExecuteCommand(string command, int hash)
 	{
+		// Five-digit database redemption codes are processed by the generic
+		// database handler. Handle the project-owned ship grant first, otherwise
+		// 94009 is consumed as a redemption code and no ship is added.
+		if (command == ThreeBodyContentRules.WanNianFengXueBuildId.ToString())
+		{
+			var build = _database.GetShipBuild(
+				new ItemId<ShipBuild>(ThreeBodyContentRules.WanNianFengXueBuildId));
+			if (build == null || build == ShipBuild.DefaultValue)
+				return false;
+
+			_playerFleet.Ships.Add(new CommonShip(build, _database));
+			_guiHelper.ShowMessage("已获得万年风雪号");
+			return true;
+		}
+
         if (_databaseCodesProcessor.TryExecuteDatabaseCommand(command))
             return true;
 
@@ -117,7 +132,7 @@ public class Cheats
 
         if (command == "000")
         {
-            if (_account.Status != Status.Connected)
+	        if (_account.Status != Status.Connected)
                 _guiHelper.ShowMessage("Not logged in");
             else
                 _guiHelper.ShowMessage("DisplayName: " + _account.DisplayName + "\nId: " + _account.Id);

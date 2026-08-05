@@ -1,0 +1,11 @@
+{
+  "ItemType": 10,
+  "Id": 417,
+  "Type": 1,
+  "ItemId": 166,
+  "Faction": 22,
+  "Price": 114514,
+  "CustomCraftingLevel": 50,
+  "Special": true,
+  "Dependencies": []
+}

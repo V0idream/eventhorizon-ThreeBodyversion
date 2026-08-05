@@ -4,6 +4,7 @@ using Combat.Component.Ship;
 using Combat.Component.Systems;
 using Combat.Component.Systems.Devices;
 using Combat.Component.Triggers;
+using Combat.Component.Unit;
 using Combat.Component.Unit.Classification;
 using Combat.Effects;
 using Combat.Scene;
@@ -40,6 +41,23 @@ namespace Combat.Factory
 
             if (deviceData.ComponentId == 947)
                 return new LowDimensionalProjectionDevice(stats);
+
+            if (deviceData.ComponentId == ThreeBodyContentRules.SilentCoreComponentId)
+            {
+                var silentCore = new SilentCoreDevice(
+                    ship,
+                    stats,
+                    deviceData.KeyBinding >= 0 ? deviceData.KeyBinding : 0,
+                    _scene,
+                    _spaceObjectFactory,
+                    _effectFactory);
+                if (stats.Sound)
+                    silentCore.AddTrigger(CreateSoundEffect(stats, ConditionType.OnActivate));
+                return silentCore;
+            }
+
+            if (TryCreateSpecialEnergyShield(deviceData, ship, stats, out var specialShield))
+                return specialShield;
 
             SystemBase device;
             ConditionType soundEffectCondition = ConditionType.OnActivate;
@@ -225,6 +243,49 @@ namespace Combat.Factory
                 device.AddTrigger(CreateSoundEffect(stats, soundEffectCondition));
 
             return device;
+        }
+
+        private bool TryCreateSpecialEnergyShield(IDeviceData deviceData, IShip ship, DeviceStats stats,
+            out SystemBase device)
+        {
+            EnergyShieldInteractionMode mode;
+            switch (deviceData.ComponentId)
+            {
+                case ThreeBodyContentRules.DeflectionShieldComponentId:
+                    mode = EnergyShieldInteractionMode.Deflection;
+                    break;
+                case ThreeBodyContentRules.AngelShieldComponentId:
+                    mode = EnergyShieldInteractionMode.Angel;
+                    break;
+                case ThreeBodyContentRules.SubspaceShieldComponentId:
+                    mode = EnergyShieldInteractionMode.Subspace;
+                    break;
+                case ThreeBodyContentRules.ElectronicShieldComponentId:
+                    mode = EnergyShieldInteractionMode.Electronic;
+                    break;
+                default:
+                    device = null;
+                    return false;
+            }
+
+            var prefab = stats.Prefab != null
+                ? _services.PrefabCache.LoadPrefab(stats.Prefab)
+                : stats.EffectPrefab != null
+                    ? _services.PrefabCache.LoadPrefab(stats.EffectPrefab)
+                    : null;
+            var specialCost = mode == EnergyShieldInteractionMode.Deflection
+                ? Mathf.Max(0f, stats.EnergyConsumption * stats.Power)
+                : mode == EnergyShieldInteractionMode.Electronic
+                    ? Mathf.Max(0f, stats.Power)
+                    : 0f;
+            var shield = _satelliteFactory.CreateSpecialEnergyShield(
+                ship, prefab, stats.Size, stats.Color, mode, specialCost, stats.EnergyConsumption);
+            var shieldDevice = new SpecialEnergyShieldDevice(ship, stats, deviceData.KeyBinding, mode);
+            shieldDevice.AddTrigger(new AuxiliaryUnitAction(shieldDevice, shield));
+            if (stats.Sound)
+                shieldDevice.AddTrigger(CreateSoundEffect(stats, ConditionType.OnActivate));
+            device = shieldDevice;
+            return true;
         }
 
         private static AmmunitionObsoleteStats CreateSophonEmpPulseStats()

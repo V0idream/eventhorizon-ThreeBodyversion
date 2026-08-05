@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using GameServices.SceneManager;
 using Combat.Domain;
 using CommonComponents.Signals;
@@ -303,6 +303,11 @@ namespace GameStateMachine.States
         {
             StartCombat(_questCombatModelFacctory.CreateCombatModel(enemyData, specialLoot));
         }
+
+		public void StartMothersTearsCombat(QuestEnemyData enemyData, ILoot specialLoot, int starId)
+		{
+			StartCombat(_questCombatModelFacctory.CreateMothersTearsCombatModel(enemyData, specialLoot, starId));
+		}
 
         public void AttackOccupants(int starId)
         {

@@ -1,0 +1,28 @@
+{
+  "ItemType": 8,
+  "Id": 94009,
+  "ShipId": 94009,
+  "AvailableForPlayer": true,
+  "AvailableForEnemy": false,
+  "Components": [
+    { "ComponentId": 955, "X": 11, "Y": 1, "BarrelId": 0 },
+    { "ComponentId": 303, "X": 10, "Y": 2 },
+    { "ComponentId": 303, "X": 15, "Y": 2 },
+    { "ComponentId": 176, "X": 8, "Y": 4 },
+    { "ComponentId": 176, "X": 17, "Y": 4 },
+    { "ComponentId": 260, "X": 13, "Y": 6 },
+    { "ComponentId": 260, "X": 12, "Y": 7 },
+    { "ComponentId": 260, "X": 13, "Y": 7 },
+    { "ComponentId": 260, "X": 14, "Y": 7 },
+    { "ComponentId": 260, "X": 13, "Y": 8 },
+    { "ComponentId": 305, "X": 12, "Y": 9 },
+    { "ComponentId": 303, "X": 12, "Y": 12 },
+    { "ComponentId": 79, "X": 12, "Y": 14 },
+    { "ComponentId": 71, "X": 12, "Y": 16 },
+    { "ComponentId": 303, "X": 12, "Y": 19 },
+    { "ComponentId": 304, "X": 12, "Y": 21 },
+    { "ComponentId": 57, "X": 14, "Y": 21 },
+    { "ComponentId": 57, "X": 14, "Y": 23 },
+    { "ComponentId": 57, "X": 14, "Y": 25 }
+  ]
+}

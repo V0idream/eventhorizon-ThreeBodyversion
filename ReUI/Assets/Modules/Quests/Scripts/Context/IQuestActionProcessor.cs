@@ -7,6 +7,7 @@ namespace Domain.Quests
     {
         void ShowUiDialog(IUserInteraction userInteraction);
         void StartCombat(QuestEnemyData enemyData, ILoot specialLoot);
+		void StartMothersTearsCombat(QuestEnemyData enemyData, ILoot specialLoot, int starId);
 		void AttackStarbase(int starId);
 		void AttackOccupants(int starId);
 		void SuppressOccupants(int starId, bool destroy);

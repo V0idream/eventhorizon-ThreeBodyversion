@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using GameDatabase.DataModel;
 using GameDatabase.Enums;
@@ -84,6 +84,7 @@ namespace Domain.Quests
     {
         QuestModel Model { get; }
         int StarId { get; }
+        int NodeId { get; }
         string GetRequirementsText(ILocalization localization);
         bool TryGetBeacons(ICollection<int> beacons);
 

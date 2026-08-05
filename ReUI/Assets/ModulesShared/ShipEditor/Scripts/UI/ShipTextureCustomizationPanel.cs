@@ -175,7 +175,7 @@ namespace ShipEditor.UI
 
         private void Restore()
         {
-            PlayerShipTextureOverrides.Restore(_owner.CurrentShipId);
+            PlayerShipTextureOverrides.Restore(_owner.CurrentShipId, _baseSprite);
             _owner.RefreshShipArtwork();
             SetStatus("已还原原始贴图");
             RefreshBasePreview();

@@ -26,6 +26,7 @@ public enum EventType
     PlayerPositionChanged, // int starId
     FocusedPositionChanged, // int starId
     PlayerShipMoved, // int start, int end, float progress
+    PrismBeamFired, // int startStarId, int targetStarId
 
 	ViewModeChanged, // ViewMode
 	StarContentChanged,

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using GameDatabase.Model;
 using GameDatabase.DataModel;
 using Session.Model;

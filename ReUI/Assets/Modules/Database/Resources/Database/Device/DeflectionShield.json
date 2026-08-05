@@ -1,0 +1,14 @@
+{
+  "ItemType": 2,
+  "Id": 908,
+  "DeviceClass": 2,
+  "EnergyConsumption": 5.0,
+  "PassiveEnergyConsumption": 0.0,
+  "Power": 1.5,
+  "Size": 1.6,
+  "Cooldown": 0.0,
+  "ActivationType": 1,
+  "Color": "#55E7FFFF",
+  "Prefab": 2,
+  "ControlButtonIcon": "controls_shield_deflection"
+}

@@ -57,7 +57,7 @@ namespace ViewModel
 			{
 				_clickCount = 1;
 			}
-			else if (++_clickCount == 3)
+			else if (++_clickCount == 5)
 			{
 				_idletime = 0;
 				foreach (var item in Buttons)

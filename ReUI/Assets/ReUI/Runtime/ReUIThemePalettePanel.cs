@@ -9,15 +9,12 @@ namespace ReUI
     {
         private bool _initialized;
         private bool _suppressChanges;
+        private Color _draftColor;
 
         internal Image Surface;
         internal Image Preview;
         internal Outline SurfaceOutline;
         internal Text HexValue;
-        internal Text HueValue;
-        internal Text SaturationValue;
-        internal Text BrightnessValue;
-        internal Text Status;
         internal Slider Hue;
         internal ReUIThemeColorSquareGraphic ColorSquare;
         internal ReUIThemeColorSquareInput ColorInput;
@@ -51,34 +48,29 @@ namespace ReUI
 
         internal void SetPreset(Color color)
         {
-            ApplyTheme(color);
+            SetDraftColor(color);
+        }
+
+        internal void ApplySelectedTheme()
+        {
+            ReUIPalette.SetThemeColor(_draftColor);
+            ReUIBootstrap.RefreshTheme();
         }
 
         internal void ResetTheme()
         {
             ReUIPalette.ResetThemeColor();
             ReUIBootstrap.RefreshTheme();
+            RefreshFromPalette();
         }
 
         internal void RefreshFromPalette()
         {
             Color color = ReUIPalette.ThemeColor;
-            Color.RGBToHSV(color, out float hue, out float saturation, out float brightness);
-
-            _suppressChanges = true;
-            if (Hue != null) Hue.SetValueWithoutNotify(hue);
-            if (ColorSquare != null) ColorSquare.SetHue(hue);
-            if (ColorInput != null) ColorInput.SetSelection(saturation, brightness);
-            _suppressChanges = false;
+            SetDraftColor(color);
 
             if (Surface != null) Surface.color = ReUIPalette.WithAlpha(ReUIPalette.GlassElevated, 0.95f);
             if (SurfaceOutline != null) SurfaceOutline.effectColor = ReUIPalette.WithAlpha(ReUIPalette.OutlineStrong, 0.86f);
-            if (Preview != null) Preview.color = color;
-            if (HexValue != null) HexValue.text = "#" + ColorUtility.ToHtmlStringRGB(color);
-            if (HueValue != null) HueValue.text = Mathf.RoundToInt(hue * 360f) + "°";
-            if (SaturationValue != null) SaturationValue.text = Mathf.RoundToInt(saturation * 100f) + "%";
-            if (BrightnessValue != null) BrightnessValue.text = Mathf.RoundToInt(brightness * 100f) + "%";
-            if (Status != null) Status.text = "已应用到 ReUI 界面主题";
 
             ReUIThemePalettePanel.RefreshLauncherForRoot(transform.root);
         }
@@ -89,19 +81,29 @@ namespace ReUI
 
             float saturation = ColorInput != null ? ColorInput.Saturation : 0.75f;
             float brightness = ColorInput != null ? ColorInput.Brightness : 0.9f;
-            ApplyTheme(Color.HSVToRGB(hue, saturation, brightness));
+            SetDraftColor(Color.HSVToRGB(hue, saturation, brightness));
         }
 
         private void OnSquareChanged(float saturation, float brightness)
         {
             if (!Application.isPlaying || _suppressChanges || Hue == null) return;
-            ApplyTheme(Color.HSVToRGB(Hue.value, saturation, brightness));
+            SetDraftColor(Color.HSVToRGB(Hue.value, saturation, brightness));
         }
 
-        private static void ApplyTheme(Color color)
+        private void SetDraftColor(Color color)
         {
-            ReUIPalette.SetThemeColor(color);
-            ReUIBootstrap.RefreshTheme();
+            color.a = 1f;
+            _draftColor = color;
+            Color.RGBToHSV(color, out float hue, out float saturation, out float brightness);
+
+            _suppressChanges = true;
+            if (Hue != null) Hue.SetValueWithoutNotify(hue);
+            if (ColorSquare != null) ColorSquare.SetHue(hue);
+            if (ColorInput != null) ColorInput.SetSelection(saturation, brightness);
+            _suppressChanges = false;
+
+            if (Preview != null) Preview.color = color;
+            if (HexValue != null) HexValue.text = "#" + ColorUtility.ToHtmlStringRGB(color);
         }
 
         private void OnThemeChanged(Color _)
@@ -280,7 +282,7 @@ namespace ReUI
             RectTransform panel = panelObject.GetComponent<RectTransform>();
             panel.anchorMin = panel.anchorMax = new Vector2(0.5f, 0.5f);
             panel.pivot = new Vector2(0.5f, 0.5f);
-            panel.sizeDelta = new Vector2(860f, 650f);
+            panel.sizeDelta = new Vector2(1040f, 700f);
             panel.anchoredPosition = Vector2.zero;
 
             Image surface = panelObject.GetComponent<Image>();
@@ -296,27 +298,25 @@ namespace ReUI
             state.Surface = surface;
             state.SurfaceOutline = outline;
 
-            CreateText(panel, "Title", "主题调色盘", font, 34, TextAnchor.MiddleLeft,
-                new Vector2(-388f, 278f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(500f, 54f),
-                ReUIPalette.TextPrimary, FontStyle.Bold);
-            CreateText(panel, "Description", "在色彩方框中选择饱和度与亮度，再使用色相滑条切换色调。", font, 18,
-                TextAnchor.MiddleLeft, new Vector2(-388f, 234f), new Vector2(0.5f, 0.5f), Vector2.zero,
-                new Vector2(610f, 38f), ReUIPalette.TextSecondary);
-
-            Button close = CreateActionButton(panel, "Close", "关闭", font, new Vector2(342f, 276f), new Vector2(118f, 42f));
+            Button close = CreateActionButton(panel, "Close", "关闭", font, new Vector2(448f, 306f), new Vector2(92f, 42f));
             close.onClick.AddListener(() => panelObject.SetActive(false));
 
-            CreateColorSquare(panel, state, new Vector2(-190f, 0f));
-            CreateHueSlider(panel, state, new Vector2(-190f, -235f));
-            CreateText(panel, "HueCaption", "色相", font, 18, TextAnchor.MiddleLeft,
-                new Vector2(-388f, -235f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(60f, 36f),
-                ReUIPalette.TextSecondary, FontStyle.Bold);
-            state.HueValue = CreateText(panel, "HueValue", string.Empty, font, 18, TextAnchor.MiddleRight,
-                new Vector2(10f, -235f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(48f, 36f),
-                ReUIPalette.TextPrimary);
+            CreateColorSquare(panel, state, new Vector2(-245f, -20f));
+            CreateHueSlider(panel, state, new Vector2(40f, -20f));
 
-            Image preview = CreateImage(panel, "Preview", new Vector2(226f, 144f), new Vector2(0.5f, 0.5f),
-                new Vector2(255f, 108f), ReUIPalette.ThemeColor);
+            Image inspector = CreateImage(panel, "Theme Inspector", new Vector2(298f, -24f),
+                new Vector2(0.5f, 0.5f), new Vector2(370f, 510f),
+                ReUIPalette.WithAlpha(ReUIPalette.GlassSoft, 0.42f));
+            inspector.sprite = ReUICanvasStyler.SurfaceSprite;
+            inspector.type = Image.Type.Sliced;
+            inspector.raycastTarget = false;
+            Outline inspectorOutline = inspector.gameObject.AddComponent<Outline>();
+            inspectorOutline.effectColor = ReUIPalette.WithAlpha(ReUIPalette.Outline, 0.55f);
+            inspectorOutline.effectDistance = new Vector2(1f, -1f);
+            inspectorOutline.useGraphicAlpha = false;
+
+            Image preview = CreateImage(panel, "Preview", new Vector2(298f, 164f), new Vector2(0.5f, 0.5f),
+                new Vector2(312f, 112f), ReUIPalette.ThemeColor);
             preview.sprite = ReUICanvasStyler.SurfaceSprite;
             preview.type = Image.Type.Sliced;
             Outline previewOutline = preview.gameObject.AddComponent<Outline>();
@@ -327,24 +327,20 @@ namespace ReUI
             state.HexValue = CreateText(preview.transform, "Hex", string.Empty, font, 24, TextAnchor.MiddleCenter,
                 Vector2.zero, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero, Color.white, FontStyle.Bold);
 
-            CreateText(panel, "PresetCaption", "常用主题色", font, 21, TextAnchor.MiddleLeft,
-                new Vector2(92f, 65f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(240f, 34f),
-                ReUIPalette.TextPrimary, FontStyle.Bold);
             for (int i = 0; i < Presets.Length; i++)
             {
                 int column = i % 4;
                 int row = i / 4;
                 CreateSwatch(panel, "Preset " + i, Presets[i],
-                    new Vector2(130f + column * 72f, 22f - row * 70f), state);
+                    new Vector2(151f + column * 82f, 38f - row * 72f), state);
             }
 
-            CreateReadout(panel, "Saturation", "饱和度", new Vector2(92f, -144f), font, out state.SaturationValue);
-            CreateReadout(panel, "Brightness", "亮度", new Vector2(92f, -190f), font, out state.BrightnessValue);
-            Button reset = CreateActionButton(panel, "Reset", "恢复默认", font, new Vector2(226f, -252f), new Vector2(255f, 50f));
+            Button apply = CreateActionButton(panel, "Apply Theme", "应用主题", font,
+                new Vector2(298f, -242f), new Vector2(312f, 54f));
+            apply.onClick.AddListener(state.ApplySelectedTheme);
+            Button reset = CreateActionButton(panel, "Reset", "恢复默认", font,
+                new Vector2(298f, -302f), new Vector2(312f, 42f));
             reset.onClick.AddListener(state.ResetTheme);
-            state.Status = CreateText(panel, "Status", string.Empty, font, 16, TextAnchor.MiddleLeft,
-                new Vector2(-388f, -286f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(640f, 30f),
-                ReUIPalette.TextMuted);
 
             state.Initialize();
             return state;
@@ -359,7 +355,7 @@ namespace ReUI
             rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
             rect.pivot = new Vector2(0.5f, 0.5f);
             rect.anchoredPosition = position;
-            rect.sizeDelta = new Vector2(392f, 392f);
+            rect.sizeDelta = new Vector2(500f, 500f);
 
             ReUIThemeColorSquareGraphic square = squareObject.GetComponent<ReUIThemeColorSquareGraphic>();
             square.raycastTarget = true;
@@ -370,7 +366,7 @@ namespace ReUI
 
             ReUIThemeColorSquareInput input = squareObject.GetComponent<ReUIThemeColorSquareInput>();
             Image selector = CreateImage(squareObject.transform, "Selection", Vector2.zero, new Vector2(0.5f, 0.5f),
-                new Vector2(26f, 26f), ReUIPalette.WithAlpha(Color.black, 0.10f));
+                new Vector2(30f, 30f), ReUIPalette.WithAlpha(Color.black, 0.12f));
             selector.sprite = ReUICanvasStyler.SurfaceSprite;
             selector.type = Image.Type.Sliced;
             selector.raycastTarget = false;
@@ -392,9 +388,10 @@ namespace ReUI
             sliderRect.anchorMin = sliderRect.anchorMax = new Vector2(0.5f, 0.5f);
             sliderRect.pivot = new Vector2(0.5f, 0.5f);
             sliderRect.anchoredPosition = position;
-            sliderRect.sizeDelta = new Vector2(392f, 28f);
+            sliderRect.sizeDelta = new Vector2(34f, 500f);
 
             ReUIThemeHueStripGraphic strip = sliderObject.GetComponent<ReUIThemeHueStripGraphic>();
+            strip.SetVertical(true);
             // The strip itself is the slider's click surface. Keeping its
             // raycast target enabled allows both a tap and a drag anywhere
             // along the full hue bar, not just on the handle.
@@ -409,11 +406,11 @@ namespace ReUI
             RectTransform handleArea = handleAreaObject.GetComponent<RectTransform>();
             handleArea.anchorMin = Vector2.zero;
             handleArea.anchorMax = Vector2.one;
-            handleArea.offsetMin = new Vector2(10f, 0f);
-            handleArea.offsetMax = new Vector2(-10f, 0f);
+            handleArea.offsetMin = new Vector2(0f, 10f);
+            handleArea.offsetMax = new Vector2(0f, -10f);
 
             Image handle = CreateImage(handleArea, "Handle", Vector2.zero, new Vector2(0.5f, 0.5f),
-                new Vector2(22f, 38f), ReUIPalette.TextPrimary);
+                new Vector2(48f, 18f), ReUIPalette.TextPrimary);
             handle.sprite = ReUICanvasStyler.SurfaceSprite;
             handle.type = Image.Type.Sliced;
             Outline handleOutline = handle.gameObject.AddComponent<Outline>();
@@ -425,20 +422,10 @@ namespace ReUI
             slider.minValue = 0f;
             slider.maxValue = 1f;
             slider.wholeNumbers = false;
-            slider.direction = Slider.Direction.LeftToRight;
+            slider.direction = Slider.Direction.BottomToTop;
             slider.targetGraphic = handle;
             slider.handleRect = handle.rectTransform;
             state.Hue = slider;
-        }
-
-        private static void CreateReadout(Transform parent, string name, string label, Vector2 position, Font font,
-            out Text value)
-        {
-            CreateText(parent, name + "Label", label, font, 19, TextAnchor.MiddleLeft, position,
-                new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(130f, 34f), ReUIPalette.TextSecondary);
-            value = CreateText(parent, name + "Value", string.Empty, font, 19, TextAnchor.MiddleRight,
-                position + new Vector2(228f, 0f), new Vector2(0.5f, 0.5f), Vector2.zero,
-                new Vector2(110f, 34f), ReUIPalette.TextPrimary, FontStyle.Bold);
         }
 
         private static void CreateSwatch(Transform parent, string name, Color color, Vector2 position,

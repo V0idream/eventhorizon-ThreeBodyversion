@@ -174,6 +174,38 @@ namespace Combat.Factory
             return CreateEnergyShield(ship, energyConsumption, size, Vector2.zero, color, 0.3f, prefab);
         }
 
+        public IAuxiliaryUnit CreateSpecialEnergyShield(IShip ship, GameObject prefab, float size, Color color,
+            EnergyShieldInteractionMode interactionMode, float specialEnergyCost, float normalEnergyConsumption)
+        {
+            if (prefab == null) prefab = _prefabCache.LoadResourcePrefab("Combat/Objects/EnergyShield");
+
+            var gameObject = new GameObjectHolder(prefab, _objectPool, false);
+            gameObject.IsActive = true;
+
+            var body = gameObject.GetComponent<IBodyComponent>();
+            body.Initialize(ship.Body, Vector2.zero, 0, size, Vector2.zero, 0f, 0f);
+
+            var view = gameObject.GetComponent<IView>();
+            view.Color = color;
+
+            var outline = gameObject.AddComponent<LineRenderer>();
+            var visualController = gameObject.AddComponent<EnergyShieldVisualController>();
+            visualController.Initialize(ship, view, outline, color,
+                interactionMode == EnergyShieldInteractionMode.Electronic);
+
+            var collider = gameObject.GetComponent<ICollider>();
+            collider.Initialize(_collisionManager);
+
+            var shield = new EnergyShield(ship, body, view, collider, 0.3f, interactionMode,
+                specialEnergyCost, visualController);
+            if (interactionMode == EnergyShieldInteractionMode.Deflection)
+                shield.DamageHandler = new EnergyShieldDamageHandler(shield, normalEnergyConsumption,
+                    ship.Specification.Stats.ShieldCorrosiveResistancePercentage);
+            shield.AddResource(gameObject);
+            _scene.AddUnit(shield);
+            return shield;
+        }
+
         public IAuxiliaryUnit CreateFrontalShield(IShip ship, float energyConsumption, Vector2 offset, float size, Color color)
         {
             var prefab = _prefabCache.LoadResourcePrefab("Combat/Objects/FrontalShield");
@@ -192,10 +224,15 @@ namespace Combat.Factory
             var view = gameObject.GetComponent<IView>();
             view.Color = color;
 
+            var outline = gameObject.AddComponent<LineRenderer>();
+            var visualController = gameObject.AddComponent<EnergyShieldVisualController>();
+            visualController.Initialize(ship, view, outline, color);
+
             var collider = gameObject.GetComponent<ICollider>();
             collider.Initialize(_collisionManager);
 
-            var energyShield = new EnergyShield(ship, body, view, collider, defaultOpacity);
+            var energyShield = new EnergyShield(ship, body, view, collider, defaultOpacity,
+                visualController: visualController);
             energyShield.DamageHandler = new EnergyShieldDamageHandler(energyShield, energyConsumption,
                 ship.Specification.Stats.ShieldCorrosiveResistancePercentage);
 

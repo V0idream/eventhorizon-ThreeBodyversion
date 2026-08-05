@@ -1,0 +1,18 @@
+{
+  "ItemType": 1,
+  "Id": 958,
+  "Name": "$SubspaceShield",
+  "Description": "$SubspaceShieldDescription",
+  "ContentSource": 1,
+  "DisplayCategory": 2,
+  "Availability": 1,
+  "ComponentStatsId": 931,
+  "Faction": 27,
+  "Level": 100,
+  "Icon": "shield_subspace",
+  "Color": "#A86CFF",
+  "Layout": "101111101",
+  "CellType": "2",
+  "DeviceId": 910,
+  "PossibleModifications": [15, 1, 2]
+}

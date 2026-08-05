@@ -7,12 +7,15 @@ namespace GameServices.Player
         private const string AdvancedRadarKey = "Preview7.ThreeBody1.AdvancedRadar";
         private const string CollaborativeCombatKey = "Alpha13.ThreeBody1.CollaborativeCombat";
         private const string GiantCannonsKey = "Alpha15.ThreeBody1.GiantCannons";
+        private const string HyperspaceEngineKey = "Beta6.3.ThreeBody1.HyperspaceEngine";
         private const string EngineThrottleKey = "Preview14.EngineThrottle";
         private const string EngineThrottleLimitKey = "Preview18.EngineThrottleLimit";
 
         public static bool AdvancedRadarUnlocked => PlayerPrefs.GetInt(AdvancedRadarKey, 0) != 0;
         public static bool CollaborativeCombatUnlocked => PlayerPrefs.GetInt(CollaborativeCombatKey, 0) != 0;
         public static bool GiantCannonsUnlocked => PlayerPrefs.GetInt(GiantCannonsKey, 0) != 0;
+        public static bool HyperspaceEngineUnlocked => PlayerPrefs.GetInt(HyperspaceEngineKey, 0) != 0;
+        public static float TravelFuelMultiplier => HyperspaceEngineUnlocked ? 0.05f : 1f;
         public static float RadarRangeMultiplier => AdvancedRadarUnlocked ? 1.2f : 1f;
         public static bool EngineThrottleEnabled => PlayerPrefs.GetInt(EngineThrottleKey, 0) != 0;
         public static float EngineThrottleLimit => Mathf.Clamp(PlayerPrefs.GetFloat(EngineThrottleLimitKey, 40f), 20f, 120f);
@@ -41,11 +44,18 @@ namespace GameServices.Player
             PlayerPrefs.Save();
         }
 
+        public static void UnlockHyperspaceEngine()
+        {
+            PlayerPrefs.SetInt(HyperspaceEngineKey, 1);
+            PlayerPrefs.Save();
+        }
+
         public static void ResetThreeBody1()
         {
             PlayerPrefs.DeleteKey(AdvancedRadarKey);
             PlayerPrefs.DeleteKey(CollaborativeCombatKey);
             PlayerPrefs.DeleteKey(GiantCannonsKey);
+            PlayerPrefs.DeleteKey(HyperspaceEngineKey);
             PlayerPrefs.Save();
         }
 

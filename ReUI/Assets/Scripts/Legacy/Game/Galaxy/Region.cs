@@ -3,6 +3,7 @@ using GameDatabase.DataModel;
 using GameDatabase.Extensions;
 using Session;
 using UnityEngine;
+using Galaxy.StarContent;
 
 namespace GameModel
 {
@@ -111,6 +112,14 @@ namespace GameModel
         public int HomeStarLevel => IsCaptured
             ? Mathf.Max(NaturalHomeStarLevel, BaseDefendersLevel)
             : NaturalHomeStarLevel;
+
+        public int CapturedStarbaseTier => CapturedStarbaseFacilities.GetTier(this);
+
+        public CapturedStarbaseFacilityType CapturedStarbaseFacility
+        {
+            get => CapturedStarbaseFacilities.GetFacilityType(_session, Id);
+            set => CapturedStarbaseFacilities.SetFacilityType(_session, Id, value);
+        }
 
         /// <summary>
         /// Captured station services must advance independently of the original

@@ -1,4 +1,4 @@
-﻿using Galaxy;
+using Galaxy;
 using Session;
 using UnityEngine;
 using Zenject;
@@ -49,13 +49,15 @@ namespace GameServices.Player
 		}
 
 		public bool IsOutOfFuel => _session.Resources.Fuel == 0;
-		public float FlightRange => (IsOutOfFuel ? _flightRangeWithoutFuel : _playerSkills.MainFilghtRange) * 5f;
+		public float FlightRange => ThreeBodySkillState.HyperspaceEngineUnlocked
+			? 100000f
+			: (IsOutOfFuel ? _flightRangeWithoutFuel : _playerSkills.MainFilghtRange) * 5f;
 		public float FlightSpeed => (IsOutOfFuel ? _speedWithoutFuel : _playerSkills.MainEnginePower) * 10f;
 
         public int CalculateRequiredFuel(int star1, int star2)
         {
             var distance = _starMap.Distance(star1, star2);
-            return Mathf.Max(1, Mathf.FloorToInt(distance));
+            return Mathf.Max(1, Mathf.FloorToInt(distance * ThreeBodySkillState.TravelFuelMultiplier));
         }
 
         public float CalculateFlightTime(int star1, int star2)
@@ -65,6 +67,9 @@ namespace GameServices.Player
 
         public bool IsStarReachable(int starId)
         {
+            if (ThreeBodySkillState.HyperspaceEngineUnlocked)
+                return true;
+
             if (_starData.IsVisited(starId))
                 return true;
             var nearestStar = _starMap.GetNearestVisited(starId, true);

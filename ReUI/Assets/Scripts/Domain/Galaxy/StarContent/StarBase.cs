@@ -1,4 +1,4 @@
-﻿using Combat.Domain;
+using Combat.Domain;
 using GameDatabase;
 using GameServices.Economy;
 using GameServices.Player;
@@ -24,7 +24,9 @@ namespace Galaxy.StarContent
         [Inject] private readonly CombatModelBuilder.Factory _combatModelBuilderFactory;
         [Inject] private readonly LootGenerator _lootGenerator;
         [Inject] private readonly ISessionData _session;
+		[Inject] private readonly RegionMap _regionMap;
 		[Inject] private readonly IQuestManager _questManager;
+		[Inject] private readonly QuestEventSignal.Trigger _questEventTrigger;
 
 		public ICombatModel CreateCombatModel(int starId)
 		{
@@ -40,7 +42,15 @@ namespace Galaxy.StarContent
 			builder.PlayerFleet = playerFleet;
 			if (FactionPanelViewModel.IncludeStarshipEarthAllies)
             {
-				builder.AllyFleet = Fleet.StarshipEarthAllies(region.HomeStarLevel, starId ^ 0x5345, _database);
+				var supportFaction = _database.GetFaction(
+					new GameDatabase.Model.ItemId<GameDatabase.DataModel.Faction>(Region.StarshipEarthFactionId));
+				var supportBonus = CapturedStarbaseFacilities.GetSupportBonus(
+					_session, _regionMap, supportFaction);
+				builder.AllyFleet = region.Faction.Id.Value == 22
+					? Fleet.TrisolarisStarbaseAssaultAllies(region.HomeStarLevel, starId ^ 0x5345, _database,
+						supportBonus.LevelBonus, supportBonus.ExtraBattleships)
+					: Fleet.StarshipEarthAllies(region.HomeStarLevel, starId ^ 0x5345, _database,
+						supportBonus.LevelBonus, supportBonus.ExtraBattleships);
             }
 			builder.EnemyFleet = defenderFleet;
             // A fallback/dedicated station build may carry a database faction
@@ -109,10 +119,13 @@ namespace Galaxy.StarContent
 
             var builder = _combatModelBuilderFactory.Create();
             var stationLevel = UnityEngine.Mathf.Max(1, region.BaseDefendersLevel);
+			var supportBonus = CapturedStarbaseFacilities.GetSupportBonus(
+				_session, _regionMap, region.Faction);
             _lastDefenseFactionByStar.TryGetValue(starId, out var previousFactionId);
             var seed = unchecked(starId ^ (++_defenseAttemptSerial * 7919) ^ System.Environment.TickCount);
             builder.PlayerFleet = new Model.Military.PlayerFleet(_database, _playerFleet);
-            builder.AllyFleet = Fleet.StarbaseDefenseAllies(region, seed ^ 0x444546, _database);
+            builder.AllyFleet = Fleet.StarbaseDefenseAllies(region, seed ^ 0x444546, _database,
+				supportBonus.LevelBonus, supportBonus.ExtraBattleships);
             builder.EnemyFleet = Fleet.StarbaseDefenseEnemies(region, seed ^ 0x454E4D, previousFactionId,
                 _database, out var attackerFactionId);
             if (attackerFactionId >= 0)
@@ -137,6 +150,9 @@ namespace Galaxy.StarContent
                 UnityEngine.Mathf.CeilToInt(currentPower * 1.5f));
             region.RaiseCapturedServiceLevel();
             _starContentChangedTrigger.Fire(starId);
+			_questEventTrigger.Fire(new StarEventData(
+				QuestEventType.StarbaseDefenseCompleted,
+				starId));
         }
 
         private void OnCombatCompleted(int starId, ICombatModel result)
@@ -144,7 +160,7 @@ namespace Galaxy.StarContent
             if (!result.IsVictory())
                 return;
 
-            _starData.GetRegion(starId).IsCaptured = true;
+			_starData.GetRegion(starId).IsCaptured = true;
             _starContentChangedTrigger.Fire(starId);
         }
 	
