@@ -12,8 +12,9 @@ namespace Services.Resources
     /// </summary>
     public static class PlayerShipTextureOverrides
     {
-        private static readonly Dictionary<int, Sprite> Cache = new Dictionary<int, Sprite>();
-        private static readonly Dictionary<int, Texture2D> Textures = new Dictionary<int, Texture2D>();
+        private static readonly Dictionary<string, Sprite> Cache = new Dictionary<string, Sprite>();
+        private static readonly Dictionary<string, Texture2D> Textures = new Dictionary<string, Texture2D>();
+        private static readonly Dictionary<int, string> SourceSignatures = new Dictionary<int, string>();
         private static readonly Dictionary<int, byte[]> RemoteBytes = new Dictionary<int, byte[]>();
         private static readonly Dictionary<int, Sprite> RemoteCache = new Dictionary<int, Sprite>();
         private static readonly Dictionary<int, Texture2D> RemoteTextures = new Dictionary<int, Texture2D>();
@@ -31,13 +32,14 @@ namespace Services.Resources
 
         public static Sprite Get(int shipId, Sprite fallback)
         {
-            if (shipId <= 0 || fallback == null)
+            if (fallback == null)
                 return fallback;
 
-            if (Cache.TryGetValue(shipId, out var cached) && cached != null)
+            var key = GetOverrideKey(shipId, fallback);
+            if (Cache.TryGetValue(key, out var cached) && cached != null)
                 return cached;
 
-            var path = GetOverridePath(shipId);
+            var path = ResolveOverridePath(shipId, fallback, key);
             if (!File.Exists(path))
                 return fallback;
 
@@ -47,19 +49,24 @@ namespace Services.Resources
                 var texture = new Texture2D(2, 2, TextureFormat.RGBA32, false);
                 if (!texture.LoadImage(bytes, true))
                 {
-                    UnityEngine.Object.Destroy(texture);
+                    DestroyObject(texture);
                     return fallback;
                 }
 
-                texture.name = "PlayerShipTexture_" + shipId;
+                var normalizedTexture = NormalizeTextureForSprite(texture, fallback);
+                if (!ReferenceEquals(normalizedTexture, texture))
+                {
+                    DestroyObject(texture);
+                    texture = normalizedTexture;
+                }
+
+                texture.name = "PlayerShipTexture_" + key;
                 texture.wrapMode = TextureWrapMode.Clamp;
                 texture.filterMode = FilterMode.Bilinear;
-                Textures[shipId] = texture;
-                var ppu = Mathf.Max(1f, fallback.pixelsPerUnit);
-                var sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
-                    new Vector2(0.5f, 0.5f), ppu, 0, SpriteMeshType.Tight);
-                sprite.name = "PlayerShipTexture_" + shipId;
-                Cache[shipId] = sprite;
+                Textures[key] = texture;
+                var sprite = CreateOverrideSprite(texture, fallback);
+                sprite.name = "PlayerShipTexture_" + key;
+                Cache[key] = sprite;
                 return sprite;
             }
             catch (Exception error)
@@ -73,7 +80,7 @@ namespace Services.Resources
             bool sticker, float scale, Vector2 normalizedOffset, float rotationDegrees, out string error)
         {
             error = null;
-            if (shipId <= 0 || baseSprite == null || overlay == null)
+            if (baseSprite == null || overlay == null)
             {
                 error = "缺少舰船贴图或导入图片";
                 return false;
@@ -92,9 +99,10 @@ namespace Services.Resources
                 }
 
                 var result = Compose(source, layer, sticker, scale, normalizedOffset, rotationDegrees);
-                SaveOverride(shipId, result);
-                ReplaceCache(shipId, result, baseSprite.pixelsPerUnit);
-                UnityEngine.Object.Destroy(result);
+                var key = GetOverrideKey(shipId, baseSprite);
+                SaveOverride(key, result);
+                ReplaceCache(key, result, baseSprite);
+                DestroyObject(result);
                 return true;
             }
             catch (Exception exception)
@@ -104,29 +112,65 @@ namespace Services.Resources
             }
             finally
             {
-                if (source != null) UnityEngine.Object.Destroy(source);
-                if (layer != null) UnityEngine.Object.Destroy(layer);
+                if (source != null) DestroyObject(source);
+                if (layer != null) DestroyObject(layer);
             }
         }
 
         public static void Restore(int shipId)
         {
-            Cache.Remove(shipId);
-            if (Textures.TryGetValue(shipId, out var texture) && texture != null)
-                UnityEngine.Object.Destroy(texture);
-            Textures.Remove(shipId);
-
-            var path = GetOverridePath(shipId);
-            if (File.Exists(path))
-                File.Delete(path);
+            Restore(shipId, null);
         }
 
-        public static bool HasOverride(int shipId) => File.Exists(GetOverridePath(shipId));
+        public static void Restore(int shipId, Sprite fallback)
+        {
+            IEnumerable<string> keys = fallback != null
+                ? new[] { GetOverrideKey(shipId, fallback), GetLegacySourceKey(shipId, fallback) }
+                : new List<string>(Cache.Keys).FindAll(key => key.StartsWith(shipId + "_", StringComparison.Ordinal));
+            foreach (var key in new HashSet<string>(keys))
+            {
+                if (Cache.TryGetValue(key, out var sprite) && sprite != null)
+                    DestroyObject(sprite);
+                Cache.Remove(key);
+                if (Textures.TryGetValue(key, out var texture) && texture != null)
+                    DestroyObject(texture);
+                Textures.Remove(key);
+
+                var path = GetOverridePath(key);
+                if (File.Exists(path)) File.Delete(path);
+            }
+
+            var legacy = GetLegacyOverridePath(shipId);
+            if (File.Exists(legacy)) File.Delete(legacy);
+        }
+
+        public static bool HasOverride(int shipId, Sprite fallback)
+        {
+            if (fallback == null) return false;
+            return File.Exists(ResolveOverridePath(shipId, fallback, GetOverrideKey(shipId, fallback)));
+        }
+
+        public static bool HasOverride(int shipId)
+        {
+            var directory = Path.Combine(Application.persistentDataPath, FolderName);
+            if (File.Exists(GetLegacyOverridePath(shipId))) return true;
+            return Directory.Exists(directory) && Directory.GetFiles(directory, shipId + "_*.png").Length > 0;
+        }
 
         public static bool TryGetOverrideBytes(int shipId, out byte[] bytes)
         {
             bytes = null;
-            var path = GetOverridePath(shipId);
+            var path = FindAnyOverridePath(shipId);
+            if (!File.Exists(path)) return false;
+            try { bytes = File.ReadAllBytes(path); return bytes.Length > 0; }
+            catch (Exception error) { Debug.LogWarning("Unable to read player ship texture: " + error.Message); return false; }
+        }
+
+        public static bool TryGetOverrideBytes(int shipId, Sprite fallback, out byte[] bytes)
+        {
+            bytes = null;
+            if (fallback == null) return false;
+            var path = ResolveOverridePath(shipId, fallback, GetOverrideKey(shipId, fallback));
             if (!File.Exists(path)) return false;
             try { bytes = File.ReadAllBytes(path); return bytes.Length > 0; }
             catch (Exception error) { Debug.LogWarning("Unable to read player ship texture: " + error.Message); return false; }
@@ -134,10 +178,10 @@ namespace Services.Resources
 
         public static void SetRemoteOverride(int shipId, byte[] bytes)
         {
-            if (shipId <= 0 || bytes == null || bytes.Length == 0) return;
+            if (bytes == null || bytes.Length == 0) return;
             RemoteBytes[shipId] = bytes;
-            if (RemoteCache.TryGetValue(shipId, out var sprite) && sprite != null) UnityEngine.Object.Destroy(sprite);
-            if (RemoteTextures.TryGetValue(shipId, out var texture) && texture != null) UnityEngine.Object.Destroy(texture);
+            if (RemoteCache.TryGetValue(shipId, out var sprite) && sprite != null) DestroyObject(sprite);
+            if (RemoteTextures.TryGetValue(shipId, out var texture) && texture != null) DestroyObject(texture);
             RemoteCache.Remove(shipId);
             RemoteTextures.Remove(shipId);
         }
@@ -147,11 +191,16 @@ namespace Services.Resources
             if (!RemoteBytes.TryGetValue(shipId, out var bytes) || fallback == null) return fallback;
             if (RemoteCache.TryGetValue(shipId, out var cached) && cached != null) return cached;
             var texture = new Texture2D(2, 2, TextureFormat.RGBA32, false);
-            if (!texture.LoadImage(bytes, true)) { UnityEngine.Object.Destroy(texture); return fallback; }
+            if (!texture.LoadImage(bytes, true)) { DestroyObject(texture); return fallback; }
+            var normalizedTexture = NormalizeTextureForSprite(texture, fallback);
+            if (!ReferenceEquals(normalizedTexture, texture))
+            {
+                DestroyObject(texture);
+                texture = normalizedTexture;
+            }
             texture.wrapMode = TextureWrapMode.Clamp;
             texture.filterMode = FilterMode.Bilinear;
-            var sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
-                new Vector2(0.5f, 0.5f), Mathf.Max(1f, fallback.pixelsPerUnit), 0, SpriteMeshType.Tight);
+            var sprite = CreateOverrideSprite(texture, fallback);
             RemoteTextures[shipId] = texture;
             RemoteCache[shipId] = sprite;
             return sprite;
@@ -159,8 +208,8 @@ namespace Services.Resources
 
         public static void ClearRemoteSession()
         {
-            foreach (var sprite in RemoteCache.Values) if (sprite != null) UnityEngine.Object.Destroy(sprite);
-            foreach (var texture in RemoteTextures.Values) if (texture != null) UnityEngine.Object.Destroy(texture);
+            foreach (var sprite in RemoteCache.Values) if (sprite != null) DestroyObject(sprite);
+            foreach (var texture in RemoteTextures.Values) if (texture != null) DestroyObject(texture);
             RemoteBytes.Clear();
             RemoteCache.Clear();
             RemoteTextures.Clear();
@@ -173,14 +222,14 @@ namespace Services.Resources
             var layer = CopyTexture(overlay);
             if (source == null || layer == null)
             {
-                if (source != null) UnityEngine.Object.Destroy(source);
-                if (layer != null) UnityEngine.Object.Destroy(layer);
+                if (source != null) DestroyObject(source);
+                if (layer != null) DestroyObject(layer);
                 return null;
             }
 
             var result = Compose(source, layer, sticker, scale, normalizedOffset, rotationDegrees);
-            UnityEngine.Object.Destroy(source);
-            UnityEngine.Object.Destroy(layer);
+            DestroyObject(source);
+            DestroyObject(layer);
             return result;
         }
 
@@ -263,31 +312,242 @@ namespace Services.Resources
             return result;
         }
 
-        private static void SaveOverride(int shipId, Texture2D texture)
+        private static void SaveOverride(string key, Texture2D texture)
         {
             var directory = Path.Combine(Application.persistentDataPath, FolderName);
             Directory.CreateDirectory(directory);
-            File.WriteAllBytes(GetOverridePath(shipId), texture.EncodeToPNG());
+            File.WriteAllBytes(GetOverridePath(key), texture.EncodeToPNG());
         }
 
-        private static void ReplaceCache(int shipId, Texture2D texture, float pixelsPerUnit)
+        private static void ReplaceCache(string key, Texture2D texture, Sprite fallback)
         {
-            if (Cache.TryGetValue(shipId, out var oldSprite) && oldSprite != null)
-                UnityEngine.Object.Destroy(oldSprite);
-            if (Textures.TryGetValue(shipId, out var oldTexture) && oldTexture != null)
-                UnityEngine.Object.Destroy(oldTexture);
+            if (Cache.TryGetValue(key, out var oldSprite) && oldSprite != null)
+                DestroyObject(oldSprite);
+            if (Textures.TryGetValue(key, out var oldTexture) && oldTexture != null)
+                DestroyObject(oldTexture);
 
             var cachedTexture = UnityEngine.Object.Instantiate(texture);
-            cachedTexture.name = "PlayerShipTexture_" + shipId;
-            Textures[shipId] = cachedTexture;
-            Cache[shipId] = Sprite.Create(cachedTexture,
-                new Rect(0, 0, cachedTexture.width, cachedTexture.height),
-                new Vector2(0.5f, 0.5f), Mathf.Max(1f, pixelsPerUnit), 0, SpriteMeshType.Tight);
+            cachedTexture.name = "PlayerShipTexture_" + key;
+            Textures[key] = cachedTexture;
+            Cache[key] = CreateOverrideSprite(cachedTexture, fallback);
         }
 
-        private static string GetOverridePath(int shipId)
+        private static string GetOverrideKey(int shipId, Sprite fallback)
+        {
+            var rect = fallback.rect;
+            var spriteName = string.IsNullOrWhiteSpace(fallback.name) ? "unnamed" : fallback.name;
+            var textureName = fallback.texture == null || string.IsNullOrWhiteSpace(fallback.texture.name)
+                ? "texture"
+                : fallback.texture.name;
+            var name = spriteName + "_" + textureName;
+            foreach (var invalid in Path.GetInvalidFileNameChars())
+                name = name.Replace(invalid, '_');
+            if (name.Length > 48) name = name.Substring(0, 48);
+            return $"{shipId}_{name}_{Mathf.RoundToInt(rect.width)}x{Mathf.RoundToInt(rect.height)}_" +
+                   $"{GetSourceSignature(fallback)}";
+        }
+
+        private static string GetLegacySourceKey(int shipId, Sprite fallback)
+        {
+            Rect rect;
+            try { rect = fallback.textureRect; }
+            catch { rect = fallback.rect; }
+            var spriteName = string.IsNullOrWhiteSpace(fallback.name) ? "unnamed" : fallback.name;
+            var textureName = fallback.texture == null || string.IsNullOrWhiteSpace(fallback.texture.name)
+                ? "texture"
+                : fallback.texture.name;
+            var name = spriteName + "_" + textureName;
+            foreach (var invalid in Path.GetInvalidFileNameChars())
+                name = name.Replace(invalid, '_');
+            return $"{shipId}_{name}_{Mathf.RoundToInt(rect.x)}_{Mathf.RoundToInt(rect.y)}_" +
+                   $"{Mathf.RoundToInt(rect.width)}x{Mathf.RoundToInt(rect.height)}";
+        }
+
+        private static string ResolveOverridePath(int shipId, Sprite fallback, string key)
+        {
+            // Never fall back from a source-scoped key to the old numeric-only
+            // file here. External mods routinely reuse base-game numeric IDs;
+            // applying a legacy 123.png to a different mod hull is precisely
+            // the incompatibility this namespace prevents.
+            var current = GetOverridePath(key);
+            if (File.Exists(current)) return current;
+
+            // Beta7 already used source-scoped files but did not include a
+            // pixel signature or preserve trimmed-sprite geometry. Accept that
+            // key only when the source has stable names. Runtime-imported mod
+            // images are commonly unnamed; their old key consisted only of ID
+            // and dimensions and can belong to an entirely different mod.
+            if (string.IsNullOrWhiteSpace(fallback.name) ||
+                fallback.texture == null ||
+                string.IsNullOrWhiteSpace(fallback.texture.name))
+                return current;
+
+            return GetOverridePath(GetLegacySourceKey(shipId, fallback));
+        }
+
+        private static string FindAnyOverridePath(int shipId)
+        {
+            var legacy = GetLegacyOverridePath(shipId);
+            if (File.Exists(legacy)) return legacy;
+            var directory = Path.Combine(Application.persistentDataPath, FolderName);
+            if (!Directory.Exists(directory)) return legacy;
+            var files = Directory.GetFiles(directory, shipId + "_*.png");
+            return files.Length > 0 ? files[0] : legacy;
+        }
+
+        private static string GetOverridePath(string key)
+        {
+            return Path.Combine(Application.persistentDataPath, FolderName, key + ".png");
+        }
+
+        private static string GetLegacyOverridePath(int shipId)
         {
             return Path.Combine(Application.persistentDataPath, FolderName, shipId + ".png");
+        }
+
+        private static Sprite CreateOverrideSprite(Texture2D texture, Sprite fallback)
+        {
+            var logicalSize = fallback.rect.size;
+            var normalizedPivot = new Vector2(
+                logicalSize.x > 0.01f ? fallback.pivot.x / logicalSize.x : 0.5f,
+                logicalSize.y > 0.01f ? fallback.pivot.y / logicalSize.y : 0.5f);
+            return Sprite.Create(
+                texture,
+                new Rect(0, 0, texture.width, texture.height),
+                normalizedPivot,
+                Mathf.Max(1f, fallback.pixelsPerUnit),
+                0,
+                SpriteMeshType.FullRect);
+        }
+
+        private static Texture2D NormalizeTextureForSprite(Texture2D texture, Sprite fallback)
+        {
+            var logicalWidth = Mathf.Max(1, Mathf.RoundToInt(fallback.rect.width));
+            var logicalHeight = Mathf.Max(1, Mathf.RoundToInt(fallback.rect.height));
+            if (texture.width == logicalWidth && texture.height == logicalHeight)
+                return texture;
+
+            Rect textureRect;
+            Vector2 textureOffset;
+            try
+            {
+                textureRect = fallback.textureRect;
+                textureOffset = fallback.textureRectOffset;
+            }
+            catch
+            {
+                textureRect = fallback.rect;
+                textureOffset = Vector2.zero;
+            }
+
+            var visibleWidth = Mathf.Max(1, Mathf.RoundToInt(textureRect.width));
+            var visibleHeight = Mathf.Max(1, Mathf.RoundToInt(textureRect.height));
+            if (texture.width != visibleWidth || texture.height != visibleHeight)
+                return texture;
+
+            var readable = CopyTexture(texture);
+            if (readable == null)
+                return texture;
+
+            var result = new Texture2D(logicalWidth, logicalHeight, TextureFormat.RGBA32, false);
+            var resultPixels = new Color32[logicalWidth * logicalHeight];
+            var sourcePixels = readable.GetPixels32();
+            var offsetX = Mathf.RoundToInt(textureOffset.x);
+            var offsetY = Mathf.RoundToInt(textureOffset.y);
+            CopyPixels(sourcePixels, texture.width, texture.height,
+                resultPixels, logicalWidth, logicalHeight, offsetX, offsetY);
+            result.SetPixels32(resultPixels);
+            result.Apply(false, false);
+            result.wrapMode = TextureWrapMode.Clamp;
+            result.filterMode = texture.filterMode;
+            DestroyObject(readable);
+            return result;
+        }
+
+        private static string GetSourceSignature(Sprite sprite)
+        {
+            var instanceId = sprite.GetInstanceID();
+            if (SourceSignatures.TryGetValue(instanceId, out var cached))
+                return cached;
+
+            unchecked
+            {
+                ulong hash = 1469598103934665603UL;
+                AddHash(ref hash, Mathf.RoundToInt(sprite.rect.width));
+                AddHash(ref hash, Mathf.RoundToInt(sprite.rect.height));
+                AddHash(ref hash, Mathf.RoundToInt(sprite.pivot.x * 1000f));
+                AddHash(ref hash, Mathf.RoundToInt(sprite.pivot.y * 1000f));
+                AddHash(ref hash, Mathf.RoundToInt(sprite.pixelsPerUnit * 1000f));
+
+                Texture2D copy = null;
+                try
+                {
+                    copy = CopySprite(sprite);
+                    if (copy != null)
+                    {
+                        var pixels = copy.GetPixels32();
+                        var step = Mathf.Max(1, pixels.Length / 1024);
+                        for (var index = 0; index < pixels.Length; index += step)
+                        {
+                            var pixel = pixels[index];
+                            AddHash(ref hash, pixel.r);
+                            AddHash(ref hash, pixel.g);
+                            AddHash(ref hash, pixel.b);
+                            AddHash(ref hash, pixel.a);
+                        }
+                    }
+                }
+                catch (Exception error)
+                {
+                    Debug.LogWarning("Unable to fingerprint source ship texture: " + error.Message);
+                }
+                finally
+                {
+                    if (copy != null) DestroyObject(copy);
+                }
+
+                cached = hash.ToString("X16");
+                SourceSignatures[instanceId] = cached;
+                return cached;
+            }
+        }
+
+        private static void AddHash(ref ulong hash, int value)
+        {
+            unchecked
+            {
+                hash ^= (byte)value;
+                hash *= 1099511628211UL;
+                hash ^= (byte)(value >> 8);
+                hash *= 1099511628211UL;
+                hash ^= (byte)(value >> 16);
+                hash *= 1099511628211UL;
+                hash ^= (byte)(value >> 24);
+                hash *= 1099511628211UL;
+            }
+        }
+
+        private static void CopyPixels(
+            Color32[] source,
+            int sourceWidth,
+            int sourceHeight,
+            Color32[] target,
+            int targetWidth,
+            int targetHeight,
+            int targetOffsetX,
+            int targetOffsetY)
+        {
+            for (var y = 0; y < sourceHeight; ++y)
+            {
+                var targetY = y + targetOffsetY;
+                if (targetY < 0 || targetY >= targetHeight) continue;
+                for (var x = 0; x < sourceWidth; ++x)
+                {
+                    var targetX = x + targetOffsetX;
+                    if (targetX < 0 || targetX >= targetWidth) continue;
+                    target[targetY * targetWidth + targetX] = source[y * sourceWidth + x];
+                }
+            }
         }
 
         private static Texture2D CopyTexture(Texture2D texture)
@@ -309,31 +569,67 @@ namespace Services.Resources
         private static Texture2D CopySprite(Sprite sprite)
         {
             if (sprite == null || sprite.texture == null) return null;
-            // sprite.rect is the untrimmed logical rectangle.  For sliced or
-            // packed ship sheets it can address the complete source texture.
-            // textureRect is the exact hull slice shown by the renderer.
+            // Paint on the sprite's logical rectangle, not just textureRect.
+            // Imported mods and packed atlases may trim transparent margins;
+            // dropping textureRectOffset and then recreating a centered sprite
+            // shifts the hull relative to the component grid.
             Rect rect;
+            Vector2 offset;
             try
             {
                 rect = sprite.textureRect;
+                offset = sprite.textureRectOffset;
             }
             catch
             {
                 rect = sprite.rect;
+                offset = Vector2.zero;
             }
+
+            Texture2D visible;
             try
             {
-                var copy = new Texture2D((int)rect.width, (int)rect.height, TextureFormat.RGBA32, false);
-                copy.SetPixels(sprite.texture.GetPixels(
+                visible = new Texture2D(Mathf.RoundToInt(rect.width), Mathf.RoundToInt(rect.height),
+                    TextureFormat.RGBA32, false);
+                visible.SetPixels(sprite.texture.GetPixels(
                     Mathf.RoundToInt(rect.x), Mathf.RoundToInt(rect.y),
                     Mathf.RoundToInt(rect.width), Mathf.RoundToInt(rect.height)));
-                copy.Apply(false, false);
-                return copy;
+                visible.Apply(false, false);
             }
             catch
             {
-                return CopyViaRenderTexture(sprite.texture, rect);
+                visible = CopyViaRenderTexture(sprite.texture, rect);
             }
+
+            if (visible == null) return null;
+
+            var logicalWidth = Mathf.Max(1, Mathf.RoundToInt(sprite.rect.width));
+            var logicalHeight = Mathf.Max(1, Mathf.RoundToInt(sprite.rect.height));
+            var offsetX = Mathf.RoundToInt(offset.x);
+            var offsetY = Mathf.RoundToInt(offset.y);
+            if (visible.width == logicalWidth && visible.height == logicalHeight &&
+                offsetX == 0 && offsetY == 0)
+                return visible;
+
+            var result = new Texture2D(logicalWidth, logicalHeight, TextureFormat.RGBA32, false);
+            var resultPixels = new Color32[logicalWidth * logicalHeight];
+            CopyPixels(visible.GetPixels32(), visible.width, visible.height,
+                resultPixels, logicalWidth, logicalHeight, offsetX, offsetY);
+            result.SetPixels32(resultPixels);
+            result.Apply(false, false);
+            result.wrapMode = TextureWrapMode.Clamp;
+            result.filterMode = sprite.texture.filterMode;
+            DestroyObject(visible);
+            return result;
+        }
+
+        private static void DestroyObject(UnityEngine.Object value)
+        {
+            if (value == null) return;
+            if (Application.isPlaying)
+                UnityEngine.Object.Destroy(value);
+            else
+                UnityEngine.Object.DestroyImmediate(value);
         }
 
         private static Texture2D CopyViaRenderTexture(Texture2D texture, Rect sourceRect)

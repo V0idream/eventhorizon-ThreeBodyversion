@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using GameDatabase.DataModel;
 
 namespace Domain.Quests
@@ -11,5 +11,7 @@ namespace Domain.Quests
         bool IsQuestObjective(int starId);
         void AbandonQuest(IQuest quest);
         void StartQuest(QuestModel questModel, int seedIncrement = 0);
+        void AcceptMothersTearsOffer();
+        void AcceptBeautifulProminenceOffer();
     }
 }

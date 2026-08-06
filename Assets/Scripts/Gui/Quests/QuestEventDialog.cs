@@ -1,4 +1,4 @@
-﻿using Domain.Quests;
+using Domain.Quests;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
@@ -31,7 +31,16 @@ namespace Gui.Quests
                 _actions.gameObject.SetActive(true);
                 _actions.Initialize(data.Actions);
             }
-            if (_fleet) _fleet.Initialize(_questCombatModelFacctory.CreateEnemyFleet(data.EnemyData));
+            if (_fleet)
+            {
+                var hasEnemyPreview = data.EnemyData.EnemyFleet != null &&
+                    data.EnemyData.EnemyFleet.Any(item =>
+                        item != null && item != GameDatabase.DataModel.ShipBuild.DefaultValue);
+                if (hasEnemyPreview)
+                    _fleet.Initialize(_questCombatModelFacctory.CreateEnemyFleet(data.EnemyData));
+                else
+                    _fleet.gameObject.SetActive(false);
+            }
             if (_items) _items.Initialize(data.Loot);
 
             var scrollRect = GetComponent<ScrollRect>();

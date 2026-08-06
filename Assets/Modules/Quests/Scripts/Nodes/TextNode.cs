@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System;
 using GameDatabase.Enums;
@@ -133,6 +133,24 @@ namespace Domain.Quests
             if (string.IsNullOrEmpty(message)) return null;
 
             var key = message.TrimStart('$');
+			const string mothersTearsPrefix = "MothersTears_Image";
+			if (key.StartsWith(mothersTearsPrefix, StringComparison.OrdinalIgnoreCase))
+			{
+				var mothersTearsSuffix = key.Substring(mothersTearsPrefix.Length);
+				if (int.TryParse(mothersTearsSuffix, out var mothersTearsIndex) &&
+					mothersTearsIndex >= 1 && mothersTearsIndex <= 6)
+					return $"Story/MothersTears/story_{mothersTearsIndex:00}";
+			}
+
+			const string beautifulProminencePrefix = "BeautifulProminence_Image";
+			if (key.StartsWith(beautifulProminencePrefix, StringComparison.OrdinalIgnoreCase))
+			{
+				var prominenceSuffix = key.Substring(beautifulProminencePrefix.Length);
+				if (int.TryParse(prominenceSuffix, out var prominenceIndex) &&
+					prominenceIndex >= 1 && prominenceIndex <= 4)
+					return $"Story/BeautifulProminence/story_{prominenceIndex:00}";
+			}
+
             const string prefix = "ThreeBodyPrologue_Image";
             if (!key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)) return null;
 

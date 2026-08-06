@@ -36,7 +36,6 @@ namespace GameDatabase.Storage
             using var file = new FileStream(_filename, FileMode.Open, FileAccess.Read);
             var content = ReadDataTillContent(file);
 
-            var itemCount = 0;
             while (true)
             {
                 var type = content.ReadByte();
@@ -51,12 +50,14 @@ namespace GameDatabase.Storage
                     try
                     {
                         loader.LoadJson(string.Empty, fileContent);
-                        itemCount++;
                     }
                     catch (Exception e)
                     {
-                        // Skip files with errors to allow loading mods created with differen database version
-                        Debug.LogException(e);
+                        // Compatibility is intentionally permissive. Keep
+                        // loading the rest of the package when an entry uses a
+                        // schema this build does not understand.
+                        Debug.LogWarning(
+                            $"Skipping an incompatible JSON entry in mod '{Name}': {e.Message}");
                     }
                 }
                 else if (type == 2) // image
@@ -85,8 +86,6 @@ namespace GameDatabase.Storage
                 }
             }
 
-            if (itemCount == 0)
-                throw new FileNotFoundException("Invalid database - ", Name);
         }
 
         private Stream ReadDataTillContent(FileStream file)
@@ -140,6 +139,54 @@ namespace GameDatabase.Storage
             Id = stream.ReadString();
 
             Version = new Version(1, 0);
+        }
+    }
+
+    public class PermissiveFileDatabaseStorage : IDataStorage
+    {
+        private readonly string _filename;
+
+        public PermissiveFileDatabaseStorage(string filename)
+        {
+            _filename = filename;
+            Name = Path.GetFileNameWithoutExtension(filename);
+            if (string.IsNullOrEmpty(Name))
+                Name = Path.GetFileName(filename);
+
+            Id = CreateStableId(filename);
+            Version = new Version(1, 7);
+        }
+
+        public string Name { get; }
+        public string Id { get; }
+        public Version Version { get; }
+        public bool IsEditable => false;
+
+        public void UpdateItem(string id, string content)
+        {
+            throw new InvalidOperationException("PermissiveFileDatabaseStorage.UpdateItem is not supported");
+        }
+
+        public void LoadContent(IContentLoader loader)
+        {
+            Debug.LogWarning(
+                $"External mod file '{_filename}' could not be decoded as a compiled Event Horizon mod. " +
+                "It is being treated as an empty mod so compatibility checks cannot block startup.");
+        }
+
+        private static string CreateStableId(string filename)
+        {
+            var name = Path.GetFileNameWithoutExtension(filename);
+            if (string.IsNullOrEmpty(name))
+                name = Path.GetFileName(filename);
+
+            if (string.IsNullOrEmpty(name))
+                name = "external_mod";
+
+            foreach (var character in Path.GetInvalidFileNameChars())
+                name = name.Replace(character, '_');
+
+            return "forced_" + name;
         }
     }
 

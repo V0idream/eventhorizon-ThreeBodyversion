@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,6 +11,7 @@ namespace Gui.Theme.Wrappers
         [SerializeField] private ThemeColorMode _colorMode;
 
         [NonSerialized] private bool _colorInitialized;
+        [NonSerialized] private bool _themeManaged;
 
         public override Color color 
         {
@@ -19,6 +20,7 @@ namespace Gui.Theme.Wrappers
             {
                 base.color = value;
                 _colorInitialized = true;
+                _themeManaged = false;
             }
         }
 
@@ -33,12 +35,27 @@ namespace Gui.Theme.Wrappers
             try
             {
                 if (!_colorInitialized && _themeColor != ThemeColor.Default)
-                    color = UiTheme.Current.GetColor(_themeColor).ApplyColorMode(_colorMode);
+                    ApplyThemeColor();
             }
             catch (System.Exception e)
             {
                 GameDiagnostics.Debug.LogException(e, gameObject);
             }
+        }
+
+        public void RefreshThemeColor()
+        {
+            if (_themeColor == ThemeColor.Default)
+                return;
+
+            ApplyThemeColor();
+        }
+
+        private void ApplyThemeColor()
+        {
+            base.color = UiTheme.Current.GetColor(_themeColor).ApplyColorMode(_colorMode);
+            _colorInitialized = true;
+            _themeManaged = true;
         }
     }
 }

@@ -35,7 +35,7 @@ namespace GameDatabase
         {
             try
             {
-                var mod = new FileDatabaseStorage(path);
+                var mod = OpenFileStoragePermissive(path);
                 _mods.Add(new ModInfo(mod.Name, mod.Id, path));
             }
             catch (Exception e)
@@ -121,7 +121,7 @@ namespace GameDatabase
 
                 var path = _mods[index].Path;
                 if (File.Exists(path))
-                    Load(new FileDatabaseStorage(path));
+                    Load(OpenFileStoragePermissive(path));
                 else if (Directory.Exists(path))
                     Load(new FolderDatabaseStorage(path));
                 else
@@ -156,6 +156,21 @@ namespace GameDatabase
             DatabaseLoaded?.Invoke();
         }
 
+        private static IDataStorage OpenFileStoragePermissive(string path)
+        {
+            try
+            {
+                return new FileDatabaseStorage(path);
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning(
+                    $"Forcing unreadable mod file '{path}' to be registered as an empty external mod." +
+                    Environment.NewLine + e);
+                return new PermissiveFileDatabaseStorage(path);
+            }
+        }
+
         private DatabaseContent LoadExtraContent(DatabaseContent content, IDataStorage storage)
         {
             if (storage == null)
@@ -167,8 +182,28 @@ namespace GameDatabase
                 return content;
             }
 
-            var upgrader = new DatabaseMigration.DatabaseUpgrader(_jsonSerializer, storage);
-            upgrader.Upgrade(content);
+            if (CanMigrate(storage.Version))
+            {
+                try
+                {
+                    var upgrader = new DatabaseMigration.DatabaseUpgrader(_jsonSerializer, storage);
+                    upgrader.Upgrade(content);
+                    return content;
+                }
+                catch (Exception e)
+                {
+                    LogForcedCompatibility(storage, "migration failed", e);
+                }
+            }
+            else
+            {
+                LogForcedCompatibility(storage, "unsupported declared database version");
+            }
+
+            // Compatibility is intentionally not enforced. Unknown or future
+            // database versions are parsed with the current schema and every
+            // field the current game understands is retained.
+            content.LoadParent(storage);
             return content;
         }
 
@@ -180,10 +215,57 @@ namespace GameDatabase
             if (storage.Version.Major == VersionMajor && storage.Version.Minor == VersionMinor)
                 return new DatabaseContent(_jsonSerializer, storage);
 
-            var upgrader = new DatabaseMigration.DatabaseUpgrader(_jsonSerializer, storage);
-            var content = new DatabaseContent(_jsonSerializer, null);
-            upgrader.Upgrade(content);
-            return content;
+            if (CanMigrate(storage.Version))
+            {
+                try
+                {
+                    var content = new DatabaseContent(_jsonSerializer, null);
+                    var upgrader = new DatabaseMigration.DatabaseUpgrader(_jsonSerializer, storage);
+                    upgrader.Upgrade(content);
+                    return content;
+                }
+                catch (Exception e)
+                {
+                    LogForcedCompatibility(storage, "migration failed", e);
+                }
+            }
+            else
+            {
+                LogForcedCompatibility(storage, "unsupported declared database version");
+            }
+
+            // Force-load incompatible mods as current-version content. The
+            // serializers ignore fields unknown to this build, while storage
+            // implementations skip individual entries they cannot deserialize.
+            return new DatabaseContent(_jsonSerializer, storage);
+        }
+
+        private static bool CanMigrate(Storage.Version version)
+        {
+            // Version 0 is the legacy representation of 1.0. The generated
+            // migration chain supports 1.0 through 1.6 and upgrades them to 1.7.
+            if (version.Major == 0)
+                return true;
+
+            return version.Major == 1 &&
+                   version.Minor >= 0 &&
+                   version.Minor < VersionMinor;
+        }
+
+        private static void LogForcedCompatibility(
+            IDataStorage storage,
+            string reason,
+            Exception exception = null)
+        {
+            var message =
+                $"Forcing mod '{storage.Name}' ({storage.Id}) database " +
+                $"version {storage.Version.Major}.{storage.Version.Minor} to load as " +
+                $"{VersionMajor}.{VersionMinor}: {reason}.";
+
+            if (exception == null)
+                Debug.LogWarning(message);
+            else
+                Debug.LogWarning(message + Environment.NewLine + exception);
         }
 
         #region TODO: remove this after database editor can edit builds

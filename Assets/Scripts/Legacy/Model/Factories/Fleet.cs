@@ -15,6 +15,8 @@ namespace Model
 	{
 		public static class Fleet
 		{
+			private const int TrisolarisStationEscortLimit = 20;
+
 			public static IFleet Common(int distance, int seed, IDatabase database)
 			{
 				var random = new Random(seed);
@@ -77,8 +79,15 @@ namespace Model
 
 				var distance = region.HomeStarLevel; 
 
-				var numberOfShips = region.BaseDefensePower/25;
+				var isTrisolarisStation = region.Faction.Id.Value == 22;
 				var numberOfBosses = region.BaseDefensePower/100;
+				var numberOfShips = region.BaseDefensePower/25;
+				if (isTrisolarisStation)
+				{
+					numberOfBosses = Math.Min(numberOfBosses, TrisolarisStationEscortLimit);
+					numberOfShips = Math.Min(numberOfShips,
+						Math.Max(0, TrisolarisStationEscortLimit - numberOfBosses));
+				}
 				var bossClass = numberOfBosses >= 2 ? DifficultyClass.Class2 : DifficultyClass.Class1;
 
 				var bosses = ShipBuildQuery.EnemyShips(database).
@@ -110,20 +119,24 @@ namespace Model
 				// one joins only an assault on its own faction's starbase; ordinary
 				// fleets, roaming encounters, quick battles, and defense missions
 				// must not add them.
-				var titan = GetStationAssaultTitan(region.Faction, random, database);
-				var defenders = titan == null
-					? bosses.Concat(ships)
-					: bosses.Concat(ships).Append(titan);
+				var titan = isTrisolarisStation ? null : GetStationAssaultTitan(region.Faction, random, database);
+				var defenders = bosses.Concat(ships);
+				if (isTrisolarisStation)
+					defenders = defenders.Take(TrisolarisStationEscortLimit);
+				else if (titan != null)
+					defenders = defenders.Append(titan);
 				var fleet = defenders.Shuffle(random).Prepend(starbase);
 				return new CommonFleet(database, fleet.All, distance, random.Next());
 			}
 
-            public static IFleet StarbaseDefenseAllies(GameModel.Region region, int seed, IDatabase database)
+            public static IFleet StarbaseDefenseAllies(GameModel.Region region, int seed, IDatabase database,
+                int levelBonus = 0, int extraBattleships = 0)
             {
                 var random = new Random(seed);
-                var stationLevel = UnityEngine.Mathf.Max(1, region.BaseDefendersLevel);
+                var stationLevel = UnityEngine.Mathf.Max(1, region.BaseDefendersLevel + UnityEngine.Mathf.Max(0, levelBonus));
                 var builds = new List<ShipBuild>();
-                AddDefenseClass(builds, region.Faction, SizeClass.Battleship, 3, stationLevel, random, database);
+                AddDefenseClass(builds, region.Faction, SizeClass.Battleship,
+                    3 + UnityEngine.Mathf.Clamp(extraBattleships, 0, 10), stationLevel, random, database);
                 AddDefenseClass(builds, region.Faction, SizeClass.Cruiser, 5, stationLevel, random, database);
                 AddDefenseClass(builds, region.Faction, SizeClass.Destroyer, 10, stationLevel, random, database);
                 AddDefenseClass(builds, region.Faction, SizeClass.Frigate, 20, stationLevel, random, database);
@@ -298,14 +311,73 @@ namespace Model
 				return new PlayerFleet(database, fleet);
 			}
 
-			public static IFleet StarshipEarthAllies(int distance, int seed, IDatabase database)
+            public static IFleet StarshipEarthAllies(int distance, int seed, IDatabase database,
+                int levelBonus = 0, int extraBattleships = 0)
 			{
 				var faction = database.GetFaction(new ItemId<Faction>(21));
+				var random = new Random(seed);
+				var effectiveLevel = UnityEngine.Mathf.Max(1, distance + UnityEngine.Mathf.Max(0, levelBonus));
 				var ships = ShipBuildQuery.EnemyShips(database).
 					CommonAndRare().
 					BelongToFaction(faction).
-					SelectRandom(5, new Random(seed));
-				return new CommonFleet(database, ships.All, distance, seed, Maths.Distance.AiLevel(distance));
+					SelectRandom(5, random).
+					All.ToList();
+				AddDefenseClass(ships, faction, SizeClass.Battleship,
+					UnityEngine.Mathf.Clamp(extraBattleships, 0, 10), effectiveLevel, random, database);
+				return new CommonFleet(database, ships.OrderBy(_ => random.Next()), effectiveLevel, seed,
+					Maths.Distance.AiLevel(effectiveLevel));
+			}
+
+			public static IFleet TrisolarisStarbaseAssaultAllies(int distance, int seed, IDatabase database,
+				int levelBonus = 0, int extraBattleships = 0)
+			{
+				var faction = database.GetFaction(new ItemId<Faction>(21));
+				var random = new Random(seed);
+				var effectiveLevel = UnityEngine.Mathf.Max(1, distance + UnityEngine.Mathf.Max(0, levelBonus));
+				var builds = ShipBuildQuery.EnemyShips(database)
+					.CommonAndRare()
+					.BelongToFaction(faction)
+					.SelectRandom(5, random)
+					.All
+					.ToList();
+
+				var titan = database.GetShipBuild(new ItemId<ShipBuild>(94008));
+				if (titan != null && titan != ShipBuild.DefaultValue)
+					builds.Add(titan);
+
+				var flagship = database.GetShipBuild(new ItemId<ShipBuild>(416));
+				if (flagship != null && flagship != ShipBuild.DefaultValue)
+				{
+					builds.Add(flagship);
+					builds.Add(flagship);
+				}
+
+				AddDefenseClass(builds, faction, SizeClass.Battleship,
+					UnityEngine.Mathf.Clamp(extraBattleships, 0, 10), effectiveLevel, random, database);
+
+				return new CommonFleet(database, builds.OrderBy(_ => random.Next()), effectiveLevel, random.Next(),
+					Maths.Distance.AiLevel(effectiveLevel));
+			}
+
+			public static IFleet MothersTearsAllies(int distance, int seed, IDatabase database,
+				int levelBonus = 0, int extraBattleships = 0)
+			{
+				var faction = database.GetFaction(new ItemId<Faction>(21));
+				var random = new Random(seed);
+				var effectiveLevel = UnityEngine.Mathf.Max(1, distance + UnityEngine.Mathf.Max(0, levelBonus));
+				var regularShips = ShipBuildQuery.EnemyShips(database).
+					CommonAndRare().
+					BelongToFaction(faction).
+					SelectRandom(10, random).
+					All.ToList();
+
+				var titan = database.GetShipBuild(new ItemId<ShipBuild>(94008));
+				if (titan != null && titan != ShipBuild.DefaultValue)
+					regularShips.Add(titan);
+				AddDefenseClass(regularShips, faction, SizeClass.Battleship,
+					UnityEngine.Mathf.Clamp(extraBattleships, 0, 10), effectiveLevel, random, database);
+				return new CommonFleet(database, regularShips.OrderBy(_ => random.Next()), effectiveLevel, random.Next(),
+					Maths.Distance.AiLevel(effectiveLevel));
 			}
 
 			public static readonly IFleet Empty = new CommonFleet(null, Enumerable.Empty<ShipBuild>(), 0, 0);

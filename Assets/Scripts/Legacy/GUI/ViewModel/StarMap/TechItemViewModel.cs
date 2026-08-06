@@ -42,6 +42,7 @@ namespace ViewModel
 		{
 			_technology = technology;
 			var researched = _research.IsTechResearched(technology);
+			var blueprintLocked = !researched && IsThreeBodyBlueprintTechnology(technology);
 			var available = _research.IsTechAvailable(technology) && !technology.Hidden;
 		    var hidden = technology.Hidden && !researched;
 
@@ -51,7 +52,14 @@ namespace ViewModel
 
 			Icon.sprite = hidden ? HiddenIcon : technology.GetImage(_resourceLocator);
 			
-			if (!available && !researched)
+			if (blueprintLocked)
+			{
+				Name.text = _localization.GetString(technology.GetName(_localization));
+				Description.text = "需要通过任务获得蓝图后解锁。";
+				Icon.color = technology.Color;
+				Toggle.interactable = false;
+			}
+			else if (!available && !researched)
 			{
 				Name.text = "?????";
 				Description.text = string.Empty;
@@ -66,7 +74,19 @@ namespace ViewModel
 				Toggle.interactable = true;
 			}
 			
+			// Blueprint-locked technologies remain visible in their faction tree.
+			// Show the deliberately prohibitive price as well, while keeping the
+			// toggle disabled until the corresponding storyline grants the blueprint.
 			PriceText.text = researched || hidden ? string.Empty : technology.Price.ToString();
+		}
+
+		private static bool IsThreeBodyBlueprintTechnology(ITechnology technology)
+		{
+			if (technology == null || !technology.Special)
+				return false;
+
+			var id = technology.Data.Id.Value;
+			return id == 390 || id == 417;
 		}
 
 		public void OnToggleValueChanged(bool value)

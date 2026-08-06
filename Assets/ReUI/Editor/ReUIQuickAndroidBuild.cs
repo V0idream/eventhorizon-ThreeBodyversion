@@ -5,6 +5,7 @@ using UnityEditor;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
 using UnityEngine.Rendering;
+using Services.Resources;
 
 namespace ReUI.Editor
 {
@@ -17,11 +18,9 @@ namespace ReUI.Editor
     {
         private const string PackageName = "com.threebody.EventHorizon";
         private const string ProductName = "三体视界";
-        private const string VersionName = "Beta5.1";
-        // Keep the public Beta5.1 label, but advance the Android package code
-        // so it can replace the earlier, incorrectly scoped Beta5.1 build.
-        private const int VersionCode = 140003;
-        private const string OutputFileName = "ThreeBody-EventHorizon-Beta5.1.apk";
+        private const string VersionName = "Beta8.7";
+        private const int VersionCode = 140017;
+        private const string OutputFileName = "ThreeBody-EventHorizon-Beta8.7.apk";
 
         [MenuItem("Build/ReUI/Quick Android APK")]
         public static void Build()
@@ -39,10 +38,16 @@ namespace ReUI.Editor
             PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
             PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.Android, false);
             PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.OpenGLES3 });
+            PlayerSettings.allowHDRDisplaySupport = true;
+            // Keep HDR capability in the player, but do not force HDR at
+            // process startup. The in-game setting requests genuine display
+            // HDR only while the star map or combat scene is active.
+            PlayerSettings.useHDRDisplay = false;
             EditorUserBuildSettings.buildAppBundle = false;
 
             AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
-            ReUIValidation.ValidateBeta5();
+            RefreshResourceLocator();
+            ReUIValidation.ValidateBeta84();
 
             string[] scenes = EditorBuildSettings.scenes
                 .Where(scene => scene.enabled)
@@ -80,6 +85,20 @@ namespace ReUI.Editor
 
             var fileInfo = new FileInfo(outputPath);
             Debug.Log($"[ReUI Build] APK={outputPath}; bytes={fileInfo.Length}; result={summary.result}; duration={summary.totalTime}");
+        }
+
+        private static void RefreshResourceLocator()
+        {
+            // ResourceLocator keeps component and control sprites in serialized
+            // arrays. New artwork is otherwise present in the atlas but absent
+            // from player builds until somebody manually presses Reload in the
+            // editor. Always rebuild that index as part of a release build.
+            ResourceLocator locator = Resources.Load<ResourceLocator>("ResourceLocator");
+            if (locator == null)
+                throw new InvalidOperationException("Resources/ResourceLocator prefab is missing.");
+
+            locator.Reload();
+            AssetDatabase.SaveAssets();
         }
 
         private static void VerifyStreamingAssets()

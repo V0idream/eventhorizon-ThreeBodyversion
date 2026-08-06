@@ -6,8 +6,8 @@
   "StartCondition": 0,
   "Origin": {
     "Type": 4,
-    "MinDistance": 100,
-    "MaxDistance": 140
+    "MinDistance": 45,
+    "MaxDistance": 55
   },
   "Nodes": [
     {

@@ -1,0 +1,18 @@
+{
+  "ItemType": 1,
+  "Id": 959,
+  "Name": "$ElectronicShield",
+  "Description": "$ElectronicShieldDescription",
+  "ContentSource": 1,
+  "DisplayCategory": 2,
+  "Availability": 1,
+  "ComponentStatsId": 932,
+  "Faction": 21,
+  "Level": 100,
+  "Icon": "shield_electronic",
+  "Color": "#5CFF9A",
+  "Layout": "101111101",
+  "CellType": "2",
+  "DeviceId": 911,
+  "PossibleModifications": [15, 1, 2]
+}

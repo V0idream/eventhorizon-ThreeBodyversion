@@ -5,6 +5,7 @@ using GameServices.Player;
 using Services.Localization;
 using Services.ObjectPool;
 using Zenject;
+using Galaxy.StarContent;
 
 public class Star : MonoBehaviour
 {
@@ -84,7 +85,9 @@ public class Star : MonoBehaviour
 
         if (star.Id == 0)
 		{
-			AddIcon(HomeIconPrefab);
+			var homeIcon = AddIcon(HomeIconPrefab);
+			if (star.HasStarBase)
+				ConfigureCapturedFacilityRing(homeIcon, star.Region);
 		}
 		else if (star.IsVisited)
 		{
@@ -101,6 +104,7 @@ public class Star : MonoBehaviour
 					: Resources.Load<Texture2D>("Textures/Factions/" + iconName);
 				factionIcon.SetTexture(iconTexture);
 				factionIcon.SetColor(iconTexture != null ? Color.white : color);
+				ConfigureCapturedFacilityRing(factionIcon.gameObject, star.Region);
 				AddStarInfo(star);
 			    _showMiniStarOnGalaxyMap = false;
 			}
@@ -279,7 +283,11 @@ public class Star : MonoBehaviour
 		if (star.Region.IsCaptured)
 		{
 			textMesh.color = new Color(0.5f,1f,1f);
-			textMesh.text = factionName + "\n" + _localization.GetString("$CapturedStarInfo", name, Mathf.Max(star.Level,5));
+			var facility = CapturedStarbaseFacilities.GetChineseName(star.Region.CapturedStarbaseFacility);
+			var tier = CapturedStarbaseFacilities.GetTierText(star.Region.CapturedStarbaseTier);
+			textMesh.text = factionName + "\n" +
+				_localization.GetString("$CapturedStarInfo", name, Mathf.Max(star.Level,5)) +
+				"\n" + facility + " · " + tier;
 		}
 		else
 		{
@@ -288,6 +296,76 @@ public class Star : MonoBehaviour
 		}
 
 		return item;
+	}
+
+	private static void ConfigureCapturedFacilityRing(GameObject factionIcon, GameModel.Region region)
+	{
+		if (factionIcon == null)
+			return;
+
+		var ringTransform = factionIcon.transform.Find("CapturedFacilityRing");
+		GameObject ringObject;
+		if (ringTransform == null)
+		{
+			ringObject = new GameObject("CapturedFacilityRing");
+			ringObject.transform.SetParent(factionIcon.transform, false);
+			ringObject.transform.localPosition = new Vector3(0f, 0f, 0.02f);
+			ringObject.transform.localRotation = Quaternion.identity;
+			ringObject.transform.localScale = Vector3.one * 1.42f;
+			var square = ringObject.AddComponent<Square>();
+			square.SetTexture(GetFacilityRingTexture());
+			var ringRenderer = ringObject.GetComponent<Renderer>();
+			var iconRenderer = factionIcon.GetComponent<Renderer>();
+			if (ringRenderer != null)
+				ringRenderer.sortingOrder = iconRenderer != null ? iconRenderer.sortingOrder - 1 : -1;
+		}
+		else
+		{
+			ringObject = ringTransform.gameObject;
+		}
+
+		var visible = region != null && region != GameModel.Region.Empty && region.IsCaptured;
+		ringObject.SetActive(visible);
+		if (!visible)
+			return;
+
+		var ring = ringObject.GetComponent<Square>();
+		if (ring != null)
+		{
+			ring.SetTexture(GetFacilityRingTexture());
+			ring.SetColor(CapturedStarbaseFacilities.GetMapColor(region.CapturedStarbaseFacility));
+		}
+	}
+
+	private static Texture2D GetFacilityRingTexture()
+	{
+		if (_facilityRingTexture != null)
+			return _facilityRingTexture;
+
+		const int size = 128;
+		_facilityRingTexture = new Texture2D(size, size, TextureFormat.RGBA32, false)
+		{
+			name = "CapturedStarbaseFacilityRing",
+			filterMode = FilterMode.Bilinear,
+			wrapMode = TextureWrapMode.Clamp,
+			hideFlags = HideFlags.DontSave,
+		};
+		var pixels = new Color32[size * size];
+		var center = (size - 1) * 0.5f;
+		for (var y = 0; y < size; ++y)
+		for (var x = 0; x < size; ++x)
+		{
+			var dx = (x - center) / center;
+			var dy = (y - center) / center;
+			var radius = Mathf.Sqrt(dx * dx + dy * dy);
+			var outer = 1f - Mathf.SmoothStep(0.91f, 0.99f, radius);
+			var inner = Mathf.SmoothStep(0.70f, 0.78f, radius);
+			var alpha = Mathf.Clamp01(outer * inner);
+			pixels[y * size + x] = new Color32(255, 255, 255, (byte)Mathf.RoundToInt(alpha * 255f));
+		}
+		_facilityRingTexture.SetPixels32(pixels);
+		_facilityRingTexture.Apply(false, true);
+		return _facilityRingTexture;
 	}
 
     private GameObject AddStarBookmark(Galaxy.Star star)
@@ -357,6 +435,7 @@ public class Star : MonoBehaviour
 	}
 
     private bool _showMiniStarOnGalaxyMap;
+	private static Texture2D _facilityRingTexture;
     private Vector3 _miniObjectScale;
     private int _starId;
 	private float _scale;

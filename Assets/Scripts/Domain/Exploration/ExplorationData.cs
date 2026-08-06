@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Economy.Products;
@@ -36,6 +36,7 @@ namespace Game.Exploration
         }
 
 		public int Seed => _planet.Seed;
+		public int StarId => _planet.StarId;
 		public int Level => _planet.Level;
 		public Color PlanetColor => _planet.Color;
         public bool HasSolidGround => _planet.Type != PlanetType.Gas;

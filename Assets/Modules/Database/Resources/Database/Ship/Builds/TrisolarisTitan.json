@@ -118,26 +118,6 @@
                            "Behaviour":  0
                        },
                        {
-                           "ComponentId":  939,
-                           "Quality":  0,
-                           "Modification":  0,
-                           "X":  10,
-                           "Y":  39,
-                           "BarrelId":  3,
-                           "KeyBinding":  3,
-                           "Behaviour":  0
-                       },
-                       {
-                           "ComponentId":  939,
-                           "Quality":  0,
-                           "Modification":  0,
-                           "X":  84,
-                           "Y":  39,
-                           "BarrelId":  4,
-                           "KeyBinding":  3,
-                           "Behaviour":  0
-                       },
-                       {
                            "ComponentId":  935,
                            "Quality":  0,
                            "Modification":  0,

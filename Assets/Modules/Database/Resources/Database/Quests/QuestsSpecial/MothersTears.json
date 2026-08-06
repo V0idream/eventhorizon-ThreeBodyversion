@@ -1,0 +1,10 @@
+{
+  "ItemType": 15,
+  "Id": 203,
+  "Name": "$Quest_MothersTears",
+  "QuestType": 2,
+  "StartCondition": 0,
+  "Nodes": [
+    { "Id": 160, "Type": 40 }
+  ]
+}

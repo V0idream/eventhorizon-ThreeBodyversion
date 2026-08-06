@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using GameDatabase;
 using GameDatabase.DataModel;
 using GameDatabase.Model;
@@ -32,6 +32,8 @@ namespace Domain.Quests
         IStarDataProvider GetStarData(int id);
         IStarDataProvider CurrentStar { get; }
         int RandomStarAtDistance(int centerStarId, int distance, System.Random random);
+        IEnumerable<int> GetStarsAtDistance(int centerStarId, int distance);
+        bool HasHive(int starId);
         IEnumerable<IRegionDataProvider> GetRegionsNearby(int centerStarId, int minDistance, int maxDistance);
     }
 

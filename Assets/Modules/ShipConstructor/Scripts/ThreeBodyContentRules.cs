@@ -19,6 +19,13 @@ namespace Constructor
         public const int ObserverCoreComponentId = 937;
         public const int ObserverShipId = 167;
         public const int ObserverShipBuildId = 418;
+        public const int SilentCoreComponentId = 955;
+        public const int DeflectionShieldComponentId = 956;
+        public const int AngelShieldComponentId = 957;
+        public const int SubspaceShieldComponentId = 958;
+        public const int ElectronicShieldComponentId = 959;
+        public const int WanNianFengXueShipId = 94009;
+        public const int WanNianFengXueBuildId = 94009;
 
         private const string CreativeWorkshopBuildPreference = "ThreeBody.CreativeWorkshop.BuildId";
 
@@ -35,6 +42,7 @@ namespace Constructor
                 case 311: // 维度跃升装置
                 case CreativeWorkshopComponentId:
                 case ObserverCoreComponentId:
+                case SilentCoreComponentId:
                     return true;
                 default:
                     return false;
@@ -50,6 +58,7 @@ namespace Constructor
                 case 166:    // 水滴
                 case ObserverShipId: // 观众
                 case 114514: // 三体模组旗舰
+                case WanNianFengXueShipId:
                     return true;
                 default:
                     return false;

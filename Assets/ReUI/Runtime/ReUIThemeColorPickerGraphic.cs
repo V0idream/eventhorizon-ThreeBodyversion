@@ -12,7 +12,7 @@ namespace ReUI
     [DisallowMultipleComponent]
     public sealed class ReUIThemeColorSquareGraphic : Graphic
     {
-        private const int Resolution = 24;
+        private const int Resolution = 32;
         private float _hue;
 
         internal void SetHue(float hue)
@@ -133,7 +133,15 @@ namespace ReUI
     [DisallowMultipleComponent]
     public sealed class ReUIThemeHueStripGraphic : Graphic
     {
-        private const int Resolution = 48;
+        private const int Resolution = 64;
+        private bool _vertical;
+
+        internal void SetVertical(bool vertical)
+        {
+            if (_vertical == vertical) return;
+            _vertical = vertical;
+            SetVerticesDirty();
+        }
 
         protected override void OnPopulateMesh(VertexHelper vertexHelper)
         {
@@ -145,14 +153,26 @@ namespace ReUI
             {
                 float hue0 = (float)index / Resolution;
                 float hue1 = (float)(index + 1) / Resolution;
-                float x0 = Mathf.Lerp(rect.xMin, rect.xMax, hue0);
-                float x1 = Mathf.Lerp(rect.xMin, rect.xMax, hue1);
                 int start = vertexHelper.currentVertCount;
 
-                AddVertex(vertexHelper, new Vector2(x0, rect.yMin), hue0);
-                AddVertex(vertexHelper, new Vector2(x0, rect.yMax), hue0);
-                AddVertex(vertexHelper, new Vector2(x1, rect.yMax), hue1);
-                AddVertex(vertexHelper, new Vector2(x1, rect.yMin), hue1);
+                if (_vertical)
+                {
+                    float y0 = Mathf.Lerp(rect.yMin, rect.yMax, hue0);
+                    float y1 = Mathf.Lerp(rect.yMin, rect.yMax, hue1);
+                    AddVertex(vertexHelper, new Vector2(rect.xMin, y0), hue0);
+                    AddVertex(vertexHelper, new Vector2(rect.xMin, y1), hue1);
+                    AddVertex(vertexHelper, new Vector2(rect.xMax, y1), hue1);
+                    AddVertex(vertexHelper, new Vector2(rect.xMax, y0), hue0);
+                }
+                else
+                {
+                    float x0 = Mathf.Lerp(rect.xMin, rect.xMax, hue0);
+                    float x1 = Mathf.Lerp(rect.xMin, rect.xMax, hue1);
+                    AddVertex(vertexHelper, new Vector2(x0, rect.yMin), hue0);
+                    AddVertex(vertexHelper, new Vector2(x0, rect.yMax), hue0);
+                    AddVertex(vertexHelper, new Vector2(x1, rect.yMax), hue1);
+                    AddVertex(vertexHelper, new Vector2(x1, rect.yMin), hue1);
+                }
                 vertexHelper.AddTriangle(start, start + 1, start + 2);
                 vertexHelper.AddTriangle(start + 2, start + 3, start);
             }

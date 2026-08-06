@@ -461,8 +461,11 @@ namespace ShipEditor.UI
 			_modificationModal.layer = canvas.gameObject.layer;
 			var root = _modificationModal.GetComponent<RectTransform>();
 			root.SetParent(canvas.transform, false);
-			root.anchorMin = new Vector2(0.16f, 0.2f);
-			root.anchorMax = new Vector2(0.84f, 0.8f);
+                        // The modification list now contains two lines per option
+                        // (name + detailed effect). Reserve more vertical space on
+                        // small screens so titles are not clipped above the modal.
+                        root.anchorMin = new Vector2(0.08f, 0.02f);
+                        root.anchorMax = new Vector2(0.92f, 0.98f);
 			root.offsetMin = root.offsetMax = Vector2.zero;
 			var modalBackground = (Color)_database.UiSettings.BackgroundDark;
 			modalBackground.a = 0.99f;
@@ -473,36 +476,37 @@ namespace ShipEditor.UI
 
 			var title = CreateSelectorText(root, "Title",
 				"改装 · " + GetModificationCategoryName(category), 28, TextAnchor.MiddleCenter);
-			title.rectTransform.anchorMin = new Vector2(0.04f, 0.82f);
+			title.rectTransform.anchorMin = new Vector2(0.04f, 0.86f);
 			title.rectTransform.anchorMax = new Vector2(0.84f, 0.96f);
 			title.rectTransform.offsetMin = title.rectTransform.offsetMax = Vector2.zero;
 			title.color = _database.UiSettings.HeaderTextColor;
 
 			var description = CreateSelectorText(root, "Description",
-				"改装会随舰船保存，并在战斗中实际生效。不同组件只显示它可以使用的改装。",
-				18, TextAnchor.MiddleCenter);
-			description.rectTransform.anchorMin = new Vector2(0.06f, 0.7f);
-			description.rectTransform.anchorMax = new Vector2(0.94f, 0.8f);
+				"改装会随舰船保存并在战斗中生效。所有“受到伤害”仅指生命值受损；未列出的点防御、护盾等组件不提供改装。",
+				16, TextAnchor.MiddleCenter);
+			description.rectTransform.anchorMin = new Vector2(0.06f, 0.76f);
+			description.rectTransform.anchorMax = new Vector2(0.94f, 0.85f);
 			description.rectTransform.offsetMin = description.rectTransform.offsetMax = Vector2.zero;
 			description.color = _database.UiSettings.PaleTextColor;
 
 			var options = ThreeBodyComponentModifications.GetOptions(_componentInfo.Data);
-			const float optionsTop = 0.68f;
-			const float optionsBottom = 0.08f;
-			const float optionSpacing = 0.012f;
+                        const float optionsTop = 0.70f;
+                        const float optionsBottom = 0.08f;
+			const float optionSpacing = 0.01f;
 			var optionHeight = options.Count > 0
-				? Mathf.Min(0.11f, (optionsTop - optionsBottom - optionSpacing * (options.Count - 1)) / options.Count)
-				: 0.11f;
+				? Mathf.Min(0.125f, (optionsTop - optionsBottom - optionSpacing * (options.Count - 1)) / options.Count)
+				: 0.125f;
 			for (var i = 0; i < options.Count; ++i)
 			{
 				var option = options[i];
 				var isSelected = _componentInfo.ModificationType.Id.Value == option;
-				var label = (isSelected ? "已选 · " : string.Empty) + ThreeBodyComponentModifications.GetName(option) +
-					"\n" + ThreeBodyComponentModifications.GetDescription(option);
 				var optionMaxY = optionsTop - i * (optionHeight + optionSpacing);
-				var row = CreateSelectorButton(root, "Option" + i, label,
-					new Vector2(0.12f, optionMaxY - optionHeight),
-					new Vector2(0.88f, optionMaxY), 20);
+				var row = CreateModificationOptionButton(root, "Option" + i,
+					ThreeBodyComponentModifications.GetName(option),
+					ThreeBodyComponentModifications.GetDescription(option),
+					isSelected,
+					new Vector2(0.08f, optionMaxY - optionHeight),
+					new Vector2(0.92f, optionMaxY));
 				row.onClick.AddListener(() => SelectModification(option));
 			}
 
@@ -619,6 +623,63 @@ namespace ShipEditor.UI
 			text.rectTransform.anchorMin = Vector2.zero;
 			text.rectTransform.anchorMax = Vector2.one;
 			text.rectTransform.offsetMin = text.rectTransform.offsetMax = Vector2.zero;
+			return gameObject.GetComponent<Button>();
+		}
+
+		private Button CreateModificationOptionButton(
+			RectTransform parent,
+			string name,
+			string title,
+			string details,
+			bool selected,
+			Vector2 anchorMin,
+			Vector2 anchorMax)
+		{
+			var gameObject = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
+			gameObject.layer = parent.gameObject.layer;
+			var rect = gameObject.GetComponent<RectTransform>();
+			rect.SetParent(parent, false);
+			rect.anchorMin = anchorMin;
+			rect.anchorMax = anchorMax;
+			rect.offsetMin = rect.offsetMax = Vector2.zero;
+			gameObject.GetComponent<Image>().color = selected
+				? _database.UiSettings.SelectionColor
+				: _database.UiSettings.ButtonColor;
+
+			var titleText = CreateSelectorText(rect, "Title",
+				(selected ? "已选 · " : string.Empty) + title, 18, TextAnchor.MiddleLeft);
+			var titleColor = (Color)_database.UiSettings.ButtonTextColor;
+			titleColor.a = 1f;
+			titleText.color = titleColor;
+			titleText.fontStyle = FontStyle.Bold;
+			titleText.horizontalOverflow = HorizontalWrapMode.Wrap;
+			titleText.verticalOverflow = VerticalWrapMode.Truncate;
+			titleText.resizeTextForBestFit = true;
+			titleText.resizeTextMinSize = 15;
+			titleText.resizeTextMaxSize = 18;
+			titleText.raycastTarget = false;
+			titleText.rectTransform.anchorMin = new Vector2(0.035f, 0.57f);
+			titleText.rectTransform.anchorMax = new Vector2(0.98f, 0.98f);
+			titleText.rectTransform.offsetMin = titleText.rectTransform.offsetMax = Vector2.zero;
+			var titleOutline = titleText.gameObject.AddComponent<Outline>();
+			titleOutline.effectColor = new Color(0f, 0f, 0f, 0.9f);
+			titleOutline.effectDistance = new Vector2(1f, -1f);
+			titleOutline.useGraphicAlpha = true;
+
+			var detailText = CreateSelectorText(rect, "Details", details, 14, TextAnchor.MiddleCenter);
+			var detailColor = (Color)_database.UiSettings.PaleTextColor;
+			detailColor.a = 1f;
+			detailText.color = detailColor;
+			detailText.horizontalOverflow = HorizontalWrapMode.Wrap;
+			detailText.verticalOverflow = VerticalWrapMode.Truncate;
+			detailText.resizeTextForBestFit = true;
+			detailText.resizeTextMinSize = 10;
+			detailText.resizeTextMaxSize = 13;
+			detailText.raycastTarget = false;
+			detailText.rectTransform.anchorMin = new Vector2(0.03f, 0.02f);
+			detailText.rectTransform.anchorMax = new Vector2(0.97f, 0.57f);
+			detailText.rectTransform.offsetMin = detailText.rectTransform.offsetMax = Vector2.zero;
+
 			return gameObject.GetComponent<Button>();
 		}
 	}

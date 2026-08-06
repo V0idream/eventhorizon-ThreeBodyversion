@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Galaxy;
@@ -38,7 +39,9 @@ public class GalaxyMap : MonoBehaviour
 	{
 		PlayerShipObject.MovedEvent += OnShipMoved;
 		StarSystem.MovedEvent += OnShipMoved;
-		Boundary.transform.localScale = Vector3.one * DistanceBetweenStars * _motherShip.FlightRange;
+		Boundary.gameObject.SetActive(!ThreeBodySkillState.HyperspaceEngineUnlocked);
+		if (Boundary.gameObject.activeSelf)
+			Boundary.transform.localScale = Vector3.one * DistanceBetweenStars * _motherShip.FlightRange;
 	}
 
 	private void Start()
@@ -48,6 +51,7 @@ public class GalaxyMap : MonoBehaviour
 
 		_messenger.AddListener<ViewMode>(EventType.ViewModeChanged, OnMapStateChanged);
 		_messenger.AddListener<int>(EventType.StarContentChanged, OnStarContentChanged);
+		_messenger.AddListener<int, int>(EventType.PrismBeamFired, OnPrismBeamFired);
 		_messenger.AddListener(EventType.StarMapContentChanged, OnStarMapContentChanged);
 
 		OnPlayerPositionChanged(_motherShip.Position);
@@ -175,6 +179,69 @@ public class GalaxyMap : MonoBehaviour
 		Boundary.Hide();
 		_mapNavigator.SetFocus(position);
     }
+
+	private void OnPrismBeamFired(int sourceStarId, int targetStarId)
+	{
+		StartCoroutine(PlayPrismBeam(sourceStarId, targetStarId));
+	}
+
+	private IEnumerator PlayPrismBeam(int sourceStarId, int targetStarId)
+	{
+		var beamObject = new GameObject("PrismBeamAnimation");
+		beamObject.transform.SetParent(transform, false);
+		var material = new Material(Shader.Find("Sprites/Default"));
+		var glow = CreatePrismLine(beamObject, material, 198,
+			new Color(0.2f, 0.75f, 1f, 0.14f), new Color(0.65f, 0.9f, 1f, 0.5f));
+		var core = CreatePrismLine(beamObject, material, 200,
+			new Color(1f, 0.98f, 0.75f, 1f), new Color(0.55f, 0.95f, 1f, 1f));
+		var headFlare = CreatePrismLine(beamObject, material, 201,
+			new Color(1f, 1f, 0.8f, 1f), new Color(0.55f, 0.95f, 1f, 0.9f));
+		headFlare.numCapVertices = 16;
+
+		var source = _starData.GetPosition(sourceStarId) * DistanceBetweenStars;
+		var target = _starData.GetPosition(targetStarId) * DistanceBetweenStars;
+		var travelDirection = (target - source).normalized;
+		const float duration = 0.82f;
+		var elapsed = 0f;
+		Boundary.Hide();
+		while (elapsed < duration)
+		{
+			elapsed += Time.unscaledDeltaTime;
+			var progress = Mathf.Clamp01(elapsed / duration);
+			var head = Vector2.Lerp(source, target, Mathf.SmoothStep(0f, 1f, progress));
+			var tail = Vector2.Lerp(source, target, Mathf.Clamp01(progress - 0.36f));
+			glow.SetPosition(0, tail);
+			glow.SetPosition(1, head);
+			core.SetPosition(0, tail);
+			core.SetPosition(1, head);
+			glow.widthMultiplier = Mathf.Lerp(1.65f, 0.42f, progress);
+			core.widthMultiplier = Mathf.Lerp(0.58f, 0.14f, progress);
+			headFlare.SetPosition(0, head - travelDirection * 0.025f);
+			headFlare.SetPosition(1, head + travelDirection * 0.025f);
+			headFlare.widthMultiplier = Mathf.Lerp(2.4f, 0.8f, progress);
+			_mapNavigator.SetFocus(head);
+			yield return null;
+		}
+
+		_mapNavigator.SetFocus(target);
+		Destroy(material);
+		Destroy(beamObject);
+	}
+
+	private static LineRenderer CreatePrismLine(GameObject owner, Material material, int sortingOrder,
+		Color startColor, Color endColor)
+	{
+		var line = owner.AddComponent<LineRenderer>();
+		line.useWorldSpace = false;
+		line.positionCount = 2;
+		line.numCapVertices = 8;
+		line.textureMode = LineTextureMode.Stretch;
+		line.sortingOrder = sortingOrder;
+		line.sharedMaterial = material;
+		line.startColor = startColor;
+		line.endColor = endColor;
+		return line;
+	}
 
     private void OnStarMapContentChanged()
     {

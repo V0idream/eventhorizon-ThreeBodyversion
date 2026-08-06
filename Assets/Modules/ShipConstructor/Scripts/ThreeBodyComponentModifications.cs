@@ -123,20 +123,20 @@ namespace Constructor
             switch (modificationId)
             {
                 case 0: return "不安装改装。";
-                case RapidFire: return "缩短装填间隔，但降低单次伤害。";
-                case Overclock: return "提高输出，代价是更高的能量消耗。";
-                case ArmorBreak: return "命中后短暂削弱目标对应的伤害抗性。";
-                case SelfSharpening: return "面对高抗性目标时压低其对应抗性，但会牺牲部分伤害。";
-                case AcidDissolution: return "将武器伤害转化为腐蚀伤害。";
-                case ArmoredProjectile: return "强化弹体，使其无法被拦截；射程和速度会降低。";
-                case Guidance: return "为导弹加入制导追踪，增加能量消耗。";
-                case Pierce: return "激光可连续穿过多个目标，后续命中伤害递减。";
-                case Sweep: return "扩大光束宽度，牺牲部分射程和伤害。";
-                case EngineOverload: return "超负荷推进，显著提高速度和转向，消耗更多能量。";
-                case AdaptiveArmor: return "装甲越低，获得越强的独立伤害减免。";
-                case EnergyLeech: return "生命值受损时，把一部分损失转化为能量回复。";
-                case EnergyGuard: return "依据本组件的能量生产能力提高舰体装甲。";
-                case ShieldRecirculation: return "生命值受损时，回收一部分损失以补充护盾。";
+                case RapidFire: return "装填时间 -20%，伤害 -20%。";
+                case Overclock: return "能耗 +30%，伤害 +25%。";
+                case ArmorBreak: return "造成生命值伤害后，削弱目标对应伤害抗性 10%，持续 5 秒，最多叠加 3 层。";
+                case SelfSharpening: return "C、T 槽限定。若目标对应抗性为 X% 且 X＞30%，本次攻击按 30% 抗性结算，同时伤害降低（X-70）%；X＞100 时按 100 计算。";
+                case AcidDissolution: return "C、T 槽限定。伤害转化为腐蚀伤害，伤害 -33%。";
+                case ArmoredProjectile: return "M 槽限定。弹体不可摧毁，但射程和飞行速度均 -40%。";
+                case Guidance: return "M 槽限定。强制火箭弹获得制导追踪，能耗 +80%。";
+                case Pierce: return "L 槽限定。激光可穿过敌人，基础伤害 -20%；每穿过一个目标再降低 20%，最多穿过 3 名敌人。";
+                case Sweep: return "L 槽限定。光束宽度 +50%，射程 -20%，伤害 -20%。";
+                case EngineOverload: return "引擎限定。速度和转向速度 +50%，能耗 +100%。";
+                case AdaptiveArmor: return "装甲限定。生命值每低于满血 10%，每件提供 1% 四类伤害独立减免；同类改装可叠加，减免总上限 90%。";
+                case EnergyLeech: return "装甲限定。生命值受损时，按损血比例的一半回复能量；最多 10 件，满层时损失 1% 生命回复 5% 能量。";
+                case EnergyGuard: return "装甲限定。每 100 点全舰能量生产速度，每件提供 1% 护甲值；每件最多提供 25%。";
+                case ShieldRecirculation: return "盾容装甲限定。生命值受损时，回复损失生命数值五分之一的盾容；最多 5 件，满层时损失 1 点生命回复 1 点盾容。";
                 default: return string.Empty;
             }
         }
@@ -156,12 +156,6 @@ namespace Constructor
                     stats.EnergyConsumption *= 2f;
                     stats.EngineEnergyConsumption *= 2f;
                     break;
-                case EnergyGuard:
-                {
-                    var armorBonus = Mathf.Clamp(stats.EnergyRecharge / 100f * 0.01f, 0f, 0.25f);
-                    stats.ThreeBodyArmorMultiplier += armorBonus;
-                    break;
-                }
             }
 
             return true;
@@ -259,8 +253,24 @@ namespace Constructor
             {
                 case AdaptiveArmor: ++summary.AdaptiveArmorCount; break;
                 case EnergyLeech: ++summary.EnergyLeechCount; break;
+                case EnergyGuard: ++summary.EnergyGuardCount; break;
                 case ShieldRecirculation: ++summary.ShieldRecirculationCount; break;
             }
+        }
+
+        public static void ApplyShipWide(
+            ref ShipEquipmentStats stats,
+            in ThreeBodyModificationSummary summary,
+            float wholeShipEnergyProduction)
+        {
+            if (summary.EnergyGuardCount <= 0)
+                return;
+
+            var perComponentBonus = Mathf.Clamp(
+                Mathf.Max(0f, wholeShipEnergyProduction) / 100f * 0.01f,
+                0f,
+                0.25f);
+            stats.ThreeBodyArmorMultiplier += perComponentBonus * summary.EnergyGuardCount;
         }
 
         private static bool IsWeapon(GameDatabase.DataModel.Component component) => component.Weapon != null && component.Ammunition != null;
@@ -290,6 +300,7 @@ namespace Constructor
     {
         public int AdaptiveArmorCount;
         public int EnergyLeechCount;
+        public int EnergyGuardCount;
         public int ShieldRecirculationCount;
     }
 

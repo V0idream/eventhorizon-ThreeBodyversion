@@ -24,6 +24,14 @@ namespace Combat.Collision.Manager
 
         private void ProcessCollision(IUnit first, IUnit second, CollisionData collisionData)
         {
+            // Special shield variants selectively reflect, suppress or capture
+            // units. Resolve them before ordinary ally filtering and before a
+            // shield (which has no collision behaviour) can end processing.
+            if (first is EnergyShield firstShield && firstShield.TryHandleSpecialCollision(second, collisionData))
+                return;
+            if (second is EnergyShield secondShield && secondShield.TryHandleSpecialCollision(first, collisionData))
+                return;
+
             // Unity can report the same projectile contact from either
             // collider first.  When the macro-electron is reported first,
             // process the incoming projectile as the attacker so its actual

@@ -1,0 +1,21 @@
+{
+  "ItemType": 1,
+  "Id": 955,
+  "Name": "$SilentCore",
+  "Description": "$SilentCoreDescription",
+  "ContentSource": 1,
+  "DisplayCategory": 6,
+  "Availability": 4,
+  "ComponentStatsId": 928,
+  "Faction": 21,
+  "Level": 100,
+  "Icon": "silent_core",
+  "Color": "#FFFFFF",
+  "Layout": "0111001110011100111001110",
+  "CellType": "4",
+  "DeviceId": 907,
+  "WeaponSlotType": "S",
+  "Restrictions": {
+    "MaxComponentAmount": 1
+  }
+}

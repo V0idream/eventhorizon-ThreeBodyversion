@@ -1,0 +1,14 @@
+{
+  "ItemType": 2,
+  "Id": 910,
+  "DeviceClass": 2,
+  "EnergyConsumption": 0.0,
+  "PassiveEnergyConsumption": 0.0,
+  "Power": 0.0,
+  "Size": 1.7,
+  "Cooldown": 0.0,
+  "ActivationType": 1,
+  "Color": "#A86CFFFF",
+  "Prefab": 2,
+  "ControlButtonIcon": "controls_shield_subspace"
+}

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using GameDatabase;
 using GameDatabase.DataModel;
 using Zenject;
@@ -19,6 +19,22 @@ namespace Domain.Quests
                 return null;
             }
 
+            if (MothersTearsQuestBuilder.IsMothersTears(data))
+                return MothersTearsQuestBuilder.Build(
+                    data,
+                    progress.StarId,
+                    progress.Seed,
+                    progress.ActiveNode,
+                    _questBuilderContext);
+
+            if (BeautifulProminenceQuestBuilder.IsBeautifulProminence(data))
+                return BeautifulProminenceQuestBuilder.Build(
+                    data,
+                    progress.StarId,
+                    progress.Seed,
+                    progress.ActiveNode,
+                    _questBuilderContext);
+
             var builder = new QuestBuilder(data, progress.StarId, progress.Seed, _questBuilderContext);
             return builder.Build(progress.ActiveNode);
         }
@@ -26,6 +42,12 @@ namespace Domain.Quests
         public Quest Create(QuestModel data, int starId, int seedIncrement = 0)
         {
             var seed = _questBuilderContext.QuestDataProvider.GenerateSeed(data, starId) + seedIncrement;
+            if (MothersTearsQuestBuilder.IsMothersTears(data))
+                return MothersTearsQuestBuilder.Build(data, starId, seed, 0, _questBuilderContext);
+
+            if (BeautifulProminenceQuestBuilder.IsBeautifulProminence(data))
+                return BeautifulProminenceQuestBuilder.Build(data, starId, seed, 0, _questBuilderContext);
+
             var builder = new QuestBuilder(data, starId, seed, _questBuilderContext);
             return builder.Build();
         }

@@ -27,10 +27,11 @@ namespace GameServices.Multiplayer
         public const int HostPort = 8779;
         public static MultiplayerSession Instance { get; private set; }
 
-        public MultiplayerSession(IDatabase database, PlayerFleet playerFleet)
+        public MultiplayerSession(IDatabase database, PlayerFleet playerFleet, IResourceLocator resourceLocator)
         {
             _database = database;
             _playerFleet = playerFleet;
+            _resourceLocator = resourceLocator;
         }
 
         public bool IsActive => _client != null && _client.Connected;
@@ -244,7 +245,8 @@ namespace GameServices.Multiplayer
             var textures = new List<TextureManifestEntry>();
             foreach (var ship in ships.GroupBy(item => item.Model.Id.Value).Select(group => group.First()))
             {
-                if (!PlayerShipTextureOverrides.TryGetOverrideBytes(ship.Model.Id.Value, out var bytes)) continue;
+                var fallback = _resourceLocator.GetSprite(ship.Model.ModelImage);
+                if (!PlayerShipTextureOverrides.TryGetOverrideBytes(ship.Model.Id.Value, fallback, out var bytes)) continue;
                 textures.Add(new TextureManifestEntry
                 {
                     shipId = ship.Model.Id.Value,
@@ -255,7 +257,9 @@ namespace GameServices.Multiplayer
             Send("textureManifest", JsonUtility.ToJson(new TextureManifest { entries = textures.ToArray() }));
             foreach (var entry in textures)
             {
-                PlayerShipTextureOverrides.TryGetOverrideBytes(entry.shipId, out var bytes);
+                var ship = ships.First(item => item.Model.Id.Value == entry.shipId);
+                var fallback = _resourceLocator.GetSprite(ship.Model.ModelImage);
+                PlayerShipTextureOverrides.TryGetOverrideBytes(entry.shipId, fallback, out var bytes);
                 var total = Math.Max(1, (bytes.Length + TextureChunkSize - 1) / TextureChunkSize);
                 for (var index = 0; index < total; index++)
                 {
@@ -454,6 +458,7 @@ namespace GameServices.Multiplayer
         private const int HostPortRetryMilliseconds = 250;
         private readonly IDatabase _database;
         private readonly PlayerFleet _playerFleet;
+        private readonly IResourceLocator _resourceLocator;
         private readonly ConcurrentQueue<Envelope> _incoming = new();
         private readonly ConcurrentQueue<Action> _mainThreadActions = new();
         private readonly SemaphoreSlim _sendLock = new(1, 1);

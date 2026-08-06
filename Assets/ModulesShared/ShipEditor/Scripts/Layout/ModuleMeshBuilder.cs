@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using GameDatabase.Model;
 using GameDatabase.Enums;
@@ -35,6 +35,16 @@ namespace ShipEditor
 			// with the occupied cells instead.
 			var size = Mathf.Max(1, layout.Size);
 			var aspect = spriteRect.Aspect;
+			if (component.Id.Value == 955 && sprite != null)
+			{
+				// Silent Core uses the authored EMP-device artwork directly.  The
+				// source is a tall 774x1536 plate, so preserve that aspect instead
+				// of expanding it to the square component canvas.
+				var width = Mathf.Max(1f, sprite.rect.width);
+				var height = Mathf.Max(1f, sprite.rect.height);
+				var maxDimension = Mathf.Max(width, height);
+				aspect = new Vector2(width / maxDimension, height / maxDimension);
+			}
 			if ((rotation & 1) != 0)
 				aspect = new Vector2(aspect.y, aspect.x);
 			var halfWidth = size * _cellSize * 0.5f * aspect.x;

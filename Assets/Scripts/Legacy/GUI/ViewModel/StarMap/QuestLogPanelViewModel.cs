@@ -68,6 +68,24 @@ namespace ViewModel
 		{
 			item.gameObject.SetActive(true);
             item.Initialize(quest, _localization);
+			if (quest.Model.Id.Value == MothersTearsQuestBuilder.QuestId &&
+				quest.NodeId == MothersTearsQuestBuilder.OfferNodeId)
+			{
+				item.ConfigureOffer(_localization.GetString("$MothersTears_Accept"), () =>
+				{
+					_questManager.AcceptMothersTearsOffer();
+					UpdateItems();
+				});
+			}
+			else if (quest.Model.Id.Value == BeautifulProminenceQuestBuilder.QuestId &&
+				quest.NodeId == BeautifulProminenceQuestBuilder.OfferNodeId)
+			{
+				item.ConfigureOffer(_localization.GetString("$BeautifulProminence_Accept"), () =>
+				{
+					_questManager.AcceptBeautifulProminenceOffer();
+					UpdateItems();
+				});
+			}
 		}
 	}
 }

@@ -173,6 +173,9 @@ namespace Gui.Quests
 
         private static Sprite LoadSprite(string resourcePath)
         {
+            if (MothersTearsStoryImageCatalog.TryLoad(resourcePath, out var embeddedSprite))
+                return embeddedSprite;
+
             var sprite = Resources.Load<Sprite>(resourcePath);
             if (sprite != null)
                 return sprite;

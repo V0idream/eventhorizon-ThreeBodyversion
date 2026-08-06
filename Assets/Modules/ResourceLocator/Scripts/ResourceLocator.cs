@@ -94,7 +94,8 @@ namespace Services.Resources
 
             if (sprite != null &&
                 (spriteId.Category == SpriteId.Type.Ship || spriteId.Category == SpriteId.Type.ShipIcon) &&
-                string.Equals(spriteId.Id, "sophon_launcher", StringComparison.OrdinalIgnoreCase))
+                (string.Equals(spriteId.Id, "sophon_launcher", StringComparison.OrdinalIgnoreCase) ||
+                 string.Equals(spriteId.Id, "wan_nian_feng_xue", StringComparison.OrdinalIgnoreCase)))
                 sprite = GetClockwiseRotatedSprite(spriteId, sprite);
 
             return sprite;
@@ -323,14 +324,14 @@ namespace Services.Resources
 
             // Project-owned ship artwork lives in Resources so it remains
             // available even when third-party mods replace the locator prefab.
-            return GetSprite("Textures/ThreeBody/" + id);
+            return GetSprite("Textures/ThreeBody/" + id) ?? GetEmbeddedThreeBodySprite(id);
         }
 		private Sprite GetShipIconSprite(string id) => ShipIcons.TryGetValue(id, out var sprite) || Ships.TryGetValue(id, out sprite)
             ? sprite
             : GetShipSprite(id);
         private Sprite GetComponentSprite(string id) => Components.TryGetValue(id, out var sprite)
             ? sprite
-            : GetSprite("Textures/ThreeBody/" + id);
+            : GetSprite("Textures/ThreeBody/" + id) ?? GetEmbeddedThreeBodySprite(id);
 		private Sprite GetSatelliteSprite(string id) => Satellites.TryGetValue(id, out var sprite) ? sprite : null;
 		private Sprite GetControlButtonSprite(string id)
         {
@@ -342,5 +343,48 @@ namespace Services.Resources
             return GetSprite("Textures/GUI/Controls/" + id);
         }
 		private Sprite GetGuiIcon(string id) => GuiIcons.TryGetValue(id, out var sprite) ? sprite : null;
+
+        private Sprite GetEmbeddedThreeBodySprite(string id)
+        {
+            var key = "EmbeddedThreeBody:" + id;
+            if (_correctedSprites.TryGetValue(key, out var cached) && cached != null)
+                return cached;
+
+            var asset = UnityEngine.Resources.Load<TextAsset>("Embedded/ThreeBody/" + id);
+            if (asset == null || string.IsNullOrWhiteSpace(asset.text))
+                return null;
+
+            try
+            {
+                var bytes = Convert.FromBase64String(asset.text.Trim());
+                var texture = new Texture2D(2, 2, TextureFormat.RGBA32, false)
+                {
+                    name = id + "_Embedded",
+                    filterMode = FilterMode.Bilinear,
+                    wrapMode = TextureWrapMode.Clamp,
+                };
+                if (!texture.LoadImage(bytes, true))
+                {
+                    UnityEngine.Object.Destroy(texture);
+                    return null;
+                }
+
+                var embedded = Sprite.Create(texture,
+                    new Rect(0f, 0f, texture.width, texture.height),
+                    new Vector2(0.5f, 0.5f),
+                    100f,
+                    0,
+                    SpriteMeshType.FullRect);
+                embedded.name = id;
+                _correctedTextures[key] = texture;
+                _correctedSprites[key] = embedded;
+                return embedded;
+            }
+            catch (Exception error)
+            {
+                UnityEngine.Debug.LogError($"ResourceLocator: invalid embedded ThreeBody sprite '{id}': {error.Message}");
+                return null;
+            }
+        }
 	}
 }

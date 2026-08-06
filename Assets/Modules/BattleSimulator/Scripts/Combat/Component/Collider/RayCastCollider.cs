@@ -107,10 +107,11 @@ namespace Combat.Component.Collider
                 if (target == null || target.Unit == null)
                     continue;
                 var nativeLayer = (Unit.Type.CollisionMask & (1 << collider.gameObject.layer)) != 0;
-                if (!nativeLayer && !IsBallLightning(target.Unit))
+                if (!nativeLayer && !IsBallLightning(target.Unit) && !IsOwnerBlockingShield(target.Unit))
                     continue;
 				if (Source != null && (target.Unit == Source ||
-                    target.Unit.Type.Owner == Source && !IsBallLightning(target.Unit)))
+                    target.Unit.Type.Owner == Source && !IsBallLightning(target.Unit) &&
+                    !IsOwnerBlockingShield(target.Unit)))
 					continue;
 
                 ProcessCollision(target, position, hit.point, elapsedTime, !collisionFound);
@@ -177,6 +178,11 @@ namespace Combat.Component.Collider
         private float _maxRange;
         private bool _needUpdateView;
         private bool _enabled = true;
+
+        private static bool IsOwnerBlockingShield(IUnit unit)
+        {
+            return unit is EnergyShield shield && shield.BlocksOwnerProjectiles;
+        }
 
         private static bool IsBallLightning(IUnit unit)
         {

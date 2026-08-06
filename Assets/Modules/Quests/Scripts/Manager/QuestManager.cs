@@ -112,12 +112,13 @@ namespace Domain.Quests
 			var discardedInvalidJourney = false;
 			foreach (var item in _context.QuestDataStorage.GetActiveQuests())
 			{
-				// Preview builds could start the journey quest on the current star
-				// when the destination origin could not be resolved.  Its ComeToOrigin
-				// node then completed on the next tick and removed the task.  Discard
-				// that invalid in-progress entry so the prologue can create a real
-				// destination below instead of loading an already-completed task.
-				if (item.QuestId.Value == ThreeBodyJourneyQuestId && item.StarId == currentStarId)
+				// Preview builds could start the journey quest on the current star, and
+				// Beta6/Beta7 assigned destinations 100-140 light-years away. Discard
+				// either invalid form so Beta8 can regenerate a reachable 45-55 LY
+				// destination without requiring the player to create a new save.
+				if (item.QuestId.Value == ThreeBodyJourneyQuestId &&
+					(item.StarId == currentStarId ||
+					 GameModel.StarLayout.Distance(currentStarId, item.StarId) > 70))
 				{
 					_context.QuestDataStorage.SetQuestCancelled(item.QuestId.Value, item.StarId);
 					discardedInvalidJourney = true;
@@ -165,9 +166,45 @@ namespace Domain.Quests
             if (questModel == null) return;
 
 	        var starId = _context.StarMapDataProvider.CurrentStar.Id;
+			StartQuestAt(questModel, starId, seedIncrement);
+        }
+
+		public void AcceptMothersTearsOffer()
+		{
+			var quest = _quests.FirstOrDefault(item =>
+				item.Id == MothersTearsQuestBuilder.QuestId &&
+				item.NodeId == MothersTearsQuestBuilder.OfferNodeId);
+			if (quest == null ||
+				!quest.TryProcessEvent(new SimpleEventData(QuestEventType.MothersTearsAccepted)))
+				return;
+
+			// The task-list button should enter the storyline immediately instead
+			// of waiting for the next QuestManager tick. Persist the accepted node,
+			// select it as the active interaction, and refresh the task list now.
+			_recentlyUpdatedQuests.Remove(quest);
+			OnQuestUpdated(quest);
+			_context.EventProvider.FireQuestsUpdatedEvent();
+		}
+
+		public void AcceptBeautifulProminenceOffer()
+		{
+			var quest = _quests.FirstOrDefault(item =>
+				item.Id == BeautifulProminenceQuestBuilder.QuestId &&
+				item.NodeId == BeautifulProminenceQuestBuilder.OfferNodeId);
+			if (quest == null ||
+				!quest.TryProcessEvent(new SimpleEventData(QuestEventType.BeautifulProminenceAccepted)))
+				return;
+
+			_recentlyUpdatedQuests.Remove(quest);
+			OnQuestUpdated(quest);
+			_context.EventProvider.FireQuestsUpdatedEvent();
+		}
+
+		private void StartQuestAt(QuestModel questModel, int starId, int seedIncrement)
+		{
             var seed = _context.QuestDataStorage.GenerateSeed(questModel, starId) + seedIncrement;
 
-            // This storyline objective is a destination 100+ light-years from
+            // This storyline objective is a destination about 50 light-years from
             // the prologue system. Manual quests normally bind to the current
             // star, which made ComeToOrigin true immediately and completed the
             // task before the quest list could render it.
@@ -202,7 +239,7 @@ namespace Domain.Quests
 	            return;
 	        }
 
-            Add(_factory.Create(questModel, starId, seedIncrement));
+	        Add(_factory.Create(questModel, starId, seedIncrement));
         }
 
         private void Add(Quest quest)
@@ -372,6 +409,8 @@ namespace Domain.Quests
 	        if (data.Type == QuestEventType.ArrivedAtStarSystem)
 	        {
 	            var eventData = (StarEventData)data;
+				TryOfferMothersTears(eventData.StarId);
+				TryOfferBeautifulProminence(eventData.StarId);
 	            var seed = _context.GameDataProvider.GameSeed + eventData.StarId + _context.QuestDataStorage.TotalQuestCount();
                 _arrivedAtStarQuests.UpdateQuests(eventData.StarId, seed, time, _context);
 	            Add(_arrivedAtStarQuests.CreateRandomWeighted(_factory, seed));
@@ -394,6 +433,54 @@ namespace Domain.Quests
             _factionQuests.UpdateQuests(starId, seed, time, _context);
             Add(_factionQuests.CreateRandomWeighted(_factory, seed));
         }
+
+		private void TryOfferMothersTears(int starId)
+		{
+			// The arrival that completes "Advance Four" is processed later in this
+			// same event. Checking the persisted completion flag here therefore
+			// intentionally waits until the player's next completed route.
+			if (!_context.QuestDataStorage.HasBeenCompleted(ThreeBodyJourneyQuestId) ||
+				_context.QuestDataStorage.IsActiveOrCompleted(MothersTearsQuestBuilder.QuestId))
+				return;
+
+			var quest = _database.GetQuest(
+				new GameDatabase.Model.ItemId<QuestModel>(MothersTearsQuestBuilder.QuestId));
+			if (quest == null || quest == QuestModel.DefaultValue)
+			{
+				UnityEngine.Debug.LogError("QuestManager: Mother's Tears quest data is missing.");
+				return;
+			}
+
+                        // Present the storyline as an offer first. Previously this
+                        // started the quest immediately on route arrival, which
+                        // bypassed the player's task list and made the accept node
+                        // unreachable. The player must explicitly accept it from
+                        // the quest panel.
+			// QuestFactory derives the deterministic seed itself. Passing that seed
+			// as an increment would add it a second time and make offer persistence
+			// differ between a fresh session and a reloaded save.
+			Add(_factory.Create(quest, starId));
+		}
+
+		private void TryOfferBeautifulProminence(int starId)
+		{
+			// Beta7 intentionally mirrors the Mother's Tears offer condition so
+			// both storylines appear together after the same completed route and
+			// can be accepted independently.
+			if (!_context.QuestDataStorage.HasBeenCompleted(ThreeBodyJourneyQuestId) ||
+				_context.QuestDataStorage.IsActiveOrCompleted(BeautifulProminenceQuestBuilder.QuestId))
+				return;
+
+			var quest = _database.GetQuest(
+				new GameDatabase.Model.ItemId<QuestModel>(BeautifulProminenceQuestBuilder.QuestId));
+			if (quest == null || quest == QuestModel.DefaultValue)
+			{
+				UnityEngine.Debug.LogError("QuestManager: Beautiful Prominence quest data is missing.");
+				return;
+			}
+
+			Add(_factory.Create(quest, starId));
+		}
 
         private void ProcessQuestEvent(IQuestEventData data)
 	    {
