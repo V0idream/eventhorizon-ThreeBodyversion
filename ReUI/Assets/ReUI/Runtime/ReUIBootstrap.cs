@@ -124,21 +124,28 @@ namespace ReUI
         private void OnEnable()
         {
             SceneManager.sceneLoaded += OnSceneLoaded;
+            SceneManager.sceneUnloaded += OnSceneUnloaded;
         }
 
         private void OnDisable()
         {
             SceneManager.sceneLoaded -= OnSceneLoaded;
+            SceneManager.sceneUnloaded -= OnSceneUnloaded;
         }
 
         private void OnDestroy()
         {
-            if (_instance == this) _instance = null;
+            if (_instance == this)
+            {
+                ReUIHdrRuntime.RemoveAll();
+                _instance = null;
+            }
         }
 
         private void Start()
         {
             ApplyNow();
+            ReUIHdrRuntime.RefreshAllScenes();
             StartCoroutine(ApplyAfterSceneInitialization(SceneManager.GetActiveScene()));
         }
 
@@ -150,7 +157,13 @@ namespace ReUI
 
             if (IsSupportedScene(scene.name))
                 ApplyScene(scene);
+            ReUIHdrRuntime.Apply(scene);
             StartCoroutine(ApplyAfterSceneInitialization(scene));
+        }
+
+        private void OnSceneUnloaded(Scene scene)
+        {
+            ReUIHdrRuntime.RefreshAllScenes();
         }
 
         public void ApplyNow()
@@ -167,6 +180,7 @@ namespace ReUI
                 Scene scene = SceneManager.GetSceneAt(i);
                 RefreshSceneTheme(scene, previousTheme);
                 ApplyScene(scene, resetStyleFlags);
+                ReUIHdrRuntime.Apply(scene);
             }
         }
 
@@ -317,6 +331,7 @@ namespace ReUI
                     {
                         ReUIThemePalettePanel.EnsureForSettings(canvas);
                         ReUIShieldStyleSelector.EnsureForSettings(canvas);
+                        ReUIHdrDisplaySelector.EnsureForSettings(canvas);
                     }
                 }
             }
@@ -327,12 +342,15 @@ namespace ReUI
             yield return null;
             RefreshSceneTheme(scene, ThemeSnapshot.Capture());
             ApplyScene(scene);
+            ReUIHdrRuntime.Apply(scene);
             yield return new WaitForEndOfFrame();
             RefreshSceneTheme(scene, ThemeSnapshot.Capture());
             ApplyScene(scene);
+            ReUIHdrRuntime.Apply(scene);
             yield return new WaitForSecondsRealtime(0.20f);
             RefreshSceneTheme(scene, ThemeSnapshot.Capture());
             ApplyScene(scene);
+            ReUIHdrRuntime.Apply(scene);
         }
 
         private sealed class ThemeSnapshot
