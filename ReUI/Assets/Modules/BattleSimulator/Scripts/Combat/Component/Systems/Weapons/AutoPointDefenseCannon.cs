@@ -31,7 +31,15 @@ namespace Combat.Component.Systems.Weapons
 
         protected override void OnUpdatePhysics(float elapsedTime)
         {
+            if (Combat.Component.Ship.Effects.SmallUniverseTransitEffect.IsInTransit(_owner))
+            {
+                SetReservedTarget(null);
+                SetTarget(null);
+                return;
+            }
+
             var target = FindTarget();
+            SetReservedTarget(target != null && IsInterceptableProjectile(target) ? target : null);
             SetTarget(target);
             if (!target.IsActive() || !Enabled || TimeFromLastUse < MaxCooldown ||
                 !Platform.IsReady || !TryConsumeEnergy(_energyCost))
@@ -44,7 +52,11 @@ namespace Combat.Component.Systems.Weapons
             InvokeTriggers(ConditionType.OnActivate);
         }
 
-        protected override void OnDispose() => _bullets.Dispose();
+        protected override void OnDispose()
+        {
+            SetReservedTarget(null);
+            _bullets.Dispose();
+        }
 
         private IUnit FindTarget()
         {
@@ -57,7 +69,9 @@ namespace Combat.Component.Systems.Weapons
                 foreach (var unit in _scene.Units.Items)
                 {
                     if (!unit.IsActive() || !IsInterceptableProjectile(unit) ||
-                        !CanTargetProjectile(unit))
+                        unit is IBullet { IsInterceptionProjectile: true } ||
+                        !CanTargetProjectile(unit) ||
+                        InterceptionTargetCoordinator.IsReservedByOther(unit, this, _owner))
                         continue;
                     var distance = Vector2.SqrMagnitude(unit.Body.WorldPosition() - position);
                     if (distance > rangeSquared || distance >= nearestDistance)
@@ -95,10 +109,25 @@ namespace Combat.Component.Systems.Weapons
             return IsMacroElectron(unit) || CombatRelations.AreEnemies(unit.Type, _owner.Type);
         }
 
+        private void SetReservedTarget(IUnit target)
+        {
+            if (_reservedTarget == target)
+            {
+                if (target != null) InterceptionTargetCoordinator.Reserve(target, this, _owner);
+                return;
+            }
+
+            InterceptionTargetCoordinator.Release(_reservedTarget, this);
+            _reservedTarget = target;
+            if (target != null) InterceptionTargetCoordinator.Reserve(target, this, _owner);
+        }
+
         private static bool IsMacroElectron(IUnit unit)
         {
             return unit is Combat.Component.Bullet.Bullet bullet &&
                    bullet.Controller is BallLightningController;
         }
+
+        private IUnit _reservedTarget;
     }
 }

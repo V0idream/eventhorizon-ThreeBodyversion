@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using Combat.Component.Ship;
+using Combat.Component.Ship.Effects;
 using Combat.Component.Unit.Classification;
 using Combat.Scene;
 using Combat.Unit;
@@ -45,15 +46,21 @@ namespace Gui.Combat
             if (!camera) return;
 
             var observer = _scene.PlayerShip;
-            var radarRange = observer.IsActive() ? CombatMinimap.GetRadarRange(observer) : 0f;
+            var observerActive = observer != null && observer.IsActive();
+            var radarRange = observerActive ? CombatMinimap.GetRadarRange(observer) : 0f;
             var detected = _ship.Type.Side == UnitSide.Ally ||
-                           (observer.IsActive() && Vector2.Distance(observer.Body.Position, _ship.Body.Position) <= radarRange);
+                           (observerActive && RadarStatus.CanDetect(observer, _ship) &&
+                            Vector2.Distance(observer.Body.Position, _ship.Body.Position) <= radarRange);
+            if (SmallUniverseTransitEffect.IsInTransit(_ship)) detected = false;
             if (!detected)
             {
                 ShipIcon.enabled = false;
                 Background.enabled = false;
+                UpdateAllyMarker(false);
                 return;
             }
+
+            UpdateAllyMarker(_ship.Type.Side == UnitSide.Ally && _ship != observer);
 
             var itemPosition = _ship.Body.VisualPosition;
             var position = _scene.ViewPoint.Direction(itemPosition);

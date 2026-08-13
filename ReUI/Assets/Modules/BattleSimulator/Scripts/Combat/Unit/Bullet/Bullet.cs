@@ -40,6 +40,7 @@ namespace Combat.Component.Bullet
         public PhysicsManager Physics { get; set; }
         public ICollisionBehaviour CollisionBehaviour { get; set; }
         public bool IsReflectableByWaterdrop => _options.ReflectableByWaterdrop;
+        public bool IsInterceptionProjectile => _options.IsInterceptionProjectile;
 
         public float DefenseMultiplier => _unitType?.Owner?.DefenseMultiplier ?? 1.0f;
 
@@ -74,6 +75,12 @@ namespace Combat.Component.Bullet
 
             if (Controller != null)
                 Controller.UpdatePhysics(elapsedTime);
+
+            if (Combat.Collision.Behaviour.Action.ProjectileStasisStatus.Update(this, elapsedTime))
+            {
+                Body.ApplyAcceleration(-Body.Velocity);
+                Body.ApplyAngularAcceleration(-Body.AngularVelocity);
+            }
 
             Body.UpdatePhysics(elapsedTime);
 
@@ -245,6 +252,7 @@ namespace Combat.Component.Bullet
             public bool CanBeDisarmed;
             public bool DetonateWhenDestroyed;
             public bool ReflectableByWaterdrop;
+            public bool IsInterceptionProjectile;
         }
     }
 }

@@ -100,6 +100,7 @@ namespace Gui.StarMap
             ApplyPreview4FactionIcon();
             CreateRelationsButton();
             CreateCaptainButton();
+            CreateStorylineButton();
             HidePremiumBuyButton();
             _messenger.AddListener<int>(EventType.PlayerPositionChanged, OnPlayerPositionChanged);
             _messenger.AddListener<ViewMode>(EventType.ViewModeChanged, OnMapStateChanged);
@@ -242,6 +243,59 @@ namespace Gui.StarMap
             button.onClick.AddListener(ToggleCaptainPanel);
         }
 
+        private void CreateStorylineButton()
+        {
+            var canvasRoot = transform.root;
+            var buttons = canvasRoot.GetComponentsInChildren<Button>(true);
+            var existing = buttons.FirstOrDefault(button => button.name == "ThreeBodyStorylineButton");
+            if (existing != null)
+            {
+                EnsureStorylineIcon(existing);
+                return;
+            }
+
+            var captainButton = buttons.FirstOrDefault(button => button.name == "ThreeBodyCaptainButton");
+            if (captainButton == null)
+                return;
+
+            var buttonObject = new GameObject("ThreeBodyStorylineButton", typeof(RectTransform),
+                typeof(CanvasRenderer), typeof(Image), typeof(Button), typeof(LayoutElement));
+            buttonObject.layer = captainButton.gameObject.layer;
+            buttonObject.transform.SetParent(captainButton.transform.parent, false);
+            buttonObject.transform.SetSiblingIndex(captainButton.transform.GetSiblingIndex() + 1);
+
+            var sourceRect = captainButton.GetComponent<RectTransform>();
+            var rect = buttonObject.GetComponent<RectTransform>();
+            rect.anchorMin = sourceRect.anchorMin;
+            rect.anchorMax = sourceRect.anchorMax;
+            rect.pivot = sourceRect.pivot;
+            rect.sizeDelta = sourceRect.sizeDelta;
+            rect.anchoredPosition = sourceRect.anchoredPosition + new Vector2(sourceRect.rect.width + 12f, 0f);
+
+            var sourceLayout = captainButton.GetComponent<LayoutElement>();
+            var layout = buttonObject.GetComponent<LayoutElement>();
+            if (sourceLayout != null)
+            {
+                layout.minWidth = sourceLayout.minWidth;
+                layout.minHeight = sourceLayout.minHeight;
+                layout.preferredWidth = sourceLayout.preferredWidth;
+                layout.preferredHeight = sourceLayout.preferredHeight;
+                layout.flexibleWidth = sourceLayout.flexibleWidth;
+                layout.flexibleHeight = sourceLayout.flexibleHeight;
+                layout.layoutPriority = sourceLayout.layoutPriority;
+            }
+
+            var sourceImage = captainButton.GetComponent<Image>();
+            var image = buttonObject.GetComponent<Image>();
+            image.sprite = sourceImage != null ? sourceImage.sprite : null;
+            image.type = sourceImage != null ? sourceImage.type : Image.Type.Sliced;
+            image.color = ThreeBodyUiPalette.Button;
+
+            var button = buttonObject.GetComponent<Button>();
+            EnsureStorylineIcon(button);
+            button.onClick.AddListener(ToggleStorylinePanel);
+        }
+
         private static void EnsureCaptainIcon(Button button)
         {
             if (button == null)
@@ -299,6 +353,55 @@ namespace Gui.StarMap
             icon.enabled = icon.sprite != null;
         }
 
+        private static void EnsureStorylineIcon(Button button)
+        {
+            if (button == null)
+                return;
+
+            foreach (var graphic in button.GetComponentsInChildren<Graphic>(true))
+            {
+                if (graphic != null && graphic.GetType().Name == "ReUIIconGraphic")
+                    UnityEngine.Object.Destroy(graphic.gameObject);
+            }
+
+            var label = button.transform.Find("Label");
+            if (label != null)
+                label.gameObject.SetActive(false);
+
+            var iconTransform = button.transform.Find("Icon");
+            Image icon;
+            if (iconTransform == null)
+            {
+                var iconObject = new GameObject("Icon", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+                iconObject.layer = button.gameObject.layer;
+                iconTransform = iconObject.transform;
+                iconTransform.SetParent(button.transform, false);
+                icon = iconObject.GetComponent<Image>();
+            }
+            else
+            {
+                icon = iconTransform.GetComponent<Image>();
+                if (icon == null)
+                    icon = iconTransform.gameObject.AddComponent<Image>();
+            }
+
+            var rect = icon.rectTransform;
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = new Vector2(10f, 10f);
+            rect.offsetMax = new Vector2(-10f, -10f);
+            rect.localScale = Vector3.one;
+
+            icon.sprite = Resources.Load<Sprite>("Textures/GUI/quest");
+            icon.color = Color.white;
+            icon.preserveAspect = true;
+            icon.raycastTarget = false;
+            icon.maskable = false;
+            icon.canvasRenderer.SetAlpha(1f);
+            icon.gameObject.SetActive(icon.sprite != null);
+            icon.enabled = icon.sprite != null;
+        }
+
         private void HidePremiumBuyButton()
         {
             var buyButton = transform.root.GetComponentsInChildren<Button>(true)
@@ -315,7 +418,11 @@ namespace Gui.StarMap
             {
                 _captainPanel.SetActive(!_captainPanel.activeSelf);
                 if (_captainPanel.activeSelf)
+                {
+                    if (_storylinePanel != null)
+                        _storylinePanel.SetActive(false);
                     RefreshCaptainCards();
+                }
                 return;
             }
 
@@ -373,6 +480,242 @@ namespace Gui.StarMap
             closeText.rectTransform.offsetMin = closeText.rectTransform.offsetMax = Vector2.zero;
 
             RefreshCaptainCards();
+        }
+
+        private void ToggleStorylinePanel()
+        {
+            if (_storylinePanel != null)
+            {
+                var show = !_storylinePanel.activeSelf;
+                _storylinePanel.SetActive(show);
+                if (show)
+                {
+                    if (_captainPanel != null)
+                        _captainPanel.SetActive(false);
+                    _storylinePanel.transform.SetAsLastSibling();
+                    RefreshStorylineStatus();
+                }
+                return;
+            }
+
+            var root = transform.root as RectTransform;
+            if (root == null)
+                return;
+
+            if (_captainPanel != null)
+                _captainPanel.SetActive(false);
+
+            _storylinePanel = new GameObject("StorylinePanel", typeof(RectTransform), typeof(CanvasRenderer),
+                typeof(Image), typeof(Outline));
+            _storylinePanel.layer = gameObject.layer;
+            var panelRect = _storylinePanel.GetComponent<RectTransform>();
+            panelRect.SetParent(root, false);
+            panelRect.anchorMin = new Vector2(0.09f, 0.11f);
+            panelRect.anchorMax = new Vector2(0.72f, 0.92f);
+            panelRect.pivot = new Vector2(0.5f, 0.5f);
+            panelRect.offsetMin = panelRect.offsetMax = Vector2.zero;
+            _storylinePanel.GetComponent<Image>().color = ThreeBodyUiPalette.PanelDeep;
+            var outline = _storylinePanel.GetComponent<Outline>();
+            outline.effectColor = new Color(0.43f, 0.78f, 1f, 0.72f);
+            outline.effectDistance = new Vector2(2f, -2f);
+            _storylinePanel.transform.SetAsLastSibling();
+
+            var title = NewCaptainText(panelRect, "Title", "剧情线", 34, TextAnchor.MiddleCenter);
+            title.rectTransform.anchorMin = new Vector2(0.04f, 0.91f);
+            title.rectTransform.anchorMax = new Vector2(0.96f, 0.99f);
+            title.rectTransform.offsetMin = title.rectTransform.offsetMax = Vector2.zero;
+            title.color = ThreeBodyUiPalette.AccentSoft;
+
+            var subtitle = NewCaptainText(panelRect, "Subtitle",
+                "从“前进四”启程；完成后，两条可独立推进的支线将同时展开。", 18,
+                TextAnchor.MiddleCenter);
+            subtitle.rectTransform.anchorMin = new Vector2(0.04f, 0.855f);
+            subtitle.rectTransform.anchorMax = new Vector2(0.96f, 0.915f);
+            subtitle.rectTransform.offsetMin = subtitle.rectTransform.offsetMax = Vector2.zero;
+            subtitle.color = ThreeBodyUiPalette.TextMuted;
+
+            CreateStorylineConnector(panelRect, "RootLine", new Vector2(0.4975f, 0.48f),
+                new Vector2(0.5025f, 0.59f));
+            CreateStorylineConnector(panelRect, "BranchLine", new Vector2(0.25f, 0.475f),
+                new Vector2(0.75f, 0.485f));
+            CreateStorylineConnector(panelRect, "LeftLine", new Vector2(0.2475f, 0.43f),
+                new Vector2(0.2525f, 0.48f));
+            CreateStorylineConnector(panelRect, "RightLine", new Vector2(0.7475f, 0.43f),
+                new Vector2(0.7525f, 0.48f));
+
+            CreateStorylineCard(panelRect, 202, "前进四", "主线起点",
+                "离开太阳系，驱动母舰驶向星辰大海。完成这段航程后，两条独立的任务线将同时展开。",
+                "Textures/ThreeBodyPrologue/story_06", new Vector2(0.20f, 0.59f),
+                new Vector2(0.80f, 0.845f), false, true);
+            CreateStorylineCard(panelRect, 203, "圣母的眼泪", "支线任务",
+                "夺取 SIM 样本与技术资料，追踪水滴样本，并在无主星系迎战三体泰坦。",
+                "Story/MothersTears/story_01", new Vector2(0.035f, 0.10f),
+                new Vector2(0.485f, 0.43f), true, false);
+            CreateStorylineCard(panelRect, 204, "万年风雪", "支线任务",
+                "调查来自旧时代的异常信号，清剿感染巢穴，破译 2001 机密文件，找回被岁月掩埋的航迹。",
+                "Story/BeautifulProminence/story_01", new Vector2(0.515f, 0.10f),
+                new Vector2(0.965f, 0.43f), true, false);
+
+            var close = new GameObject("Close", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image),
+                typeof(Button));
+            close.layer = gameObject.layer;
+            close.transform.SetParent(panelRect, false);
+            var closeRect = close.GetComponent<RectTransform>();
+            closeRect.anchorMin = new Vector2(0.37f, 0.018f);
+            closeRect.anchorMax = new Vector2(0.63f, 0.08f);
+            closeRect.offsetMin = closeRect.offsetMax = Vector2.zero;
+            close.GetComponent<Image>().color = ThreeBodyUiPalette.Button;
+            close.GetComponent<Button>().onClick.AddListener(() => _storylinePanel.SetActive(false));
+            var closeText = NewCaptainText(close.transform, "Text", "关闭", 21, TextAnchor.MiddleCenter);
+            closeText.rectTransform.anchorMin = Vector2.zero;
+            closeText.rectTransform.anchorMax = Vector2.one;
+            closeText.rectTransform.offsetMin = closeText.rectTransform.offsetMax = Vector2.zero;
+
+            RefreshStorylineStatus();
+        }
+
+        private void CreateStorylineCard(RectTransform parent, int questId, string title, string category,
+            string description, string imagePath, Vector2 anchorMin, Vector2 anchorMax, bool requiresRoot,
+            bool horizontal)
+        {
+            var card = new GameObject("StoryQuest_" + questId, typeof(RectTransform), typeof(CanvasRenderer),
+                typeof(Image), typeof(Outline));
+            card.layer = gameObject.layer;
+            card.transform.SetParent(parent, false);
+            var cardRect = card.GetComponent<RectTransform>();
+            cardRect.anchorMin = anchorMin;
+            cardRect.anchorMax = anchorMax;
+            cardRect.offsetMin = cardRect.offsetMax = Vector2.zero;
+            var background = card.GetComponent<Image>();
+            background.color = ThreeBodyUiPalette.PanelSoft;
+            var outline = card.GetComponent<Outline>();
+            outline.effectColor = new Color(0.38f, 0.72f, 1f, 0.48f);
+            outline.effectDistance = new Vector2(1.5f, -1.5f);
+
+            var coverObject = new GameObject("Cover", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            coverObject.layer = gameObject.layer;
+            coverObject.transform.SetParent(cardRect, false);
+            var cover = coverObject.GetComponent<Image>();
+            cover.sprite = LoadStorySprite(imagePath);
+            cover.color = Color.white;
+            cover.preserveAspect = true;
+            cover.raycastTarget = false;
+            cover.rectTransform.anchorMin = horizontal ? new Vector2(0.02f, 0.08f) : new Vector2(0.025f, 0.49f);
+            cover.rectTransform.anchorMax = horizontal ? new Vector2(0.43f, 0.92f) : new Vector2(0.975f, 0.965f);
+            cover.rectTransform.offsetMin = cover.rectTransform.offsetMax = Vector2.zero;
+
+            var categoryText = NewCaptainText(cardRect, "Category", category, horizontal ? 15 : 14,
+                TextAnchor.MiddleLeft);
+            categoryText.rectTransform.anchorMin = horizontal ? new Vector2(0.47f, 0.69f) : new Vector2(0.04f, 0.37f);
+            categoryText.rectTransform.anchorMax = horizontal ? new Vector2(0.69f, 0.88f) : new Vector2(0.34f, 0.48f);
+            categoryText.rectTransform.offsetMin = categoryText.rectTransform.offsetMax = Vector2.zero;
+            categoryText.color = ThreeBodyUiPalette.Accent;
+
+            var titleText = NewCaptainText(cardRect, "QuestTitle", title, horizontal ? 27 : 23,
+                TextAnchor.MiddleLeft);
+            titleText.rectTransform.anchorMin = horizontal ? new Vector2(0.47f, 0.43f) : new Vector2(0.04f, 0.25f);
+            titleText.rectTransform.anchorMax = horizontal ? new Vector2(0.94f, 0.73f) : new Vector2(0.62f, 0.40f);
+            titleText.rectTransform.offsetMin = titleText.rectTransform.offsetMax = Vector2.zero;
+            titleText.color = Color.white;
+
+            var status = NewCaptainText(cardRect, "Status", string.Empty, horizontal ? 17 : 15,
+                TextAnchor.MiddleRight);
+            status.rectTransform.anchorMin = horizontal ? new Vector2(0.70f, 0.69f) : new Vector2(0.58f, 0.27f);
+            status.rectTransform.anchorMax = horizontal ? new Vector2(0.96f, 0.88f) : new Vector2(0.96f, 0.40f);
+            status.rectTransform.offsetMin = status.rectTransform.offsetMax = Vector2.zero;
+
+            var descriptionText = NewCaptainText(cardRect, "Description", description, horizontal ? 16 : 15,
+                TextAnchor.UpperLeft);
+            descriptionText.rectTransform.anchorMin = horizontal ? new Vector2(0.47f, 0.08f) : new Vector2(0.04f, 0.035f);
+            descriptionText.rectTransform.anchorMax = horizontal ? new Vector2(0.96f, 0.45f) : new Vector2(0.96f, 0.25f);
+            descriptionText.rectTransform.offsetMin = descriptionText.rectTransform.offsetMax = Vector2.zero;
+            descriptionText.color = new Color(0.90f, 0.90f, 0.96f);
+
+            _storylineCards[questId] = new StorylineCardView
+            {
+                QuestId = questId,
+                RequiresRoot = requiresRoot,
+                Background = background,
+                Cover = cover,
+                Status = status,
+                Outline = outline
+            };
+        }
+
+        private static void CreateStorylineConnector(RectTransform parent, string name, Vector2 anchorMin,
+            Vector2 anchorMax)
+        {
+            var connector = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            connector.transform.SetParent(parent, false);
+            var rect = connector.GetComponent<RectTransform>();
+            rect.anchorMin = anchorMin;
+            rect.anchorMax = anchorMax;
+            rect.offsetMin = rect.offsetMax = Vector2.zero;
+            connector.GetComponent<Image>().color = new Color(0.35f, 0.82f, 1f, 0.72f);
+        }
+
+        private void RefreshStorylineStatus()
+        {
+            var rootCompleted = _session.Quests.HasBeenCompleted(202);
+            foreach (var pair in _storylineCards)
+            {
+                var view = pair.Value;
+                var unlocked = !view.RequiresRoot || rootCompleted;
+                Color statusColor;
+                if (!unlocked)
+                {
+                    view.Status.text = "完成“前进四”后解锁";
+                    statusColor = ThreeBodyUiPalette.TextMuted;
+                }
+                else if (_session.Quests.HasBeenCompleted(view.QuestId))
+                {
+                    view.Status.text = "已完成";
+                    statusColor = new Color(0.42f, 1f, 0.68f);
+                }
+                else if (_session.Quests.IsQuestActive(view.QuestId))
+                {
+                    view.Status.text = "进行中";
+                    statusColor = new Color(1f, 0.83f, 0.34f);
+                }
+                else if (_session.Quests.HasBeenStarted(view.QuestId))
+                {
+                    view.Status.text = "可重试";
+                    statusColor = new Color(0.88f, 0.72f, 1f);
+                }
+                else
+                {
+                    view.Status.text = "待触发";
+                    statusColor = ThreeBodyUiPalette.AccentSoft;
+                }
+
+                view.Status.color = statusColor;
+                view.Background.color = unlocked ? ThreeBodyUiPalette.PanelSoft : new Color(0.08f, 0.10f, 0.16f, 0.88f);
+                view.Cover.color = unlocked ? Color.white : new Color(0.42f, 0.44f, 0.50f, 0.48f);
+                view.Outline.effectColor = unlocked
+                    ? new Color(0.38f, 0.72f, 1f, 0.48f)
+                    : new Color(0.36f, 0.38f, 0.46f, 0.42f);
+            }
+        }
+
+        private Sprite LoadStorySprite(string path)
+        {
+            if (_storylineSprites.TryGetValue(path, out var cached))
+                return cached;
+
+            var sprite = Resources.Load<Sprite>(path);
+            if (sprite == null)
+                sprite = Resources.LoadAll<Sprite>(path).FirstOrDefault();
+            if (sprite == null)
+            {
+                var texture = Resources.Load<Texture2D>(path);
+                if (texture != null)
+                    sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
+                        new Vector2(0.5f, 0.5f));
+            }
+
+            if (sprite != null)
+                _storylineSprites[path] = sprite;
+            return sprite;
         }
 
         private void RefreshCaptainCards()
@@ -589,6 +932,7 @@ namespace Gui.StarMap
         private void InitButtons()
         {
             CreateCaptainButton();
+            CreateStorylineButton();
             var view = _motherShip.ViewMode;
 
             StarViewButton.gameObject.SetActive(view == ViewMode.StarMap);
@@ -652,6 +996,19 @@ namespace Gui.StarMap
         private GameObject _relationsPanel;
         private GameObject _captainPanel;
         private GameObject _captainContent;
+        private GameObject _storylinePanel;
         private readonly Dictionary<string, Sprite> _captainPortraits = new();
+        private readonly Dictionary<string, Sprite> _storylineSprites = new();
+        private readonly Dictionary<int, StorylineCardView> _storylineCards = new();
+
+        private sealed class StorylineCardView
+        {
+            public int QuestId;
+            public bool RequiresRoot;
+            public Image Background;
+            public Image Cover;
+            public Text Status;
+            public Outline Outline;
+        }
     }
 }

@@ -1,0 +1,173 @@
+{
+  "ItemType": 8,
+  "Id": 11020,
+  "ShipId": 11020,
+  "Components": [
+    {
+      "ComponentId": 975,
+      "X": 25,
+      "Y": 5,
+      "KeyBinding": 1
+    },
+    {
+      "ComponentId": 969,
+      "X": 27,
+      "Y": 15
+    },
+    {
+      "ComponentId": 969,
+      "X": 25,
+      "Y": 17
+    },
+    {
+      "ComponentId": 969,
+      "X": 27,
+      "Y": 17
+    },
+    {
+      "ComponentId": 969,
+      "X": 29,
+      "Y": 17
+    },
+    {
+      "ComponentId": 969,
+      "X": 25,
+      "Y": 19
+    },
+    {
+      "ComponentId": 969,
+      "X": 27,
+      "Y": 19
+    },
+    {
+      "ComponentId": 969,
+      "X": 29,
+      "Y": 19
+    },
+    {
+      "ComponentId": 969,
+      "X": 25,
+      "Y": 21
+    },
+    {
+      "ComponentId": 968,
+      "X": 25,
+      "Y": 9
+    },
+    {
+      "ComponentId": 968,
+      "X": 29,
+      "Y": 9
+    },
+    {
+      "ComponentId": 968,
+      "X": 25,
+      "Y": 11
+    },
+    {
+      "ComponentId": 968,
+      "X": 27,
+      "Y": 11
+    },
+    {
+      "ComponentId": 968,
+      "X": 29,
+      "Y": 11
+    },
+    {
+      "ComponentId": 968,
+      "X": 24,
+      "Y": 13
+    },
+    {
+      "ComponentId": 968,
+      "X": 26,
+      "Y": 13
+    },
+    {
+      "ComponentId": 968,
+      "X": 28,
+      "Y": 13
+    },
+    {
+      "ComponentId": 970,
+      "X": 30,
+      "Y": 13
+    },
+    {
+      "ComponentId": 970,
+      "X": 23,
+      "Y": 15
+    },
+    {
+      "ComponentId": 970,
+      "X": 25,
+      "Y": 15
+    },
+    {
+      "ComponentId": 970,
+      "X": 29,
+      "Y": 15
+    },
+    {
+      "ComponentId": 970,
+      "X": 31,
+      "Y": 15
+    },
+    {
+      "ComponentId": 970,
+      "X": 22,
+      "Y": 17
+    },
+    {
+      "ComponentId": 970,
+      "X": 31,
+      "Y": 17
+    },
+    {
+      "ComponentId": 970,
+      "X": 21,
+      "Y": 19
+    },
+    {
+      "ComponentId": 967,
+      "X": 22,
+      "Y": 43
+    },
+    {
+      "ComponentId": 967,
+      "X": 24,
+      "Y": 43
+    },
+    {
+      "ComponentId": 967,
+      "X": 26,
+      "Y": 43
+    },
+    {
+      "ComponentId": 967,
+      "X": 28,
+      "Y": 43
+    },
+    {
+      "ComponentId": 981,
+      "X": 23,
+      "Y": 19
+    },
+    {
+      "ComponentId": 982,
+      "X": 30,
+      "Y": 19
+    },
+    {
+      "ComponentId": 983,
+      "X": 26,
+      "Y": 7
+    },
+    {
+      "ComponentId": 983,
+      "X": 29,
+      "Y": 7
+    }
+  ]
+}

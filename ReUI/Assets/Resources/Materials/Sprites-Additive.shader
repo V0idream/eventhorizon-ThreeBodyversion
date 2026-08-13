@@ -5,7 +5,8 @@ Shader "Sprites/Additive"
 	Properties
 	{
 		[PerRendererData] _MainTex ("Base", 2D) = "white" {}
-		_Color ("Tint", Color) = (1,1,1,1)
+		_Color ("Tint", Color) = (1,1,1,1)
+		_HdrIntensity ("HDR Intensity", Float) = 1
 		[MaterialToggle] PixelSnap ("Pixel snap", Float) = 0
 	}
 
@@ -44,11 +45,15 @@ Shader "Sprites/Additive"
 			struct v2f
 			{
 				float4 vertex   : SV_POSITION;
-				fixed4 color    : COLOR;
+				// Keep values above 1.0 intact for native HDR output. fixed4
+				// silently saturated the high-luminance combat colours.
+				float4 color    : COLOR;
 				half2 texcoord  : TEXCOORD0;
 			};
 			
-			fixed4 _Color;
+			float4 _Color;
+			float _HdrIntensity;
+			float _NativeHdrOutputActive;
 
 			v2f vert(appdata_t IN)
 			{
@@ -65,10 +70,12 @@ Shader "Sprites/Additive"
 
 			sampler2D _MainTex;
 
-			fixed4 frag(v2f IN) : SV_Target
+			half4 frag(v2f IN) : SV_Target
 			{
-				fixed4 c = tex2D(_MainTex, IN.texcoord) * IN.color;
-				c.rgb *= c.a;
+				half4 c = (half4)tex2D(_MainTex, IN.texcoord) * (half4)IN.color;
+				c.rgb *= c.a;
+				// Float uniform preserves values above the UNorm vertex-colour limit.
+				c.rgb *= lerp(1.0h, (half)_HdrIntensity, saturate((half)_NativeHdrOutputActive));
 				return c;
 			}
 		ENDCG

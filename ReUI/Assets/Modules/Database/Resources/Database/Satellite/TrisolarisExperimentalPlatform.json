@@ -1,0 +1,10 @@
+{
+  "ItemType": 7,
+  "Id": 952,
+  "Name": "$TrisolarisExperimentalPlatform",
+  "ModelImage": "trisolaris_experimental_platform",
+  "ModelScale": 0.32,
+  "SizeClass": 4,
+  "Layout": "660660660",
+  "Barrels": []
+}

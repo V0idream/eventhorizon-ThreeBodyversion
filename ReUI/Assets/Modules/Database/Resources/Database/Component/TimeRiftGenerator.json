@@ -1,0 +1,21 @@
+{
+  "ItemType": 1,
+  "Id": 966,
+  "Name": "$TimeRiftGenerator",
+  "Description": "$TimeRiftGeneratorDescription",
+  "ContentSource": 1,
+  "DisplayCategory": 6,
+  "Availability": 1,
+  "ComponentStatsId": 939,
+  "Faction": 23,
+  "Level": 240,
+  "Icon": "time_rift_generator",
+  "Color": "#A95CFF",
+  "Layout": "111111111",
+  "CellType": "6",
+  "DeviceId": 913,
+  "Restrictions": {
+    "ShipSizes": [3, 4, 5, 6],
+    "MaxComponentAmount": 1
+  }
+}

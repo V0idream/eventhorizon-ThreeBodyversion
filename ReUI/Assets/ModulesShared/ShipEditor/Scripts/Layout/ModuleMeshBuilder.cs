@@ -28,6 +28,8 @@ namespace ShipEditor
 			var sprite = _resourceLocator.GetSprite(component.Icon);
 			var spriteRect = SpriteRect.Create(sprite);
 			var rect = new ComponentRect(layout);
+			var fitOccupiedBounds = component.Icon.Id != null &&
+				component.Icon.Id.StartsWith("edge_", System.StringComparison.OrdinalIgnoreCase);
 			// Component art is authored on a square canvas.  The empty cells in
 			// the layout are part of that canvas, so stretching it to the occupied
 			// rectangle distorts horizontal and vertical ThreeBody equipment.
@@ -47,8 +49,18 @@ namespace ShipEditor
 			}
 			if ((rotation & 1) != 0)
 				aspect = new Vector2(aspect.y, aspect.x);
-			var halfWidth = size * _cellSize * 0.5f * aspect.x;
-			var halfHeight = size * _cellSize * 0.5f * aspect.y;
+
+			// Edge/Fringe component art is one image per component and is authored
+			// to fill the component's actual occupied rectangle.  Rendering it on
+			// the square Layout canvas makes narrow weapons visibly spill into empty
+			// cells.  The supplied layout is already rotated, so use its occupied
+			// width/height directly; UV rotation below rotates the artwork itself.
+			var halfWidth = fitOccupiedBounds
+				? Mathf.Max(1, rect.Width) * _cellSize * 0.5f
+				: size * _cellSize * 0.5f * aspect.x;
+			var halfHeight = fitOccupiedBounds
+				? Mathf.Max(1, rect.Height) * _cellSize * 0.5f
+				: size * _cellSize * 0.5f * aspect.y;
             var centerX = (x + 0.5f * (rect.xmax + rect.xmin + 1)) * _cellSize;
             var centerY = (y + 0.5f * (rect.ymax + rect.ymin + 1)) * _cellSize;
 

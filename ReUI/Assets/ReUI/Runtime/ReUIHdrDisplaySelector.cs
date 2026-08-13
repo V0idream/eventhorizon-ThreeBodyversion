@@ -9,16 +9,20 @@ namespace ReUI
     {
         internal Toggle Standard;
         internal Toggle Hdr;
+        internal Text Status;
+        private float _nextStatusRefresh;
 
         private void OnEnable()
         {
             ReUIHdrDisplaySettings.Changed += OnChanged;
+            ReUIHdrRuntime.StatusChanged += OnStatusChanged;
             Refresh();
         }
 
         private void OnDisable()
         {
             ReUIHdrDisplaySettings.Changed -= OnChanged;
+            ReUIHdrRuntime.StatusChanged -= OnStatusChanged;
         }
 
         internal void Initialize()
@@ -41,9 +45,18 @@ namespace ReUI
             if (Hdr != null) Hdr.SetIsOnWithoutNotify(enabled);
             StyleToggle(Standard, !enabled);
             StyleToggle(Hdr, enabled);
+            if (Status != null) Status.text = ReUIHdrRuntime.GetStatusText();
         }
 
         private void OnChanged(bool _) => Refresh();
+        private void OnStatusChanged() => Refresh();
+
+        private void Update()
+        {
+            if (Time.unscaledTime < _nextStatusRefresh) return;
+            _nextStatusRefresh = Time.unscaledTime + 0.5f;
+            if (Status != null) Status.text = ReUIHdrRuntime.GetStatusText();
+        }
 
         private static void StyleToggle(Toggle toggle, bool selected)
         {
@@ -113,19 +126,26 @@ namespace ReUI
             horizontal.childForceExpandWidth = false;
             horizontal.childForceExpandHeight = true;
 
-            Text title = CreateText(row.transform, "Title", "HDR 局部高亮", font, 26, TextAnchor.MiddleLeft);
+            Text title = CreateText(row.transform, "Title", "原生 HDR 输出", font, 26, TextAnchor.MiddleLeft);
             LayoutElement titleLayout = title.gameObject.AddComponent<LayoutElement>();
-            titleLayout.minWidth = 220f;
-            titleLayout.preferredWidth = 220f;
+            titleLayout.minWidth = 190f;
+            titleLayout.preferredWidth = 210f;
 
             ToggleGroup group = row.AddComponent<ToggleGroup>();
             group.allowSwitchOff = false;
-            Toggle standard = CreateToggle(row.transform, "Standard", "标准", font, group);
-            Toggle hdr = CreateToggle(row.transform, "HDR", "HDR", font, group);
+            Toggle standard = CreateToggle(row.transform, "Standard", "标准亮度", font, group);
+            Toggle hdr = CreateToggle(row.transform, "HDR", "强制 HDR", font, group);
+            Text status = CreateText(row.transform, "Status", string.Empty, font, 18, TextAnchor.MiddleLeft);
+            LayoutElement statusLayout = status.gameObject.AddComponent<LayoutElement>();
+            statusLayout.minWidth = 300f;
+            statusLayout.preferredWidth = 420f;
+            statusLayout.flexibleWidth = 1f;
+            status.color = ReUIPalette.TextSecondary;
 
             ReUIHdrDisplaySelectorState state = row.GetComponent<ReUIHdrDisplaySelectorState>();
             state.Standard = standard;
             state.Hdr = hdr;
+            state.Status = status;
             state.Initialize();
         }
 

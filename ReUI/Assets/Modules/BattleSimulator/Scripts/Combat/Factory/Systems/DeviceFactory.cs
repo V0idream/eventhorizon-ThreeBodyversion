@@ -56,6 +56,24 @@ namespace Combat.Factory
                 return silentCore;
             }
 
+            if (deviceData.ComponentId == ThreeBodyContentRules.SmallUniverseEntranceComponentId)
+                return new SmallUniverseEntranceDevice(ship, stats,
+                    deviceData.KeyBinding >= 0 ? deviceData.KeyBinding : 0, _scene);
+
+            if (deviceData.ComponentId == ThreeBodyContentRules.TimeRiftGeneratorComponentId)
+                return new TimeRiftGeneratorDevice(ship, stats,
+                    deviceData.KeyBinding >= 0 ? deviceData.KeyBinding : 0, _scene);
+
+            if (deviceData.ComponentId == ThreeBodyContentRules.EdgeFirewallCollapseComponentId)
+                return new FirewallCollapseDevice(ship, stats,
+                    deviceData.KeyBinding >= 0 ? deviceData.KeyBinding : 0, _scene);
+
+            if (deviceData.ComponentId == ThreeBodyContentRules.EdgeDroneHiveComponentId)
+                return new EdgeDroneHiveDevice(ship, stats);
+
+            if (deviceData.ComponentId == ThreeBodyContentRules.EdgeDefenderComponentId)
+                return new EdgeDefenderDevice(ship, stats);
+
             if (TryCreateSpecialEnergyShield(deviceData, ship, stats, out var specialShield))
                 return specialShield;
 

@@ -926,6 +926,7 @@ namespace ReUI.Editor
         public static void ValidateBeta84()
         {
             ValidateBeta83();
+            ValidateEdgeComponentArtworkMapping();
 
             string databaseRoot = Path.Combine(Application.dataPath,
                 "Modules/Database/Resources/Database");
@@ -1002,6 +1003,61 @@ namespace ReUI.Editor
 
             Debug.Log("[Beta8.4 Validation] shields=deflection-angel-subspace-electronic, " +
                       "visualStyles=classic-modern-hull-outline, version=Beta8.4");
+        }
+
+        private static void ValidateEdgeComponentArtworkMapping()
+        {
+            string meshSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "ModulesShared/ShipEditor/Scripts/Layout/ModuleMeshBuilder.cs"));
+            foreach (string token in new[]
+                     {
+                         "fitOccupiedBounds",
+                         "Mathf.Max(1, rect.Width)",
+                         "Mathf.Max(1, rect.Height)",
+                     })
+            {
+                if (!meshSource.Contains(token))
+                    throw new InvalidOperationException(
+                        "Edge component installed-art bounds mapping is missing: " + token);
+            }
+
+            string draggableSource = File.ReadAllText(Path.Combine(Application.dataPath,
+                "ModulesShared/ShipEditor/Scripts/UI/DraggableComponent.cs"));
+            if (!draggableSource.Contains("preserveAspect: !fitOccupiedBounds") ||
+                !draggableSource.Contains("swapIconAxes") ||
+                !draggableSource.Contains("new Vector2(size.y, size.x)"))
+                throw new InvalidOperationException(
+                    "Edge component drag preview does not use rotated occupied-cell bounds.");
+
+            string[] icons =
+            {
+                "edge_armor", "edge_battery", "edge_defender", "edge_defense_laser",
+                "edge_drone_armor", "edge_drone_cannon", "edge_drone_command",
+                "edge_drone_engine", "edge_drone_hive", "edge_drone_reactor",
+                "edge_emp_laser", "edge_engine", "edge_firewall_collapse",
+                "edge_nano_storm", "edge_nano_torpedo", "edge_predator_swarm",
+                "edge_reactor", "edge_virus_code",
+            };
+
+            ResourceLocator locatorPrefab = Resources.Load<ResourceLocator>("ResourceLocator");
+            if (locatorPrefab == null)
+                throw new InvalidOperationException("ResourceLocator prefab was not found.");
+
+            ResourceLocator locator = UnityEngine.Object.Instantiate(locatorPrefab);
+            try
+            {
+                foreach (string icon in icons)
+                {
+                    Sprite sprite = locator.GetSprite(new SpriteId(icon, SpriteId.Type.Component));
+                    if (sprite == null || sprite.texture == null)
+                        throw new InvalidOperationException(
+                            "Edge component artwork is absent from ResourceLocator: " + icon);
+                }
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(locator.gameObject);
+            }
         }
 
         private static string ReadRequiredJson(string databaseRoot, string folder, string name)

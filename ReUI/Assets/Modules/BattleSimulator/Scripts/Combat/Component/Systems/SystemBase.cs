@@ -65,6 +65,16 @@ namespace Combat.Component.Systems
             _triggers.Add(action);
         }
 
+        public void ReduceCooldown(float seconds)
+        {
+            TimeFromLastUse += Mathf.Max(0f, seconds);
+        }
+
+        public void ResetCooldown()
+        {
+            TimeFromLastUse = 0f;
+        }
+
         protected abstract void OnUpdateView(float elapsedTime);
         protected abstract void OnUpdatePhysics(float elapsedTime);
         protected abstract void OnDispose();

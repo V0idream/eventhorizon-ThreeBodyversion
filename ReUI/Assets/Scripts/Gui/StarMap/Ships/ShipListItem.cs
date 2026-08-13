@@ -5,6 +5,7 @@ using Services.Resources;
 using UnityEngine;
 using UnityEngine.UI;
 using Constructor.Extensions;
+using GameDatabase.Enums;
 
 namespace Gui.StarMap
 {
@@ -25,7 +26,9 @@ namespace Gui.StarMap
             _nameText.text = localization.GetString(ship.Name);
             _nameText.color = Gui.Theme.UiTheme.Current.GetQualityColor(ship.Model.Quality());
             _levelText.text = ship.Experience.Level > 0 ? ship.Experience.Level.ToString() : "0";
-            _classText.text = ship.Model.SizeClass.ToString(localization);
+            _classText.text = ship.Model.ShipType == ShipType.Drone
+                ? localization.GetString("$ClassDrone")
+                : ship.Model.SizeClass.ToString(localization);
 
             _icon.sprite = PlayerShipTextureOverrides.Get(ship.Model.Id.Value,
                 resourceLocator.GetSprite(ship.Model.ModelImage));

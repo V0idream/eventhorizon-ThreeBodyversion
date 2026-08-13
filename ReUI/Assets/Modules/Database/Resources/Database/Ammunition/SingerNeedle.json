@@ -1,0 +1,22 @@
+{
+  "ItemType": 25,
+  "Id": 907,
+  "Body": {
+    "Size": 1.0,
+    "Weight": 0.02,
+    "Velocity": 600.0,
+    "Range": 650.0,
+    "Lifetime": 4.0,
+    "Color": "#E8FFFF",
+    "BulletPrefab": 24,
+    "EnergyCost": 2000.0
+  },
+  "ImpactType": 1,
+  "Effects": [
+    {
+      "Type": 0,
+      "DamageType": 0,
+      "Power": 20000.0
+    }
+  ]
+}

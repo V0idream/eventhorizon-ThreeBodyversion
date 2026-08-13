@@ -140,6 +140,8 @@ namespace Combat.Component.Stats
                 damageDealt = Armor.Get(Armor.MaxValue);
 
             UpdateStatistics(self, source, damageDealt, shieldDamage);
+            if (!IsAlive && self is IShip destroyedShip)
+                Combat.Factory.EdgeDroneRuntime.NotifyShipDestroyed(destroyedShip, source);
         }
 
         private void UpdateStatistics(IUnit self, IUnit source, float armorDamage, float shieldDamage)

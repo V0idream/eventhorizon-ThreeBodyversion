@@ -1,0 +1,1 @@
+{"ItemType":25,"Id":915,"Body":{"Size":0.55,"AttachedToParent":true,"Range":36.0,"Lifetime":0.1,"Color":"#72F7FF","BulletPrefab":2,"EnergyCost":4.0,"AiBulletBehavior":2},"Controller":{"Type":2},"ImpactType":2,"Effects":[{"DamageType":1,"Power":3600.0}]}

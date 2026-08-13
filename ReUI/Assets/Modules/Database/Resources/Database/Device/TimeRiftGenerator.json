@@ -1,0 +1,17 @@
+{
+  "ItemType": 2,
+  "Id": 913,
+  "DeviceClass": 17,
+  "EnergyConsumption": 25000.0,
+  "PassiveEnergyConsumption": 0.0,
+  "Power": 0.20,
+  "Range": 0.0,
+  "Size": 7.0,
+  "Cooldown": 90.0,
+  "Lifetime": 40.0,
+  "ActivationType": 1,
+  "Color": "#A95CFF",
+  "Sound": "flux_05",
+  "EffectPrefab": "Lightning",
+  "ControlButtonIcon": "time_rift_generator"
+}

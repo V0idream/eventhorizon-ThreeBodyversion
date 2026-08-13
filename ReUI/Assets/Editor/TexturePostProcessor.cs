@@ -19,6 +19,7 @@ class CollisionMapGenerator : AssetPostprocessor
             isShipSprite ||
             assetPath.StartsWith("Assets/Sprites/Components/") ||
             assetPath.StartsWith("Assets/Sprites/Satellites/") ||
+            assetPath.StartsWith("Assets/Resources/Textures/Bullets/") ||
             assetPath.StartsWith("Assets/Resources/Textures/UI/") ||
             assetPath.StartsWith("Assets/Resources/Textures/ThreeBody/") ||
             assetPath.StartsWith("Assets/Resources/Story/MothersTears/");

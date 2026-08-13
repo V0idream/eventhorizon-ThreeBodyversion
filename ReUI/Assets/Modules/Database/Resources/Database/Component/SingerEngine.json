@@ -1,0 +1,16 @@
+{
+  "ItemType": 1,
+  "Id": 961,
+  "Name": "$SingerEngine",
+  "Description": "$SingerEngineDescription",
+  "ContentSource": 1,
+  "DisplayCategory": 4,
+  "Availability": 1,
+  "ComponentStatsId": 934,
+  "Faction": 23,
+  "Level": 180,
+  "Icon": "singer_engine",
+  "Color": "#FFFFFF",
+  "Layout": "1111",
+  "CellType": "5"
+}

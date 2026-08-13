@@ -617,6 +617,16 @@ namespace Gui.MainMenu
             root.layer = canvas.gameObject.layer;
             var rect = root.GetComponent<RectTransform>();
             rect.SetParent(canvas.transform, false);
+            // Keep branding above every background/credit layer, but immediately
+            // below LeftPanel so the developer console always wins visually.
+            var backgroundTransform = _backgroundImage != null ? _backgroundImage.transform : null;
+            var leftPanel = canvas.transform.Find("LeftPanel");
+            var brandingIndex = leftPanel != null
+                ? leftPanel.GetSiblingIndex()
+                : backgroundTransform != null
+                    ? Mathf.Min(backgroundTransform.GetSiblingIndex() + 1, canvas.transform.childCount - 1)
+                    : Mathf.Max(0, canvas.transform.childCount - 2);
+            rect.SetSiblingIndex(brandingIndex);
             rect.anchorMin = new Vector2(0.04f, 0.5f);
             rect.anchorMax = new Vector2(0.62f, 0.8f);
             rect.offsetMin = Vector2.zero;
@@ -838,6 +848,7 @@ namespace Gui.MainMenu
             text.resizeTextMaxSize = fontSize;
             text.alignment = TextAnchor.MiddleLeft;
             text.color = color;
+            text.raycastTarget = false;
 
             var outline = gameObject.GetComponent<Outline>();
             outline.effectColor = new Color(0, 0, 0, 0.9f);

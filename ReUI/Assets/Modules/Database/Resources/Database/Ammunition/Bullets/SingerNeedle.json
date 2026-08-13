@@ -1,0 +1,12 @@
+{
+  "ItemType": 27,
+  "Id": 24,
+  "Shape": 0,
+  "Image": "singer_needle_projectile",
+  "Size": 1.0,
+  "Margins": 0.04,
+  "MainColor": "#FFFFFFFF",
+  "MainColorMode": 0,
+  "SecondColor": "#80EFFFFF",
+  "SecondColorMode": 0
+}

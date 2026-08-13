@@ -2,6 +2,7 @@
 using Constructor.Ships;
 using Economy;
 using GameServices.Player;
+using GameDatabase.Enums;
 using Services.Localization;
 using Services.Resources;
 using UnityEngine;
@@ -35,7 +36,9 @@ namespace Gui.StarMap
             _nameText.text = _localization.GetString(ship.Name);
             _nameText.color = Gui.Theme.UiTheme.Current.GetQualityColor(ship.Model.Quality());
             _levelTextAlt.text = _levelText.text = ship.Experience.Level.ToString();
-            _classText.text = ship.Model.SizeClass.ToString(_localization);
+            _classText.text = ship.Model.ShipType == ShipType.Drone
+                ? _localization.GetString("$ClassDrone")
+                : ship.Model.SizeClass.ToString(_localization);
 
             var exp = ship.Experience.ExpFromLastLevel;
             var required = ship.Experience.NextLevelCost;

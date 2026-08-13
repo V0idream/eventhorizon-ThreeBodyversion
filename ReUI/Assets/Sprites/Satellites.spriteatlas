@@ -67,12 +67,15 @@ SpriteAtlas:
     - 88cd21e8689c29e4abc6deeb5b04defc: 21300000
     - 7502be5a1ad63f74b89655414f13becd: 21300000
     - 9aebfa7a77c73064794f108e6f59256a: 21300000
+    - 19c2c01b58192dc49ae9278e58f2daeb: 21300000
     - 8e55648b7a979074d9d3df38373298c7: 21300000
+    - 364047ab1a401834ba040cdaf8231636: 21300000
     - 97b0d17cefeb7614390d609b9768bed9: 21300000
     - f5637dac1bfc5e448a39b46c823d9fb2: 21300000
     - 4f060f7d488430b4588ef5243ddb9bed: 21300000
     - ae4beb5ed2528e845984b023ce93554f: 21300000
     - 45ab3a8e5a440644599e3d68d7a0240d: 21300000
+    - 795a7eded2f1d23458d3c1fb0a23c587: 21300000
     - 4189c59f52e8b6249be892c9c95e5fc0: 21300000
     - 1523dfef8f5d10b4da569fd9c1286ce8: 21300000
   m_MasterAtlas: {fileID: 0}
@@ -94,12 +97,15 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 88cd21e8689c29e4abc6deeb5b04defc, type: 3}
   - {fileID: 21300000, guid: 7502be5a1ad63f74b89655414f13becd, type: 3}
   - {fileID: 21300000, guid: 9aebfa7a77c73064794f108e6f59256a, type: 3}
+  - {fileID: 21300000, guid: 19c2c01b58192dc49ae9278e58f2daeb, type: 3}
   - {fileID: 21300000, guid: 8e55648b7a979074d9d3df38373298c7, type: 3}
+  - {fileID: 21300000, guid: 364047ab1a401834ba040cdaf8231636, type: 3}
   - {fileID: 21300000, guid: 97b0d17cefeb7614390d609b9768bed9, type: 3}
   - {fileID: 21300000, guid: f5637dac1bfc5e448a39b46c823d9fb2, type: 3}
   - {fileID: 21300000, guid: 4f060f7d488430b4588ef5243ddb9bed, type: 3}
   - {fileID: 21300000, guid: ae4beb5ed2528e845984b023ce93554f, type: 3}
   - {fileID: 21300000, guid: 45ab3a8e5a440644599e3d68d7a0240d, type: 3}
+  - {fileID: 21300000, guid: 795a7eded2f1d23458d3c1fb0a23c587, type: 3}
   - {fileID: 21300000, guid: 4189c59f52e8b6249be892c9c95e5fc0, type: 3}
   - {fileID: 21300000, guid: 1523dfef8f5d10b4da569fd9c1286ce8, type: 3}
   m_PackedSpriteNamesToIndex:
@@ -120,12 +126,15 @@ SpriteAtlas:
   - turret
   - satellite4
   - turret_red
+  - fringe_experimental_platform
   - hovertank_gun
+  - singer_experimental_platform
   - worm_joint
   - satellite6
   - worm_joint2
   - worm_segment2
   - devourer_turret
+  - trisolaris_experimental_platform
   - ironball
   - repair_bot
   m_RenderDataMap: {}

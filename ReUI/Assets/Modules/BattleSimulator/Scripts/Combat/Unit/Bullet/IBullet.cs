@@ -7,6 +7,7 @@ namespace Combat.Component.Bullet
     public interface IBullet : IUnit
     {
         ILifetime Lifetime { get; }
+        bool IsInterceptionProjectile { get; }
         void Detonate();
 
         /// <summary>

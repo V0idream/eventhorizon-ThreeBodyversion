@@ -27,6 +27,17 @@ namespace Combat.Ai.BehaviorTree.Nodes
 				return NodeState.Failure;
 			}
 
+			// Firewall Collapse is a forced hostile-selection state, not a
+			// suggestion. Bypass the behaviour tree's cached player target and
+			// long retarget cooldown so affected enemies engage one another on
+			// the next AI evaluation.
+			if (FirewallCollapseEffect.TryGetForcedTarget(context.Ship, out var forcedTarget))
+			{
+				context.TargetShip = _lastEnemy = forcedTarget;
+				context.LastTargetUpdateTime = _lastEnemyUpdateTime = context.Time;
+				return NodeState.Success;
+			}
+
 			if (context.TargetShip != null && !RadarStatus.IsStealthedFrom(context.TargetShip, context.Ship) && IsValidEnemy(context.TargetShip, context))
 			{
 				_lastEnemy = context.TargetShip;

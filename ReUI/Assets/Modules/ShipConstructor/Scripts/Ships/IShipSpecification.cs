@@ -20,18 +20,23 @@ namespace Constructor
 
 	public struct ShipInfo
     {
-        public ShipInfo(ItemId<Ship> id, DifficultyClass shipClass, int level, int size)
+        public ShipInfo(ItemId<Ship> id, DifficultyClass shipClass, int level, int size,
+            ShipType shipType, SizeClass sizeClass)
         {
             Id = id;
             Class = shipClass;
             Size = size;
             Level = level;
+            ShipType = shipType;
+            SizeClass = sizeClass;
         }
 
         public readonly ItemId<Ship> Id;
         public readonly DifficultyClass Class;
         public readonly int Size;
         public readonly int Level;
+        public readonly ShipType ShipType;
+        public readonly SizeClass SizeClass;
     }
 
 	public interface IWeaponPlatformData

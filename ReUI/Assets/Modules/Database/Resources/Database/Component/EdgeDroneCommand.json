@@ -1,0 +1,1 @@
+{"ItemType":1,"Id":981,"Name":"$EdgeDroneCommand","Description":"$EdgeDroneCommandDescription","ContentSource":1,"DisplayCategory":5,"Availability":1,"ComponentStatsId":950,"Faction":25,"Level":180,"Icon":"edge_drone_command","Color":"#FFFFFF","Layout":"1111","CellType":"2","Restrictions":{"MaxComponentAmount":3}}

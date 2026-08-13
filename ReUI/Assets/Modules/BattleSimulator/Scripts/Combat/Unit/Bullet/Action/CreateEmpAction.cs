@@ -72,9 +72,11 @@ namespace Combat.Component.Bullet.Action
                     if (!ship.IsActive() || ship == playerShip)
                         continue;
 
+                    if (!RadarStatus.TryApplyEmpJammed(ship, _duration, _energyDrainPerSecond))
+                        continue;
+
                     if (_initialEnergyDrainFraction > 0f)
                         ship.Stats.Energy.Get(ship.Stats.Energy.MaxValue * _initialEnergyDrainFraction);
-                    RadarStatus.ApplyJammed(ship, _duration, _energyDrainPerSecond);
                 }
             }
             return CollisionEffect.None;

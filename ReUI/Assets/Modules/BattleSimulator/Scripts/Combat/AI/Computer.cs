@@ -1,4 +1,5 @@
 ﻿using Combat.Component.Ship;
+using Combat.Component.Unit.Classification;
 using Combat.Scene;
 using Combat.Unit;
 
@@ -93,7 +94,8 @@ namespace Combat.Ai
 
 		private IShip GetEnemy()
 		{
-			if (_enemy.IsActive() && _enemyUpdateCooldown > 0)
+			if (_enemy.IsActive() && CombatRelations.AreEnemies(_ship.Type, _enemy.Type) &&
+				_enemyUpdateCooldown > 0)
 				return _enemy;
 
 			_enemyUpdateCooldown = EnemyUpdateInterval;

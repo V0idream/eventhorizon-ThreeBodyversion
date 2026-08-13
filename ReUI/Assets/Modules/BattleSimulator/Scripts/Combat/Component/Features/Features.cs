@@ -36,7 +36,7 @@ namespace Combat.Component.Features
             // Keep the collider available so dimensional damage can pierce
             // Infinity-stone and similar immunity effects. Ship.Affect still
             // rejects all ordinary damage while invulnerability is active.
-            collider.Enabled = true;
+            collider.Enabled = _data.ColliderEnabled;
         }
 
         public void UpdateView(float elapsedTime, IView view)
@@ -57,6 +57,8 @@ namespace Combat.Component.Features
             _data.Opacity = 1.0f;
             _data.TargetPriority = _targetPriority;
             _data.Invulnerable = false;
+            _data.ImmuneToEffects = false;
+            _data.ColliderEnabled = true;
 
             _modifications.Apply(ref _data);
         }

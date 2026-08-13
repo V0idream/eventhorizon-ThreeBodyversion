@@ -548,7 +548,7 @@ namespace ReUI
         {
             // The captain shortcut owns an authored Sprite Image.  It must not
             // be replaced by the generic vector-icon path.
-            if (button.name == "ThreeBodyCaptainButton") return;
+            if (button.name == "ThreeBodyCaptainButton" || button.name == "ThreeBodyStorylineButton") return;
             if (button.name == "ConfigureEnemyFleet" || button.name == "ConfigureAllyFleet") return;
             if (HasFlag(button.gameObject, ReUIStyleFlags.Icon)) return;
             if (ContainsAny(descriptor, ListElementTokens)) return;
@@ -562,7 +562,7 @@ namespace ReUI
         internal static bool ForceSemanticIcon(Button button, ReUIIconKind kind)
         {
             if (button == null) return false;
-            if (button.name == "ThreeBodyCaptainButton")
+            if (button.name == "ThreeBodyCaptainButton" || button.name == "ThreeBodyStorylineButton")
             {
                 ClearSemanticIcon(button);
                 return true;

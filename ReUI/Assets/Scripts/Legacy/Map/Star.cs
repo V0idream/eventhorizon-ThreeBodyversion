@@ -67,6 +67,7 @@ public class Star : MonoBehaviour
 		HaloObject.transform.localEulerAngles = new Vector3(0,0,Random.Range(0,360));
 		HaloObject.GetComponent<Renderer>().material.color = GetStarColor(star.Id);
 		StarObject.transform.localScale = Vector3.one * Size * 0.2f;
+		StarObject.GetComponent<Renderer>().material.color = Color.white;
         _miniObjectScale = Vector3.one*Size*(star.IsVisited ? 0.4f : 0.2f);
         MiniObject.transform.localScale = _miniObjectScale;
 		var color = star.Region.Faction.Color;

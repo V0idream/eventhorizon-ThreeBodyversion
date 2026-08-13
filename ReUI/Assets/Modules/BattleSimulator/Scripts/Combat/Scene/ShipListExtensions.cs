@@ -67,6 +67,8 @@ namespace Combat.Scene
     {
         public static IShip GetEnemy(this IUnitList<IShip> shipList, IUnit unit, in EnemyMatchingOptions options)
         {
+            if (Combat.Component.Ship.Effects.FirewallCollapseEffect.TryGetForcedTarget(unit, out var forcedTarget))
+                return forcedTarget;
             if (unit.Type.Class == UnitClass.Drone)
                 return GetEnemy(shipList, unit, unit.Type.Owner, options);
             else
@@ -75,6 +77,8 @@ namespace Combat.Scene
 
         public static IShip GetEnemy(this IUnitList<IShip> shipList, IUnit unit, IUnit whereToLook, in EnemyMatchingOptions options)
         {
+            if (Combat.Component.Ship.Effects.FirewallCollapseEffect.TryGetForcedTarget(unit, out var forcedTarget))
+                return forcedTarget;
             IShip enemy = null;
 			var random = new LazyRandom();
             var enemyStats = TargetStats.None;
@@ -133,6 +137,8 @@ namespace Combat.Scene
         public static IShip GetEnemyForTurret(this IUnitList<IShip> shipList, IUnit unit, in Vector2 turretPosition,
             float turretMountAngle, float turningRange, float maxDistance, bool ignoreUnreachable = false)
         {
+            if (Combat.Component.Ship.Effects.FirewallCollapseEffect.TryGetForcedTarget(unit, out var forcedTarget))
+                return forcedTarget;
             const float maxTrackingDistance = 2f;
 
             IShip enemy = null;
@@ -184,6 +190,8 @@ namespace Combat.Scene
 
         public static IShip GetEnemyForMissile(this IUnitList<IShip> shipList, IUnit unit, float rotation, float maxRange, float maxDeviation, bool trueVision, bool ignoreDrones)
         {
+            if (Combat.Component.Ship.Effects.FirewallCollapseEffect.TryGetForcedTarget(unit, out var forcedTarget))
+                return forcedTarget;
             IShip enemy = null;
             float minRange = float.MaxValue;
             float minDeviation = 360f;

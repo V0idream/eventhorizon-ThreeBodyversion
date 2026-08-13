@@ -20,32 +20,75 @@ namespace Combat.Component.Ship.Effects
 
     public sealed class RadarStatusEffect : IShipEffect, IFeaturesModification
     {
-        public RadarStatusEffect(RadarStatusKind kind, float duration, float energyDrainPerSecond = 0f)
+        public RadarStatusEffect(RadarStatusKind kind, float duration, float energyDrainPerSecond = 0f,
+            float maximumActiveDuration = 0f, float immunityDuration = 0f)
         {
             _kind = kind;
             _remaining = Mathf.Max(0f, duration);
             _energyDrainPerSecond = Mathf.Max(0f, energyDrainPerSecond);
+            _maximumActiveDuration = Mathf.Max(0f, maximumActiveDuration);
+            _immunityDuration = Mathf.Max(0f, immunityDuration);
+            if (_maximumActiveDuration > 0f)
+                _remaining = Mathf.Min(_remaining, _maximumActiveDuration);
         }
 
         public RadarStatusKind Kind => _kind;
-        public bool IsAlive => _remaining > 0f;
+        public bool IsAlive => _remaining > 0f || _immunityRemaining > 0f;
+        public bool IsStatusActive => _remaining > 0f;
+        public bool IsEmpLimited => _maximumActiveDuration > 0f;
 
         public void Refresh(float duration, float energyDrainPerSecond = 0f)
         {
+            // Strategic effects such as the Sophon use the unrestricted path.
+            // If one arrives during ordinary EMP immunity it deliberately
+            // overrides that immunity instead of inheriting the EMP cap.
+            _maximumActiveDuration = 0f;
+            _immunityDuration = 0f;
+            _immunityRemaining = 0f;
+            _activeDuration = 0f;
             _remaining = Mathf.Max(_remaining, Mathf.Max(0f, duration));
             _energyDrainPerSecond = Mathf.Max(_energyDrainPerSecond, Mathf.Max(0f, energyDrainPerSecond));
         }
 
+        public bool TryRefreshEmp(float duration, float energyDrainPerSecond)
+        {
+            if (!IsEmpLimited || _immunityRemaining > 0f)
+                return false;
+
+            var available = Mathf.Max(0f, _maximumActiveDuration - _activeDuration);
+            if (available <= 0f)
+                return false;
+
+            _remaining = Mathf.Min(Mathf.Max(_remaining, Mathf.Max(0f, duration)), available);
+            _energyDrainPerSecond = Mathf.Max(_energyDrainPerSecond, Mathf.Max(0f, energyDrainPerSecond));
+            return _remaining > 0f;
+        }
+
         public void UpdatePhysics(IShip ship, float elapsedTime)
         {
-            if (!IsAlive)
+            var deltaTime = Mathf.Max(0f, elapsedTime);
+            if (_remaining > 0f)
+            {
+                var available = IsEmpLimited
+                    ? Mathf.Max(0f, _maximumActiveDuration - _activeDuration)
+                    : _remaining;
+                var appliedTime = Mathf.Min(_remaining, Mathf.Min(deltaTime, available));
+                _remaining -= appliedTime;
+                _activeDuration += appliedTime;
+
+                if (_kind == RadarStatusKind.Jammed && _energyDrainPerSecond > 0f)
+                    ship.Stats.Energy.Get(_energyDrainPerSecond * appliedTime);
+
+                if (IsEmpLimited && (_remaining <= 0f || _activeDuration >= _maximumActiveDuration))
+                {
+                    _remaining = 0f;
+                    _immunityRemaining = _immunityDuration;
+                }
                 return;
+            }
 
-            var appliedTime = Mathf.Min(_remaining, Mathf.Max(0f, elapsedTime));
-            _remaining -= appliedTime;
-
-            if (_kind == RadarStatusKind.Jammed && _energyDrainPerSecond > 0f)
-                ship.Stats.Energy.Get(_energyDrainPerSecond * appliedTime);
+            if (_immunityRemaining > 0f)
+                _immunityRemaining = Mathf.Max(0f, _immunityRemaining - deltaTime);
         }
 
         public void UpdateView(IShip ship, float elapsedTime) { }
@@ -53,7 +96,7 @@ namespace Combat.Component.Ship.Effects
 
         public bool TryApplyModification(ref FeaturesData data)
         {
-            if (!IsAlive)
+            if (!IsStatusActive)
                 return false;
 
             if (_kind == RadarStatusKind.Stealthed)
@@ -71,6 +114,10 @@ namespace Combat.Component.Ship.Effects
         private readonly RadarStatusKind _kind;
         private float _remaining;
         private float _energyDrainPerSecond;
+        private float _maximumActiveDuration;
+        private float _immunityDuration;
+        private float _activeDuration;
+        private float _immunityRemaining;
     }
 
     public static class RadarStatus
@@ -87,13 +134,49 @@ namespace Combat.Component.Ship.Effects
 
         public static bool CanDetect(IShip observer, IShip target)
         {
-            return observer != null && target != null && !IsJammed(observer) && !IsStealthedFrom(target, observer);
+            return observer != null && target != null && !IsJammed(observer) &&
+                   !SmallUniverseTransitEffect.IsInTransit(target) && !IsStealthedFrom(target, observer);
         }
 
         public static void ApplyJammed(IShip ship, float duration, float energyDrainPerSecond)
         {
             Apply(ship, RadarStatusKind.Jammed, duration, energyDrainPerSecond);
             ClearTargeting(ship);
+        }
+
+        public static bool TryApplyEmpJammed(IShip ship, float duration, float energyDrainPerSecond)
+        {
+            if (ship == null || ship.Effects == null || duration <= 0f)
+                return false;
+
+            foreach (var effect in ship.Effects.All)
+            {
+                if (effect is not RadarStatusEffect status || status.Kind != RadarStatusKind.Jammed)
+                    continue;
+
+                // An unrestricted strategic disruption already jams the ship;
+                // ordinary EMP may still deliver its immediate energy effect.
+                if (!status.IsEmpLimited)
+                {
+                    ClearTargeting(ship);
+                    return true;
+                }
+
+                if (!status.TryRefreshEmp(duration, energyDrainPerSecond))
+                    return false;
+
+                ClearTargeting(ship);
+                return true;
+            }
+
+            ship.AddEffect(new RadarStatusEffect(
+                RadarStatusKind.Jammed,
+                duration,
+                energyDrainPerSecond,
+                EmpMaximumActiveDuration,
+                EmpImmunityDuration));
+            ClearTargeting(ship);
+            return true;
         }
 
         public static void ApplyStealth(IShip ship, float duration)
@@ -131,7 +214,7 @@ namespace Combat.Component.Ship.Effects
                 return false;
 
             foreach (var effect in ship.Effects.All)
-                if (effect is RadarStatusEffect status && status.Kind == kind && status.IsAlive)
+                if (effect is RadarStatusEffect status && status.Kind == kind && status.IsStatusActive)
                     return true;
 
             return false;
@@ -172,5 +255,7 @@ namespace Combat.Component.Ship.Effects
         }
 
         private static readonly Dictionary<UnitSide, float> _stealthRevealUntil = new();
+        private const float EmpMaximumActiveDuration = 10f;
+        private const float EmpImmunityDuration = 30f;
     }
 }

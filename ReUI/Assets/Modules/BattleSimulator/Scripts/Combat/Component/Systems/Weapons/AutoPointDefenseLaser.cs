@@ -15,12 +15,18 @@ namespace Combat.Component.Systems.Weapons
     public sealed class AutoPointDefenseLaser : WeaponBase
     {
         public AutoPointDefenseLaser(IWeaponPlatform platform, WeaponStats weaponStats, Factory.IBulletFactory bulletFactory,
-            int keyBinding, IScene scene, IShip owner)
+            int keyBinding, IScene scene, IShip owner, bool interceptAllProjectiles = false,
+            bool preferProjectilesEvenIfReserved = false)
             : base(platform, weaponStats, bulletFactory, keyBinding)
         {
             _scene = scene;
             _owner = owner;
+            _protectedShip = interceptAllProjectiles && owner.Type.Owner is IShip mothership
+                ? mothership
+                : owner;
             _energyConsumption = bulletFactory.Stats.EnergyCost;
+            _interceptAllProjectiles = interceptAllProjectiles;
+            _preferProjectilesEvenIfReserved = preferProjectilesEvenIfReserved;
         }
 
         public override bool CanBeActivated => false;
@@ -31,14 +37,29 @@ namespace Combat.Component.Systems.Weapons
 
         protected override void OnUpdatePhysics(float elapsedTime)
         {
+            if (Combat.Component.Ship.Effects.SmallUniverseTransitEffect.IsInTransit(_owner))
+            {
+                SetReservedTarget(null);
+                SetTarget(null);
+                _currentTarget = null;
+                if (HasActiveBullet)
+                {
+                    _activeBullet.Vanish();
+                    TimeFromLastUse = 0f;
+                    InvokeTriggers(ConditionType.OnDeactivate);
+                }
+                return;
+            }
+
             var target = FindTarget();
             if (!IsTargetInsideWeaponRange(target))
                 target = null;
-            SetTarget(target);
 
             // Recreate the live beam immediately when a missile preempts a
             // ship target. Some bound beam controllers retain their original
-            // target until destruction, which delayed missile interception.
+            // target until destruction. Destroy the old beam before assigning
+            // the new platform target; otherwise its cleanup clears the newly
+            // assigned target and the weapon falls back to the ship.
             if (target != _currentTarget && HasActiveBullet)
             {
                 _activeBullet.Vanish();
@@ -46,6 +67,13 @@ namespace Combat.Component.Systems.Weapons
                 InvokeTriggers(ConditionType.OnDeactivate);
             }
             _currentTarget = target;
+            // Ship-mounted interceptors spread their fire. Defence drones are
+            // intentionally allowed to focus the same missile, since a single
+            // drone beam is not reliable enough against heavy ordnance.
+            SetReservedTarget(!_interceptAllProjectiles && target != null && IsInterceptableProjectile(target)
+                ? target
+                : null);
+            SetTarget(target);
 
             if (!target.IsActive())
             {
@@ -88,6 +116,7 @@ namespace Combat.Component.Systems.Weapons
 
         protected override void OnDispose()
         {
+            SetReservedTarget(null);
             if (BulletFactory.Stats.IsBoundToCannon)
                 _activeBullet?.Vanish();
         }
@@ -97,18 +126,63 @@ namespace Combat.Component.Systems.Weapons
             var position = Platform.Body.WorldPosition();
             var range = Info.Range;
             IUnit nearestMissile = null;
+            IUnit nearestReservedMissile = null;
+            IUnit nearestOtherProjectile = null;
             var missileDistance = float.MaxValue;
+            var reservedMissileDistance = float.MaxValue;
+            var shortestMissileImpactTime = float.MaxValue;
+            var shortestOtherImpactTime = float.MaxValue;
 
             lock (_scene.Units.LockObject)
             {
                 foreach (var unit in _scene.Units.Items)
                 {
                     if (!unit.IsActive() || !IsInterceptableProjectile(unit) ||
-                        !CanTargetProjectile(unit))
+                        !CanTargetProjectile(unit) ||
+                        unit is IBullet { IsInterceptionProjectile: true })
+                        continue;
+
+                    var reservedByOther = !_interceptAllProjectiles &&
+                        InterceptionTargetCoordinator.IsReservedByOther(unit, this, _owner,
+                            _preferProjectilesEvenIfReserved);
+                    if (reservedByOther && !_preferProjectilesEvenIfReserved)
+                        continue;
+
+                    var impactTime = 0f;
+                    if (_interceptAllProjectiles && !ThreatensProtectedShip(unit, out impactTime))
                         continue;
 
                     var distance = Vector2.SqrMagnitude(unit.Body.WorldPosition() - position);
-                    if (distance > range * range || distance >= missileDistance)
+                    if (distance > range * range)
+                        continue;
+
+                    if (reservedByOther)
+                    {
+                        if (distance < reservedMissileDistance)
+                        {
+                            reservedMissileDistance = distance;
+                            nearestReservedMissile = unit;
+                        }
+                        continue;
+                    }
+
+                    if (_interceptAllProjectiles)
+                    {
+                        if (unit.Type.Class == UnitClass.Missile)
+                        {
+                            if (impactTime >= shortestMissileImpactTime) continue;
+                            shortestMissileImpactTime = impactTime;
+                            nearestMissile = unit;
+                        }
+                        else
+                        {
+                            if (impactTime >= shortestOtherImpactTime) continue;
+                            shortestOtherImpactTime = impactTime;
+                            nearestOtherProjectile = unit;
+                        }
+                        continue;
+                    }
+                    if (distance >= missileDistance)
                         continue;
 
                     nearestMissile = unit;
@@ -118,6 +192,16 @@ namespace Combat.Component.Systems.Weapons
 
             if (nearestMissile != null)
                 return nearestMissile;
+
+            // The stasis beam is a control weapon rather than another damage
+            // interceptor. If all missiles are already reserved by point-
+            // defence, it must still stop one of them instead of falling back
+            // to an enemy ship.
+            if (_preferProjectilesEvenIfReserved && nearestReservedMissile != null)
+                return nearestReservedMissile;
+
+            if (_interceptAllProjectiles)
+                return nearestOtherProjectile;
 
             return _scene.Ships.GetEnemyForTurret(_owner, position, Platform.Body.WorldRotation(), Platform.AutoAimingAngle, range);
         }
@@ -142,9 +226,10 @@ namespace Combat.Component.Systems.Weapons
 
         private bool HasActiveBullet => _activeBullet.IsActive();
 
-        private static bool IsInterceptableProjectile(IUnit unit)
+        private bool IsInterceptableProjectile(IUnit unit)
         {
-            return unit.Type.Class == UnitClass.Missile ||
+            return (_interceptAllProjectiles && unit is IBullet) ||
+                   unit.Type.Class == UnitClass.Missile ||
                    unit is Combat.Component.Bullet.Bullet bullet && bullet.Controller is BallLightningController;
         }
 
@@ -156,16 +241,55 @@ namespace Combat.Component.Systems.Weapons
             return IsMacroElectron(unit) || CombatRelations.AreEnemies(unit.Type, _owner.Type);
         }
 
+        private bool ThreatensProtectedShip(IUnit projectile, out float impactTime)
+        {
+            impactTime = float.MaxValue;
+            if (!_protectedShip.IsActive()) return false;
+
+            var relativePosition = projectile.Body.WorldPosition() - _protectedShip.Body.WorldPosition();
+            var relativeVelocity = projectile.Body.WorldVelocity() - _protectedShip.Body.WorldVelocity();
+            var speedSquared = relativeVelocity.sqrMagnitude;
+            if (speedSquared < 0.01f || Vector2.Dot(relativePosition, relativeVelocity) >= 0f)
+                return false;
+
+            impactTime = -Vector2.Dot(relativePosition, relativeVelocity) / speedSquared;
+            if (impactTime < 0f || impactTime > 7f) return false;
+            var closestDistance = (relativePosition + relativeVelocity * impactTime).magnitude;
+            return closestDistance <= Mathf.Max(5f, _protectedShip.Body.WorldScale() * 0.9f + 2f);
+        }
+
         private static bool IsMacroElectron(IUnit unit)
         {
             return unit is Combat.Component.Bullet.Bullet bullet &&
                    bullet.Controller is BallLightningController;
         }
 
+        private void SetReservedTarget(IUnit target)
+        {
+            if (_reservedTarget == target)
+            {
+                if (target != null)
+                    InterceptionTargetCoordinator.Reserve(target, this, _owner,
+                        _preferProjectilesEvenIfReserved);
+                return;
+            }
+
+            InterceptionTargetCoordinator.Release(_reservedTarget, this,
+                _preferProjectilesEvenIfReserved);
+            _reservedTarget = target;
+            if (target != null)
+                InterceptionTargetCoordinator.Reserve(target, this, _owner,
+                    _preferProjectilesEvenIfReserved);
+        }
+
         private readonly IScene _scene;
         private readonly IShip _owner;
+        private readonly IShip _protectedShip;
         private readonly float _energyConsumption;
+        private readonly bool _interceptAllProjectiles;
+        private readonly bool _preferProjectilesEvenIfReserved;
         private IBullet _activeBullet;
         private IUnit _currentTarget;
+        private IUnit _reservedTarget;
     }
 }

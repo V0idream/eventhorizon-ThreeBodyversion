@@ -83,6 +83,12 @@ namespace Gui.Combat
 
         public void ActivateSystem(int id)
         {
+            if (TryBeginSmallUniversePress(id))
+            {
+                _playerInputTrigger.Fire();
+                return;
+            }
+
             if (TryRequestSophonActivation(id))
             {
                 _playerInputTrigger.Fire();
@@ -102,6 +108,9 @@ namespace Gui.Combat
 
         public void DeactivateSystem(int id)
         {
+            if (TryEndSmallUniversePress(id))
+                return;
+
             // Sophon activation is queued directly on the device and consumed by
             // its next physics update. Pointer-up must not clear that queued request.
             if (IsSophonSystem(id))
@@ -119,7 +128,8 @@ namespace Gui.Combat
         {
             return _ship != null && _ship.IsActive() && id >= 0 && id < _ship.Systems.All.Count &&
                    (_ship.Systems.All[id] is DimensionalAscensionDevice ||
-                    _ship.Systems.All[id] is SophonGuidanceDevice);
+                    _ship.Systems.All[id] is SophonGuidanceDevice ||
+                    _ship.Systems.All[id] is SpecialEnergyShieldDevice);
         }
 
         private bool TryRequestSophonActivation(int id)
@@ -135,6 +145,29 @@ namespace Gui.Combat
         {
             return _ship != null && _ship.IsActive() && id >= 0 && id < _ship.Systems.All.Count &&
                    _ship.Systems.All[id] is SophonJammerDevice;
+        }
+
+        private bool TryBeginSmallUniversePress(int id)
+        {
+            if (!TryGetSmallUniverseDevice(id, out var device)) return false;
+            device.BeginPress();
+            return true;
+        }
+
+        private bool TryEndSmallUniversePress(int id)
+        {
+            if (!TryGetSmallUniverseDevice(id, out var device)) return false;
+            device.EndPress();
+            return true;
+        }
+
+        private bool TryGetSmallUniverseDevice(int id, out SmallUniverseEntranceDevice device)
+        {
+            device = null;
+            if (_ship == null || !_ship.IsActive() || id < 0 || id >= _ship.Systems.All.Count)
+                return false;
+            device = _ship.Systems.All[id] as SmallUniverseEntranceDevice;
+            return device != null;
         }
 
         public void ActivateDroneBays()

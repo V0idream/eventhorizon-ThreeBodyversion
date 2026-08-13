@@ -15,6 +15,22 @@ namespace Combat.Component.Unit.Classification
         public static bool AreAllies(UnitType first, UnitType second)
         {
             if (first == null || second == null) return false;
+            if (Combat.Component.Ship.Effects.FirewallCollapseEffect.TryResolve(first, second, out var forcedAllies))
+                return forcedAllies;
+            return AreAlliesBase(first, second);
+        }
+
+        // UI and player radar must continue to show the original battle
+        // affiliation while Firewall Collapse temporarily rewires AI combat
+        // relations. This deliberately ignores only that temporary override.
+        public static bool AreEnemiesForDisplay(UnitType first, UnitType second)
+        {
+            if (first == null || second == null) return false;
+            return !AreAlliesBase(first, second);
+        }
+
+        private static bool AreAlliesBase(UnitType first, UnitType second)
+        {
             if ((first.Side == UnitSide.Player && second.Side == UnitSide.Ally) ||
                 (first.Side == UnitSide.Ally && second.Side == UnitSide.Player))
                 return true;

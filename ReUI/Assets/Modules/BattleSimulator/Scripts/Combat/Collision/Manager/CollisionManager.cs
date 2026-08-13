@@ -57,6 +57,12 @@ namespace Combat.Collision.Manager
 
             if (!first.IsActive() || !second.IsActive())
                 return;
+            // Firewall-collapse victims may be forced to hit one another, but
+            // never the caster or any of the caster's allies.  This hard gate
+            // also covers projectiles whose CanHitAllies flag bypasses the
+            // ordinary relation filter.
+            if (Combat.Component.Ship.Effects.FirewallCollapseEffect.IsProtectedPair(first.Type, second.Type))
+                return;
             if (CombatRelations.AreAllies(first.Type, second.Type) &&
                 !first.Type.CanHitAllies && !second.Type.CanHitAllies &&
                 !IsBallLightningInteraction(first, second))

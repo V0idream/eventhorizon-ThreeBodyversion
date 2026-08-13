@@ -19,6 +19,7 @@ namespace Combat.Component.Ship.Effects
                 effect.UpdatePhysics(_ship, elapsedTime);
                 if (!effect.IsAlive)
                 {
+                    effect.Dispose();
                     _effects[index] = null;
                     needCleanup = true;
                 }
@@ -38,6 +39,7 @@ namespace Combat.Component.Ship.Effects
                 effect.UpdateView(_ship, elapsedTime);
                 if (!effect.IsAlive)
                 {
+                    effect.Dispose();
                     _effects[index] = null;
                     needCleanup = true;
                 }

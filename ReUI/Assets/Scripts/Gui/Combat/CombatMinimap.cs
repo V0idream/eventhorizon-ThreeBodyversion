@@ -265,11 +265,11 @@ namespace Gui.Combat
             SetRadarStatic(false);
             var radarRange = GetRadarRange(player);
             var enemies = _scene.Ships.Items
-                .Where(s => s.IsActive() && !RadarStatus.IsStealthedFrom(s, player) && CombatRelations.AreEnemies(player.Type, s.Type))
+                .Where(s => s.IsActive() && RadarStatus.CanDetect(player, s) && CombatRelations.AreEnemiesForDisplay(player.Type, s.Type))
                 .ToArray();
             var detected = enemies.Where(s => Vector2.Distance(player.Body.Position, s.Body.Position) <= radarRange).ToArray();
             var allies = _scene.Ships.Items
-                .Where(s => s.IsActive() && s != player && !RadarStatus.IsStealthedFrom(s, player) && s.Type.Side == UnitSide.Ally)
+                .Where(s => s.IsActive() && s != player && RadarStatus.CanDetect(player, s) && s.Type.Side == UnitSide.Ally)
                 .Where(s => Vector2.Distance(player.Body.Position, s.Body.Position) <= radarRange)
                 .ToArray();
             var detectedLockableProjectiles = GetDetectedLockableProjectiles(player, radarRange);
@@ -375,7 +375,7 @@ namespace Gui.Combat
                             Vector2.Distance(player.Body.Position, unit.Body.WorldPosition()) <= radarRange &&
                             _seenAreaEffects.Add(unit))
                         {
-                            SpawnExplosion(unit.Body.WorldPosition(), !CombatRelations.AreEnemies(player.Type, unit.Type));
+                            SpawnExplosion(unit.Body.WorldPosition(), !CombatRelations.AreEnemiesForDisplay(player.Type, unit.Type));
                         }
 
                         continue;
@@ -397,7 +397,7 @@ namespace Gui.Combat
             {
                 if (_lastProjectilePositions.TryGetValue(stale, out var lastPosition) &&
                     (stale.Type.Class == UnitClass.Missile || IsMacroElectron(stale)))
-                    SpawnExplosion(lastPosition, !CombatRelations.AreEnemies(player.Type, stale.Type));
+                    SpawnExplosion(lastPosition, !CombatRelations.AreEnemiesForDisplay(player.Type, stale.Type));
 
                 Destroy(_projectileMarkers[stale].Root);
                 _projectileMarkers.Remove(stale);
@@ -458,7 +458,7 @@ namespace Gui.Combat
 
         private void UpdateProjectileMarker(UnitMarker marker, IUnit unit, IShip player, float displayRange)
         {
-            var friendly = !CombatRelations.AreEnemies(player.Type, unit.Type);
+            var friendly = !CombatRelations.AreEnemiesForDisplay(player.Type, unit.Type);
             marker.Image.color = friendly ? new Color(0.25f, 0.65f, 1f, 0.95f) : new Color(1f, 0.15f, 0.1f, 0.95f);
 
             var worldPosition = unit.Body.WorldPosition();
@@ -511,8 +511,8 @@ namespace Gui.Combat
         private void LockNearest()
         {
             var player = _scene.PlayerShip;
-            var target = _scene.Ships.Items.Where(s => s.IsActive() && CombatRelations.AreEnemies(player.Type, s.Type))
-                .Where(s => !RadarStatus.IsStealthedFrom(s, player))
+            var target = _scene.Ships.Items.Where(s => s.IsActive() && CombatRelations.AreEnemiesForDisplay(player.Type, s.Type))
+                .Where(s => RadarStatus.CanDetect(player, s))
                 .Where(s => Vector2.Distance(player.Body.Position, s.Body.Position) <= GetRadarRange(player))
                 .Cast<IUnit>()
                 .Concat(GetDetectedLockableProjectiles(player, GetRadarRange(player)))
@@ -526,7 +526,7 @@ namespace Gui.Combat
             {
                 return _scene.Units.Items
                     .Where(unit => IsLockableProjectile(unit) &&
-                                   CombatRelations.AreEnemies(player.Type, unit.Type) &&
+                                   CombatRelations.AreEnemiesForDisplay(player.Type, unit.Type) &&
                                    IsProjectileVisible(unit, player, radarRange))
                     .ToArray();
             }

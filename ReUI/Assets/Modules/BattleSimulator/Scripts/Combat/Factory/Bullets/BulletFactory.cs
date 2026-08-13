@@ -74,11 +74,21 @@ namespace Combat.Factory
                 DetonateWhenDestroyed = _ammunition.Body.DetonateWhenDestroyed,
                 // Reflection follows the installed component's L-slot identity,
                 // rather than a fragile ammunition-id whitelist.
-                ReflectableByWaterdrop = _reflectableByWaterdrop
+                ReflectableByWaterdrop = _reflectableByWaterdrop,
+                // Autonomous interception ammunition must never become a
+                // target for another point-defence system. Without this tag,
+                // interceptors waste their fire on one another and create an
+                // escalating cloud of pointless projectiles.
+                IsInterceptionProjectile = IsInterceptionAmmunition(_ammunition.Id.Value)
             };
 
             var bullet = CreateUnit(body, view, bulletGameObject, options);
             var collisionBehaviour = CreateCollisionBehaviour(bullet);
+            if (_ammunition.Id.Value == 910)
+                bullet.AddAction(new SpawnEdgeDronesAction(bullet, _owner, EdgeDroneRuntime.PredatorBuildId, 10));
+            else if (_ammunition.Id.Value == 912)
+                bullet.AddAction(new SpawnEdgeDronesAction(bullet, _owner, EdgeDroneRuntime.PredatorBuildId, 25,
+                    EdgeDroneRuntime.NanoStormPredatorDamage));
             bullet.Collider = ConfigureCollider(bulletGameObject.GetComponent<ICollider>(true), bullet, parent);
             bullet.CollisionBehaviour = collisionBehaviour;
             bullet.Controller = CreateController(parent, bullet, bulletSpeed, spread, rotation);
@@ -92,6 +102,14 @@ namespace Combat.Factory
 
             bullet.UpdatePhysics(0);
             return bullet;
+        }
+
+        private static bool IsInterceptionAmmunition(int ammunitionId)
+        {
+            return ammunitionId == 162 || // Starship Earth interceptor laser
+                   ammunitionId == 163 || // Sophon SIM point-defence cannon
+                   ammunitionId == 913 || // Singer stasis beam
+                   ammunitionId == 915;   // Edge defence laser
         }
 
         private bool CanSiphonHitpoints()
@@ -166,6 +184,13 @@ namespace Combat.Factory
 
             if (_ammunition.Id.Value == 166)
                 collisionBehaviour.AddAction(new BallLightningCollisionAction());
+
+            if (_ammunition.Id.Value == 909)
+                collisionBehaviour.AddAction(new NanoTorpedoAction());
+            else if (_ammunition.Id.Value == 911)
+                collisionBehaviour.AddAction(new TemporaryConversionAction());
+            else if (_ammunition.Id.Value == 913)
+                collisionBehaviour.AddAction(new StasisAction());
 
             if (_statModifier.PiercingBeam)
                 collisionBehaviour.AddAction(new SelfDestructAction(4));

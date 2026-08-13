@@ -75,7 +75,8 @@ namespace Constructor
 			stats.SizeMultiplier = SizeMultiplier;
 
             data.Stats = stats;
-			data.Info = new ShipInfo(_ship.Id, ShipVisualDifficulty, ShipVisualLevel, size);
+			data.Info = new ShipInfo(_ship.Id, ShipVisualDifficulty, ShipVisualLevel, size,
+                _ship.ShipType, _ship.SizeClass);
 			data.CustomAi = CustomAi;
 
             foreach (var platform in GetPlatforms(settings))

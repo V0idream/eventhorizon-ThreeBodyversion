@@ -127,7 +127,13 @@ namespace Combat.Component.Platform
             if (!IsValidTarget(_target))
                 _target = null;
 
-            if (_parent.Type.Side == UnitSide.Player && IsValidLockedTarget(_scene.LockedTarget) &&
+            // Autonomous interception has priority over the player's manual
+            // ship lock. Previously Aim() replaced a freshly selected missile
+            // with the locked ship on the very same physics tick, so stasis
+            // beams appeared to ignore incoming missiles.
+            var hasAutonomousProjectileTarget = _target is Combat.Component.Bullet.IBullet && _target.IsActive();
+            if (!hasAutonomousProjectileTarget && _parent.Type.Side == UnitSide.Player &&
+                IsValidLockedTarget(_scene.LockedTarget) &&
                 Vector2.Distance(WorldPosition(), _scene.LockedTarget.Body.WorldPosition()) <= _weaponRange)
             {
                 ActiveUnitTarget = _scene.LockedTarget;
@@ -144,6 +150,7 @@ namespace Combat.Component.Platform
 		private bool IsValidTarget(IUnit target)
 		{
 			if (target == null) return false;
+			if (Combat.Collision.Behaviour.Action.VirusCodeTargeting.IsBlocked(this, target)) return false;
 			if (IsSpecialProjectile(target)) return true;
 			if (CombatRelations.AreAllies(target.Type, _parent.Type)) return false;
 			if (target is not IShip ship) return true;

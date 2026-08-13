@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using GameDatabase.Enums;
 using GameDatabase.Extensions;
 using System.Collections.Generic;
@@ -43,7 +43,12 @@ namespace Combat.Component.View
             color = _colorMode.Apply(_baseColor, color);
             color.a *= _alphaScale;
             _lineRenderer.startColor = color * _startColor;
-            _lineRenderer.endColor = color * _endColor;
+            _lineRenderer.endColor = color * _endColor;
+
+            var hdrProperties = new MaterialPropertyBlock();
+            _lineRenderer.GetPropertyBlock(hdrProperties);
+            hdrProperties.SetFloat("_HdrIntensity", NativeHdrContent.IntensityForNits(900f));
+            _lineRenderer.SetPropertyBlock(hdrProperties);
         }
 
         protected override void UpdateLife(float life)

@@ -1,0 +1,16 @@
+{
+  "ItemType": 1,
+  "Id": 963,
+  "Name": "$SingerArmor",
+  "Description": "$SingerArmorDescription",
+  "ContentSource": 1,
+  "DisplayCategory": 2,
+  "Availability": 1,
+  "ComponentStatsId": 936,
+  "Faction": 23,
+  "Level": 180,
+  "Icon": "singer_armor",
+  "Color": "#FFFFFF",
+  "Layout": "1111",
+  "CellType": "1"
+}

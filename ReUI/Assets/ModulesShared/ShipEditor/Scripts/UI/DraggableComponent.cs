@@ -35,11 +35,24 @@ namespace ShipEditor.UI
             RectTransform.localEulerAngles = new Vector3(0, 0, _helper.GetShipRotation());
             RectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
             RectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
-            // All component art uses a square source canvas.  Preserving its
-            // aspect ratio prevents 1x2/2x1 modules from being stretched while
-            // the occupied-cell bounds still drive placement and touch mapping.
-            _icon.SetIconFitted(_resourceLocator.GetSprite(content.Icon), content.Color, true);
-            _icon.rectTransform.localEulerAngles = new Vector3(0, 0, -90f * content.Rotation);
+            // Edge/Fringe art is authored as one image per component and must
+            // fill the occupied-cell rectangle.  Preserving the square source
+            // aspect here made the drag preview disagree with the installed
+            // module for 2x6, 3x7, 5x8 and other rectangular equipment.
+            var fitOccupiedBounds = content.Icon.Id != null &&
+                content.Icon.Id.StartsWith("edge_", System.StringComparison.OrdinalIgnoreCase);
+            _icon.SetIconFitted(_resourceLocator.GetSprite(content.Icon), content.Color,
+                preserveAspect: !fitOccupiedBounds);
+            var iconRect = _icon.rectTransform;
+            iconRect.anchorMin = iconRect.anchorMax = new Vector2(0.5f, 0.5f);
+            iconRect.anchoredPosition = Vector2.zero;
+            var swapIconAxes = (content.Rotation & 1) != 0;
+            var unrotatedIconSize = swapIconAxes
+                ? new Vector2(size.y, size.x)
+                : size;
+            iconRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, unrotatedIconSize.x);
+            iconRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, unrotatedIconSize.y);
+            iconRect.localEulerAngles = new Vector3(0, 0, -90f * content.Rotation);
 
             // The finger follows the centre of the visible (occupied) cells, while
             // WorldToCell works from the centre of the component's square layout.

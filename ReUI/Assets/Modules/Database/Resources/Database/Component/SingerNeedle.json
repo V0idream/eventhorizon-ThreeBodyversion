@@ -1,0 +1,19 @@
+{
+  "ItemType": 1,
+  "Id": 960,
+  "Name": "$SingerNeedle",
+  "Description": "$SingerNeedleDescription",
+  "ContentSource": 1,
+  "DisplayCategory": 1,
+  "Availability": 1,
+  "ComponentStatsId": 933,
+  "Faction": 23,
+  "Level": 180,
+  "Icon": "singer_needle",
+  "Color": "#FFFFFF",
+  "Layout": "0001100000011000000110000001100000011000000110000001100000011000",
+  "CellType": "4",
+  "WeaponId": 150,
+  "AmmunitionId": 907,
+  "WeaponSlotType": "S"
+}

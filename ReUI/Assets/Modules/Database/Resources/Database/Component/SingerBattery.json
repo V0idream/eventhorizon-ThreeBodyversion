@@ -1,0 +1,16 @@
+{
+  "ItemType": 1,
+  "Id": 964,
+  "Name": "$SingerBattery",
+  "Description": "$SingerBatteryDescription",
+  "ContentSource": 1,
+  "DisplayCategory": 3,
+  "Availability": 1,
+  "ComponentStatsId": 937,
+  "Faction": 23,
+  "Level": 180,
+  "Icon": "singer_battery",
+  "Color": "#FFFFFF",
+  "Layout": "1111",
+  "CellType": "0"
+}

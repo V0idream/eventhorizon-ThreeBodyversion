@@ -22,8 +22,8 @@ namespace Combat.Collision.Behaviour.Action
             if (!collisionData.IsNew || !_isAlive || target is not IShip ship)
                 return;
 
-            targetImpact.EnergyDrain += ship.Stats.Energy.MaxValue * _initialEnergyDrainFraction;
-            RadarStatus.ApplyJammed(ship, _duration, _energyDrainPerSecond);
+            if (RadarStatus.TryApplyEmpJammed(ship, _duration, _energyDrainPerSecond))
+                targetImpact.EnergyDrain += ship.Stats.Energy.MaxValue * _initialEnergyDrainFraction;
             _isAlive = _impactType == BulletImpactType.HitAllTargets;
         }
 

@@ -76,7 +76,14 @@ namespace Combat.Component.Collider
             contactFilter.NoFilter();
             contactFilter.SetLayerMask(Physics2D.AllLayers);
             contactFilter.useTriggers = true;
-            var hits = Physics2D.Raycast(position, direction, contactFilter, _buffer, effectiveRange);
+            // Beam visuals have real width. A zero-width Physics2D.Raycast
+            // made thick weapons (most visibly the positron beam) miss ships
+            // that were clearly covered by the rendered beam. Match the cast
+            // radius to the LaserView's actual world-space half-width.
+            var beamRadius = GetBeamRadius();
+            var hits = beamRadius > 0.001f
+                ? Physics2D.CircleCast(position, beamRadius, direction, contactFilter, _buffer, effectiveRange)
+                : Physics2D.Raycast(position, direction, contactFilter, _buffer, effectiveRange);
             // RaycastNonAlloc does not guarantee hit ordering.  The old loop
             // could therefore stop at a farther collider before reaching a
             // macro-electron that was visibly in front of it.  Keep beam
@@ -178,6 +185,12 @@ namespace Combat.Component.Collider
         private float _maxRange;
         private bool _needUpdateView;
         private bool _enabled = true;
+
+        private float GetBeamRadius()
+        {
+            if (!(_view is LaserView laserView)) return 0f;
+            return Mathf.Max(0f, laserView.Thickness * _view.transform.lossyScale.z * 0.5f);
+        }
 
         private static bool IsOwnerBlockingShield(IUnit unit)
         {

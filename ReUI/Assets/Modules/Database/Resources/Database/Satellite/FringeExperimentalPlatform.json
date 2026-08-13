@@ -1,0 +1,10 @@
+{
+  "ItemType": 7,
+  "Id": 954,
+  "Name": "$FringeExperimentalPlatform",
+  "ModelImage": "fringe_experimental_platform",
+  "ModelScale": 0.34,
+  "SizeClass": 4,
+  "Layout": "666666666",
+  "Barrels": []
+}

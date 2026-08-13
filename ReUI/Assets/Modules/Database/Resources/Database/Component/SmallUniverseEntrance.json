@@ -1,0 +1,21 @@
+{
+  "ItemType": 1,
+  "Id": 965,
+  "Name": "$SmallUniverseEntrance",
+  "Description": "$SmallUniverseEntranceDescription",
+  "ContentSource": 1,
+  "DisplayCategory": 6,
+  "Availability": 1,
+  "ComponentStatsId": 938,
+  "Faction": 22,
+  "Level": 220,
+  "Icon": "small_universe_entrance",
+  "Color": "#62E7FF",
+  "Layout": "110110110",
+  "CellType": "6",
+  "DeviceId": 912,
+  "Restrictions": {
+    "ShipSizes": [3, 4, 6],
+    "MaxComponentAmount": 1
+  }
+}

@@ -931,6 +931,11 @@ namespace ViewModel
 			{
 				if (!CapturedStarbaseFacilities.TryConsumePrismCharge(_session, source.Id))
 					return;
+				// Close before broadcasting. The beam listener starts a coroutine on
+				// the map and must never remain hidden behind this full-screen panel;
+				// it also keeps the panel closed if a downstream listener fails.
+				if (_facilityTargetPanel != null)
+					_facilityTargetPanel.SetActive(false);
 				_messenger.Broadcast<int, int>(EventType.PrismBeamFired, source.HomeStar, target.HomeStar);
 				target.IsCaptured = true;
 				_starContentChangedTrigger.Fire(target.HomeStar);
@@ -938,6 +943,8 @@ namespace ViewModel
 			}
 			else if (type == CapturedStarbaseFacilityType.Lane)
 			{
+				if (_facilityTargetPanel != null)
+					_facilityTargetPanel.SetActive(false);
 				_motherShip.ViewMode = ViewMode.StarMap;
 				_motherShip.Position = target.HomeStar;
 			}

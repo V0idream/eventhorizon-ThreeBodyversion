@@ -4,6 +4,7 @@ using Combat.Component.Ship;
 using Combat.Component.Systems.Devices;
 using Combat.Component.Systems.Weapons;
 using Combat.Component.Triggers;
+using Combat.Component.Unit.Classification;
 using Combat.Effects;
 using Combat.Scene;
 using Combat.Services;
@@ -24,6 +25,8 @@ namespace Combat.Factory
 
         public IWeapon Create(IWeaponData weaponData, IWeaponPlatform platform, float hitPointsMultiplier, IShip owner)
         {
+            if (weaponData.Ammunition.Id.Value == 911 && owner.Type.Side == UnitSide.Enemy)
+                Combat.Collision.Behaviour.Action.VirusCodeTargeting.Restrict(platform.Body);
             var bulletFactory = new BulletFactory(weaponData.Ammunition, weaponData.Stats, _scene, _services, _spaceObjectFactory, _effectFactory, owner,
                 reflectableByWaterdrop: weaponData.WeaponSlotType == 'L');
             bulletFactory.Stats.HitPointsMultiplier = hitPointsMultiplier;
@@ -40,6 +43,13 @@ namespace Combat.Factory
                 // Point defence is autonomous.  It must not reserve an action button
                 // even if an old saved layout contains a key binding.
                 return CreateInterceptorLaser(stats, -1, bulletFactory, platform, owner);
+            if (weaponData.Weapon.Id.Value == 156)
+                return CreateInterceptorLaser(stats, -1, bulletFactory, platform, owner,
+                    preferProjectilesEvenIfReserved: true);
+            if (weaponData.Weapon.Id.Value == 158)
+                // Defence drones intercept every hostile projectile with their
+                // laser; the controller only rams an imminent miss-through.
+                return CreateInterceptorLaser(stats, -1, bulletFactory, platform, owner, true);
             if (weaponData.Weapon.Id.Value == 138)
                 return CreatePointDefenseCannon(stats, -1, bulletFactory, platform, owner);
             return Create(stats, weaponData.KeyBinding, bulletFactory, platform);
@@ -138,9 +148,12 @@ namespace Combat.Factory
             }
         }
 
-        private IWeapon CreateInterceptorLaser(WeaponStats weaponStats, int keyBinding, IBulletFactory bulletFactory, IWeaponPlatform platform, IShip owner)
+        private IWeapon CreateInterceptorLaser(WeaponStats weaponStats, int keyBinding, IBulletFactory bulletFactory,
+            IWeaponPlatform platform, IShip owner, bool interceptAllProjectiles = false,
+            bool preferProjectilesEvenIfReserved = false)
         {
-            var weapon = new AutoPointDefenseLaser(platform, weaponStats, bulletFactory, keyBinding, _scene, owner);
+            var weapon = new AutoPointDefenseLaser(platform, weaponStats, bulletFactory, keyBinding, _scene, owner,
+                interceptAllProjectiles, preferProjectilesEvenIfReserved);
             if (weaponStats.ShotSound)
                 weapon.AddTrigger(new SoundEffect(_services.SoundPlayer, weaponStats.ShotSound, ConditionType.OnActivate, ConditionType.OnDeactivate));
 

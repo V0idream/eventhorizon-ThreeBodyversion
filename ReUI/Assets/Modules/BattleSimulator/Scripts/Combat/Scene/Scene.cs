@@ -81,7 +81,7 @@ namespace Combat.Scene
 
             if (unit is IShip ship)
             {
-                _lockedTarget = RadarStatus.CanDetect(_activePlayerShip, ship) && CombatRelations.AreEnemies(_activePlayerShip.Type, ship.Type)
+                _lockedTarget = RadarStatus.CanDetect(_activePlayerShip, ship) && CombatRelations.AreEnemiesForDisplay(_activePlayerShip.Type, ship.Type)
                     ? ship
                     : null;
                 return;
@@ -160,6 +160,7 @@ namespace Combat.Scene
 		public void Clear()
 		{
             WarpTrailEffect.ClearAll();
+            TimeRiftField.ClearAll();
 			_unitList.Clear();
 			_shipList.Clear();
 		}
@@ -230,7 +231,7 @@ namespace Combat.Scene
                 foreach (var ship in _shipList.Items)
                 {
                     if (ship.IsActive() && ship.Type.Class == UnitClass.Ship &&
-                        CombatRelations.AreEnemies(_activePlayerShip.Type, ship.Type))
+                        CombatRelations.AreEnemiesForDisplay(_activePlayerShip.Type, ship.Type))
                     {
                         enemyCount++;
                         var distance = Vector2.SqrMagnitude(ship.Body.Position - position);

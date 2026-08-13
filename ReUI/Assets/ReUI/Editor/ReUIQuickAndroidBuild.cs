@@ -18,9 +18,9 @@ namespace ReUI.Editor
     {
         private const string PackageName = "com.threebody.EventHorizon";
         private const string ProductName = "三体视界";
-        private const string VersionName = "Beta8.7";
-        private const int VersionCode = 140017;
-        private const string OutputFileName = "ThreeBody-EventHorizon-Beta8.7.apk";
+        private const string VersionName = "Beta8.25";
+        private const int VersionCode = 140035;
+        private const string OutputFileName = "ThreeBody-EventHorizon-Beta8.25.apk";
 
         [MenuItem("Build/ReUI/Quick Android APK")]
         public static void Build()
@@ -37,12 +37,18 @@ namespace ReUI.Editor
             PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android, ScriptingImplementation.IL2CPP);
             PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
             PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.Android, false);
-            PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.OpenGLES3 });
+            PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[]
+            {
+                GraphicsDeviceType.Vulkan,
+                GraphicsDeviceType.OpenGLES3,
+            });
             PlayerSettings.allowHDRDisplaySupport = true;
-            // Keep HDR capability in the player, but do not force HDR at
-            // process startup. The in-game setting requests genuine display
-            // HDR only while the star map or combat scene is active.
-            PlayerSettings.useHDRDisplay = false;
+            // Unity/Android only exposes HDROutputSettings as available when the
+            // player is built to initialise an HDR-capable main display. Runtime
+            // immediately requests SDR for menus and re-enables HDR in combat.
+            PlayerSettings.useHDRDisplay = true;
+            PlayerSettings.hdrBitDepth = HDRDisplayBitDepth.BitDepth10;
+            ConfigureHdrColorGamuts();
             EditorUserBuildSettings.buildAppBundle = false;
 
             AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
@@ -136,6 +142,23 @@ namespace ReUI.Editor
             EditorPrefs.SetString("AndroidNdkRoot", ndk);
             EditorPrefs.SetString("AndroidNdkRootR16b", ndk);
             EditorPrefs.SetString("JdkPath", jdk);
+        }
+
+        private static void ConfigureHdrColorGamuts()
+        {
+            // Unity 6 keeps this setter internal even though Android exposes the
+            // ordered gamut list in Player Settings. Use the editor API once at
+            // build time so HDR10 is preferred and SDR remains a safe fallback.
+            var method = typeof(PlayerSettings).GetMethod(
+                "SetColorGamuts",
+                System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+            if (method == null)
+                throw new MissingMethodException("UnityEditor.PlayerSettings.SetColorGamuts");
+
+            method.Invoke(null, new object[]
+            {
+                new[] { ColorGamut.HDR10, ColorGamut.Rec2020, ColorGamut.DisplayP3, ColorGamut.sRGB },
+            });
         }
     }
 }

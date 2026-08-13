@@ -1,4 +1,4 @@
-﻿using Combat.Services;
+using Combat.Services;
 using GameDatabase.Enums;
 using GameDatabase.Extensions;
 using UnityEngine;
@@ -91,7 +91,10 @@ namespace Combat.Component.View
             _trailColor = _colorMode.Apply(_baseColor, color);
             _trailColor.a *= _alpha;
             if (_trailRenderer != null)
+            {
                 _trailRenderer.material.color = _trailColor;
+                _trailRenderer.material.SetFloat("_HdrIntensity", NativeHdrContent.IntensityForNits(500f));
+            }
         }
 
         private float TrailSize { get { return _useObjectScale ? _trailSize * transform.lossyScale.z : _trailSize; } }

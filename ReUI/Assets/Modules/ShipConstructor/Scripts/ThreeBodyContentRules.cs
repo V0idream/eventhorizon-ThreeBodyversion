@@ -24,6 +24,11 @@ namespace Constructor
         public const int AngelShieldComponentId = 957;
         public const int SubspaceShieldComponentId = 958;
         public const int ElectronicShieldComponentId = 959;
+        public const int SmallUniverseEntranceComponentId = 965;
+        public const int TimeRiftGeneratorComponentId = 966;
+        public const int EdgeFirewallCollapseComponentId = 980;
+        public const int EdgeDroneHiveComponentId = 982;
+        public const int EdgeDefenderComponentId = 983;
         public const int WanNianFengXueShipId = 94009;
         public const int WanNianFengXueBuildId = 94009;
 

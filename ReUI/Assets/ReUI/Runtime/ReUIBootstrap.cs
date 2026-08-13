@@ -149,6 +149,11 @@ namespace ReUI
             StartCoroutine(ApplyAfterSceneInitialization(SceneManager.GetActiveScene()));
         }
 
+        private void Update()
+        {
+            ReUIHdrRuntime.Tick();
+        }
+
         private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
             ThemeSnapshot previousTheme = ThemeSnapshot.Capture();

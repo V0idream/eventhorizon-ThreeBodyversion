@@ -72,6 +72,7 @@ namespace Combat.Factory
             UnitSide unitSide,
             bool createShadow)
         {
+            EdgeDroneRuntime.Configure(_scene, this, _database);
             //UnityEngine.Debug.Log("CreateShip: " + spec.Info.Id);
 
             bool isDrone = motherShip != null;
@@ -230,7 +231,11 @@ namespace Combat.Factory
 
         public IShip CreateDrone(IShipSpecification spec, IShip motherShip, float range, Vector2 position, float rotation, DroneBehaviour behaviour, bool improvedAi, BehaviorTreeModel behaviorTree)
         {
-            return CreateShip(spec, _controllerFactory.CreateDroneController(behaviour, range, improvedAi, behaviorTree), position, rotation, motherShip, UnitSide.Undefined, _settings.Shadows);
+            // Mass-produced Edge drones are frequently spawned by the hundred.
+            // Their per-object shadows add a large serial setup cost and draw
+            // call pressure without improving their tiny on-screen silhouette.
+            var createShadow = _settings.Shadows && (spec.Info.Id.Value < 11010 || spec.Info.Id.Value > 11012);
+            return CreateShip(spec, _controllerFactory.CreateDroneController(behaviour, range, improvedAi, behaviorTree), position, rotation, motherShip, UnitSide.Undefined, createShadow);
         }
 
         public Ship CreateStarbase(IShipSpecification spec, Vector2 position, float rotation, UnitSide unitSide)

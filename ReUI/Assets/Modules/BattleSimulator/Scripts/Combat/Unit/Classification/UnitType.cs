@@ -16,14 +16,16 @@ namespace Combat.Component.Unit.Classification
         }
 
         public readonly UnitClass Class;
-        public UnitSide Side => _ignoreOwnerSide || Owner == null ? _side : Owner.Type.Side;
+        public UnitSide Side => SideOverride ?? (_ignoreOwnerSide || Owner == null ? _side : Owner.Type.Side);
+        public UnitSide? SideOverride { get; set; }
         public bool CanHitAllies => _ignoreOwnerSide;
         public UnitSide? CollisionSideOverride { get; set; }
         public int FactionId
         {
-            get => !_ignoreOwnerSide && Owner != null ? Owner.Type.FactionId : _factionId;
+            get => FactionOverride ?? (!_ignoreOwnerSide && Owner != null ? Owner.Type.FactionId : _factionId);
             set => _factionId = value;
         }
+        public int? FactionOverride { get; set; }
         public IShip Owner;
 
         public Layer CollisionLayer => GetCollisionLayer(Class, CollisionSideOverride ?? Side);
