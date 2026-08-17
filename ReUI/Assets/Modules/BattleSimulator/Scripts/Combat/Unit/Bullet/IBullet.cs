@@ -1,6 +1,7 @@
 ﻿using Combat.Component.Body;
 using Combat.Component.Bullet.Lifetime;
 using Combat.Component.Unit;
+using Combat.Unit;
 
 namespace Combat.Component.Bullet
 {
@@ -8,6 +9,7 @@ namespace Combat.Component.Bullet
     {
         ILifetime Lifetime { get; }
         bool IsInterceptionProjectile { get; }
+        IUnit GuidanceTarget { get; set; }
         void Detonate();
 
         /// <summary>

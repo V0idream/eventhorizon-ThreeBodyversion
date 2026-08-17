@@ -18,9 +18,9 @@ namespace ReUI.Editor
     {
         private const string PackageName = "com.threebody.EventHorizon";
         private const string ProductName = "三体视界";
-        private const string VersionName = "Beta8.25";
-        private const int VersionCode = 140035;
-        private const string OutputFileName = "ThreeBody-EventHorizon-Beta8.25.apk";
+        private const string VersionName = "Beta8.29";
+        private const int VersionCode = 140039;
+        private const string OutputFileName = "ThreeBody-EventHorizon-Beta8.29.apk";
 
         [MenuItem("Build/ReUI/Quick Android APK")]
         public static void Build()

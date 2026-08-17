@@ -1,0 +1,18 @@
+{
+  "ItemType": 1,
+  "Id": 986,
+  "Name": "$StasisField",
+  "Description": "$StasisFieldDescription",
+  "ContentSource": 1,
+  "DisplayCategory": 2,
+  "Availability": 1,
+  "ComponentStatsId": 958,
+  "Faction": 23,
+  "Level": 200,
+  "Icon": "shield_stasis",
+  "Color": "#77E8FF",
+  "Layout": "101111101",
+  "CellType": "2",
+  "DeviceId": 917,
+  "PossibleModifications": [15, 1, 2]
+}

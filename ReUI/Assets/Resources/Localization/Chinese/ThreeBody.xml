@@ -255,6 +255,8 @@
     <string name="EdgeDefenderDescription">部署一架贴身防卫无人机，主动撞截导弹、射弹与无法被常规近防火力处理的攻击。</string>
     <string name="SingerStasisBeam">静滞光束</string>
     <string name="SingerStasisBeamDescription">将命中目标锁入迟滞场。舰船与无人机行动骤缓，飞行武器则在静止中耗尽剩余航程。</string>
+    <string name="StasisField">静滞力场</string>
+    <string name="StasisFieldDescription">展开时间凝固场并持续消耗能量。侵入范围的敌方射弹会停滞并耗尽航程，无人机的速度与转向能力大幅下降。</string>
     <string name="EdgeDrone">边缘世界无人机</string>
     <string name="EdgePredatorDrone">掠食无人机</string>
     <string name="EdgeDefenseDrone">防卫无人机</string>

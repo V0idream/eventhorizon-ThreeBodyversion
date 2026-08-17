@@ -58,7 +58,10 @@ namespace GameModel
                         if (!_research.IsTechResearched(firework)) _items.Add(_productFactory.CreateSpecial(_itemTypeFactory.CreateBlueprintItem(firework), new Price(50, Currency.Snowflakes)));
 
                         var componentCount = random.Range(4, 6);
-                        var components = _database.ComponentList.LevelLessOrEqual(_level + 50).CommonAndRare().RandomUniqueElements(componentCount, random);
+                        var components = _database.ComponentList.LevelLessOrEqual(_level + 50)
+                            .CommonAndRare()
+                            .Where(ThreeBodyContentRules.IsAvailableInRandomMarket)
+                            .RandomUniqueElements(componentCount, random);
                         foreach (var item in components)
                         {
                             var component = ComponentInfo.CreateRandomModification(item, random, ModificationQuality.P2);

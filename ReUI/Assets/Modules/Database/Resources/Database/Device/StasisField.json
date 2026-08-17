@@ -1,0 +1,14 @@
+{
+  "ItemType": 2,
+  "Id": 917,
+  "DeviceClass": 2,
+  "EnergyConsumption": 650.0,
+  "PassiveEnergyConsumption": 0.0,
+  "Power": 1.0,
+  "Size": 4.0,
+  "Cooldown": 0.0,
+  "ActivationType": 1,
+  "Color": "#77E8FFFF",
+  "Prefab": 2,
+  "ControlButtonIcon": "controls_shield_stasis"
+}

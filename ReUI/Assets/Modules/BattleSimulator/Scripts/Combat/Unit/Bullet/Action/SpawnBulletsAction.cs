@@ -14,11 +14,12 @@ using UnityEngine;
 
 namespace Combat.Component.Bullet.Action
 {
-    public class SpawnBulletsAction : IAction, IWeaponPlatform
+    public class SpawnBulletsAction : IAction, IWeaponPlatform, IUnitTargetingPlatform
     {
 	    public SpawnBulletsAction(IBulletFactory factory, int magazine, IBulletSpawnSettings spawnSettings, IBullet parent, ISoundPlayer soundPlayer, AudioClipId audioClip, ConditionType condition)
         {
             Owner = parent;
+            _parent = parent;
             _factory = factory;
             _magazine = magazine;
             _spawnSettings = spawnSettings;
@@ -70,7 +71,16 @@ namespace Combat.Component.Bullet.Action
         public bool IsReady => true;
         public float Cooldown => 0;
         public float AutoAimingAngle => 0;
-        public IShip ActiveTarget { get => null; set {} }
+        public IShip ActiveTarget
+        {
+            get => ActiveUnitTarget as IShip;
+            set => ActiveUnitTarget = value;
+        }
+        public IUnit ActiveUnitTarget
+        {
+            get => _parent.GuidanceTarget;
+            set => _parent.GuidanceTarget = value;
+        }
 
 		public void Aim(float bulletVelocity, float weaponRange, float relativeEffect) {}
         public void OnShot() {}
@@ -80,6 +90,7 @@ namespace Combat.Component.Bullet.Action
         public void UpdateView(float elapsedTime) {}
 
         private readonly AudioClipId _audioClipId;
+        private readonly IBullet _parent;
         private readonly IBulletFactory _factory;
         private readonly IBulletSpawnSettings _spawnSettings;
         private readonly int _magazine;

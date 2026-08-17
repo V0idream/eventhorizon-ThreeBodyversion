@@ -315,7 +315,7 @@ namespace GameServices.Economy
             yield return new Price(random.Range(level/5 + 15, level/5 + 30), Currency.Snowflakes).GetProduct(_factory);
 
             var items = _database.ComponentList.CommonAndRare().LevelLessOrEqual(level + 50)
-                .Where(item => !ThreeBodyContentRules.IsRestrictedComponent(item))
+                .Where(ThreeBodyContentRules.IsAvailableInRandomMarket)
                 .RandomElements(random.Range(5, 10), random).Select(item =>
                     ComponentInfo.CreateRandomModification(item, random, ModificationQuality.P2));
 

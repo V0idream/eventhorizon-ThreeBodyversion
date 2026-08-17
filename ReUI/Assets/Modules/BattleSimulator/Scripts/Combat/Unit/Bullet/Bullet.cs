@@ -41,6 +41,7 @@ namespace Combat.Component.Bullet
         public ICollisionBehaviour CollisionBehaviour { get; set; }
         public bool IsReflectableByWaterdrop => _options.ReflectableByWaterdrop;
         public bool IsInterceptionProjectile => _options.IsInterceptionProjectile;
+        public IUnit GuidanceTarget { get; set; }
 
         public float DefenseMultiplier => _unitType?.Owner?.DefenseMultiplier ?? 1.0f;
 

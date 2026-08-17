@@ -83,6 +83,7 @@ namespace Combat.Factory
             };
 
             var bullet = CreateUnit(body, view, bulletGameObject, options);
+            bullet.GuidanceTarget = ResolveGuidanceTarget(parent);
             var collisionBehaviour = CreateCollisionBehaviour(bullet);
             if (_ammunition.Id.Value == 910)
                 bullet.AddAction(new SpawnEdgeDronesAction(bullet, _owner, EdgeDroneRuntime.PredatorBuildId, 10));
@@ -91,7 +92,8 @@ namespace Combat.Factory
                     EdgeDroneRuntime.NanoStormPredatorDamage));
             bullet.Collider = ConfigureCollider(bulletGameObject.GetComponent<ICollider>(true), bullet, parent);
             bullet.CollisionBehaviour = collisionBehaviour;
-            bullet.Controller = CreateController(parent, bullet, bulletSpeed, spread, rotation);
+            bullet.Controller = CreateController(parent, bullet, bulletSpeed, spread, rotation,
+                bullet.GuidanceTarget);
             bullet.DamageHandler = CreateDamageHandler(bullet);
             _triggerBuilder.Build(bullet, collisionBehaviour);
             _scene.AddUnit(bullet);
@@ -329,7 +331,7 @@ namespace Combat.Factory
         }
 
         private IController CreateController(IWeaponPlatform parent, Bullet bullet, float bulletSpeed, float spread,
-            float rotationOffset)
+            float rotationOffset, IUnit guidanceTarget)
         {
             if (_ammunition.Id.Value == 166)
                 return new BallLightningController(bullet, _scene, _effectFactory, _owner, _stats.Range);
@@ -352,7 +354,8 @@ namespace Combat.Factory
             IController controller = null;
             if (_statModifier.ForceHoming && _ammunition.Controller is BulletController_Projectile)
                 return new HomingController(bullet, bulletSpeed, 120f * WeightToAcceleration(weight),
-                    0.5f * bulletSpeed / (0.2f + weight * 2), range, _owner.Type.Side != UnitSide.Player, _scene);
+                    0.5f * bulletSpeed / (0.2f + weight * 2), range,
+                    _owner.Type.Side != UnitSide.Player, _scene, guidanceTarget);
 
             switch (_ammunition.Controller)
             {
@@ -372,7 +375,8 @@ namespace Combat.Factory
                     else
                     {
                         controller = new HomingController(bullet, bulletSpeed, 120f * WeightToAcceleration(weight),
-                            0.5f * bulletSpeed / (0.2f + weight * 2), range, smartAim, _scene);
+                            0.5f * bulletSpeed / (0.2f + weight * 2), range, smartAim, _scene,
+                            guidanceTarget);
                     }
                     break;
                 }
@@ -401,6 +405,21 @@ namespace Combat.Factory
 			}
 
             return controller;
+        }
+
+        private IUnit ResolveGuidanceTarget(IWeaponPlatform parent)
+        {
+            IUnit target = null;
+            if (parent is IUnitTargetingPlatform unitTargetingPlatform)
+                target = unitTargetingPlatform.ActiveUnitTarget;
+            if (!target.IsActive())
+                target = parent.ActiveTarget;
+            if (!target.IsActive() && _owner.Type.Side == UnitSide.Player)
+                target = _scene.LockedTarget;
+
+            return target.IsActive() && CombatRelations.AreEnemies(_owner.Type, target.Type)
+                ? target
+                : null;
         }
 
         private BulletFactory CreateFactory(Ammunition ammunition, WeaponStatModifier stats)

@@ -1,4 +1,5 @@
-﻿using Combat.Component.Body;
+using Combat.Component.Body;
+using Combat.Component.Bullet;
 using Combat.Component.Unit;
 using Combat.Component.Unit.Classification;
 using Combat.Scene;
@@ -9,7 +10,8 @@ namespace Combat.Component.Controller
 {
     public class HomingController : IController
     {
-        public HomingController(IUnit unit, float maxVelocity, float maxAngularVelocity, float acceleration, float maxRange, bool smartAim, IScene scene)
+        public HomingController(IUnit unit, float maxVelocity, float maxAngularVelocity, float acceleration,
+            float maxRange, bool smartAim, IScene scene, IUnit preferredTarget = null)
         {
             _unit = unit;
             _scene = scene;
@@ -18,21 +20,26 @@ namespace Combat.Component.Controller
             _acceleration = acceleration;
             _maxRange = maxRange;
             _smartAim = smartAim;
+            _preferredTarget = preferredTarget;
+            _target = IsValidTarget(preferredTarget) ? preferredTarget : null;
+            UpdateGuidanceTarget();
         }
 
-        public void Dispose() {}
+        public IUnit Target => _target;
+
+        public void Dispose() { }
 
         public void UpdatePhysics(float elapsedTime)
         {
             _timeFromLastUpdate += elapsedTime;
 
-            if (_timeFromLastUpdate > _targetUpdateCooldown)
+            if (_timeFromLastUpdate > TargetUpdateCooldown)
             {
                 _target = FindTarget();
-                _timeFromLastUpdate = 0;
+                UpdateGuidanceTarget();
+                _timeFromLastUpdate = 0f;
             }
-            
-            
+
             UpdateVelocity(elapsedTime);
             UpdateRotation(elapsedTime);
         }
@@ -41,18 +48,41 @@ namespace Combat.Component.Controller
         {
             if (_unit.Type.Side == UnitSide.Player)
             {
-                var locked = _scene.LockedEnemyShip;
-                return locked.IsActive() && CombatRelations.AreEnemies(_unit.Type, locked.Type) ? locked : null;
+                // Prefer the player's current explicit lock. If it disappears
+                // during a split, retain the last valid target inherited from
+                // the parent warhead instead of making every child unguided.
+                var locked = _scene.LockedTarget;
+                if (IsValidTarget(locked))
+                {
+                    _preferredTarget = locked;
+                    return locked;
+                }
+
+                return IsValidTarget(_preferredTarget) ? _preferredTarget : null;
             }
 
             if (_unit.Type.Side == UnitSide.Enemy)
             {
                 var player = _scene.PlayerShip;
-                if (player.IsActive() && CombatRelations.AreEnemies(_unit.Type, player.Type))
+                if (IsValidTarget(player))
                     return player;
             }
 
+            if (IsValidTarget(_preferredTarget))
+                return _preferredTarget;
+
             return _scene.Ships.GetEnemyForMissile(_unit, 0f, _maxRange * 1.3f, 90f, false, false);
+        }
+
+        private bool IsValidTarget(IUnit target)
+        {
+            return target.IsActive() && CombatRelations.AreEnemies(_unit.Type, target.Type);
+        }
+
+        private void UpdateGuidanceTarget()
+        {
+            if (_unit is IBullet bullet)
+                bullet.GuidanceTarget = _target;
         }
 
         private void UpdateVelocity(float deltaTime)
@@ -73,21 +103,22 @@ namespace Combat.Component.Controller
 
         private void UpdateRotation(float elapsedTime)
         {
-            float requiredAngularVelocity = 0;
+            var requiredAngularVelocity = 0f;
             if (_target.IsActive())
             {
                 if (!_smartAim || !Geometry.GetTargetPosition(_target.Body.WorldPosition(), _target.Body.Velocity,
-                        _unit.Body.WorldPosition(),
-                        _maxVelocity, out var targetPosition, out _))
-                {
+                        _unit.Body.WorldPosition(), _maxVelocity, out var targetPosition, out _))
                     targetPosition = _target.Body.WorldPosition();
-                }            
-            
+
                 var direction = _unit.Body.WorldPosition().Direction(targetPosition);
                 var target = RotationHelpers.Angle(direction);
                 var rotation = _unit.Body.WorldRotation();
                 var delta = Mathf.DeltaAngle(rotation, target);
-                requiredAngularVelocity = delta > 5 ? _maxAngularVelocity : delta < -5 ? -_maxAngularVelocity : 0f;
+                requiredAngularVelocity = delta > 5f
+                    ? _maxAngularVelocity
+                    : delta < -5f
+                        ? -_maxAngularVelocity
+                        : 0f;
             }
 
             if (_unit.Body.Parent == null)
@@ -96,24 +127,25 @@ namespace Combat.Component.Controller
             }
             else
             {
-                // Simulate ApplyAngularAcceleration behavior
-                _computedVelocity += (requiredAngularVelocity - _computedVelocity) * Mathf.Deg2Rad / (0.2f + _unit.Body.Weight * 2f);
+                _computedVelocity += (requiredAngularVelocity - _computedVelocity) * Mathf.Deg2Rad /
+                                     (0.2f + _unit.Body.Weight * 2f);
                 var turn = _unit.Body.Rotation + _computedVelocity * elapsedTime;
-                if(!Mathf.Approximately(turn, 0))
+                if (!Mathf.Approximately(turn, 0f))
                     _unit.Body.Turn(turn);
             }
         }
 
-        private float _timeFromLastUpdate = _targetUpdateCooldown;
+        private float _timeFromLastUpdate = TargetUpdateCooldown;
         private float _computedVelocity;
         private readonly bool _smartAim;
         private IUnit _target;
+        private IUnit _preferredTarget;
         private readonly IUnit _unit;
         private readonly IScene _scene;
         private readonly float _maxVelocity;
         private readonly float _maxAngularVelocity;
         private readonly float _acceleration;
         private readonly float _maxRange;
-        private const float _targetUpdateCooldown = 0.25f;
+        private const float TargetUpdateCooldown = 0.25f;
     }
 }

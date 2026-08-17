@@ -1,5 +1,6 @@
 ﻿using Economy.ItemType;
 using GameServices.Player;
+using Constructor;
 using Session;
 
 namespace Economy.Products
@@ -103,6 +104,19 @@ namespace Economy.Products
             if (amount <= 0) return false;
             (_price*amount).Consume(_playerResources);
             return true;
+        }
+    }
+
+    public sealed class RestrictedTradePriceProvider : IPriceProvider
+    {
+        public static readonly RestrictedTradePriceProvider Instance = new();
+
+        public Price Price => Economy.Price.Common(ThreeBodyContentRules.RestrictedTradePrice);
+        public bool TryBuy(int amount) => false;
+        public bool TrySell(int amount) => false;
+
+        private RestrictedTradePriceProvider()
+        {
         }
     }
 

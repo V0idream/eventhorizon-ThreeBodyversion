@@ -247,6 +247,7 @@ SpriteAtlas:
     - 1e2602fecde5f1a4ab61920f2aac5f76: 21300000
     - 43b7d4fe586d1fc439764a33cd559fb7: 21300000
     - ae6ad80f151ff5140aedd5a5bf20e05d: 21300000
+    - 05f7cb1fc6240ab439eb7bb550e66bba: 21300000
     - 9e5f392fa5dc45e4aa6d56753e0a68b7: 21300000
     - 04da7e2f66bb6904ea3ddcbee041f4f7: 21300000
     - e9e6043f477fda646a03721b10eb7d5a: 21300000
@@ -449,6 +450,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 1e2602fecde5f1a4ab61920f2aac5f76, type: 3}
   - {fileID: 21300000, guid: 43b7d4fe586d1fc439764a33cd559fb7, type: 3}
   - {fileID: 21300000, guid: ae6ad80f151ff5140aedd5a5bf20e05d, type: 3}
+  - {fileID: 21300000, guid: 05f7cb1fc6240ab439eb7bb550e66bba, type: 3}
   - {fileID: 21300000, guid: 9e5f392fa5dc45e4aa6d56753e0a68b7, type: 3}
   - {fileID: 21300000, guid: 04da7e2f66bb6904ea3ddcbee041f4f7, type: 3}
   - {fileID: 21300000, guid: e9e6043f477fda646a03721b10eb7d5a, type: 3}
@@ -650,6 +652,7 @@ SpriteAtlas:
   - energybeam2
   - teleporter1
   - gun5
+  - shield_stasis
   - fueltank21
   - gun1
   - DroneDamage

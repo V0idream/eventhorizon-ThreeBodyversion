@@ -9,9 +9,9 @@ using UnityEngine;
 namespace Constructor
 {
     /// <summary>
-    /// Content that is intentionally developer/quest-only.  Keeping the
-    /// exclusion in one place prevents a special ThreeBody item from leaking
-    /// into a random shop or exploration reward through a new code path.
+    /// Content that is intentionally developer/quest/technology-only. Keeping
+    /// the exclusion in one place prevents strategic content from leaking into
+    /// random shops or exploration rewards through a new code path.
     /// </summary>
     public static class ThreeBodyContentRules
     {
@@ -29,29 +29,64 @@ namespace Constructor
         public const int EdgeFirewallCollapseComponentId = 980;
         public const int EdgeDroneHiveComponentId = 982;
         public const int EdgeDefenderComponentId = 983;
+        public const int StasisFieldComponentId = 986;
         public const int WanNianFengXueShipId = 94009;
         public const int WanNianFengXueBuildId = 94009;
+        public const int RestrictedTradePrice = int.MaxValue;
+
+        private static readonly HashSet<int> RestrictedComponentIds = new()
+        {
+            // Internal faction markers. They are database helpers rather than
+            // equipment and must never become random goods.
+            288, 289, 290, 291, 292, 293, 294,
+
+            // Empty Dream equipment. These neutral, level-zero components
+            // were the main source of severe early-game merchant imbalance.
+            295, 296, 297, 298, 299,
+
+            // Strategic and developer-only equipment. These remain available
+            // through their technology, quest or dedicated ship acquisition
+            // paths, but are excluded from every random market/reward roll.
+            311, // Starship Earth Dimension Ascension
+            CreativeWorkshopComponentId,
+            ObserverCoreComponentId,
+            948, // Trisolaris Super Engine
+            949, // Trisolaris Antigravity Core
+            950, // Ideal Blackbody
+            951, // EMP Missile
+            952, // Sophon
+            953, // Stellar Hydrogen Bomb
+            954, // Light-speed Positron Beam
+            SilentCoreComponentId,
+            DeflectionShieldComponentId,
+            AngelShieldComponentId,
+            SubspaceShieldComponentId,
+            ElectronicShieldComponentId,
+            SmallUniverseEntranceComponentId,
+            TimeRiftGeneratorComponentId,
+            EdgeFirewallCollapseComponentId,
+            EdgeDroneHiveComponentId,
+            EdgeDefenderComponentId,
+            StasisFieldComponentId,
+        };
 
         private const string CreativeWorkshopBuildPreference = "ThreeBody.CreativeWorkshop.BuildId";
 
         public static bool IsRestrictedComponent(DatabaseComponent component)
         {
-            if (component == null) return false;
-            switch (component.Id.Value)
-            {
-                case 295: // 撕裂星辰 (空幻之梦装备)
-                case 296: // 零元素装甲
-                case 297: // 量子借贷发生器
-                case 298: // 曲率引擎
-                case 299: // 电子压缩器
-                case 311: // 维度跃升装置
-                case CreativeWorkshopComponentId:
-                case ObserverCoreComponentId:
-                case SilentCoreComponentId:
-                    return true;
-                default:
-                    return false;
-            }
+            return component != null && RestrictedComponentIds.Contains(component.Id.Value);
+        }
+
+        public static bool IsAvailableInRandomMarket(DatabaseComponent component)
+        {
+            if (component == null || IsRestrictedComponent(component))
+                return false;
+
+            // A hidden faction is explicitly not part of the merchant pool.
+            // Enforce that rule for components as well as faction research and
+            // ships, so Singer, Fringe World and developer content cannot leak
+            // through the faction-agnostic random component generator.
+            return component.Faction == null || !component.Faction.HideFromMerchants;
         }
 
         public static bool IsRestrictedShip(Ship ship)
@@ -59,10 +94,10 @@ namespace Constructor
             if (ship == null) return false;
             switch (ship.Id.Value)
             {
-                case 160:    // 空幻之梦
-                case 166:    // 水滴
-                case ObserverShipId: // 观众
-                case 114514: // 三体模组旗舰
+                case 160:    // Empty Dream
+                case 166:    // Waterdrop
+                case ObserverShipId:
+                case 114514: // Three Body developer flagship
                 case WanNianFengXueShipId:
                     return true;
                 default:
@@ -72,8 +107,9 @@ namespace Constructor
 
         public static bool IsRestrictedSatellite(Satellite satellite)
         {
-            return satellite != null && (satellite.Id.Value == 950 || // 实验性装备搭载平台
-                                         satellite.Id.Value == 951);  // 武器测试平台
+            return satellite != null &&
+                   (satellite.Id.Value == 950 || // Experimental equipment platform
+                    satellite.Id.Value == 951);  // Weapon test platform
         }
 
         public static IReadOnlyList<ShipBuild> GetCreativeWorkshopBuilds(IDatabase database)

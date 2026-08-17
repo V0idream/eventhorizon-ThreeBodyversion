@@ -79,7 +79,9 @@ namespace Economy.ItemType
             else if (value < 60)
                 items.Add(_database.GetComponent(new ItemId<Component>(fireworkId)));
 
-            items.AddRange(_database.ComponentList.CommonAndRare().RandomUniqueElements(value / 25, random));
+            items.AddRange(_database.ComponentList.CommonAndRare()
+                .Where(ThreeBodyContentRules.IsAvailableInRandomMarket)
+                .RandomUniqueElements(value / 25, random));
 
             foreach (var item in items)
                 yield return CommonProduct.Create(_itemTypeFactory.CreateComponentItem(ComponentInfo.CreateRandomModification(item, random, ModificationQuality.P2)));

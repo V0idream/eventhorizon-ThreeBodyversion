@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Combat.Component.Body;
 using Combat.Component.Engine;
 using Combat.Component.Features;
 using Combat.Component.Stats;
@@ -8,6 +9,7 @@ using Combat.Component.Triggers;
 using Combat.Component.Unit;
 using Combat.Component.Unit.Classification;
 using Combat.Unit;
+using UnityEngine;
 
 namespace Combat.Component.Ship.Effects
 {
@@ -46,8 +48,34 @@ namespace Combat.Component.Ship.Effects
     public sealed class StasisEffect : IShipEffect, IEngineModification
     {
         public StasisEffect(float duration) => _remaining = duration;
+
+        public static void Apply(IShip ship, float duration)
+        {
+            if (ship == null || duration <= 0f)
+                return;
+
+            foreach (var effect in ship.Effects.All)
+            {
+                if (effect is not StasisEffect stasis)
+                    continue;
+
+                stasis._remaining = Mathf.Max(stasis._remaining, duration);
+                stasis.ClampToModifiedLimits(ship);
+                return;
+            }
+
+            var newEffect = new StasisEffect(duration);
+            ship.AddEffect(newEffect);
+            newEffect.ApplyInitialSlowdown(ship);
+        }
+
         public bool IsAlive => _remaining > 0f;
-        public void UpdatePhysics(IShip ship, float elapsedTime) => _remaining -= elapsedTime;
+        public void UpdatePhysics(IShip ship, float elapsedTime)
+        {
+            _remaining -= elapsedTime;
+            if (IsAlive)
+                ClampToModifiedLimits(ship);
+        }
         public void UpdateView(IShip ship, float elapsedTime) { }
         public void Dispose() { }
         public bool TryApplyModification(ref EngineData data)
@@ -64,7 +92,51 @@ namespace Combat.Component.Ship.Effects
         public ISystemsModification SystemsModification => null;
         public IStatsModification StatsModification => null;
         public IUnitAction UnitAction => null;
+
+        private void ApplyInitialSlowdown(IShip ship)
+        {
+            if (ship?.Body == null)
+                return;
+
+            SetVelocity(ship.Body, ship.Body.Velocity * VelocityMultiplier);
+            SetAngularVelocity(ship.Body, ship.Body.AngularVelocity * VelocityMultiplier);
+        }
+
+        private void ClampToModifiedLimits(IShip ship)
+        {
+            if (ship?.Body == null || ship.Engine == null)
+                return;
+
+            var body = ship.Body;
+            var velocity = body.Velocity;
+            var maximumSpeed = Mathf.Max(0f, ship.Engine.MaxVelocity);
+            if (maximumSpeed > 0f && velocity.sqrMagnitude > maximumSpeed * maximumSpeed)
+                SetVelocity(body, velocity.normalized * maximumSpeed);
+
+            var maximumAngularSpeed = Mathf.Max(0f, ship.Engine.MaxAngularVelocity);
+            if (maximumAngularSpeed > 0f && Mathf.Abs(body.AngularVelocity) > maximumAngularSpeed)
+                SetAngularVelocity(body, Mathf.Clamp(body.AngularVelocity,
+                    -maximumAngularSpeed, maximumAngularSpeed));
+        }
+
+        private static void SetVelocity(IBody body, Vector2 velocity)
+        {
+            if (body is RigidBodyAdapter rigidBody)
+                rigidBody.Velocity = velocity;
+            else
+                body.ApplyAcceleration(velocity - body.Velocity);
+        }
+
+        private static void SetAngularVelocity(IBody body, float angularVelocity)
+        {
+            if (body is RigidBodyAdapter rigidBody)
+                rigidBody.AngularVelocity = angularVelocity;
+            else
+                body.ApplyAngularAcceleration(angularVelocity - body.AngularVelocity);
+        }
+
         private float _remaining;
+        private const float VelocityMultiplier = 0.2f;
     }
 
     public sealed class FirewallCollapseEffect : IShipEffect

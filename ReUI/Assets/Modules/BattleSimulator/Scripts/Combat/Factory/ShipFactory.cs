@@ -115,19 +115,51 @@ namespace Combat.Factory
                 if (item.Companion == null && !item.Weapons.Any() && !item.WeaponsObsolete.Any())
                     continue;
 
-                var platform = CreatePlatform(ship, item, 0.04f, spec.Stats.TurretColor);
-                ship.AddPlatform(platform);
-
-                foreach (var weaponSpec in item.Weapons)
+                var weapons = item.Weapons.ToArray();
+                var obsoleteWeapons = item.WeaponsObsolete.ToArray();
+                var needsSharedPlatform = item.Companion != null || obsoleteWeapons.Length > 0 ||
+                                          weapons.Any(weapon => !IsIndependentPointDefense(weapon));
+                IWeaponPlatform sharedPlatform = null;
+                if (needsSharedPlatform)
                 {
-                    var weapon = _weaponFactory.Create(weaponSpec, platform, spec.Stats.ArmorMultiplier.Value, ship);
+                    sharedPlatform = CreatePlatform(ship, item, 0.04f, spec.Stats.TurretColor);
+                    ship.AddPlatform(sharedPlatform);
+                }
+
+                foreach (var weaponSpec in weapons)
+                {
+                    IWeaponPlatform weaponPlatform;
+                    if (IsIndependentPointDefense(weaponSpec) && item.Companion == null)
+                    {
+                        // Every autonomous interceptor owns an independent
+                        // platform body and target slot. Sharing the hull
+                        // barrel's platform made the last interceptor overwrite
+                        // all previous targets, so several installed guns still
+                        // behaved as one turret.
+                        weaponPlatform = CreateIndependentPointDefensePlatform(ship, item, 0.04f);
+                        ship.AddPlatform(weaponPlatform);
+                    }
+                    else
+                    {
+                        sharedPlatform ??= CreatePlatform(ship, item, 0.04f, spec.Stats.TurretColor);
+                        if (!needsSharedPlatform)
+                        {
+                            ship.AddPlatform(sharedPlatform);
+                            needsSharedPlatform = true;
+                        }
+                        weaponPlatform = sharedPlatform;
+                    }
+
+                    var weapon = _weaponFactory.Create(weaponSpec, weaponPlatform,
+                        spec.Stats.ArmorMultiplier.Value, ship);
                     ship.AddSystem(weapon);
                     weapon.Aim();
                 }
 
-                foreach (var weaponSpec in item.WeaponsObsolete)
+                foreach (var weaponSpec in obsoleteWeapons)
                 {
-                    var weapon = _weaponFactory.Create(weaponSpec, platform, spec.Stats.ArmorMultiplier.Value, ship);
+                    var weapon = _weaponFactory.Create(weaponSpec, sharedPlatform,
+                        spec.Stats.ArmorMultiplier.Value, ship);
                     ship.AddSystem(weapon);
                     weapon.Aim();
                 }
@@ -454,6 +486,28 @@ namespace Combat.Factory
             }
 
             return platform;
+        }
+
+        private IWeaponPlatform CreateIndependentPointDefensePlatform(
+            Ship ship, IWeaponPlatformData data, float cooldown)
+        {
+            var position = data.Position * 0.5f;
+            var rotation = data.Rotation;
+            var offset = (data.Offset + data.Size) * 0.5f;
+            var rotationSpeed = data.RotationSpeed > 0f ? data.RotationSpeed : 360f;
+            return new AutoAimingPlatform(ship, ship, _scene, position, rotation, offset,
+                360f, cooldown, rotationSpeed, false);
+        }
+
+        private static bool IsIndependentPointDefense(IWeaponData weapon)
+        {
+            if (weapon?.Weapon == null)
+                return false;
+
+            return weapon.Weapon.Id.Value == 137 || // interceptor laser
+                   weapon.Weapon.Id.Value == 138 || // point-defence cannon
+                   weapon.Weapon.Id.Value == 156 || // stasis beam
+                   weapon.Weapon.Id.Value == 158;   // defence-drone laser
         }
 
         public struct Settings

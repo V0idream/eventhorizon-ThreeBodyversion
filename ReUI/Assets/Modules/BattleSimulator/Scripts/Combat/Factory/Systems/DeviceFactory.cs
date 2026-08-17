@@ -281,6 +281,9 @@ namespace Combat.Factory
                 case ThreeBodyContentRules.ElectronicShieldComponentId:
                     mode = EnergyShieldInteractionMode.Electronic;
                     break;
+                case ThreeBodyContentRules.StasisFieldComponentId:
+                    mode = EnergyShieldInteractionMode.Stasis;
+                    break;
                 default:
                     device = null;
                     return false;

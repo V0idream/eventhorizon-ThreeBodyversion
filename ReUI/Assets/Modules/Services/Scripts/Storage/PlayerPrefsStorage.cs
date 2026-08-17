@@ -12,14 +12,39 @@ namespace Services.Storage
     {
         public bool TryLoad(ISerializableGameData gameData, string mod)
         {
-            return TryLoad(mod, out var data) && TryDeserialize(data, gameData, mod);
+            var saveKey = GetSaveKey(mod);
+            if (TryLoadByKey(saveKey, out var data))
+                return TryDeserialize(data, gameData, mod, saveKey);
+
+            // Older builds loaded mod saves from savegame.<mod id>, but wrote
+            // every save back to the shared "savegame" key.  On the next
+            // launch the mod-specific key was therefore missing and a new game
+            // was created.  Only recover the shared value when this is the mod
+            // that was active when the application last closed; this avoids
+            // cloning the vanilla save into a newly selected external mod.
+            if (CanRecoverLegacyModSave(mod) &&
+                TryLoadByKey(_key, out data) &&
+                TryDeserialize(data, gameData, mod, _key))
+            {
+                PlayerPrefs.SetString(saveKey, Convert.ToBase64String(data, Base64FormattingOptions.None));
+                PlayerPrefs.Save();
+                _currentSaveKey = saveKey;
+                UnityEngine.Debug.Log(
+                    "PlayerPrefsStorage.TryLoad: migrated legacy mod save to " + saveKey);
+                return true;
+            }
+
+            return false;
         }
 
         public void Save(ISerializableGameData gameData)
         {
             try
             {
-                if (_currentGameId == gameData.GameId && _currentVersion == gameData.DataVersion)
+                var saveKey = GetSaveKey(gameData.ModId);
+                if (_currentSaveKey == saveKey &&
+                    _currentGameId == gameData.GameId &&
+                    _currentVersion == gameData.DataVersion)
                 {
                     UnityEngine.Debug.Log("PlayerPrefsStorage.Save: Game data not changed: " + gameData.GameId + "/" + gameData.DataVersion);
                     return;
@@ -37,9 +62,10 @@ namespace Services.Storage
                 data.AddRange(ZlibStream.CompressBuffer(gameData.Serialize().ToArray()));
 
                 var serializedData = Convert.ToBase64String(data.ToArray(), Base64FormattingOptions.None);
-                PlayerPrefs.SetString(_key, serializedData);
+                PlayerPrefs.SetString(saveKey, serializedData);
                 PlayerPrefs.Save();
 
+                _currentSaveKey = saveKey;
                 _currentGameId = gameData.GameId;
                 _currentVersion = gameData.DataVersion;
             }
@@ -54,14 +80,28 @@ namespace Services.Storage
             if (string.IsNullOrEmpty(mod))
                 return false;
 
-            return TryLoad(null, out var data) && TryDeserialize(data, gameData, mod);
+            return TryLoadByKey(_key, out var data) &&
+                   TryDeserialize(data, gameData, mod, _key);
         }
 
-        private bool TryLoad(string mod, out byte[] data)
+        private static string GetSaveKey(string mod)
+        {
+            return string.IsNullOrEmpty(mod) ? _key : _key + "." + mod;
+        }
+
+        private static bool CanRecoverLegacyModSave(string mod)
+        {
+            if (string.IsNullOrEmpty(mod))
+                return false;
+
+            var previouslyActiveMod = PlayerPrefs.GetString(_activeModKey, string.Empty);
+            return mod.Equals(previouslyActiveMod, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool TryLoadByKey(string key, out byte[] data)
         {
             try
             {
-                var key = string.IsNullOrEmpty(mod) ? _key : _key + "." + mod;
                 var dataString = PlayerPrefs.GetString(key);
 
                 if (string.IsNullOrEmpty(dataString))
@@ -81,11 +121,17 @@ namespace Services.Storage
             }
         }
 
-        private bool TryDeserialize(byte[] serializedData, ISerializableGameData gameData, string mod)
+        private bool TryDeserialize(
+            byte[] serializedData,
+            ISerializableGameData gameData,
+            string mod,
+            string saveKey)
         {
             try
             {
                 _currentGameId = -1;
+                _currentVersion = -1;
+                _currentSaveKey = null;
 
                 var size = (uint)(serializedData.Length - 1);
 
@@ -104,6 +150,7 @@ namespace Services.Storage
 
                 _currentGameId = gameId;
                 _currentVersion = version;
+                _currentSaveKey = saveKey;
 
                 UnityEngine.Debug.Log("PlayerPrefsStorage.TryDeserializeData: done - " + gameData.GameId);
 
@@ -118,8 +165,10 @@ namespace Services.Storage
 
         private long _currentGameId;
         private long _currentVersion;
+        private string _currentSaveKey;
         
-        private readonly string _key = "savegame";
+        private const string _key = "savegame";
+        private const string _activeModKey = "mod";
 
         private const int _formatId = 3;
     }

@@ -43,7 +43,12 @@ namespace GameModel
                         _items = new List<IProduct>();
 
                         var componentCount = 4 + extraGoods + random.Next(3);
-                        var components = _database.ComponentList.Where(item => item.Availability == Availability.Common || (extraGoods > 0 && item.Availability == Availability.Rare)).FilterByFactionOrEmpty(faction).LevelLessOrEqual(_star.Level);
+                        var components = _database.ComponentList
+                            .Where(item => item.Availability == Availability.Common ||
+                                           (extraGoods > 0 && item.Availability == Availability.Rare))
+                            .FilterByFactionOrEmpty(faction)
+                            .LevelLessOrEqual(_star.Level)
+                            .Where(ThreeBodyContentRules.IsAvailableInRandomMarket);
                         foreach (var item in components.RandomUniqueElements(componentCount, random))
                         {
                             var itemType = _itemTypeFactory.CreateComponentItem(ComponentInfo.CreateRandomModification(item, random, ModificationQuality.P3));

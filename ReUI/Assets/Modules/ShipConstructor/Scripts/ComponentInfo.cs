@@ -52,7 +52,7 @@ namespace Constructor
             var components = allowRare ? database.ComponentList.CommonAndRare() : database.ComponentList.Common();
             if (faction != null) components = components.FilterByFactionOrEmpty(faction);
             var component = components.LevelLessOrEqual(maxLevel)
-                .Where(item => !ThreeBodyContentRules.IsRestrictedComponent(item))
+                .Where(ThreeBodyContentRules.IsAvailableInRandomMarket)
                 .RandomElement(random);
             if (component == null)
             {
@@ -255,12 +255,25 @@ namespace Constructor
 
         public GameDatabase.DataModel.Component Data { get { return _data ?? GameDatabase.DataModel.Component.Empty; } }
 
-        public Economy.Price Price => Economy.Price.Common(ModificationType == ComponentMod.Empty ? Data.Price(): Data.Price(_quality));
+        public Economy.Price Price
+        {
+            get
+            {
+                if (ThreeBodyContentRules.IsRestrictedComponent(Data))
+                    return Economy.Price.Common(ThreeBodyContentRules.RestrictedTradePrice);
+
+                return Economy.Price.Common(
+                    ModificationType == ComponentMod.Empty ? Data.Price() : Data.Price(_quality));
+            }
+        }
 
         public Economy.Price PremiumPrice
         {
             get
             {
+                if (ThreeBodyContentRules.IsRestrictedComponent(Data))
+                    return Economy.Price.Common(ThreeBodyContentRules.RestrictedTradePrice);
+
                 ModificationQuality? quality = ModificationType == ComponentMod.Empty ? null : _quality;
 #if IAP_DISABLED
                 return Economy.Price.Common(Data.PremiumPriceInCredits(quality));

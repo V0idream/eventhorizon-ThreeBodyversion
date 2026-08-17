@@ -4,6 +4,7 @@ using Economy.ItemType;
 using Economy.Products;
 using GameServices.Player;
 using GameDatabase;
+using Constructor;
 using Constructor.Extensions;
 
 namespace GameModel
@@ -43,7 +44,11 @@ namespace GameModel
 				    }
 
 					foreach (var item in _inventory.Components.Items)
-						yield return _productFactory.CreatePlayerProduct(_factory.CreateComponentItem(item.Key), item.Value);
+                    {
+                        if (ThreeBodyContentRules.IsRestrictedComponent(item.Key.Data))
+                            continue;
+                        yield return _productFactory.CreatePlayerProduct(_factory.CreateComponentItem(item.Key), item.Value);
+                    }
 					foreach (var item in _inventory.Satellites.Items)
 						yield return _productFactory.CreatePlayerProduct(_factory.CreateSatelliteItem(item.Key), item.Value);
 

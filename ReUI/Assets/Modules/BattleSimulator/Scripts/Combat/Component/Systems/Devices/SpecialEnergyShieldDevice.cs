@@ -83,6 +83,9 @@ namespace Combat.Component.Systems.Devices
                 case EnergyShieldInteractionMode.Electronic:
                     UpdateElectronic(elapsedTime);
                     break;
+                case EnergyShieldInteractionMode.Stasis:
+                    UpdateContinuousDrain(elapsedTime);
+                    break;
                 case EnergyShieldInteractionMode.Subspace:
                     UpdateToggle();
                     UpdateSubspaceDrain(elapsedTime);
@@ -129,6 +132,11 @@ namespace Combat.Component.Systems.Devices
         }
 
         private void UpdateElectronic(float elapsedTime)
+        {
+            UpdateContinuousDrain(elapsedTime);
+        }
+
+        private void UpdateContinuousDrain(float elapsedTime)
         {
             var requiredEnergy = _energyCost * Mathf.Max(0f, elapsedTime);
             if (Active && CanBeActivated && _ship.Stats.Energy.TryGet(requiredEnergy))

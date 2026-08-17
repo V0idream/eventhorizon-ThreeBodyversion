@@ -51,7 +51,7 @@ namespace Combat.Collision.Behaviour.Action
             if (!collisionData.IsNew) return;
             if (target is IShip ship)
             {
-                if (!ship.Features.ImmuneToEffects) ship.AddEffect(new StasisEffect(1.25f));
+                if (!ship.Features.ImmuneToEffects) StasisEffect.Apply(ship, 1.25f);
             }
             else if (target is IBullet bullet)
             {

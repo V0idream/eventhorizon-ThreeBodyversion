@@ -24,6 +24,7 @@ namespace Combat.Component.Unit
         Angel,
         Subspace,
         Electronic,
+        Stasis,
     }
 
     public class EnergyShield : UnitBase, IAuxiliaryUnit
@@ -80,6 +81,8 @@ namespace Combat.Component.Unit
                     return BlockProjectile(target, false);
                 case EnergyShieldInteractionMode.Electronic:
                     return HandleElectronicCapture(target);
+                case EnergyShieldInteractionMode.Stasis:
+                    return HandleStasis(target);
                 default:
                     return false;
             }
@@ -87,6 +90,9 @@ namespace Combat.Component.Unit
 
         public bool BlocksOwnerProjectiles =>
             _isEnabled && _interactionMode == EnergyShieldInteractionMode.Angel;
+
+        public bool IgnoresNonDroneShipCollisions =>
+            _interactionMode == EnergyShieldInteractionMode.Electronic;
 
         public bool Active { get; set; }
 
@@ -240,6 +246,28 @@ namespace Combat.Component.Unit
                 target.Collider.Source = _parent;
             }
             _timeFromLastHit = 0f;
+            return true;
+        }
+
+        private bool HandleStasis(IUnit target)
+        {
+            if (CombatRelations.AreAllies(_parent.Type, target.Type))
+                return true;
+
+            if (target is IBullet projectile)
+            {
+                Combat.Collision.Behaviour.Action.ProjectileStasisStatus.Apply(projectile, 1.25f);
+                _timeFromLastHit = 0f;
+                return true;
+            }
+
+            if (target is IShip ship && target.Type.Class == UnitClass.Drone)
+            {
+                if (!ship.Features.ImmuneToEffects)
+                    Combat.Component.Ship.Effects.StasisEffect.Apply(ship, 1.25f);
+                _timeFromLastHit = 0f;
+            }
+
             return true;
         }
 

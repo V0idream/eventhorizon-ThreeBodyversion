@@ -2,6 +2,7 @@
 using System.Linq;
 using Combat.Collision.Manager;
 using Combat.Component.Body;
+using Combat.Component.Ship;
 using Combat.Component.Unit;
 using Combat.Component.Unit.Classification;
 using Combat.Unit;
@@ -97,11 +98,23 @@ namespace Combat.Component.Collider
             var unit = collider.Unit;
             if (unit == null || unit.Body == null) return false;
             
+            if (ShouldIgnoreElectronicShieldShipCollision(_unit, unit)) return false;
             if (Source == null) return true;
             if (unit == Source) return false;
             if (unit.Type.Owner == Source && !IsBallLightning(unit) && !IsOwnerBlockingShield(unit)) return false;
 
             return true;
+        }
+
+        private static bool ShouldIgnoreElectronicShieldShipCollision(IUnit first, IUnit second)
+        {
+            if (first is EnergyShield firstShield && firstShield.IgnoresNonDroneShipCollisions &&
+                second is IShip && second.Type.Class != UnitClass.Drone)
+                return true;
+            if (second is EnergyShield secondShield && secondShield.IgnoresNonDroneShipCollisions &&
+                first is IShip && first.Type.Class != UnitClass.Drone)
+                return true;
+            return false;
         }
 
         private static bool IsBallLightning(IUnit unit)
