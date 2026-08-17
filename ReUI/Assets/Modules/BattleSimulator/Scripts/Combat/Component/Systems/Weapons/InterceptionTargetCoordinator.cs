@@ -1,6 +1,10 @@
 using System.Collections.Generic;
+using Combat.Component.Bullet;
+using Combat.Component.Controller;
+using Combat.Component.Ship;
 using Combat.Component.Unit;
 using Combat.Component.Unit.Classification;
+using Combat.Scene;
 using Combat.Unit;
 using UnityEngine;
 
@@ -13,6 +17,18 @@ namespace Combat.Component.Systems.Weapons
     /// </summary>
     internal static class InterceptionTargetCoordinator
     {
+        public static IReadOnlyList<IUnit> GetProjectileCandidates(IScene scene)
+        {
+            RefreshCandidateCache(scene);
+            return ProjectileCandidates;
+        }
+
+        public static IReadOnlyList<IShip> GetShipCandidates(IScene scene)
+        {
+            RefreshCandidateCache(scene);
+            return ShipCandidates;
+        }
+
         public static bool IsReservedByOther(IUnit target, object owner, IUnit interceptor,
             bool controlChannel = false)
         {
@@ -63,6 +79,54 @@ namespace Combat.Component.Systems.Weapons
             public float ExpiresAt { get; }
         }
 
+        private static void RefreshCandidateCache(IScene scene)
+        {
+            var frame = Time.frameCount;
+            var fixedTime = Time.fixedTime;
+            if (ReferenceEquals(scene, CachedScene) && frame == CachedFrame &&
+                Mathf.Approximately(fixedTime, CachedFixedTime))
+                return;
+
+            CachedScene = scene;
+            CachedFrame = frame;
+            CachedFixedTime = fixedTime;
+            ProjectileCandidates.Clear();
+            ShipCandidates.Clear();
+
+            if (scene == null)
+                return;
+
+            // Build one immutable-for-this-tick snapshot instead of letting
+            // every installed point-defence turret lock and scan the complete
+            // unit list independently. This changes the dominant cost from
+            // O(interceptors * all units) to O(all units + interceptors *
+            // projectiles), with no per-turret allocations.
+            lock (scene.Units.LockObject)
+            {
+                var units = scene.Units.Items;
+                for (var i = 0; i < units.Count; ++i)
+                {
+                    var unit = units[i];
+                    if (!unit.IsActive())
+                        continue;
+                    if (unit is IBullet || unit.Type.Class == UnitClass.Missile ||
+                        unit is Combat.Component.Bullet.Bullet { Controller: BallLightningController })
+                        ProjectileCandidates.Add(unit);
+                }
+            }
+
+            lock (scene.Ships.LockObject)
+            {
+                var ships = scene.Ships.Items;
+                for (var i = 0; i < ships.Count; ++i)
+                {
+                    var ship = ships[i];
+                    if (ship.IsActive())
+                        ShipCandidates.Add(ship);
+                }
+            }
+        }
+
         private const float ReservationLifetime = 0.2f;
         private static readonly Dictionary<IUnit, Reservation> Reservations = new();
         // Stasis beams coordinate independently from damage point-defence.
@@ -70,5 +134,10 @@ namespace Combat.Component.Systems.Weapons
         // unavailable to every stasis beam and all stasis beams fall back to
         // the same already-reserved target.
         private static readonly Dictionary<IUnit, Reservation> ControlReservations = new();
+        private static readonly List<IUnit> ProjectileCandidates = new(128);
+        private static readonly List<IShip> ShipCandidates = new(64);
+        private static IScene CachedScene;
+        private static int CachedFrame = -1;
+        private static float CachedFixedTime = float.MinValue;
     }
 }

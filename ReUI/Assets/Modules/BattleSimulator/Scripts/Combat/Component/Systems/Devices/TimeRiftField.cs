@@ -82,14 +82,26 @@ namespace Combat.Component.Systems.Devices
 
         private void Update()
         {
-            _remaining -= Time.deltaTime;
+            var elapsedTime = Time.deltaTime;
+            _remaining -= elapsedTime;
             KeepVisualOverBattlefield();
-            UpdateRetriggerCooldowns(Time.deltaTime);
             if (_remaining <= 0f)
             {
                 Destroy(gameObject);
                 return;
             }
+
+            // Collision geometry is a large persistent field, but it does not
+            // need render-frame frequency. A fixed 20 Hz sample bounds latency
+            // to 50 ms while removing repeated all-ship scans on high-refresh
+            // displays and during camera-only frames.
+            _collisionAccumulator += elapsedTime;
+            if (_collisionAccumulator < CollisionInterval)
+                return;
+
+            var simulationStep = _collisionAccumulator;
+            _collisionAccumulator = 0f;
+            UpdateRetriggerCooldowns(simulationStep);
             ProcessCollisions();
         }
 
@@ -237,6 +249,8 @@ namespace Combat.Component.Systems.Devices
         private Vector2 _visualCenter;
         private float _spacing;
         private float _remaining;
+        private float _collisionAccumulator;
         private const float RetriggerDelay = 1.25f;
+        private const float CollisionInterval = 0.05f;
     }
 }

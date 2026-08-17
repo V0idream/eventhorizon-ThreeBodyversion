@@ -133,61 +133,60 @@ namespace Combat.Component.Systems.Weapons
             var shortestMissileImpactTime = float.MaxValue;
             var shortestOtherImpactTime = float.MaxValue;
 
-            lock (_scene.Units.LockObject)
+            var candidates = InterceptionTargetCoordinator.GetProjectileCandidates(_scene);
+            for (var candidateIndex = 0; candidateIndex < candidates.Count; ++candidateIndex)
             {
-                foreach (var unit in _scene.Units.Items)
+                var unit = candidates[candidateIndex];
+                if (!unit.IsActive() || !IsInterceptableProjectile(unit) ||
+                    !CanTargetProjectile(unit) ||
+                    unit is IBullet { IsInterceptionProjectile: true })
+                    continue;
+
+                var reservedByOther = !_interceptAllProjectiles &&
+                    InterceptionTargetCoordinator.IsReservedByOther(unit, this, _owner,
+                        _preferProjectilesEvenIfReserved);
+                if (reservedByOther && !_preferProjectilesEvenIfReserved)
+                    continue;
+
+                var impactTime = 0f;
+                if (_interceptAllProjectiles && !ThreatensProtectedShip(unit, out impactTime))
+                    continue;
+
+                var distance = Vector2.SqrMagnitude(unit.Body.WorldPosition() - position);
+                if (distance > range * range)
+                    continue;
+
+                if (reservedByOther)
                 {
-                    if (!unit.IsActive() || !IsInterceptableProjectile(unit) ||
-                        !CanTargetProjectile(unit) ||
-                        unit is IBullet { IsInterceptionProjectile: true })
-                        continue;
-
-                    var reservedByOther = !_interceptAllProjectiles &&
-                        InterceptionTargetCoordinator.IsReservedByOther(unit, this, _owner,
-                            _preferProjectilesEvenIfReserved);
-                    if (reservedByOther && !_preferProjectilesEvenIfReserved)
-                        continue;
-
-                    var impactTime = 0f;
-                    if (_interceptAllProjectiles && !ThreatensProtectedShip(unit, out impactTime))
-                        continue;
-
-                    var distance = Vector2.SqrMagnitude(unit.Body.WorldPosition() - position);
-                    if (distance > range * range)
-                        continue;
-
-                    if (reservedByOther)
+                    if (distance < reservedMissileDistance)
                     {
-                        if (distance < reservedMissileDistance)
-                        {
-                            reservedMissileDistance = distance;
-                            nearestReservedMissile = unit;
-                        }
-                        continue;
+                        reservedMissileDistance = distance;
+                        nearestReservedMissile = unit;
                     }
-
-                    if (_interceptAllProjectiles)
-                    {
-                        if (unit.Type.Class == UnitClass.Missile)
-                        {
-                            if (impactTime >= shortestMissileImpactTime) continue;
-                            shortestMissileImpactTime = impactTime;
-                            nearestMissile = unit;
-                        }
-                        else
-                        {
-                            if (impactTime >= shortestOtherImpactTime) continue;
-                            shortestOtherImpactTime = impactTime;
-                            nearestOtherProjectile = unit;
-                        }
-                        continue;
-                    }
-                    if (distance >= missileDistance)
-                        continue;
-
-                    nearestMissile = unit;
-                    missileDistance = distance;
+                    continue;
                 }
+
+                if (_interceptAllProjectiles)
+                {
+                    if (unit.Type.Class == UnitClass.Missile)
+                    {
+                        if (impactTime >= shortestMissileImpactTime) continue;
+                        shortestMissileImpactTime = impactTime;
+                        nearestMissile = unit;
+                    }
+                    else
+                    {
+                        if (impactTime >= shortestOtherImpactTime) continue;
+                        shortestOtherImpactTime = impactTime;
+                        nearestOtherProjectile = unit;
+                    }
+                    continue;
+                }
+                if (distance >= missileDistance)
+                    continue;
+
+                nearestMissile = unit;
+                missileDistance = distance;
             }
 
             if (nearestMissile != null)

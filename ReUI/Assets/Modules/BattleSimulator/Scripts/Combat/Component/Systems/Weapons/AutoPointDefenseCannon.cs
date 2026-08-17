@@ -64,21 +64,20 @@ namespace Combat.Component.Systems.Weapons
             var rangeSquared = Info.Range * Info.Range;
             IUnit nearestMissile = null;
             var nearestDistance = float.MaxValue;
-            lock (_scene.Units.LockObject)
+            var candidates = InterceptionTargetCoordinator.GetProjectileCandidates(_scene);
+            for (var candidateIndex = 0; candidateIndex < candidates.Count; ++candidateIndex)
             {
-                foreach (var unit in _scene.Units.Items)
-                {
-                    if (!unit.IsActive() || !IsInterceptableProjectile(unit) ||
-                        unit is IBullet { IsInterceptionProjectile: true } ||
-                        !CanTargetProjectile(unit) ||
-                        InterceptionTargetCoordinator.IsReservedByOther(unit, this, _owner))
-                        continue;
-                    var distance = Vector2.SqrMagnitude(unit.Body.WorldPosition() - position);
-                    if (distance > rangeSquared || distance >= nearestDistance)
-                        continue;
-                    nearestMissile = unit;
-                    nearestDistance = distance;
-                }
+                var unit = candidates[candidateIndex];
+                if (!unit.IsActive() || !IsInterceptableProjectile(unit) ||
+                    unit is IBullet { IsInterceptionProjectile: true } ||
+                    !CanTargetProjectile(unit) ||
+                    InterceptionTargetCoordinator.IsReservedByOther(unit, this, _owner))
+                    continue;
+                var distance = Vector2.SqrMagnitude(unit.Body.WorldPosition() - position);
+                if (distance > rangeSquared || distance >= nearestDistance)
+                    continue;
+                nearestMissile = unit;
+                nearestDistance = distance;
             }
 
             return nearestMissile ?? _scene.Ships.GetEnemyForTurret(_owner, position,

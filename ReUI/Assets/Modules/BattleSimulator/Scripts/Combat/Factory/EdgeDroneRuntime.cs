@@ -5,6 +5,7 @@ using Combat.Component.Ship;
 using Combat.Component.Unit.Classification;
 using Combat.Component.Unit;
 using Combat.Scene;
+using Combat.Component.Systems.Weapons;
 using Combat.Unit;
 using Constructor;
 using Constructor.Model;
@@ -235,21 +236,20 @@ namespace Combat.Factory
         {
             IShip nearest = null;
             var nearestDistance = float.PositiveInfinity;
-            lock (scene.Ships.LockObject)
+            var candidates = InterceptionTargetCoordinator.GetShipCandidates(scene);
+            for (var candidateIndex = 0; candidateIndex < candidates.Count; ++candidateIndex)
             {
-                foreach (var candidate in scene.Ships.Items)
-                {
-                    if (candidate == drone || !candidate.IsActive() ||
-                        !CombatRelations.AreEnemies(drone.Type, candidate.Type) ||
-                        candidate.Features.TargetPriority == Combat.Component.Features.TargetPriority.None ||
-                        Combat.Component.Ship.Effects.SmallUniverseTransitEffect.IsInTransit(candidate))
-                        continue;
+                var candidate = candidates[candidateIndex];
+                if (candidate == drone || !candidate.IsActive() ||
+                    !CombatRelations.AreEnemies(drone.Type, candidate.Type) ||
+                    candidate.Features.TargetPriority == Combat.Component.Features.TargetPriority.None ||
+                    Combat.Component.Ship.Effects.SmallUniverseTransitEffect.IsInTransit(candidate))
+                    continue;
 
-                    var distance = (candidate.Body.WorldPosition() - drone.Body.WorldPosition()).sqrMagnitude;
-                    if (distance >= nearestDistance) continue;
-                    nearestDistance = distance;
-                    nearest = candidate;
-                }
+                var distance = (candidate.Body.WorldPosition() - drone.Body.WorldPosition()).sqrMagnitude;
+                if (distance >= nearestDistance) continue;
+                nearestDistance = distance;
+                nearest = candidate;
             }
             return nearest;
         }
@@ -261,30 +261,29 @@ namespace Combat.Factory
             IUnit nearest = null;
             var shortestImpactTime = 0.85f;
             var ownerPosition = pair.Owner.Body.WorldPosition();
-            lock (scene.Units.LockObject)
+            var candidates = InterceptionTargetCoordinator.GetProjectileCandidates(scene);
+            for (var candidateIndex = 0; candidateIndex < candidates.Count; ++candidateIndex)
             {
-                foreach (var unit in scene.Units.Items)
-                {
-                    if (unit is not IBullet || !unit.IsActive() ||
-                        !CombatRelations.AreEnemies(pair.Owner.Type, unit.Type)) continue;
+                var unit = candidates[candidateIndex];
+                if (unit is not IBullet || !unit.IsActive() ||
+                    !CombatRelations.AreEnemies(pair.Owner.Type, unit.Type)) continue;
 
-                    // The installed autonomous laser is the primary defence.
-                    // Ram only a projectile whose current trajectory is about
-                    // to reach the protected ship and therefore escaped it.
-                    var relativePosition = unit.Body.WorldPosition() - ownerPosition;
-                    var relativeVelocity = unit.Body.WorldVelocity() - pair.Owner.Body.WorldVelocity();
-                    var speedSquared = relativeVelocity.sqrMagnitude;
-                    if (speedSquared < 0.01f || Vector2.Dot(relativePosition, relativeVelocity) >= 0f)
-                        continue;
-                    var impactTime = -Vector2.Dot(relativePosition, relativeVelocity) / speedSquared;
-                    if (impactTime < 0f || impactTime >= shortestImpactTime)
-                        continue;
-                    var closestDistance = (relativePosition + relativeVelocity * impactTime).magnitude;
-                    if (closestDistance > Mathf.Max(3f, pair.Owner.Body.Scale * 0.8f))
-                        continue;
-                    shortestImpactTime = impactTime;
-                    nearest = unit;
-                }
+                // The installed autonomous laser is the primary defence.
+                // Ram only a projectile whose current trajectory is about
+                // to reach the protected ship and therefore escaped it.
+                var relativePosition = unit.Body.WorldPosition() - ownerPosition;
+                var relativeVelocity = unit.Body.WorldVelocity() - pair.Owner.Body.WorldVelocity();
+                var speedSquared = relativeVelocity.sqrMagnitude;
+                if (speedSquared < 0.01f || Vector2.Dot(relativePosition, relativeVelocity) >= 0f)
+                    continue;
+                var impactTime = -Vector2.Dot(relativePosition, relativeVelocity) / speedSquared;
+                if (impactTime < 0f || impactTime >= shortestImpactTime)
+                    continue;
+                var closestDistance = (relativePosition + relativeVelocity * impactTime).magnitude;
+                if (closestDistance > Mathf.Max(3f, pair.Owner.Body.Scale * 0.8f))
+                    continue;
+                shortestImpactTime = impactTime;
+                nearest = unit;
             }
             if (nearest == null) return;
             var predictedPosition = nearest.Body.WorldPosition() + nearest.Body.WorldVelocity() * shortestImpactTime;
