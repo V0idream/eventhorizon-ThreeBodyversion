@@ -53,7 +53,13 @@ namespace GameStateMachine.States
 
         protected override void OnLoad()
         {
-#if (UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
+#if UNITY_ANDROID && !UNITY_EDITOR
+            // Beta8.30 was hard-capped at 60 FPS, which also lets Android's
+            // scheduler down-clock once the frame finishes early. Allow
+            // high-refresh Android devices to request the full 120 FPS budget;
+            // lower-refresh displays will still be paced by the platform.
+            Application.targetFrameRate = 120;
+#elif UNITY_IOS && !UNITY_EDITOR
             Application.targetFrameRate = 60;
 #endif
 

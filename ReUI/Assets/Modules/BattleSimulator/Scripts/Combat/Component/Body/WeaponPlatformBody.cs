@@ -1,4 +1,4 @@
-﻿using Combat.Component.Body;
+using Combat.Component.Body;
 using Combat.Component.Features;
 using Combat.Component.Ship;
 using Combat.Component.Ship.Effects;
@@ -134,7 +134,7 @@ namespace Combat.Component.Platform
             var hasAutonomousProjectileTarget = _target is Combat.Component.Bullet.IBullet && _target.IsActive();
             if (!hasAutonomousProjectileTarget && _parent.Type.Side == UnitSide.Player &&
                 IsValidLockedTarget(_scene.LockedTarget) &&
-                Vector2.Distance(WorldPosition(), _scene.LockedTarget.Body.WorldPosition()) <= _weaponRange)
+                BattlefieldGeometry.Distance(WorldPosition(), _scene.LockedTarget.Body.WorldPosition()) <= _weaponRange)
             {
                 ActiveUnitTarget = _scene.LockedTarget;
                 return;
@@ -152,10 +152,15 @@ namespace Combat.Component.Platform
 			if (target == null) return false;
 			if (Combat.Collision.Behaviour.Action.VirusCodeTargeting.IsBlocked(this, target)) return false;
 			if (IsSpecialProjectile(target)) return true;
-			if (CombatRelations.AreAllies(target.Type, _parent.Type)) return false;
-			if (target is not IShip ship) return true;
-			if (_parent is IShip owner && !RadarStatus.CanDetect(owner, ship)) return false;
-			if (ship.Features.TargetPriority == TargetPriority.None) return false;
+			if (target is not IShip ship) return !CombatRelations.AreAllies(target.Type, _parent.Type);
+			if (_parent is IShip owner)
+			{
+				var convertedFallback = TemporaryConversionEffect.CanPlayerAttack(owner, ship);
+				if (!convertedFallback && CombatRelations.AreAllies(target.Type, _parent.Type)) return false;
+				if (!RadarStatus.CanBeWeaponTarget(owner, ship)) return false;
+			}
+			else if (CombatRelations.AreAllies(target.Type, _parent.Type)) return false;
+			if (_parent is not IShip && ship.Features.TargetPriority == TargetPriority.None) return false;
 			return true;
 		}
 
@@ -216,8 +221,8 @@ namespace Combat.Component.Platform
                 return;
             }
 
-            var targetPosition = _target.Body.WorldPosition();
             var platformPosition = this.WorldPosition();
+            var targetPosition = BattlefieldGeometry.NearestEquivalent(platformPosition, _target.Body.WorldPosition());
 
             if (_bulletVelocity > 0)
             {
@@ -237,11 +242,11 @@ namespace Combat.Component.Platform
                     target = targetPosition;
                 }
 
-                rotation = RotationHelpers.Angle(platformPosition.Direction(target)) - Parent.WorldRotation();
+                rotation = RotationHelpers.Angle(target - platformPosition) - Parent.WorldRotation();
             }
             else
             {
-                rotation = RotationHelpers.Angle(platformPosition.Direction(targetPosition)) - Parent.WorldRotation();
+                rotation = RotationHelpers.Angle(targetPosition - platformPosition) - Parent.WorldRotation();
             }
 
             var delta = Mathf.DeltaAngle(targetRotation, rotation);

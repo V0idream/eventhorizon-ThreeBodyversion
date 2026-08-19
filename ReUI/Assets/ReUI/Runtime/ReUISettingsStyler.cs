@@ -42,7 +42,7 @@ namespace ReUI
             if (combatMapSize != null) StyleCombatMapSize(combatMapSize);
 
             ReUIThemePalettePanel.Ensure(canvas, settings);
-            ReUIShieldStyleSelector.Ensure(settings);
+            ReUIExtendedDisplayMenu.EnsureForSettings(canvas);
         }
 
         private static Transform FindSettingsRoot(Transform root)

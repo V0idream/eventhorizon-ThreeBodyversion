@@ -189,7 +189,10 @@ namespace Game.Exploration
 
         public IEnemyShipBuilder GetHive(int seed)
         {
-            return new EnemyShipBuilder(_database.ExplorationSettings.HiveShipBuild.Id, _database, _planet.Level, seed, true);
+            // The hive is a fixed authored encounter rather than a randomly
+            // generated exploration ship; preserve its bespoke equipment.
+            return new EnemyShipBuilder(_database.ExplorationSettings.HiveShipBuild.Id, _database,
+                _planet.Level, seed, true, true, false);
         }
 
         public IEnemyShipBuilder GetHiveGuardian(System.Random random)

@@ -1,0 +1,39 @@
+{
+  "ItemType": 25,
+  "Id": 916,
+  "Body": {
+    "Size": 1.2,
+    "Weight": 0.18,
+    "HitPoints": 35.0,
+    "Velocity": 100.0,
+    "Range": 700.0,
+    "Lifetime": 8.0,
+    "Color": "#D9F7FF",
+    "BulletPrefab": 22,
+    "EnergyCost": 260.0,
+    "CanBeDisarmed": true,
+    "AiBulletBehavior": 1
+  },
+  "Controller": {
+    "Type": 1,
+    "StartingVelocityModifier": 0.2
+  },
+  "Triggers": [
+    {
+      "Condition": 2,
+      "EffectType": 2,
+      "Ammunition": 917,
+      "Size": 1.0,
+      "Rotation": "0",
+      "OffsetX": "0"
+    }
+  ],
+  "ImpactType": 0,
+  "Effects": [
+    {
+      "Type": 0,
+      "DamageType": 0,
+      "Power": 30000.0
+    }
+  ]
+}

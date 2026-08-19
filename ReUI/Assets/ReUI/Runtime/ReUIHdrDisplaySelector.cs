@@ -99,18 +99,25 @@ namespace ReUI
             SettingsGeneral general = canvas.GetComponentInChildren<SettingsGeneral>(true);
             if (general == null) return;
 
-            ReUIHdrDisplaySelectorState existing = general.transform.Find(RowName)
+            EnsureIn(general.transform, FindFont(general.transform));
+        }
+
+        internal static ReUIHdrDisplaySelectorState EnsureIn(Transform parent, Font font)
+        {
+            if (parent == null) return null;
+
+            ReUIHdrDisplaySelectorState existing = parent.Find(RowName)
                 ?.GetComponent<ReUIHdrDisplaySelectorState>();
             if (existing != null)
             {
                 existing.Refresh();
-                return;
+                return existing;
             }
 
-            Font font = FindFont(general.transform);
+            if (font == null) font = FindFont(parent);
             GameObject row = new(RowName, typeof(RectTransform), typeof(LayoutElement),
                 typeof(HorizontalLayoutGroup), typeof(ReUIHdrDisplaySelectorState));
-            row.transform.SetParent(general.transform, false);
+            row.transform.SetParent(parent, false);
 
             LayoutElement rowLayout = row.GetComponent<LayoutElement>();
             rowLayout.minHeight = 72f;
@@ -147,6 +154,7 @@ namespace ReUI
             state.Hdr = hdr;
             state.Status = status;
             state.Initialize();
+            return state;
         }
 
         private static Toggle CreateToggle(Transform parent, string name, string label, Font font, ToggleGroup group)

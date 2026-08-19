@@ -14,7 +14,7 @@ namespace ReUI
         internal Image Surface;
         internal Image Preview;
         internal Outline SurfaceOutline;
-        internal Text HexValue;
+        internal InputField HexInput;
         internal Slider Hue;
         internal ReUIThemeColorSquareGraphic ColorSquare;
         internal ReUIThemeColorSquareInput ColorInput;
@@ -34,6 +34,7 @@ namespace ReUI
         {
             if (Hue != null) Hue.onValueChanged.RemoveListener(OnHueChanged);
             if (ColorInput != null) ColorInput.SelectionChanged -= OnSquareChanged;
+            if (HexInput != null) HexInput.onEndEdit.RemoveListener(OnHexEdited);
         }
 
         internal void Initialize()
@@ -43,6 +44,7 @@ namespace ReUI
 
             if (Hue != null) Hue.onValueChanged.AddListener(OnHueChanged);
             if (ColorInput != null) ColorInput.SelectionChanged += OnSquareChanged;
+            if (HexInput != null) HexInput.onEndEdit.AddListener(OnHexEdited);
             RefreshFromPalette();
         }
 
@@ -53,6 +55,8 @@ namespace ReUI
 
         internal void ApplySelectedTheme()
         {
+            if (!TryReadHexInput())
+                return;
             ReUIPalette.SetThemeColor(_draftColor);
             ReUIBootstrap.RefreshTheme();
         }
@@ -90,6 +94,25 @@ namespace ReUI
             SetDraftColor(Color.HSVToRGB(Hue.value, saturation, brightness));
         }
 
+        private void OnHexEdited(string _)
+        {
+            if (_suppressChanges) return;
+            if (!TryReadHexInput())
+                RefreshHexInput();
+        }
+
+        private bool TryReadHexInput()
+        {
+            if (HexInput == null) return true;
+            string value = HexInput.text?.Trim();
+            if (string.IsNullOrEmpty(value)) return false;
+            if (!value.StartsWith("#", StringComparison.Ordinal)) value = "#" + value;
+            if (!ColorUtility.TryParseHtmlString(value, out Color parsed)) return false;
+            parsed.a = 1f;
+            SetDraftColor(parsed);
+            return true;
+        }
+
         private void SetDraftColor(Color color)
         {
             color.a = 1f;
@@ -103,7 +126,15 @@ namespace ReUI
             _suppressChanges = false;
 
             if (Preview != null) Preview.color = color;
-            if (HexValue != null) HexValue.text = "#" + ColorUtility.ToHtmlStringRGB(color);
+            RefreshHexInput();
+        }
+
+        private void RefreshHexInput()
+        {
+            if (HexInput == null) return;
+            _suppressChanges = true;
+            HexInput.SetTextWithoutNotify("#" + ColorUtility.ToHtmlStringRGB(_draftColor));
+            _suppressChanges = false;
         }
 
         private void OnThemeChanged(Color _)
@@ -324,8 +355,10 @@ namespace ReUI
             previewOutline.effectDistance = new Vector2(1f, -1f);
             previewOutline.useGraphicAlpha = false;
             state.Preview = preview;
-            state.HexValue = CreateText(preview.transform, "Hex", string.Empty, font, 24, TextAnchor.MiddleCenter,
-                Vector2.zero, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero, Color.white, FontStyle.Bold);
+            state.HexInput = CreateHexInput(preview.transform, font);
+            CreateText(inspector.transform, "Hex Hint", "可编辑 HEX，输入后点击“应用主题”", font, 17,
+                TextAnchor.MiddleCenter, new Vector2(0f, 83f), new Vector2(0.5f, 0.5f), Vector2.zero,
+                new Vector2(330f, 34f), ReUIPalette.TextSecondary);
 
             for (int i = 0; i < Presets.Length; i++)
             {
@@ -479,6 +512,43 @@ namespace ReUI
                 Vector2.zero, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero,
                 ReUIPalette.TextPrimary, FontStyle.Bold);
             return button;
+        }
+
+        private static InputField CreateHexInput(Transform parent, Font font)
+        {
+            GameObject inputObject = new("Hex Input", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image),
+                typeof(InputField));
+            inputObject.transform.SetParent(parent, false);
+            RectTransform rect = inputObject.GetComponent<RectTransform>();
+            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = Vector2.zero;
+            rect.sizeDelta = new Vector2(250f, 52f);
+
+            Image background = inputObject.GetComponent<Image>();
+            background.sprite = ReUICanvasStyler.SurfaceSprite;
+            background.type = Image.Type.Sliced;
+            background.color = new Color(0f, 0f, 0f, 0.28f);
+            Outline outline = inputObject.AddComponent<Outline>();
+            outline.effectColor = ReUIPalette.WithAlpha(Color.white, 0.72f);
+            outline.effectDistance = new Vector2(1f, -1f);
+            outline.useGraphicAlpha = false;
+
+            Text value = CreateText(inputObject.transform, "Text", string.Empty, font, 24,
+                TextAnchor.MiddleCenter, Vector2.zero, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero,
+                Color.white, FontStyle.Bold);
+            value.supportRichText = false;
+            value.raycastTarget = false;
+
+            InputField input = inputObject.GetComponent<InputField>();
+            input.targetGraphic = background;
+            input.textComponent = value;
+            input.characterLimit = 9;
+            input.contentType = InputField.ContentType.Standard;
+            input.lineType = InputField.LineType.SingleLine;
+            input.caretColor = Color.white;
+            input.selectionColor = new Color(1f, 1f, 1f, 0.28f);
+            return input;
         }
 
         private static Image CreateImage(Transform parent, string name, Vector2 position, Vector2 anchor,

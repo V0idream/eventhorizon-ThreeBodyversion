@@ -71,12 +71,15 @@ namespace Combat.Ai
                     if (enemy.Type.Class == UnitClass.Drone)
                         distance = 20f;
 
-                    foreach (var droneBay in enemy.Systems.All.OfType<IDroneBay>())
-                        distance = Mathf.Max(distance, droneBay.Range);
+                    if (enemy.Systems != null)
+                    {
+                        foreach (var droneBay in enemy.Systems.All.OfType<IDroneBay>())
+                            distance = Mathf.Max(distance, droneBay.Range);
 
-                    foreach (var weapon in enemy.Systems.All.OfType<IWeapon>())
-                        if (weapon.Platform.AutoAimingAngle > 5 || weapon.Info.BulletType == AiBulletBehavior.Homing)
-                            distance = Mathf.Max(distance, weapon.Info.Range);
+                        foreach (var weapon in enemy.Systems.All.OfType<IWeapon>())
+                            if (weapon.Platform.AutoAimingAngle > 5 || weapon.Info.BulletType == AiBulletBehavior.Homing)
+                                distance = Mathf.Max(distance, weapon.Info.Range);
+                    }
 
                     if (distance > 0)
                         strategy.AddPolicy(

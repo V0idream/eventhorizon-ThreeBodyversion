@@ -2,6 +2,7 @@ using System.Linq;
 using Combat.Component.Ship;
 using Combat.Component.Systems.Weapons;
 using Combat.Component.Unit;
+using Combat.Scene;
 using UnityEngine;
 
 namespace Combat.Ai
@@ -10,11 +11,13 @@ namespace Combat.Ai
 	{
 		public static float Distance(IUnit first, IUnit second)
 		{
-		    return Mathf.Max(0.001f, Vector2.Distance(first.Body.Position, second.Body.Position) - first.Body.Scale/2 - second.Body.Scale/2);
+		    return Mathf.Max(0.001f, BattlefieldGeometry.Distance(first.Body.WorldPosition(), second.Body.WorldPosition()) - first.Body.Scale/2 - second.Body.Scale/2);
 		}
 
 		public static float ShipMinRange(IShip ship)
 		{
+			if (ship?.Systems == null)
+				return 0f;
 			float range = 0;
 			foreach (var weapon in ship.Systems.All.OfType<IWeapon>())
 			{
@@ -29,6 +32,8 @@ namespace Combat.Ai
 		
 		public static float ShipMaxRange(IShip ship)
 		{
+			if (ship?.Systems == null)
+				return 0f;
 			float range = 0;
 			foreach (var weapon in ship.Systems.All.OfType<IWeapon>())
 			{
@@ -43,6 +48,8 @@ namespace Combat.Ai
 
 		public static float ShipAvgRange(IShip ship)
 		{
+			if (ship?.Systems == null)
+				return 0f;
 			float range = 0;
 			int count = 0;
 			foreach (var weapon in ship.Systems.All.OfType<IWeapon>())

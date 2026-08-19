@@ -1,4 +1,4 @@
-﻿using Combat.Component.Body;
+using Combat.Component.Body;
 using Combat.Component.Unit;
 using Combat.Component.Unit.Classification;
 using Combat.Scene;
@@ -71,14 +71,16 @@ namespace Combat.Component.Controller
                 // If parent is present, we can not move, so just rotate towards the target
                 if (_target == null || !_target.IsActive()) return;
 
-                if (!_smartAim || !Geometry.GetTargetPosition(_target.Body.WorldPosition(), _target.Body.Velocity,
-                        _unit.Body.WorldPosition(),
+                var origin = _unit.Body.WorldPosition();
+                var nearestTargetPosition = BattlefieldGeometry.NearestEquivalent(origin, _target.Body.WorldPosition());
+                if (!_smartAim || !Geometry.GetTargetPosition(nearestTargetPosition, _target.Body.Velocity,
+                        origin,
                         _maxVelocity, out var targetPosition, out _))
                 {
-                    targetPosition = _target.Body.WorldPosition();
+                    targetPosition = nearestTargetPosition;
                 }
                 
-                var direction = _unit.Body.WorldPosition().Direction(targetPosition);
+                var direction = targetPosition - origin;
                 var target = RotationHelpers.Angle(direction);
                 var rotation = _unit.Body.WorldRotation();
                 var delta = Mathf.DeltaAngle(rotation, target);
@@ -91,15 +93,16 @@ namespace Combat.Component.Controller
         {
             if (_target == null || !_target.IsActive() || _unit.Body.Parent != null) return;
             
-            var position = _unit.Body.Position;
+            var position = _unit.Body.WorldPosition();
             var velocity = _unit.Body.Velocity;
+            var nearestTargetPosition = BattlefieldGeometry.NearestEquivalent(position, _target.Body.WorldPosition());
 
-            if (!_smartAim || !Geometry.GetTargetPosition(_target.Body.WorldPosition(), _target.Body.Velocity,
-                    _unit.Body.WorldPosition(),
+            if (!_smartAim || !Geometry.GetTargetPosition(nearestTargetPosition, _target.Body.Velocity,
+                    position,
                     _maxVelocity, out var targetPosition, out _))
             {
                 var targetVelocity = _target.Body.Velocity;
-                targetPosition = _target.Body.Position;
+                targetPosition = nearestTargetPosition;
                 var timeToTarget = (targetPosition - position).magnitude / _maxVelocity;
                 targetPosition += targetVelocity * timeToTarget;
             }

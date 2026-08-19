@@ -1,6 +1,7 @@
 using Constructor.Ships;
 using Economy;
 using Game.Exploration;
+using GameDatabase.Enums;
 using GameServices.Player;
 using GameStateMachine.States;
 using Services.Gui;
@@ -39,7 +40,7 @@ namespace Gui.Exploration
         public void StartExploration()
 		{
             if (_playerFleet.ExplorationShip == null) return;
-		    if (!_playerResources.TryConsumeFuel(Planet.RequiredFuel)) return;
+		    if (!_playerResources.TryConsumeFuel(GetRequiredFuel())) return;
             if (!GetPrice().TryWithdraw(_playerResources)) return;
             
 		    _startExplorationTrigger.Fire(_planet);
@@ -75,8 +76,9 @@ namespace Gui.Exploration
 
         private void UpdateButton()
         {
-            var haveEnoughFuel = _playerResources.Fuel >= Planet.RequiredFuel;
-            _fuelText.text = Planet.RequiredFuel.ToString();
+            var requiredFuel = GetRequiredFuel();
+            var haveEnoughFuel = _playerResources.Fuel >= requiredFuel;
+            _fuelText.text = requiredFuel.ToString();
             _notEnoughFuel.SetActive(!haveEnoughFuel);
 
             var price = GetPrice();
@@ -93,11 +95,38 @@ namespace Gui.Exploration
 
         private Price GetPrice()
 	    {
-            if (!_planet.WasExplored) return Price.Premium(0);
+	        var isHive = _planet.Type == PlanetType.Infected;
+            if (!_planet.WasExplored && !isHive) return Price.Premium(0);
 
-	        var price = Mathf.Min(10, 1 + _planet.Level/5);
-            return Price.Premium(price);
+	        var basePrice = Mathf.Min(10, 1 + _planet.Level/5);
+            var price = Price.Premium(basePrice);
+            if (!isHive || _playerFleet.ExplorationShip == null)
+                return price;
+
+            return price * Mathf.Pow(1.5f, GetHiveShipTier(_playerFleet.ExplorationShip.Model.SizeClass));
 	    }
+
+        private int GetRequiredFuel()
+        {
+            if (_planet == null || _planet.Type != PlanetType.Infected || _playerFleet.ExplorationShip == null)
+                return Planet.RequiredFuel;
+
+            var multiplier = Mathf.Pow(1.5f, GetHiveShipTier(_playerFleet.ExplorationShip.Model.SizeClass));
+            return Mathf.CeilToInt(Planet.RequiredFuel * multiplier);
+        }
+
+        private static int GetHiveShipTier(SizeClass sizeClass)
+        {
+            switch (sizeClass)
+            {
+                case SizeClass.Destroyer: return 1;
+                case SizeClass.Cruiser: return 2;
+                case SizeClass.Battleship: return 3;
+                case SizeClass.Titan: return 4;
+                case SizeClass.TitanP: return 5;
+                default: return 0;
+            }
+        }
 
         private Planet _planet;
 	}

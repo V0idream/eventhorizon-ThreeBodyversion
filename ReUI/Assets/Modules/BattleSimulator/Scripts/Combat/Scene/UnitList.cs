@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace Combat.Scene
@@ -14,7 +14,10 @@ namespace Combat.Scene
         public event Action<T> UnitAdded;
         public event Action<T> UnitRemoved;
 
-        public IReadOnlyList<T> Items => _items;
+        // Expose an immutable structural snapshot to background readers. The
+        // unit objects themselves remain live, but the array cannot be changed
+        // underneath AI/targeting scans while the main thread adds/removes units.
+        public IReadOnlyList<T> Items => GetSnapshot();
         public object LockObject => _itemsLock;
 
         public void Add(T item)
@@ -29,7 +32,10 @@ namespace Combat.Scene
                 var item = _addedItems.Dequeue();
 
                 lock (_itemsLock)
+                {
                     _items.Add(item);
+                    _snapshotDirty = true;
+                }
 
                 if (UnitAdded != null)
                     UnitAdded.Invoke(item);
@@ -71,7 +77,10 @@ namespace Combat.Scene
                 }
 
                 if (count < _items.Count)
+                {
                     _items.RemoveRange(count, _items.Count - count);
+                    _snapshotDirty = true;
+                }
             }
 
             if (UnitRemoved != null)
@@ -94,7 +103,29 @@ namespace Combat.Scene
                 foreach (var item in _items)
                     item.Dispose();
                 _items.Clear();
+                _snapshot = Array.Empty<T>();
+                _snapshotDirty = false;
             }
         }
+
+        private IReadOnlyList<T> GetSnapshot()
+        {
+            if (!_snapshotDirty)
+                return _snapshot;
+
+            lock (_itemsLock)
+            {
+                if (_snapshotDirty)
+                {
+                    _snapshot = _items.ToArray();
+                    _snapshotDirty = false;
+                }
+
+                return _snapshot;
+            }
+        }
+
+        private T[] _snapshot = Array.Empty<T>();
+        private volatile bool _snapshotDirty = true;
     }
 }

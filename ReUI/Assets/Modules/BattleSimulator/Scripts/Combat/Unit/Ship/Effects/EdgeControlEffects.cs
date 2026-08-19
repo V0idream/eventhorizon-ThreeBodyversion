@@ -19,10 +19,42 @@ namespace Combat.Component.Ship.Effects
         {
             _ship = ship;
             _remaining = duration;
+            _sourceSide = source.Side;
             _oldSide = ship.Type.SideOverride;
             _oldFaction = ship.Type.FactionOverride;
             ship.Type.SideOverride = source.Side;
             ship.Type.FactionOverride = source.FactionId;
+            ClearTargeting(ship);
+        }
+
+        public static bool IsPlayerFallbackTarget(IShip target)
+        {
+            if (target?.Effects == null || !target.IsActive())
+                return false;
+
+            foreach (var effect in target.Effects.All)
+            {
+                if (effect is not TemporaryConversionEffect conversion || !conversion.IsAlive)
+                    continue;
+                if (conversion._sourceSide == UnitSide.Player || conversion._sourceSide == UnitSide.Ally)
+                    return true;
+            }
+
+            return false;
+        }
+
+        public static bool CanPlayerAttack(IUnit attacker, IShip target)
+        {
+            var attackerShip = attacker as IShip ?? attacker?.Type?.Owner;
+            return attackerShip != null && attackerShip.IsActive() &&
+                   attackerShip.Type.Side == UnitSide.Player &&
+                   IsPlayerFallbackTarget(target);
+        }
+
+        public static bool IsPlayerDamagePair(IUnit first, IUnit second)
+        {
+            return second is IShip secondShip && CanPlayerAttack(first, secondShip) ||
+                   first is IShip firstShip && CanPlayerAttack(second, firstShip);
         }
 
         public bool IsAlive => _remaining > 0f && _ship.IsActive();
@@ -39,7 +71,22 @@ namespace Combat.Component.Ship.Effects
         public ISystemsModification SystemsModification => null;
         public IStatsModification StatsModification => null;
         public IUnitAction UnitAction => null;
+
+        private static void ClearTargeting(IShip ship)
+        {
+            if (ship?.Systems == null) return;
+            var systems = ship.Systems.All;
+            for (var i = 0; i < systems.Count; i++)
+            {
+                if (systems[i] is not IWeapon weapon) continue;
+                weapon.Platform.ActiveTarget = null;
+                systems[i].Active = false;
+                ship.Controls?.Systems.SetState(i, false);
+            }
+        }
+
         private readonly IShip _ship;
+        private readonly UnitSide _sourceSide;
         private readonly UnitSide? _oldSide;
         private readonly int? _oldFaction;
         private float _remaining;

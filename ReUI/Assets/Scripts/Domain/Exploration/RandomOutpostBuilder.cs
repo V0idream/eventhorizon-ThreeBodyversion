@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Combat.Component.Unit.Classification;
 using Constructor;
@@ -47,6 +47,9 @@ namespace Game.Exploration
         private IEnumerable<IntegratedComponent> GetComponents(System.Random random)
         {
             var componentLevel = Maths.Distance.ComponentLevel(_level);
+            var componentPool = _database.ComponentList.Available()
+                .Where(ThreeBodyContentRules.IsAvailableInExplorationRandomEquipment)
+                .ToArray();
 
             var reactor = _database.GetComponent(new ItemId<Component>(LargeNuclearReactorId));
             var reactorCount = 8 + random.Next(3);
@@ -61,36 +64,43 @@ namespace Game.Exploration
             var hasShield = random.Percentage(50);
             if (hasShield)
             {
-                foreach (var item in _database.ComponentList.Available().Where(item => item.Stats.ShieldPoints > 0).RandomElements(10, random))
+                foreach (var item in componentPool.Where(item => item.Stats.ShieldPoints > 0).RandomElements(10, random))
                     yield return Create(item);
-                foreach (var item in _database.ComponentList.Available().Where(item => item.Stats.ShieldRechargeRate > 0).RandomElements(5, random))
+                foreach (var item in componentPool.Where(item => item.Stats.ShieldRechargeRate > 0).RandomElements(5, random))
                     yield return Create(item);
             }
             else
             {
-                foreach (var item in _database.ComponentList.Available().Where(item =>
+                foreach (var item in componentPool.Where(item =>
                     item.Stats.KineticResistance > 0 ||
                     item.Stats.EnergyResistance > 0 ||
                     item.Stats.ThermalResistance > 0).RandomElements(10, random))
                     yield return Create(item);
             }
 
-            foreach (var item in _database.ComponentList.Available().Where(item => item.Stats.ArmorPoints > 0 && item.Level <= componentLevel).RandomElements(10, random))
+            foreach (var item in componentPool.Where(item => item.Stats.ArmorPoints > 0 && item.Level <= componentLevel).RandomElements(10, random))
                 yield return Create(item);
 
             var dronebayCount = 3;
-            var dronebays = _database.ComponentList.Available().Where(item => item.DroneBay != null && item.Level < componentLevel).RandomElements(dronebayCount, random).ToArray();
+            var dronebays = componentPool.Where(item => item.DroneBay != null && item.Level < componentLevel)
+                .RandomElements(dronebayCount, random).ToArray();
 
             foreach (var item in dronebays)
                 yield return Create(item);
 
             if (dronebays.Length == 0)
-                yield return Create(_database.ComponentList.Available().Where(item => item.DroneBay != null && item.DroneBay.Stats.Capacity == 1).RandomElement(random));
+            {
+                var fallbackDroneBay = componentPool
+                    .Where(item => item.DroneBay != null && item.DroneBay.Stats.Capacity == 1)
+                    .RandomElement(random);
+                if (fallbackDroneBay != null)
+                    yield return Create(fallbackDroneBay);
+            }
 
             yield return Create(_database.GetComponent(new ItemId<Component>(SmallDroneFactoryId)));
 
             var droneUpgradesCount = 3 + random.Next(3);
-            foreach (var item in _database.ComponentList.Available().Where(item => item.DroneBay == null &&
+            foreach (var item in componentPool.Where(item => item.DroneBay == null &&
                 item.DisplayCategory == ComponentCategory.Drones && item.Level < componentLevel).RandomElements(droneUpgradesCount, random))
                 yield return Create(item);
         }

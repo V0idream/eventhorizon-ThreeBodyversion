@@ -2,6 +2,7 @@ using Combat.Collision.Manager;
 using Combat.Component.Ship;
 using Combat.Component.Ship.Effects;
 using Combat.Component.Unit;
+using Combat.Component.Unit.Classification;
 using GameDatabase.Enums;
 
 namespace Combat.Collision.Behaviour.Action
@@ -22,7 +23,15 @@ namespace Combat.Collision.Behaviour.Action
             if (!collisionData.IsNew || !_isAlive || target is not IShip ship)
                 return;
 
-            if (RadarStatus.TryApplyEmpJammed(ship, _duration, _energyDrainPerSecond))
+            // EMP is an offensive disruption of the struck ship's own radar
+            // and weapon-control systems. It must never feed back into the
+            // firing ship (or its allies) just because an attached/raycast
+            // beam reaches us through a special collision path.
+            var owner = self?.Type?.Owner;
+            if (owner != null && (ship == owner || CombatRelations.AreAllies(owner.Type, ship.Type)))
+                return;
+
+            if (RadarStatus.TryApplyEmpJammed(ship, _duration, _energyDrainPerSecond, owner))
                 targetImpact.EnergyDrain += ship.Stats.Energy.MaxValue * _initialEnergyDrainFraction;
             _isAlive = _impactType == BulletImpactType.HitAllTargets;
         }

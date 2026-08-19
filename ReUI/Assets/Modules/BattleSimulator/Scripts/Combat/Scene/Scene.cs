@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Combat.Component.Body;
 using Combat.Component.Ship;
 using Combat.Component.Ship.Effects;
@@ -26,6 +26,7 @@ namespace Combat.Scene
                 settings.PlayerAlwaysInCenter = true;
 
             _settings = settings;
+            BattlefieldGeometry.Configure(settings);
 
             _unitList.UnitAdded += OnUnitAdded;
             _unitList.UnitRemoved += OnUnitRemoved;
@@ -81,7 +82,10 @@ namespace Combat.Scene
 
             if (unit is IShip ship)
             {
-                _lockedTarget = RadarStatus.CanDetect(_activePlayerShip, ship) && CombatRelations.AreEnemiesForDisplay(_activePlayerShip.Type, ship.Type)
+                var detectable = RadarStatus.CanDetect(_activePlayerShip, ship);
+                var normalEnemy = CombatRelations.AreEnemiesForDisplay(_activePlayerShip.Type, ship.Type);
+                var convertedFallback = TemporaryConversionEffect.CanPlayerAttack(_activePlayerShip, ship);
+                _lockedTarget = detectable && (normalEnemy || convertedFallback)
                     ? ship
                     : null;
                 return;
@@ -132,7 +136,7 @@ namespace Combat.Scene
                     {
                         if (ship.Type.Side.IsAlly(unitSide))
                             continue;
-                        if (ship.Body.WorldPosition().Distance(position) >= minDistance)
+                        if (BattlefieldGeometry.Distance(ship.Body.WorldPosition(), position) >= minDistance)
                             continue;
 
                         isFree = false;
@@ -234,7 +238,7 @@ namespace Combat.Scene
                         CombatRelations.AreEnemiesForDisplay(_activePlayerShip.Type, ship.Type))
                     {
                         enemyCount++;
-                        var distance = Vector2.SqrMagnitude(ship.Body.Position - position);
+                        var distance = BattlefieldGeometry.SqrDistance(ship.Body.Position, position);
                         if (distance < minDistance)
                         {
                             minDistance = distance;

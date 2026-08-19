@@ -1,4 +1,4 @@
-﻿using Combat.Component.Unit;
+using Combat.Component.Unit;
 using Combat.Unit;
 using Combat.Component.Unit.Classification;
 using Combat.Component.Ship;
@@ -65,7 +65,8 @@ namespace Combat.Collision.Manager
                 return;
             if (CombatRelations.AreAllies(first.Type, second.Type) &&
                 !first.Type.CanHitAllies && !second.Type.CanHitAllies &&
-                !IsBallLightningInteraction(first, second))
+                !IsBallLightningInteraction(first, second) &&
+                !Combat.Component.Ship.Effects.TemporaryConversionEffect.IsPlayerDamagePair(first, second))
                 return;
 
             // Waterdrop interactions have to be resolved before the incoming

@@ -1,0 +1,19 @@
+{
+  "ItemType": 1,
+  "Id": 987,
+  "Name": "$SingerWarpMissile",
+  "Description": "$SingerWarpMissileDescription",
+  "ContentSource": 1,
+  "DisplayCategory": 1,
+  "Availability": 1,
+  "ComponentStatsId": 960,
+  "Faction": 23,
+  "Level": 200,
+  "Icon": "trisolaris_antimatter_missile",
+  "Color": "#FFFFFF",
+  "Layout": "111000111000111000111000111000111000",
+  "CellType": "4",
+  "WeaponId": 159,
+  "AmmunitionId": 916,
+  "WeaponSlotType": "M"
+}

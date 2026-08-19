@@ -80,8 +80,8 @@ namespace Domain.Player
                 switch (region.CapturedStarbaseFacility)
                 {
                     case CapturedStarbaseFacilityType.Trade:
-                        tradeCredits += tier * 1000;
-                        tradeStars += tier;
+                        tradeCredits += tier * CapturedStarbaseFacilities.TradeCreditsPerTier;
+                        tradeStars += tier * CapturedStarbaseFacilities.TradeStarsPerTier;
                         break;
 
                     case CapturedStarbaseFacilityType.Research:

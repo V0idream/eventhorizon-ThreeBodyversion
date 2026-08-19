@@ -1,4 +1,5 @@
 using UnityEngine;
+using Combat.Scene;
 
 namespace Combat.Ai
 {
@@ -14,12 +15,12 @@ namespace Combat.Ai
 		{
 			var ship = context.Ship;
 			var enemy = context.Enemy;
-			if (ship.Stats.Armor.Value > enemy.Stats.Armor.Value + enemy.Stats.Shield.Value)
+			if (enemy.Stats != null && ship.Stats.Armor.Value > enemy.Stats.Armor.Value + enemy.Stats.Shield.Value)
 				return;
 
-			var shipPosition = ship.Body.Position + ship.Body.Velocity * _time;
-			var enemyPosition = enemy.Body.Position + enemy.Body.Velocity * _time;
-			if (Vector2.Distance(shipPosition, enemyPosition) <= ship.Body.Scale/2 + enemy.Body.Scale/2)
+			var shipPosition = ship.Body.WorldPosition() + ship.Body.WorldVelocity() * _time;
+			var enemyPosition = enemy.Body.WorldPosition() + enemy.Body.WorldVelocity() * _time;
+			if (BattlefieldGeometry.Distance(shipPosition, enemyPosition) <= ship.Body.Scale/2 + enemy.Body.Scale/2)
 			{
 				controls.ActivateSystem(_deviceId);
 				controls.Thrust = 0f;
@@ -29,10 +30,11 @@ namespace Combat.Ai
 				Vector2 target;
 				float timeInterval;
 
+				var nearestEnemyPosition = BattlefieldGeometry.NearestEquivalent(ship.Body.WorldPosition(), enemy.Body.WorldPosition());
 				if (!Geometry.GetTargetPosition(
-					enemy.Body.Position,
+					nearestEnemyPosition,
 					enemy.Body.Velocity,
-					ship.Body.Position,
+					ship.Body.WorldPosition(),
 					ship.Engine.MaxVelocity,
 					out target,
 					out timeInterval))
@@ -40,7 +42,7 @@ namespace Combat.Ai
 					return;
 				}
 
-				var direction = ship.Body.Position.Direction(target);
+				var direction = BattlefieldGeometry.Delta(ship.Body.WorldPosition(), target);
 				var course = RotationHelpers.Angle(direction);
 				controls.Course = course;
 

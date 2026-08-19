@@ -1,4 +1,5 @@
 using Combat.Component.Ship;
+using Combat.Scene;
 using Combat.Unit;
 using UnityEngine;
 
@@ -41,7 +42,7 @@ namespace Combat.Ai
             if (!bullet.IsActive())
                 return false;
 
-            var dir = bullet.Body.WorldPosition().Direction(enemy.Body.Position).normalized;
+            var dir = BattlefieldGeometry.Delta(bullet.Body.WorldPosition(), enemy.Body.WorldPosition()).normalized;
             var delta = Vector2.Dot(bullet.Body.WorldVelocity(), dir) - Vector2.Dot(enemy.Body.WorldVelocity(), dir);
 
 		    return delta >= 0;

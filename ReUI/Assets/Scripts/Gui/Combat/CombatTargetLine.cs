@@ -1,4 +1,5 @@
 using Combat.Component.Ship;
+using Combat.Component.Unit;
 using Combat.Scene;
 using Combat.Unit;
 using GameDatabase.Enums;
@@ -26,7 +27,7 @@ namespace Gui.Combat
             var player = _scene?.PlayerShip;
             var target = _scene?.LockedEnemyShip;
             if (!player.IsActive() || !target.IsActive() ||
-                Vector2.Distance(player.Body.Position, target.Body.Position) > CombatMinimap.GetRadarRange(player))
+                BattlefieldGeometry.Distance(player.Body.WorldPosition(), target.Body.WorldPosition()) > CombatMinimap.GetRadarRange(player))
             {
                 _line.enabled = false;
                 return;
@@ -37,12 +38,15 @@ namespace Gui.Combat
             _line.startColor = color;
             _line.endColor = new Color(color.r, color.g, color.b, 0.55f);
             _line.SetPosition(0, player.Body.VisualPosition);
-            _line.SetPosition(1, target.Body.VisualPosition);
+            _line.SetPosition(1, BattlefieldGeometry.NearestEquivalent(player.Body.VisualWorldPosition(), target.Body.VisualWorldPosition()));
             _line.enabled = true;
         }
 
         public static Color TargetColor(IShip ship)
         {
+            if (ship is Decoy { IsCounterElectron: true })
+                return new Color(0.2f, 0.72f, 1f, 1f);
+
             return ship.Specification.Stats.ShipModel.SizeClass switch
             {
                 SizeClass.Cruiser => new Color(1f, 0.45f, 0.05f),

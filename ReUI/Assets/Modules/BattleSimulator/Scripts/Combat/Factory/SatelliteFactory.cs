@@ -182,6 +182,17 @@ namespace Combat.Factory
             var gameObject = new GameObjectHolder(prefab, _objectPool, false);
             gameObject.IsActive = true;
 
+            // Electronic and stasis fields are detection volumes rather than
+            // physical barriers. Keep their trigger overlap so their special
+            // effects still receive collision callbacks, but remove solid-body
+            // collision response. Always restore the prefab value for other
+            // special shields because pooled shield objects can be reused.
+            var nonBlockingField = interactionMode == EnergyShieldInteractionMode.Electronic ||
+                                   interactionMode == EnergyShieldInteractionMode.Stasis;
+            var circleCollider = gameObject.GetComponent<CircleCollider2D>();
+            if (circleCollider != null)
+                circleCollider.isTrigger = nonBlockingField;
+
             var body = gameObject.GetComponent<IBodyComponent>();
             body.Initialize(ship.Body, Vector2.zero, 0, size, Vector2.zero, 0f, 0f);
 
@@ -191,7 +202,7 @@ namespace Combat.Factory
             var outline = gameObject.AddComponent<LineRenderer>();
             var visualController = gameObject.AddComponent<EnergyShieldVisualController>();
             visualController.Initialize(ship, view, outline, color,
-                interactionMode == EnergyShieldInteractionMode.Electronic);
+                nonBlockingField);
 
             var collider = gameObject.GetComponent<ICollider>();
             collider.Initialize(_collisionManager);

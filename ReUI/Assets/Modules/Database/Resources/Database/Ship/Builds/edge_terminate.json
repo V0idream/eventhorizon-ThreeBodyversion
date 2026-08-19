@@ -403,14 +403,10 @@
       "Y": 8
     },
     {
-      "ComponentId": 983,
+      "ComponentId": 988,
       "X": 39,
-      "Y": 11
-    },
-    {
-      "ComponentId": 983,
-      "X": 40,
-      "Y": 11
+      "Y": 27,
+      "KeyBinding": -1
     }
   ]
 }

@@ -1,4 +1,5 @@
 using Combat.Component.Ship;
+using Combat.Component.Unit;
 using Combat.Unit;
 using Combat.Component.Controller;
 using Gui.Controls;
@@ -39,14 +40,16 @@ namespace Gui.Combat
 
         private void Awake()
         {
-            ConfigureContinuousBars();
+            ConfigureStatusBars();
         }
 
         public void Close()
         {
+            _counterElectronTarget = null;
             _ballLightning = null;
             _strategicProjectile = null;
             SetResourceValuesVisible(false);
+            SetUnknownTargetGlyphVisible(false);
             ReleaseProjectileIcon();
             GetComponent<AnimatedWindow>().Close(WindowExitCode.Ok);
         }
@@ -57,13 +60,20 @@ namespace Gui.Combat
                 return;
 
             GetComponent<AnimatedWindow>().Open();
-            ConfigureContinuousBars();
+            ConfigureStatusBars();
 
             _ballLightning = null;
             _strategicProjectile = null;
+            _counterElectronTarget = null;
             ReleaseProjectileIcon();
+            SetUnknownTargetGlyphVisible(false);
             if (_icon)
                 _icon.color = Color.white;
+
+            if (_shipItem != null && _shipItem.ConditionSlider != null)
+                _shipItem.ConditionSlider.gameObject.SetActive(true);
+            if (_shipItem != null && _shipItem.ConditionText != null)
+                _shipItem.ConditionText.text = string.Empty;
 
             if (_ship == ship)
             {
@@ -94,6 +104,54 @@ namespace Gui.Combat
             _armorPoints.gameObject.SetActive(_hasArmor);
         }
 
+        public void OpenCounterElectronDecoy(Decoy decoy)
+        {
+            if (decoy == null || !decoy.IsActive() || !decoy.IsCounterElectron)
+                return;
+
+            GetComponent<AnimatedWindow>().Open();
+            ConfigureStatusBars();
+            ReleaseProjectileIcon();
+            _ship = null;
+            _ballLightning = null;
+            _strategicProjectile = null;
+            _counterElectronTarget = decoy;
+
+            _armorPoints.gameObject.SetActive(false);
+            _shieldPoints.gameObject.SetActive(false);
+            _energyPoints.gameObject.SetActive(false);
+            EnsureResourceValues();
+            SetResourceValuesVisible(true);
+            foreach (var value in _resourceValues)
+                if (value != null)
+                    value.text = "?";
+
+            EnsureCorrosiveResistanceRow();
+            SetUnknownResistanceValues();
+            EnsureUnknownTargetGlyph();
+            SetUnknownTargetGlyphVisible(true);
+
+            if (_icon != null)
+            {
+                _icon.sprite = null;
+                _icon.color = new Color(0.08f, 0.32f, 0.45f, 0.42f);
+            }
+
+            if (_shipItem != null)
+            {
+                if (_shipItem.LevelPanel != null)
+                    _shipItem.LevelPanel.gameObject.SetActive(true);
+                if (_shipItem.LevelText != null)
+                    _shipItem.LevelText.text = "?";
+                if (_shipItem.ConditionText != null)
+                    _shipItem.ConditionText.text = "?";
+                if (_shipItem.ConditionSlider != null)
+                    _shipItem.ConditionSlider.gameObject.SetActive(false);
+                if (_shipItem.ClassPanel != null)
+                    _shipItem.ClassPanel.gameObject.SetActive(false);
+            }
+        }
+
         public void OpenBallLightning(BallLightningController controller)
         {
             if (controller == null || !controller.IsActive)
@@ -107,8 +165,10 @@ namespace Gui.Combat
 
             GetComponent<AnimatedWindow>().Open();
             _ship = null;
+            _counterElectronTarget = null;
             _ballLightning = controller;
             _strategicProjectile = null;
+            SetUnknownTargetGlyphVisible(false);
             _armorPoints.gameObject.SetActive(false);
             _shieldPoints.gameObject.SetActive(false);
             _energyPoints.gameObject.SetActive(false);
@@ -127,6 +187,8 @@ namespace Gui.Combat
             _ship = null;
             _ballLightning = null;
             _strategicProjectile = controller;
+            _counterElectronTarget = null;
+            SetUnknownTargetGlyphVisible(false);
             _armorPoints.gameObject.SetActive(false);
             _shieldPoints.gameObject.SetActive(false);
             _energyPoints.gameObject.SetActive(false);
@@ -222,6 +284,13 @@ namespace Gui.Combat
 
         private void Update()
         {
+            if (_counterElectronTarget != null)
+            {
+                if (!_counterElectronTarget.IsActive())
+                    Close();
+                return;
+            }
+
             if (_ballLightning != null)
             {
                 if (!_ballLightning.IsActive)
@@ -329,19 +398,22 @@ namespace Gui.Combat
             }
         }
 
-        private void ConfigureContinuousBars()
+        private void ConfigureStatusBars()
         {
-            ConfigureContinuousBar(_armorPoints, new Color(0.35f, 1f, 0.35f, 0.96f));
-            ConfigureContinuousBar(_shieldPoints, new Color(0.30f, 0.70f, 1f, 0.96f));
-            ConfigureContinuousBar(_energyPoints, new Color(1f, 0.90f, 0.20f, 0.96f));
+            var segmented = ReUI.ReUIStatusBarSettings.TenSegments;
+            ConfigureBar(_armorPoints, new Color(0.35f, 1f, 0.35f, 0.96f), segmented);
+            ConfigureBar(_shieldPoints, new Color(0.30f, 0.70f, 1f, 0.96f), segmented);
+            ConfigureBar(_energyPoints, new Color(1f, 0.90f, 0.20f, 0.96f), false);
         }
 
-        private static void ConfigureContinuousBar(ProgressBar bar, Color color)
+        private static void ConfigureBar(ProgressBar bar, Color color, bool segmented)
         {
             if (bar == null)
                 return;
 
             bar.UseSolidTexture();
+            bar.SegmentCount = segmented ? 10 : 0;
+            bar.SegmentGapPixels = 2f;
             bar.color = color;
             bar.material = null;
             bar.raycastTarget = false;
@@ -421,6 +493,54 @@ namespace Gui.Combat
             _corrosiveResistText?.gameObject.SetActive(false);
         }
 
+        private void SetUnknownResistanceValues()
+        {
+            _fireResistIcon?.SetActive(true);
+            _energyResistIcon?.SetActive(true);
+            _kineticResistIcon?.SetActive(true);
+            _corrosiveResistIcon?.SetActive(true);
+            SetUnknownResistanceText(_fireResistText);
+            SetUnknownResistanceText(_energyResistText);
+            SetUnknownResistanceText(_kineticResistText);
+            SetUnknownResistanceText(_corrosiveResistText);
+        }
+
+        private static void SetUnknownResistanceText(Text text)
+        {
+            if (text == null)
+                return;
+            text.gameObject.SetActive(true);
+            text.text = "?";
+        }
+
+        private void EnsureUnknownTargetGlyph()
+        {
+            if (_unknownTargetGlyph != null || _icon == null)
+                return;
+
+            var go = new GameObject("UnknownTargetGlyph", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
+            var rect = go.GetComponent<RectTransform>();
+            rect.SetParent(_icon.rectTransform, false);
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = rect.offsetMax = Vector2.zero;
+            _unknownTargetGlyph = go.GetComponent<Text>();
+            _unknownTargetGlyph.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            _unknownTargetGlyph.fontSize = 48;
+            _unknownTargetGlyph.fontStyle = FontStyle.Bold;
+            _unknownTargetGlyph.alignment = TextAnchor.MiddleCenter;
+            _unknownTargetGlyph.color = new Color(0.65f, 0.95f, 1f, 1f);
+            _unknownTargetGlyph.text = "?";
+            _unknownTargetGlyph.raycastTarget = false;
+            _unknownTargetGlyph.gameObject.SetActive(false);
+        }
+
+        private void SetUnknownTargetGlyphVisible(bool visible)
+        {
+            if (_unknownTargetGlyph != null)
+                _unknownTargetGlyph.gameObject.SetActive(visible);
+        }
+
         private void ReleaseProjectileIcon()
         {
             if (_projectileIcon != null)
@@ -438,5 +558,7 @@ namespace Gui.Combat
         private bool _hasShield;
         private bool _hasArmor;
         private IShip _ship;
+        private Decoy _counterElectronTarget;
+        private Text _unknownTargetGlyph;
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Economy.Products;
 using GameModel;
@@ -17,18 +18,23 @@ namespace Combat.Domain
             {
                 foreach (var item in CreateItems(combatModel, lootGenerator, currentStar))
                 {
+                    var rewardItem = combatModel.IsStarbaseDefense
+                        ? CommonProduct.Create(item.Type, MultiplyReward(item.Quantity, StarbaseDefenseRewardMultiplier))
+                        : item;
                     IProduct product;
-                    if (_items.TryGetValue(item.Type.Id, out product))
-                        _items[item.Type.Id] = CommonProduct.Create(item.Type, item.Quantity + product.Quantity);
+                    if (_items.TryGetValue(rewardItem.Type.Id, out product))
+                        _items[rewardItem.Type.Id] = CommonProduct.Create(rewardItem.Type,
+                            AddRewardQuantities(rewardItem.Quantity, product.Quantity));
                     else
-                        _items.Add(item.Type.Id, item);
+                        _items.Add(rewardItem.Type.Id, rewardItem);
                 }
             }
 
             PlayerExperience = ExperienceData.Empty;
             if (combatModel.IsExpAllowed())
             {
-                var expMultiplier = playerSkills.ExperienceMultiplier;
+                var expMultiplier = playerSkills.ExperienceMultiplier *
+                    (combatModel.IsStarbaseDefense ? StarbaseDefenseRewardMultiplier : 1f);
                 foreach (var item in combatModel.PlayerExperience)
                 {
                     var exp = (long) (item.Value*expMultiplier);
@@ -42,6 +48,16 @@ namespace Combat.Domain
                 PlayerExperience = new ExperienceData(playerSkills.Experience,
                     GameModel.Skills.Experience.ConvertCombatExperience(totalExp, playerSkills.Experience.Level));
             }
+        }
+
+        private static int MultiplyReward(int quantity, int multiplier)
+        {
+            return (int)Math.Min(int.MaxValue, Math.Max(0L, (long)quantity * multiplier));
+        }
+
+        private static int AddRewardQuantities(int first, int second)
+        {
+            return (int)Math.Min(int.MaxValue, Math.Max(0L, (long)first + second));
         }
 
         public IEnumerable<IProduct> Items { get { return _items.Values; } }
@@ -65,5 +81,6 @@ namespace Combat.Domain
 
         private readonly Dictionary<string, IProduct> _items = new Dictionary<string, IProduct>();
         private readonly List<ExperienceData> _experience = new List<ExperienceData>();
+        private const int StarbaseDefenseRewardMultiplier = 10;
     }
 }

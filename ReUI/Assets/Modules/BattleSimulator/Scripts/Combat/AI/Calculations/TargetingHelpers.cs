@@ -1,8 +1,9 @@
-﻿using Combat.Component.Body;
+using Combat.Component.Body;
 using Combat.Component.Features;
 using Combat.Component.Ship;
 using Combat.Component.Ship.Effects;
 using Combat.Component.Systems.Weapons;
+using Combat.Scene;
 using Combat.Unit;
 using UnityEngine;
 
@@ -37,9 +38,10 @@ namespace Combat.Ai.Calculations
             var position = weapon.Platform.Body.WorldPosition();
             var velocity = enemy.Body.Velocity - ship.Body.Velocity * weapon.Info.RelativeVelocityEffect;
             var bulletSpeed = weapon.Info.BulletSpeed;
+            var enemyPosition = BattlefieldGeometry.NearestEquivalent(position, enemy.Body.WorldPosition());
 
             if (!Geometry.GetTargetPosition(
-                enemy.Body.Position,
+                enemyPosition,
                 velocity,
                 position,
                 bulletSpeed,
@@ -64,8 +66,9 @@ namespace Combat.Ai.Calculations
                 return false;
             }
 
-            target = enemy.Body.Position;
-            distance = Vector2.Distance(weapon.Platform.Body.WorldPosition(), target) - enemy.Body.Scale * 0.4f;
+            var position = weapon.Platform.Body.WorldPosition();
+            target = BattlefieldGeometry.NearestEquivalent(position, enemy.Body.WorldPosition());
+            distance = BattlefieldGeometry.Distance(position, target) - enemy.Body.Scale * 0.4f;
             return weapon.Info.Range >= distance;
         }
     }

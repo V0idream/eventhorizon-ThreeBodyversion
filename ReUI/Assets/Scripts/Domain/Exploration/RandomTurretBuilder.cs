@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Combat.Component.Unit.Classification;
 using Constructor;
@@ -58,10 +58,16 @@ namespace Game.Exploration
             for (var i = 0; i < fuelCellsCount; ++i)
                 yield return Create(fuelCells);
 
-            foreach (var item in _database.ComponentList.Available().Where(item => item.Stats.ArmorPoints > 0 && item.Level <= componentLevel).RandomElements(5, random))
+            foreach (var item in _database.ComponentList.Available()
+                         .Where(ThreeBodyContentRules.IsAvailableInExplorationRandomEquipment)
+                         .Where(item => item.Stats.ArmorPoints > 0 && item.Level <= componentLevel)
+                         .RandomElements(5, random))
                 yield return Create(item);
 
-            var weapon = _database.ComponentList.Available().Where(item => IsSuitableWeapon(item, componentLevel)).RandomElement(random) ?? _database.GetComponent(new ItemId<Component>(85)); // default - ProjectileCannon_L
+            var weapon = _database.ComponentList.Available()
+                .Where(ThreeBodyContentRules.IsAvailableInExplorationRandomEquipment)
+                .Where(item => IsSuitableWeapon(item, componentLevel))
+                .RandomElement(random) ?? _database.GetComponent(new ItemId<Component>(85)); // default - ProjectileCannon_L
             yield return Create(weapon, 0);
         }
 

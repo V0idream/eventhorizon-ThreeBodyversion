@@ -5,6 +5,7 @@ using Combat.Component.Ship;
 using Combat.Component.Ship.Effects;
 using Combat.Component.Systems.Weapons;
 using Combat.Component.Unit.Classification;
+using Combat.Scene;
 using Combat.Unit;
 using GameDatabase.Enums;
 using UnityEngine;
@@ -106,7 +107,8 @@ namespace Combat.Ai
                 var shouldTrackTarget = weapon.Info.BulletType != AiBulletBehavior.AreaOfEffect;
 
                 var course = weapon.Platform.OptimalShipCourse(target);
-                var spread = weapon.Info.Spread/2 + Mathf.Asin(0.3f * enemy.Body.Scale / Vector2.Distance(enemy.Body.Position, ship.Body.Position))*Mathf.Rad2Deg;
+                var spread = weapon.Info.Spread/2 + Mathf.Asin(0.3f * enemy.Body.Scale /
+                    Mathf.Max(0.001f, BattlefieldGeometry.Distance(enemy.Body.WorldPosition(), ship.Body.WorldPosition()))) * Mathf.Rad2Deg;
 				var delta = Mathf.Abs(Mathf.DeltaAngle(course, ship.Body.Rotation)) - weapon.Platform.AutoAimingAngle;
 
 				if (delta < spread + 1 || shotImmediately)
@@ -155,14 +157,15 @@ namespace Combat.Ai
 			if (weapon.Cooldown > 0) return;
 
 			var enemySize = context.Enemy.Body.Scale;
-			var enemyPosition = context.Enemy.Body.Position;
+			var enemyPosition = BattlefieldGeometry.NearestEquivalent(ship.Body.WorldPosition(), context.Enemy.Body.WorldPosition());
 
-			var distance = Vector2.Distance(ship.Body.Position, enemyPosition) - (ship.Body.Scale + enemySize)*0.4f;
+			var distance = BattlefieldGeometry.Distance(ship.Body.WorldPosition(), enemyPosition) - (ship.Body.Scale + enemySize)*0.4f;
 
 			if (weapon.Info.Range < distance) return;
 
 			var course = weapon.Platform.OptimalShipCourse(enemyPosition);
-			var spread = weapon.Info.Spread/2 + weapon.Platform.AutoAimingAngle + Mathf.Asin(0.4f * enemySize / Vector2.Distance(enemyPosition, ship.Body.Position))*Mathf.Rad2Deg;
+			var spread = weapon.Info.Spread/2 + weapon.Platform.AutoAimingAngle + Mathf.Asin(0.4f * enemySize /
+                Mathf.Max(0.001f, BattlefieldGeometry.Distance(enemyPosition, ship.Body.WorldPosition()))) * Mathf.Rad2Deg;
 			var fire = Mathf.Abs(Mathf.DeltaAngle(course, ship.Body.Rotation)) < spread;
 			
 			if (fire)
@@ -195,7 +198,7 @@ namespace Combat.Ai
             Vector2 target;
             float timeInterval;
             if (!Geometry.GetTargetPosition(
-                enemy.Body.Position,
+                BattlefieldGeometry.NearestEquivalent(position, enemy.Body.WorldPosition()),
                 velocity,
                 position,
                 weapon.Info.BulletSpeed,
@@ -208,7 +211,8 @@ namespace Combat.Ai
             if (weapon.Info.Range + 0.1f * (ship.Body.Scale + enemy.Body.Scale) < timeInterval * weapon.Info.BulletSpeed) return;
 
             var course = weapon.Platform.OptimalShipCourse(target);
-            var spread = weapon.Info.Spread / 4 + weapon.Platform.AutoAimingAngle + Mathf.Asin(0.3f * enemy.Body.Scale / Vector2.Distance(ship.Body.Position, target)) * Mathf.Rad2Deg;
+            var spread = weapon.Info.Spread / 4 + weapon.Platform.AutoAimingAngle + Mathf.Asin(0.3f * enemy.Body.Scale /
+                Mathf.Max(0.001f, BattlefieldGeometry.Distance(ship.Body.WorldPosition(), target))) * Mathf.Rad2Deg;
             var fire = Mathf.Abs(Mathf.DeltaAngle(course, ship.Body.Rotation)) < spread;
 
             if (fire)
@@ -238,13 +242,15 @@ namespace Combat.Ai
 			var weapon = ship.Systems.All.Weapon(_weaponId);
 			if (weapon.Cooldown > 0) return;
 
-			var distance1 = Vector2.Distance(ship.Body.Position, enemy.Body.Position);
-			var distance2 = Vector2.Distance(ship.Body.Position + ship.Body.Velocity, enemy.Body.Position + enemy.Body.Velocity);
+			var distance1 = BattlefieldGeometry.Distance(ship.Body.WorldPosition(), enemy.Body.WorldPosition());
+			var distance2 = BattlefieldGeometry.Distance(ship.Body.WorldPosition() + ship.Body.WorldVelocity(),
+                enemy.Body.WorldPosition() + enemy.Body.WorldVelocity());
 
 			if (weapon.Info.Range < distance1 && weapon.Info.Range < distance2) return;
 			if (distance2 - distance1 > weapon.Info.BulletSpeed) return;
 			
-			controls.Course = weapon.Platform.OptimalShipCourse(enemy.Body.Position);
+			controls.Course = weapon.Platform.OptimalShipCourse(
+                BattlefieldGeometry.NearestEquivalent(weapon.Platform.Body.WorldPosition(), enemy.Body.WorldPosition()));
             controls.ActivateSystem(_weaponId, true);
 		}
 		
@@ -266,7 +272,7 @@ namespace Combat.Ai
 			var weapon = ship.Systems.All.Weapon(_weaponId);
 			if (weapon.Cooldown > 0) return;
 
-			var distance = Vector2.Distance(ship.Body.Position, enemy.Body.Position);
+			var distance = BattlefieldGeometry.Distance(ship.Body.WorldPosition(), enemy.Body.WorldPosition());
 			if (weapon.Info.Range > distance)
 				controls.ActivateSystem(_weaponId, true);
 		}
@@ -319,7 +325,7 @@ namespace Combat.Ai
 
             float timeInterval;
             if (!Geometry.GetTargetPosition(
-                enemy.Body.Position,
+                BattlefieldGeometry.NearestEquivalent(position, enemy.Body.WorldPosition()),
                 velocity,
                 position,
                 weapon.Info.BulletSpeed,
@@ -340,8 +346,8 @@ namespace Combat.Ai
                 return false;
             }
 
-            target = enemy.Body.Position;
-            var distance = Vector2.Distance(weapon.Platform.Body.WorldPosition(), target) - enemy.Body.Scale * 0.4f;
+            target = BattlefieldGeometry.NearestEquivalent(weapon.Platform.Body.WorldPosition(), enemy.Body.WorldPosition());
+            var distance = BattlefieldGeometry.Distance(weapon.Platform.Body.WorldPosition(), target) - enemy.Body.Scale * 0.4f;
             return weapon.Info.Range >= distance;
         }
     }

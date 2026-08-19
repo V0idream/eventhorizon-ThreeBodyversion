@@ -42,6 +42,8 @@ namespace Galaxy.StarContent
         public const int MaxExtraBattleships = 10;
         public const int PrismRange = 50;
         public const int LaneRange = 100;
+        public const int TradeCreditsPerTier = 10000;
+        public const int TradeStarsPerTier = 10;
 
         public static int CalculateTier(int level)
         {

@@ -24,14 +24,17 @@ namespace Combat.Component.Controller
             _owner = owner;
             _range = Mathf.Max(1f, range);
             _kind = kind;
-            _start = bullet.Body.WorldPosition();
+            _lastPosition = bullet.Body.WorldPosition();
         }
 
         public void UpdatePhysics(float elapsedTime)
         {
             if (!_bullet.IsActive()) return;
             _elapsed += elapsedTime;
-            var travelled = Vector2.Distance(_start, _bullet.Body.WorldPosition());
+            var currentPosition = _bullet.Body.WorldPosition();
+            _travelled += BattlefieldGeometry.Distance(_lastPosition, currentPosition);
+            _lastPosition = currentPosition;
+            var travelled = _travelled;
 
             if (_kind == WeaponKind.Photon && travelled >= _range)
             {
@@ -75,7 +78,7 @@ namespace Combat.Component.Controller
                 foreach (var unit in _scene.Units.Items)
                 {
                     if (unit == null || !unit.IsActive() || unit == _bullet) continue;
-                    if (Vector2.Distance(center, unit.Body.WorldPosition()) > radius) continue;
+                    if (BattlefieldGeometry.Distance(center, unit.Body.WorldPosition()) > radius) continue;
                     if (unit is IShip ship)
                     {
                         var impact = dimensional ? new Impact { TrueDamage = damage } : new Impact { KineticDamage = damage };
@@ -92,7 +95,8 @@ namespace Combat.Component.Controller
         private readonly IShip _owner;
         private readonly float _range;
         private readonly WeaponKind _kind;
-        private readonly Vector2 _start;
+        private Vector2 _lastPosition;
+        private float _travelled;
         private float _elapsed;
         private bool _foilStopped;
     }

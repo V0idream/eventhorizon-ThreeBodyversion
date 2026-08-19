@@ -267,11 +267,21 @@ namespace Gui.Combat
             var enemies = _scene.Ships.Items
                 .Where(s => s.IsActive() && RadarStatus.CanDetect(player, s) && CombatRelations.AreEnemiesForDisplay(player.Type, s.Type))
                 .ToArray();
-            var detected = enemies.Where(s => Vector2.Distance(player.Body.Position, s.Body.Position) <= radarRange).ToArray();
-            var allies = _scene.Ships.Items
-                .Where(s => s.IsActive() && s != player && RadarStatus.CanDetect(player, s) && s.Type.Side == UnitSide.Ally)
-                .Where(s => Vector2.Distance(player.Body.Position, s.Body.Position) <= radarRange)
+            var normalDetected = enemies.Where(s => BattlefieldGeometry.Distance(player.Body.WorldPosition(), s.Body.WorldPosition()) <= radarRange).ToArray();
+            var convertedDetected = _scene.Ships.Items
+                .Where(s => s.IsActive() && RadarStatus.CanDetect(player, s) && TemporaryConversionEffect.IsPlayerFallbackTarget(s))
+                .Where(s => BattlefieldGeometry.Distance(player.Body.WorldPosition(), s.Body.WorldPosition()) <= radarRange)
                 .ToArray();
+            var fallbackMode = normalDetected.Length == 0;
+            var detected = fallbackMode ? convertedDetected : normalDetected;
+            var allies = _scene.Ships.Items
+                .Where(s => s.IsActive() && s != player && RadarStatus.CanDetect(player, s) &&
+                            s.Type.Side == UnitSide.Ally && !TemporaryConversionEffect.IsPlayerFallbackTarget(s) &&
+                            !IsCounterElectron(s))
+                .Where(s => BattlefieldGeometry.Distance(player.Body.WorldPosition(), s.Body.WorldPosition()) <= radarRange)
+                .ToArray();
+            if (!fallbackMode && convertedDetected.Length > 0)
+                allies = allies.Concat(convertedDetected).Distinct().ToArray();
             var detectedLockableProjectiles = GetDetectedLockableProjectiles(player, radarRange);
             var lockedTarget = _scene.LockedTarget;
             var lockedShip = _scene.LockedEnemyShip;
@@ -284,14 +294,14 @@ namespace Gui.Combat
                 IUnit nearestTarget = detected
                     .Cast<IUnit>()
                     .Concat(detectedLockableProjectiles)
-                    .OrderBy(s => Vector2.SqrMagnitude(s.Body.Position - player.Body.Position))
+                    .OrderBy(s => BattlefieldGeometry.SqrDistance(player.Body.WorldPosition(), s.Body.WorldPosition()))
                     .FirstOrDefault();
                 if (nearestTarget != null)
                     Lock(nearestTarget);
             }
             var displayRange = Mathf.Max(100f, detected.Concat(allies)
-                .Select(s => Vector2.Distance(player.Body.Position, s.Body.Position))
-                .Concat(detectedLockableProjectiles.Select(m => Vector2.Distance(player.Body.Position, m.Body.WorldPosition())))
+                .Select(s => BattlefieldGeometry.Distance(player.Body.WorldPosition(), s.Body.WorldPosition()))
+                .Concat(detectedLockableProjectiles.Select(m => BattlefieldGeometry.Distance(player.Body.WorldPosition(), m.Body.WorldPosition())))
                 .DefaultIfEmpty(100f).Max());
 
             var detectedSet = new HashSet<IShip>(detected);
@@ -310,10 +320,12 @@ namespace Gui.Combat
                 }
 
                 var rect = marker.Rect;
-                var relative = (ship.Body.Position - player.Body.Position) / displayRange;
+                var relative = BattlefieldGeometry.Delta(player.Body.WorldPosition(), ship.Body.WorldPosition()) / displayRange;
                 rect.anchorMin = rect.anchorMax = new Vector2(0.5f + relative.x * 0.47f, 0.5f + relative.y * 0.47f);
                 SetDot(rect, Vector2.zero, ship == _scene.LockedEnemyShip ? 12f : 7f);
-                marker.Image.color = ship.Specification.Stats.ShipModel.SizeClass == GameDatabase.Enums.SizeClass.Starbase
+                marker.Image.color = IsCounterElectron(ship)
+                    ? new Color(0.2f, 0.72f, 1f, 0.95f)
+                    : ship.Specification.Stats.ShipModel.SizeClass == GameDatabase.Enums.SizeClass.Starbase
                     ? CombatTargetLine.TargetColor(ship)
                     : ThreeBodySkillState.AdvancedRadarUnlocked
                         ? CombatTargetLine.TargetColor(ship)
@@ -355,7 +367,7 @@ namespace Gui.Combat
                     _allyMarkers.Add(ally, marker);
                 }
 
-                var relative = (ally.Body.Position - player.Body.Position) / displayRange;
+                var relative = BattlefieldGeometry.Delta(player.Body.WorldPosition(), ally.Body.WorldPosition()) / displayRange;
                 var rect = marker.rectTransform;
                 rect.anchorMin = rect.anchorMax = new Vector2(0.5f + relative.x * 0.47f, 0.5f + relative.y * 0.47f);
                 SetDot(rect, Vector2.zero, 8f);
@@ -372,7 +384,7 @@ namespace Gui.Combat
                     if (!IsProjectileVisible(unit, player, radarRange))
                     {
                         if (unit.IsActive() && unit.Type.Class == UnitClass.AreaOfEffect &&
-                            Vector2.Distance(player.Body.Position, unit.Body.WorldPosition()) <= radarRange &&
+                            BattlefieldGeometry.Distance(player.Body.WorldPosition(), unit.Body.WorldPosition()) <= radarRange &&
                             _seenAreaEffects.Add(unit))
                         {
                             SpawnExplosion(unit.Body.WorldPosition(), !CombatRelations.AreEnemiesForDisplay(player.Type, unit.Type));
@@ -416,7 +428,7 @@ namespace Gui.Combat
                 unit.Type.Class != UnitClass.EnergyBolt)
                 return false;
 
-            return Vector2.Distance(player.Body.Position, unit.Body.WorldPosition()) <= radarRange;
+            return BattlefieldGeometry.Distance(player.Body.WorldPosition(), unit.Body.WorldPosition()) <= radarRange;
         }
 
         private UnitMarker CreateProjectileMarker(IUnit unit)
@@ -462,7 +474,7 @@ namespace Gui.Combat
             marker.Image.color = friendly ? new Color(0.25f, 0.65f, 1f, 0.95f) : new Color(1f, 0.15f, 0.1f, 0.95f);
 
             var worldPosition = unit.Body.WorldPosition();
-            var relative = (worldPosition - player.Body.Position) / displayRange;
+            var relative = BattlefieldGeometry.Delta(player.Body.WorldPosition(), worldPosition) / displayRange;
             marker.Rect.anchorMin = marker.Rect.anchorMax = new Vector2(0.5f + relative.x * 0.47f, 0.5f + relative.y * 0.47f);
 
             if (IsLockableProjectile(unit))
@@ -495,8 +507,8 @@ namespace Gui.Combat
                 end = ray.ActiveCollision != null ? ray.LastContactPoint : lineStart + direction * ray.MaxRange;
             else if (unit.Body.Parent == null)
                 lineStart = worldPosition - direction * Mathf.Max(unit.Body.Scale * 1.8f, 12f);
-            var startRelative = (lineStart - player.Body.Position) / displayRange;
-            var endRelative = (end - player.Body.Position) / displayRange;
+            var startRelative = BattlefieldGeometry.Delta(player.Body.WorldPosition(), lineStart) / displayRange;
+            var endRelative = BattlefieldGeometry.Delta(player.Body.WorldPosition(), end) / displayRange;
             var startPoint = new Vector2(startRelative.x * _map.rect.width * 0.47f, startRelative.y * _map.rect.height * 0.47f);
             var endPoint = new Vector2(endRelative.x * _map.rect.width * 0.47f, endRelative.y * _map.rect.height * 0.47f);
             var delta = endPoint - startPoint;
@@ -511,12 +523,20 @@ namespace Gui.Combat
         private void LockNearest()
         {
             var player = _scene.PlayerShip;
-            var target = _scene.Ships.Items.Where(s => s.IsActive() && CombatRelations.AreEnemiesForDisplay(player.Type, s.Type))
+            var radarRange = GetRadarRange(player);
+            var normalTargets = _scene.Ships.Items.Where(s => s.IsActive() && CombatRelations.AreEnemiesForDisplay(player.Type, s.Type))
                 .Where(s => RadarStatus.CanDetect(player, s))
-                .Where(s => Vector2.Distance(player.Body.Position, s.Body.Position) <= GetRadarRange(player))
-                .Cast<IUnit>()
-                .Concat(GetDetectedLockableProjectiles(player, GetRadarRange(player)))
-                .OrderBy(s => Vector2.SqrMagnitude(s.Body.WorldPosition() - player.Body.Position)).FirstOrDefault();
+                .Where(s => BattlefieldGeometry.Distance(player.Body.WorldPosition(), s.Body.WorldPosition()) <= radarRange)
+                .ToArray();
+            var shipTargets = normalTargets.Length > 0
+                ? normalTargets
+                : _scene.Ships.Items.Where(s => s.IsActive() && RadarStatus.CanDetect(player, s) &&
+                                                TemporaryConversionEffect.IsPlayerFallbackTarget(s))
+                    .Where(s => BattlefieldGeometry.Distance(player.Body.WorldPosition(), s.Body.WorldPosition()) <= radarRange)
+                    .ToArray();
+            var target = shipTargets.Cast<IUnit>()
+                .Concat(GetDetectedLockableProjectiles(player, radarRange))
+                .OrderBy(s => BattlefieldGeometry.SqrDistance(player.Body.WorldPosition(), s.Body.WorldPosition())).FirstOrDefault();
             Lock(target);
         }
 
@@ -577,6 +597,11 @@ namespace Gui.Combat
             crossText.raycastTarget = false;
             cross.SetActive(false);
             return new TargetMarker(buttonObject, rect, image, cross);
+        }
+
+        private static bool IsCounterElectron(IShip ship)
+        {
+            return ship is Decoy { IsCounterElectron: true };
         }
 
         private static Image NewImage(string name, Transform parent, Color color)
@@ -738,7 +763,7 @@ namespace Gui.Combat
                     continue;
                 }
 
-                var relative = (marker.WorldPosition - player.Body.Position) / displayRange;
+                var relative = BattlefieldGeometry.Delta(player.Body.WorldPosition(), marker.WorldPosition) / displayRange;
                 marker.Rect.anchorMin = marker.Rect.anchorMax = new Vector2(0.5f + relative.x * 0.47f, 0.5f + relative.y * 0.47f);
                 var size = Mathf.Lerp(14f, 6f, 1f - marker.TimeLeft / marker.Duration);
                 SetDot(marker.Rect, Vector2.zero, size);

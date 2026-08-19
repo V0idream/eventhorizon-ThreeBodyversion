@@ -1,4 +1,4 @@
-﻿using Combat.Component.Ship;
+using Combat.Component.Ship;
 using Combat.Component.Unit;
 using Combat.Scene;
 
@@ -8,6 +8,9 @@ namespace Combat.Ai
 	{
 		public static float SuitabilityLevel(IShip ship, IShip enemy, int level)
 		{
+			if (enemy?.Engine == null)
+				return 0f;
+
 			var range = Helpers.ShipMaxRange(ship);
 			var enemyRange = Helpers.ShipMaxRange(enemy);
 

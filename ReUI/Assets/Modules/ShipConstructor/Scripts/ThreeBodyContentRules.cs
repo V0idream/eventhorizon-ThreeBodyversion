@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using GameDatabase;
 using GameDatabase.DataModel;
+using GameDatabase.Enums;
 using GameDatabase.Model;
 using DatabaseComponent = GameDatabase.DataModel.Component;
 using UnityEngine;
@@ -30,9 +31,41 @@ namespace Constructor
         public const int EdgeDroneHiveComponentId = 982;
         public const int EdgeDefenderComponentId = 983;
         public const int StasisFieldComponentId = 986;
+        public const int EdgeCounterElectronComponentId = 988;
+        public const int EdgeDefenseDroneShipId = 11012;
         public const int WanNianFengXueShipId = 94009;
         public const int WanNianFengXueBuildId = 94009;
         public const int RestrictedTradePrice = int.MaxValue;
+
+        private const int StarshipEarthFactionId = 21;
+        private const int TrisolarisFactionId = 22;
+
+        public static bool ShouldForceAggressiveDrone(Ship ship)
+        {
+            if (ship == null || ship == Ship.DefaultValue || ship.ShipType != ShipType.Drone ||
+                ship.Id.Value == EdgeDefenseDroneShipId)
+                return false;
+
+            // Original factions occupy the lower id range. All factions added
+            // by the ThreeBody content start at Starship Earth (21), so this
+            // also covers future mod drones without maintaining an id list.
+            return ship.Faction != null && ship.Faction.Id.Value >= StarshipEarthFactionId;
+        }
+
+        // Exploration-generated enemies are deliberately more conservative
+        // than the global random market. They may use all original equipment,
+        // Starship Earth technology, and only a small baseline subset of
+        // Trisolaran hardware. Strategic / late-game Trisolaran technology
+        // remains exclusive to its intended faction and progression paths.
+        private static readonly HashSet<int> ExplorationTrisolarisComponentIds = new()
+        {
+            930, // Antimatter engine
+            931, // SIM armor
+            934, // Antimatter missile
+            935, // Antimatter battery
+            941, // Antimatter reactor
+            942, // Fleet engine
+        };
 
         private static readonly HashSet<int> RestrictedComponentIds = new()
         {
@@ -87,6 +120,23 @@ namespace Constructor
             // ships, so Singer, Fringe World and developer content cannot leak
             // through the faction-agnostic random component generator.
             return component.Faction == null || !component.Faction.HideFromMerchants;
+        }
+
+        public static bool IsAvailableInExplorationRandomEquipment(DatabaseComponent component)
+        {
+            if (component == null || component == DatabaseComponent.DefaultValue ||
+                IsRestrictedComponent(component) || component.Availability == Availability.None)
+                return false;
+
+            if (component.ContentSource == ContentSource.Original)
+                return true;
+
+            var factionId = component.Faction?.Id.Value ?? 0;
+            if (factionId == StarshipEarthFactionId)
+                return true;
+
+            return factionId == TrisolarisFactionId &&
+                   ExplorationTrisolarisComponentIds.Contains(component.Id.Value);
         }
 
         public static bool IsRestrictedShip(Ship ship)

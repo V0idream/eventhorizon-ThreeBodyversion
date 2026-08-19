@@ -88,7 +88,8 @@ namespace Combat.Factory
             if (_ammunition.Id.Value == 910)
                 bullet.AddAction(new SpawnEdgeDronesAction(bullet, _owner, EdgeDroneRuntime.PredatorBuildId, 10));
             else if (_ammunition.Id.Value == 912)
-                bullet.AddAction(new SpawnEdgeDronesAction(bullet, _owner, EdgeDroneRuntime.PredatorBuildId, 25,
+                bullet.AddAction(new SpawnEdgeDronesAction(bullet, _owner, EdgeDroneRuntime.PredatorBuildId,
+                    EdgeDroneRuntime.NanoStormInitialPredatorCount,
                     EdgeDroneRuntime.NanoStormPredatorDamage));
             bullet.Collider = ConfigureCollider(bulletGameObject.GetComponent<ICollider>(true), bullet, parent);
             bullet.CollisionBehaviour = collisionBehaviour;
@@ -396,6 +397,9 @@ namespace Combat.Factory
                     Debug.LogError($"Unknown controller: {_ammunition.Controller.GetType().Name}");
                     break;
             }
+
+            if (_ammunition.Id.Value == 916 && controller is HomingController warpHoming)
+                controller = new WarpMissileController(bullet, warpHoming, _effectFactory, _stats.Color, bulletSpeed);
 
             if (BulletShape.IsBeam() && !_ammunition.Controller.Continuous && bulletSpeed > 0)
 			{

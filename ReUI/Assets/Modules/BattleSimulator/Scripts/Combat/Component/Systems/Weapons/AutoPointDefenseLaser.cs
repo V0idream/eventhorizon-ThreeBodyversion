@@ -152,7 +152,7 @@ namespace Combat.Component.Systems.Weapons
                 if (_interceptAllProjectiles && !ThreatensProtectedShip(unit, out impactTime))
                     continue;
 
-                var distance = Vector2.SqrMagnitude(unit.Body.WorldPosition() - position);
+                var distance = BattlefieldGeometry.SqrDistance(position, unit.Body.WorldPosition());
                 if (distance > range * range)
                     continue;
 
@@ -220,7 +220,7 @@ namespace Combat.Component.Systems.Weapons
 
             var position = Platform.Body.WorldPosition();
             var range = Info.Range;
-            return Vector2.SqrMagnitude(target.Body.WorldPosition() - position) <= range * range;
+            return BattlefieldGeometry.SqrDistance(position, target.Body.WorldPosition()) <= range * range;
         }
 
         private bool HasActiveBullet => _activeBullet.IsActive();
@@ -245,7 +245,7 @@ namespace Combat.Component.Systems.Weapons
             impactTime = float.MaxValue;
             if (!_protectedShip.IsActive()) return false;
 
-            var relativePosition = projectile.Body.WorldPosition() - _protectedShip.Body.WorldPosition();
+            var relativePosition = BattlefieldGeometry.Delta(_protectedShip.Body.WorldPosition(), projectile.Body.WorldPosition());
             var relativeVelocity = projectile.Body.WorldVelocity() - _protectedShip.Body.WorldVelocity();
             var speedSquared = relativeVelocity.sqrMagnitude;
             if (speedSquared < 0.01f || Vector2.Dot(relativePosition, relativeVelocity) >= 0f)

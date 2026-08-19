@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Linq;
 using System.Collections.Generic;
 using Combat.Ai;
@@ -6,6 +6,7 @@ using Combat.Component.Ship;
 using Combat.Component.Triggers;
 using Combat.Component.Bullet;
 using Combat.Component.Controller;
+using Combat.Component.Unit;
 using Combat.Component.Unit.Classification;
 using Combat.Domain;
 using Combat.Factory;
@@ -509,6 +510,8 @@ namespace Combat.Manager
                      strategicBullet.Controller is StrategicWeaponController strategic &&
                      strategic.Kind == StrategicWeaponController.WeaponKind.DualVectorFoil && strategic.IsActive)
                 _enemyStatsPanel.OpenStrategicProjectile(strategic);
+            else if (target is Decoy { IsCounterElectron: true } counterElectron && counterElectron.IsActive())
+                _enemyStatsPanel.OpenCounterElectronDecoy(counterElectron);
             else if (fallbackEnemy != null && fallbackEnemy.IsActive())
                 _enemyStatsPanel.Open(fallbackEnemy);
             else

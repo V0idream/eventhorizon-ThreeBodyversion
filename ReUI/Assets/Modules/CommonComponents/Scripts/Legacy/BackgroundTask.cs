@@ -1,4 +1,4 @@
-﻿#if UNITY_WEBGL
+#if UNITY_WEBGL
 
 public abstract class BackgroundTask
 {
@@ -25,17 +25,29 @@ public abstract class BackgroundTask
         {
             _ownerReference = owner != null ? new WeakReference<object>(owner) : null;
 
-            var thread = new Thread(ThreadFunc);
+            var thread = CreateThread();
             while (thread.ManagedThreadId == Thread.CurrentThread.ManagedThreadId)
             {
                 UnityEngine.Debug.Log("Invalid thread id (" + thread.ManagedThreadId + ")");
-                thread = new Thread(ThreadFunc);
+                thread = CreateThread();
             }
 
-            thread.Priority = ThreadPriority.Normal;
             thread.Start(this);
             _started = true;
         }
+    }
+
+    private Thread CreateThread()
+    {
+        return new Thread(ThreadFunc)
+        {
+            Name = GetType().Name,
+            // AiManager is currently the only BackgroundTask user in the game.
+            // Keeping its coordinator slightly above normal helps Android avoid
+            // parking the thread on a slow core while its parallel workers run.
+            Priority = ThreadPriority.AboveNormal,
+            IsBackground = true,
+        };
     }
 
     public void StopTask() { _cancelled = true; }

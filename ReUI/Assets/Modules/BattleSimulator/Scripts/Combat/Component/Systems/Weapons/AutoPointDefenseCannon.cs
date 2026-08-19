@@ -73,7 +73,7 @@ namespace Combat.Component.Systems.Weapons
                     !CanTargetProjectile(unit) ||
                     InterceptionTargetCoordinator.IsReservedByOther(unit, this, _owner))
                     continue;
-                var distance = Vector2.SqrMagnitude(unit.Body.WorldPosition() - position);
+                var distance = BattlefieldGeometry.SqrDistance(position, unit.Body.WorldPosition());
                 if (distance > rangeSquared || distance >= nearestDistance)
                     continue;
                 nearestMissile = unit;

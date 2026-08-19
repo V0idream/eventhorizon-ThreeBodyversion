@@ -97,10 +97,15 @@ namespace Combat.Factory
             if (!_settings.NoDamageIndicator && !isDrone)
                 shipStats.DamageIndicator = new DamageIndicator(ship, _effectFactory, unitSide == UnitSide.Player ? 0.75f : 0.5f);
 
-            ship.Engine = CreateEngine(stats);
+            var isMassProducedEdgeDrone = isDrone &&
+                spec.Info.Id.Value >= EdgeDroneRuntime.NormalBuildId &&
+                spec.Info.Id.Value <= EdgeDroneRuntime.DefenseBuildId;
+
+            ship.Engine = CreateEngine(stats, isMassProducedEdgeDrone);
             ship.Controls = new CommonControls();
 
-            CreateEngineEffect(ship, stats, isDrone ? "DroneTrail" : "ShipTrail");
+            if (!isMassProducedEdgeDrone)
+                CreateEngineEffect(ship, stats, isDrone ? "DroneTrail" : "ShipTrail");
 
             if (createShadow)
                 ship.AddTrigger(CreateShadow(ship));
@@ -181,7 +186,7 @@ namespace Combat.Factory
             _scene.AddUnit(ship);
             _aiManager.Add(controllerFactory.Create(ship));
 
-            if (!_settings.NoEnemyMessages)
+            if (!isMassProducedEdgeDrone && !_settings.NoEnemyMessages)
                 ship.RadioTransmitter = _radioTransmitter;
 
             return ship;
@@ -263,11 +268,25 @@ namespace Combat.Factory
 
         public IShip CreateDrone(IShipSpecification spec, IShip motherShip, float range, Vector2 position, float rotation, DroneBehaviour behaviour, bool improvedAi, BehaviorTreeModel behaviorTree)
         {
+            var isPredatorDrone = spec.Info.Id.Value == EdgeDroneRuntime.PredatorBuildId;
+            if (ThreeBodyContentRules.ShouldForceAggressiveDrone(spec.Stats.ShipModel))
+            {
+                // Mod drones default to an offensive role even if an imported
+                // bay/build accidentally requests Defensive. The dedicated
+                // Edge defense drone is explicitly exempted by the content rule.
+                behaviour = DroneBehaviour.Aggressive;
+                behaviorTree = _database.CombatSettings.OffensiveDroneAI;
+                improvedAi = true;
+            }
+
             // Mass-produced Edge drones are frequently spawned by the hundred.
             // Their per-object shadows add a large serial setup cost and draw
             // call pressure without improving their tiny on-screen silhouette.
             var createShadow = _settings.Shadows && (spec.Info.Id.Value < 11010 || spec.Info.Id.Value > 11012);
-            return CreateShip(spec, _controllerFactory.CreateDroneController(behaviour, range, improvedAi, behaviorTree), position, rotation, motherShip, UnitSide.Undefined, createShadow);
+            var controller = isPredatorDrone
+                ? (IControllerFactory)new EmptyController.Factory()
+                : _controllerFactory.CreateDroneController(behaviour, range, improvedAi, behaviorTree);
+            return CreateShip(spec, controller, position, rotation, motherShip, UnitSide.Undefined, createShadow);
         }
 
         public Ship CreateStarbase(IShipSpecification spec, Vector2 position, float rotation, UnitSide unitSide)
@@ -358,7 +377,9 @@ namespace Combat.Factory
 
         private void CreateDestructionEffect(Ship ship, GameDatabase.DataModel.Ship shipModel, Color shipColor)
         {
-            var isSmallShip = shipModel.ModelScale < 0.9f &&
+            var isMassProducedEdgeDrone = shipModel.Id.Value >= EdgeDroneRuntime.NormalBuildId &&
+                                          shipModel.Id.Value <= EdgeDroneRuntime.DefenseBuildId;
+            var isSmallShip = isMassProducedEdgeDrone || shipModel.ModelScale < 0.9f &&
                 shipModel.Id.Value != ThreeBodyContentRules.WanNianFengXueShipId; // TODO: add DB parameter
             var explosionEffect = shipModel.VisualEffects.CustomExplosionEffect;
             var explosionSound = shipModel.VisualEffects.CustomExplosionSound;

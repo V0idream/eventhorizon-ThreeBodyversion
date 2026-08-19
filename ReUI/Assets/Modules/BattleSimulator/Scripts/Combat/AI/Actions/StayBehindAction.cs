@@ -1,4 +1,5 @@
 using UnityEngine;
+using Combat.Scene;
 
 namespace Combat.Ai
 {
@@ -19,7 +20,7 @@ namespace Combat.Ai
 			if (controls.MovementLocked)
 				return;
 
-			var currentDir = enemy.Body.Position.Direction(ship.Body.Position).normalized;
+			var currentDir = BattlefieldGeometry.Delta(enemy.Body.WorldPosition(), ship.Body.WorldPosition()).normalized;
 			var distance = Helpers.Distance(ship, enemy);
 
 			if (distance <= _distanceMax && distance >= _distanceMin)

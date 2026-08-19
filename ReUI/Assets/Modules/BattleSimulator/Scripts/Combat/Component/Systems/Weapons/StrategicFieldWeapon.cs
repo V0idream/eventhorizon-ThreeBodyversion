@@ -68,7 +68,7 @@ namespace Combat.Component.Systems.Weapons
         private bool IsInRange(IUnit target)
         {
             if (target == null || !target.IsActive()) return false;
-            return Vector2.Distance(_owner.Body.WorldPosition(), target.Body.WorldPosition()) <= _range;
+            return BattlefieldGeometry.Distance(_owner.Body.WorldPosition(), target.Body.WorldPosition()) <= _range;
         }
 
         private static bool IsDualVectorFoil(IUnit target)

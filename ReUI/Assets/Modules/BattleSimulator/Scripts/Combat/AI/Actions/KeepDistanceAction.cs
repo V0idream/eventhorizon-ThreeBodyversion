@@ -1,4 +1,5 @@
 using UnityEngine;
+using Combat.Scene;
 
 namespace Combat.Ai
 {
@@ -22,7 +23,7 @@ namespace Combat.Ai
 		    var minDistance = _distanceMin + ship.Body.Scale/2 + enemy.Body.Scale/2;
 		    var maxDistance = minDistance - _distanceMin + _distanceMax;
 
-		    var direction = ship.Body.Position.Direction(enemy.Body.Position);
+		    var direction = BattlefieldGeometry.Delta(ship.Body.WorldPosition(), enemy.Body.WorldPosition());
             var alpha = RotationHelpers.Angle(direction);
 
             var distance = direction.magnitude;

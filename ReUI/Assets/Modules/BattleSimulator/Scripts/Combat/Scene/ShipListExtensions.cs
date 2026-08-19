@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Combat.Component.Features;
 using Combat.Component.Ship;
 using Combat.Component.Unit;
@@ -85,27 +85,26 @@ namespace Combat.Scene
             var ignoreDecoy = options.IgnoreDecoyChance >= 100 || options.IgnoreDecoyChance > 0 && random.Random.Percentage(options.IgnoreDecoyChance);
 			var takeDecoy = options.TakeDecoyChance >= 100 || options.TakeDecoyChance > 0 && random.Random.Percentage(options.TakeDecoyChance);
 
-			lock (shipList.LockObject)
+			var ships = shipList.Items;
+            for (int i = 0; i < ships.Count; ++i)
             {
-                for (int i = 0; i < shipList.Items.Count; ++i)
-                {
-                    var ship = shipList.Items[i];
+                    var ship = ships[i];
                     if (!ship.IsActive() || CombatRelations.AreAllies(ship.Type, unit.Type) || ship.Features.TargetPriority == TargetPriority.None)
                         continue;
                     if (options.IgnoreDrones && ship.Type.Class == UnitClass.Drone)
                         continue;
-                    if (ignoreDecoy && ship.Type.Class == UnitClass.Decoy)
+                    if (ignoreDecoy && ship.Type.Class == UnitClass.Decoy && !IsCounterElectron(ship))
                         continue;
 					if (options.UseDroneCamouflage && ship.Features.ChanceToAvoidDrone > 0f && random.Random.Percentage(ship.Features.ChanceToAvoidDrone))
 						continue;
 
                     var shipsSummarySize = unit.Body.Scale/3 + ship.Body.Scale/3;
-                    var distanceToShip = unit.Body.Position.Direction(ship.Body.Position).magnitude - shipsSummarySize;
+                    var distanceToShip = BattlefieldGeometry.Distance(unit.Body.WorldPosition(), ship.Body.WorldPosition()) - shipsSummarySize;
 
                     if (options.MaxDistance > 0)
                     {
                         var distance = whereToLook == null ? distanceToShip :
-                            whereToLook.Body.Position.Direction(ship.Body.Position).magnitude - shipsSummarySize;
+                            BattlefieldGeometry.Distance(whereToLook.Body.WorldPosition(), ship.Body.WorldPosition()) - shipsSummarySize;
 
                         if (distance > options.MaxDistance)
                             continue;
@@ -118,7 +117,8 @@ namespace Combat.Scene
                         enemy = ship;
                         enemyStats = stats;
                     }
-                    else if (takeDecoy && ship.Type.Class == UnitClass.Decoy && enemy.Type.Class != UnitClass.Decoy)
+                    else if (takeDecoy && ship.Type.Class == UnitClass.Decoy && !IsCounterElectron(ship) &&
+                             enemy.Type.Class != UnitClass.Decoy)
                     {
                         enemy = ship;
                         enemyStats = stats;
@@ -128,7 +128,6 @@ namespace Combat.Scene
                         enemy = ship;
                         enemyStats = stats;
                     }
-                }
             }
 
             return enemy;
@@ -145,14 +144,13 @@ namespace Combat.Scene
             var enemyStats = TargetStats.None;
             bool validEnemyFound = false;
 
-            lock (shipList.LockObject)
+			var ships = shipList.Items;
+            for (int i = 0; i < ships.Count; ++i)
             {
-                for (int i = 0; i < shipList.Items.Count; ++i)
-                {
-                    var ship = shipList.Items[i];
+                    var ship = ships[i];
                     if (!ship.IsActive() || CombatRelations.AreAllies(ship.Type, unit.Type) || ship.Features.TargetPriority == TargetPriority.None) continue;
 
-                    var direction = turretPosition.Direction(ship.Body.Position);
+                    var direction = BattlefieldGeometry.Delta(turretPosition, ship.Body.WorldPosition());
                     var distance = direction.magnitude - ship.Body.Scale/2;
 
                     var isValidTarget = true;
@@ -182,7 +180,6 @@ namespace Combat.Scene
                     enemy = ship;
                     enemyStats = stats;
                     validEnemyFound = isValidTarget;
-                }
             }
 
             return enemy;
@@ -197,15 +194,14 @@ namespace Combat.Scene
             float minDeviation = 360f;
             bool isMatch = false;
 
-            lock (shipList.LockObject)
+			var ships = shipList.Items;
+            for (int i = 0; i < ships.Count; ++i)
             {
-                for (int i = 0; i < shipList.Items.Count; ++i)
-                {
-                    var ship = shipList.Items[i];
+                    var ship = ships[i];
                     if (!ship.IsActive() || CombatRelations.AreAllies(ship.Type, unit.Type))
                         continue;
 
-                    if (trueVision && ship.Type.Class == UnitClass.Decoy)
+                    if (trueVision && ship.Type.Class == UnitClass.Decoy && !IsCounterElectron(ship))
                         continue;
 
                     var targetPriority = ship.Features.TargetPriority;
@@ -219,7 +215,7 @@ namespace Combat.Scene
 					if (ignoreDrones && ship.Type.Class == UnitClass.Drone)
                         continue;
 
-                    var dir = unit.Body.Position.Direction(ship.Body.Position);
+                    var dir = BattlefieldGeometry.Delta(unit.Body.WorldPosition(), ship.Body.WorldPosition());
                     var range = dir.magnitude - unit.Body.Scale / 2 - ship.Body.Scale / 2;
                     var deviation =
                         Mathf.Abs(Mathf.DeltaAngle(RotationHelpers.Angle(dir), unit.Body.Rotation + rotation));
@@ -254,7 +250,6 @@ namespace Combat.Scene
                         minDeviation = deviation;
                         enemy = ship;
                     }
-                }
             }
 
             return enemy;
@@ -269,21 +264,18 @@ namespace Combat.Scene
         /// <param name="radius">max radius around the center point</param>
         public static void GetObjectsInRange(this IUnitList<IUnit> unitList, IList<IUnit> targetList, Vector2 center, float radius)
         {
-            lock (unitList.LockObject)
-            {
-                var units = unitList.Items;
-                var count = units.Count;
-                targetList.Clear();
-                var sqrRadius = radius*radius;
+            var units = unitList.Items;
+            var count = units.Count;
+            targetList.Clear();
+            var sqrRadius = radius*radius;
 
-                for (var i = 0; i < count; ++i)
-                {
-                    var unit = units[i];
-                    if (unit.Body.Parent != null)
-                        continue;
-                    if (unit.Body.Position.SqrDistance(center) < sqrRadius)
-                        targetList.Add(unit);
-                }
+            for (var i = 0; i < count; ++i)
+            {
+                var unit = units[i];
+                if (unit.Body.Parent != null)
+                    continue;
+                if (BattlefieldGeometry.SqrDistance(unit.Body.WorldPosition(), center) < sqrRadius)
+                    targetList.Add(unit);
             }
         }
 
@@ -299,27 +291,29 @@ namespace Combat.Scene
         /// <param name="parentedRadius">max radius around the center point for objects with parents</param>
         public static void GetObjectsInRange(this IUnitList<IUnit> unitList, IList<IUnit> targetList, IList<IUnit> parentedTargetsList, Vector2 center, float radius, float parentedRadius)
         {
-            lock (unitList.LockObject)
-            {
-                var units = unitList.Items;
-                var count = units.Count;
-                targetList.Clear();
-                var sqrRadius = radius*radius;
-                var sqrParRadius = parentedRadius*parentedRadius;
+            var units = unitList.Items;
+            var count = units.Count;
+            targetList.Clear();
+            var sqrRadius = radius*radius;
+            var sqrParRadius = parentedRadius*parentedRadius;
 
-                for (var i = 0; i < count; ++i)
+            for (var i = 0; i < count; ++i)
+            {
+                var unit = units[i];
+                if (unit.Body.Parent != null)
                 {
-                    var unit = units[i];
-                    if (unit.Body.Parent != null)
-                    {
-                        if (unit.Body.Position.SqrDistance(center) < sqrParRadius)
-                            parentedTargetsList?.Add(unit);
-                        continue;
-                    }
-                    if (unit.Body.Position.SqrDistance(center) < sqrRadius)
-                        targetList.Add(unit);
+                    if (BattlefieldGeometry.SqrDistance(unit.Body.WorldPosition(), center) < sqrParRadius)
+                        parentedTargetsList?.Add(unit);
+                    continue;
                 }
+                if (BattlefieldGeometry.SqrDistance(unit.Body.WorldPosition(), center) < sqrRadius)
+                    targetList.Add(unit);
             }
+        }
+
+        private static bool IsCounterElectron(IShip ship)
+        {
+            return ship is Decoy { IsCounterElectron: true };
         }
 
         private struct LazyRandom

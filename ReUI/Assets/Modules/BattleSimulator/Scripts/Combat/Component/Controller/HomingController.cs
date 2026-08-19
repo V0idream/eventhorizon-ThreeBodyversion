@@ -106,11 +106,13 @@ namespace Combat.Component.Controller
             var requiredAngularVelocity = 0f;
             if (_target.IsActive())
             {
-                if (!_smartAim || !Geometry.GetTargetPosition(_target.Body.WorldPosition(), _target.Body.Velocity,
-                        _unit.Body.WorldPosition(), _maxVelocity, out var targetPosition, out _))
-                    targetPosition = _target.Body.WorldPosition();
+                var origin = _unit.Body.WorldPosition();
+                var nearestTargetPosition = BattlefieldGeometry.NearestEquivalent(origin, _target.Body.WorldPosition());
+                if (!_smartAim || !Geometry.GetTargetPosition(nearestTargetPosition, _target.Body.Velocity,
+                        origin, _maxVelocity, out var targetPosition, out _))
+                    targetPosition = nearestTargetPosition;
 
-                var direction = _unit.Body.WorldPosition().Direction(targetPosition);
+                var direction = targetPosition - origin;
                 var target = RotationHelpers.Angle(direction);
                 var rotation = _unit.Body.WorldRotation();
                 var delta = Mathf.DeltaAngle(rotation, target);

@@ -1,4 +1,4 @@
-﻿namespace Combat.Ai.BehaviorTree.Nodes
+namespace Combat.Ai.BehaviorTree.Nodes
 {
 	public class IsFaterThanTarget : INode
 	{
@@ -11,7 +11,7 @@
 
 		public NodeState Evaluate(Context context)
 		{
-			if (context.TargetShip == null)
+			if (context.TargetShip == null || context.TargetShip.Engine == null)
 				return NodeState.Failure;
 
 			var targetSpeed = _targetSpeedMultiplier * context.TargetShip.Engine.MaxVelocity;

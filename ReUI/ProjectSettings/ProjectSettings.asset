@@ -142,7 +142,7 @@ PlayerSettings:
   loadStoreDebugModeEnabled: 0
   visionOSBundleVersion: 1.0
   tvOSBundleVersion: 1.0
-  bundleVersion: Beta8.30
+  bundleVersion: Beta8.37
   preloadedAssets:
   - {fileID: 11400000, guid: 07d6f9791b7f5664293fa0c9ffc66f36, type: 2}
   - {fileID: 11400000, guid: 553f37883d556464fb65a649fdbafaa5, type: 2}
@@ -178,7 +178,7 @@ PlayerSettings:
     iPhone: 32
     tvOS: 0
   overrideDefaultApplicationIdentifier: 1
-  AndroidBundleVersionCode: 140040
+  AndroidBundleVersionCode: 140047
   AndroidMinSdkVersion: 23
   AndroidTargetSdkVersion: 34
   AndroidPreferredInstallLocation: 0
@@ -616,7 +616,7 @@ PlayerSettings:
   - m_BuildTarget: LinuxStandaloneSupport
     m_GraphicsJobs: 0
   - m_BuildTarget: AndroidPlayer
-    m_GraphicsJobs: 0
+    m_GraphicsJobs: 1
   - m_BuildTarget: iOSSupport
     m_GraphicsJobs: 0
   - m_BuildTarget: PS4Player
@@ -649,6 +649,8 @@ PlayerSettings:
   - m_BuildTarget: PS4Player
     m_GraphicsJobMode: 0
   - m_BuildTarget: XboxOnePlayer
+    m_GraphicsJobMode: 0
+  - m_BuildTarget: AndroidPlayer
     m_GraphicsJobMode: 0
   m_BuildTargetGraphicsAPIs:
   - m_BuildTarget: AndroidPlayer
@@ -730,7 +732,7 @@ PlayerSettings:
     PRODUCT_DESCRIPTION: 
     RENDER_SCALE: 
   mobileMTRendering:
-    Android: 0
+    Android: 1
     iPhone: 1
     tvOS: 1
   m_BuildTargetGroupLightmapEncodingQuality:

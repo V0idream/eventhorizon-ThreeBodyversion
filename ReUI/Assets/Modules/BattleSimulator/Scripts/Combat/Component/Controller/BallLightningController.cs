@@ -92,12 +92,16 @@ namespace Combat.Component.Controller
             if (!_initialized)
             {
                 _origin = _bullet.Body.WorldPosition();
+                _lastFlightPosition = _origin;
                 _initialized = true;
             }
 
             if (!_armed)
             {
-                if (Vector2.Distance(_origin, _bullet.Body.WorldPosition()) >= _range ||
+                var currentPosition = _bullet.Body.WorldPosition();
+                _travelled += BattlefieldGeometry.Distance(_lastFlightPosition, currentPosition);
+                _lastFlightPosition = currentPosition;
+                if (_travelled >= _range ||
                     HasReachedTarget())
                     Arm();
                 return;
@@ -240,7 +244,7 @@ namespace Combat.Component.Controller
                     else if (!IsBallLightning(unit))
                         continue;
 
-                    if (Vector2.Distance(origin, unit.Body.WorldPosition()) <= hitRadius + unit.Body.WorldScale() * 0.5f)
+                    if (BattlefieldGeometry.Distance(origin, unit.Body.WorldPosition()) <= hitRadius + unit.Body.WorldScale() * 0.5f)
                         return true;
                 }
             }
@@ -277,9 +281,11 @@ namespace Combat.Component.Controller
                     continue;
 
                 var targetPosition = target.Body.WorldPosition();
-                var distance = Vector2.Distance(sourcePosition, targetPosition);
+                var distance = BattlefieldGeometry.Distance(sourcePosition, targetPosition);
                 if (distance > 30f)
                     continue;
+
+                targetPosition = BattlefieldGeometry.NearestEquivalent(sourcePosition, targetPosition);
 
                 if (target is IShip targetShip)
                 {
@@ -331,7 +337,7 @@ namespace Combat.Component.Controller
                     if (!ship.IsActive() || !CombatRelations.AreEnemies(_owner.Type, ship.Type))
                         continue;
 
-                    var distance = Vector2.SqrMagnitude(ship.Body.WorldPosition() - _bullet.Body.WorldPosition());
+                    var distance = BattlefieldGeometry.SqrDistance(_bullet.Body.WorldPosition(), ship.Body.WorldPosition());
                     if (distance < nearestDistance)
                     {
                         nearestDistance = distance;
@@ -469,6 +475,8 @@ namespace Combat.Component.Controller
         private readonly IShip _owner;
         private readonly float _range;
         private Vector2 _origin;
+        private Vector2 _lastFlightPosition;
+        private float _travelled;
         private float _receivedDamage;
         private float _armTimer;
         private float _tickTimer;

@@ -1,6 +1,7 @@
-﻿using UnityEngine;
+using UnityEngine;
 using Combat.Component.Ship;
 using Combat.Component.Ship.Effects;
+using Combat.Component.Unit;
 using Combat.Component.Unit.Classification;
 using Combat.Scene;
 using Combat.Unit;
@@ -48,9 +49,12 @@ namespace Gui.Combat
             var observer = _scene.PlayerShip;
             var observerActive = observer != null && observer.IsActive();
             var radarRange = observerActive ? CombatMinimap.GetRadarRange(observer) : 0f;
-            var detected = _ship.Type.Side == UnitSide.Ally ||
-                           (observerActive && RadarStatus.CanDetect(observer, _ship) &&
-                            Vector2.Distance(observer.Body.Position, _ship.Body.Position) <= radarRange);
+            var counterElectron = _ship is Decoy { IsCounterElectron: true };
+            var withinRadar = observerActive && RadarStatus.CanDetect(observer, _ship) &&
+                              BattlefieldGeometry.Distance(observer.Body.WorldPosition(), _ship.Body.WorldPosition()) <= radarRange;
+            var detected = counterElectron
+                ? _ship.Type.Side == UnitSide.Enemy && withinRadar
+                : _ship.Type.Side == UnitSide.Ally || withinRadar;
             if (SmallUniverseTransitEffect.IsInTransit(_ship)) detected = false;
             if (!detected)
             {
@@ -62,8 +66,8 @@ namespace Gui.Combat
 
             UpdateAllyMarker(_ship.Type.Side == UnitSide.Ally && _ship != observer);
 
-            var itemPosition = _ship.Body.VisualPosition;
-            var position = _scene.ViewPoint.Direction(itemPosition);
+            var itemPosition = _ship.Body.VisualWorldPosition();
+            var position = BattlefieldGeometry.Delta(_scene.ViewPoint, itemPosition);
             var cameraHeight = camera.orthographicSize;
             var cameraWidth = cameraHeight* camera.aspect;
 
@@ -120,6 +124,20 @@ namespace Gui.Combat
 
         private void Initialize(IResourceLocator resourceLocator)
         {
+            if (_ship is Decoy { IsCounterElectron: true })
+            {
+                _offset = Size;
+                ShipIcon.sprite = null;
+                EnsureUnknownGlyph();
+                _unknownGlyph.gameObject.SetActive(true);
+                ApplyBackgroundColor();
+                UpdateAllyMarker(false);
+                UpdateScreenSize();
+                return;
+            }
+
+            if (_unknownGlyph != null)
+                _unknownGlyph.gameObject.SetActive(false);
             var model = _ship.Specification.Stats;
             var isAlly = _ship.Type.Side == UnitSide.Ally;
             var isDangerous = _ship.Specification.Info.Class >= DifficultyClass.Class3;
@@ -148,6 +166,11 @@ namespace Gui.Combat
         private void ApplyBackgroundColor()
         {
             if (_ship == null) return;
+            if (_ship is Decoy { IsCounterElectron: true })
+            {
+                Background.color = new Color(0.2f, 0.72f, 1f, 0.9f);
+                return;
+            }
             var size = _ship.Specification.Stats.ShipModel.SizeClass;
             var isAlly = _ship.Type.Side == UnitSide.Ally;
             var isDangerous = _ship.Specification.Info.Class >= DifficultyClass.Class3;
@@ -156,6 +179,27 @@ namespace Gui.Combat
             else if (size == SizeClass.Titan) Background.color = isDangerous ? DangerColor : BossColor;
             else if (size == SizeClass.Cruiser || size == SizeClass.Battleship) Background.color = new Color(1f, 0.45f, 0.05f, 1f);
             else Background.color = NormalColor;
+        }
+
+        private void EnsureUnknownGlyph()
+        {
+            if (_unknownGlyph != null)
+                return;
+
+            var go = new GameObject("CounterElectronGlyph", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
+            var rect = go.GetComponent<RectTransform>();
+            rect.SetParent(RectTransform, false);
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = rect.offsetMax = Vector2.zero;
+            _unknownGlyph = go.GetComponent<Text>();
+            _unknownGlyph.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            _unknownGlyph.fontSize = 24;
+            _unknownGlyph.fontStyle = FontStyle.Bold;
+            _unknownGlyph.alignment = TextAnchor.MiddleCenter;
+            _unknownGlyph.text = "?";
+            _unknownGlyph.color = new Color(0.65f, 0.95f, 1f, 1f);
+            _unknownGlyph.raycastTarget = false;
         }
 
         private void UpdateAllyMarker(bool visible)
@@ -201,5 +245,6 @@ namespace Gui.Combat
         private IShip _ship;
         private IScene _scene;
         private Text _allyMarker;
+        private Text _unknownGlyph;
     }
 }

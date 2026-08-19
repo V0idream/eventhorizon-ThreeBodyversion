@@ -335,8 +335,7 @@ namespace ReUI
                     else if (scene.name == SettingsSceneName)
                     {
                         ReUIThemePalettePanel.EnsureForSettings(canvas);
-                        ReUIShieldStyleSelector.EnsureForSettings(canvas);
-                        ReUIHdrDisplaySelector.EnsureForSettings(canvas);
+                        ReUIExtendedDisplayMenu.EnsureForSettings(canvas);
                     }
                 }
             }

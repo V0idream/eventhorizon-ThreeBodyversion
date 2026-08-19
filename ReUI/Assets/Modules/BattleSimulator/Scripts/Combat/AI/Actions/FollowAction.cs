@@ -1,4 +1,5 @@
 using UnityEngine;
+using Combat.Scene;
 
 namespace Combat.Ai
 {
@@ -17,7 +18,7 @@ namespace Combat.Ai
 			if (controls.MovementLocked)
 				return;
 			
-			var direction = ship.Body.Position.Direction(enemy.Body.Position).normalized;
+			var direction = BattlefieldGeometry.Delta(ship.Body.WorldPosition(), enemy.Body.WorldPosition()).normalized;
 			if (Helpers.Distance(ship, enemy) < _distance)
 				return;
 			var course = RotationHelpers.Angle(direction);

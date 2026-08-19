@@ -1,0 +1,17 @@
+{
+  "ItemType": 1,
+  "Id": 988,
+  "Name": "$EdgeCounterElectron",
+  "Description": "$EdgeCounterElectronDescription",
+  "ContentSource": 1,
+  "DisplayCategory": 6,
+  "Availability": 1,
+  "ComponentStatsId": 959,
+  "Faction": 25,
+  "Level": 200,
+  "Icon": "edge_firewall_collapse",
+  "Color": "#FFFFFF",
+  "Layout": "111111111",
+  "CellType": "6",
+  "DeviceId": 918
+}

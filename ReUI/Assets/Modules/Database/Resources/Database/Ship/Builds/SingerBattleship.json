@@ -8,6 +8,8 @@
   "BuildFaction": 23,
   "Components": [
     { "ComponentId": 943, "Quality": 0, "Modification": 0, "X": 32, "Y": 3, "BarrelId": 0, "KeyBinding": 0, "Behaviour": 0 },
+    { "ComponentId": 987, "Quality": 0, "Modification": 0, "X": 11, "Y": 32, "BarrelId": 4, "KeyBinding": 1, "Behaviour": 0 },
+    { "ComponentId": 987, "Quality": 0, "Modification": 0, "X": 56, "Y": 32, "BarrelId": 5, "KeyBinding": 1, "Behaviour": 0 },
 
     { "ComponentId": 961, "Quality": 0, "Modification": 0, "X": 25, "Y": 49, "BarrelId": -1, "KeyBinding": 0, "Behaviour": 0 },
     { "ComponentId": 961, "Quality": 0, "Modification": 0, "X": 42, "Y": 49, "BarrelId": -1, "KeyBinding": 0, "Behaviour": 0 },

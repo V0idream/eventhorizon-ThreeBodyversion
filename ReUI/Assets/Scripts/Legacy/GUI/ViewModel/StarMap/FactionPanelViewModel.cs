@@ -556,7 +556,7 @@ namespace ViewModel
 				new Vector2(24f, -126f), new Vector2(-24f, -82f));
 
 			CreateFacilityOption(cardRect, CapturedStarbaseFacilityType.Trade, 128f,
-				"贸易站", "每阶每日奖励 +1000信用点、+1星币");
+				"贸易站", $"每阶每日奖励 +{CapturedStarbaseFacilities.TradeCreditsPerTier}信用点、+{CapturedStarbaseFacilities.TradeStarsPerTier}星币");
 			CreateFacilityOption(cardRect, CapturedStarbaseFacilityType.Border, 266f,
 				"边防站", "每阶使对应势力支援舰队等级 +1；十阶追加1艘战列舰");
 			CreateFacilityOption(cardRect, CapturedStarbaseFacilityType.Research, 404f,
@@ -683,7 +683,7 @@ namespace ViewModel
 					effect = "可传送至100光年内的航道空间站";
 					break;
 				default:
-					effect = $"每日 +{tier * 1000}信用点 / +{tier}星币";
+					effect = $"每日 +{tier * CapturedStarbaseFacilities.TradeCreditsPerTier}信用点 / +{tier * CapturedStarbaseFacilities.TradeStarsPerTier}星币";
 					break;
 			}
 			_facilityTypeLabel.text = $"空间站类型：{typeName}（{CapturedStarbaseFacilities.GetTierText(tier)}）\n{effect}";

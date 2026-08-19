@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using CommonComponents.Signals;
 using Zenject;
 
@@ -73,13 +75,53 @@ namespace Combat.Ai
             _options.TimeSinceLastPlayerInput = _timeSinceLastPlayerInput;
             _timeSinceLastPlayerInput += deltaTime;
 
-			for (var i = 0; i < count; ++i)
+			#if !UNITY_WEBGL
+			if (!_parallelAiDisabled && count >= ParallelControllerThreshold && MaxParallelism > 1)
 			{
-				var controller = _controllers[i];
-				if (!IsDead(controller))
-					controller.Update(deltaTime, _options);
-				else
-					needCleanup = true;
+				// The original implementation moved all AI off Unity's main thread,
+				// but still processed every ship sequentially on that single AI thread.
+				// Controllers own their own behavior/context/control state, so large
+				// battles can safely fan controller computation across a bounded number
+				// of ThreadPool workers. Unity/Physics object lifetime remains on the
+				// main simulation path; this only parallelizes the already-background AI.
+				var cleanupFlag = 0;
+				var options = _options;
+				try
+				{
+					Parallel.For(0, count, ControllerParallelOptions, i =>
+					{
+						var controller = _controllers[i];
+						if (!IsDead(controller))
+							controller.Update(deltaTime, options);
+						else
+							Interlocked.Exchange(ref cleanupFlag, 1);
+					});
+				}
+				catch (AggregateException exception)
+				{
+					// A legacy/custom AI node may still hide shared mutable state that
+					// was harmless while every controller ran on one background thread.
+					// Fail closed for the rest of this battle instead of throwing once
+					// per fixed frame. Do not replay this frame serially because some
+					// controllers may already have completed their update.
+					_parallelAiDisabled = true;
+					UnityEngine.Debug.LogWarning(
+						"[Performance] Parallel AI disabled after worker failure; falling back to serial AI. " +
+						exception.Flatten().InnerException?.Message);
+				}
+				needCleanup = cleanupFlag != 0;
+			}
+			else
+			#endif
+			{
+				for (var i = 0; i < count; ++i)
+				{
+					var controller = _controllers[i];
+					if (!IsDead(controller))
+						controller.Update(deltaTime, _options);
+					else
+						needCleanup = true;
+				}
 			}
 
 			if (needCleanup)
@@ -107,6 +149,7 @@ namespace Combat.Ai
         }
 
         private float _timeSinceLastPlayerInput;
+		private bool _parallelAiDisabled;
 		private int _currentFrame;
 		private int _lastFrame;
 		private float _fixedDeltaTime;
@@ -115,10 +158,19 @@ namespace Combat.Ai
         private readonly object _lockObject = new object();
 	    private readonly CeasefireSignal _ceasefireSignal;
         private readonly PlayerInputSignal _playerInputSignal;
-        private readonly List<IController> _recentlyAddedControllers = new List<IController>();
-        private readonly List<IController> _controllers = new List<IController>();
+		private readonly List<IController> _recentlyAddedControllers = new List<IController>();
+		private readonly List<IController> _controllers = new List<IController>();
 
-        private const int _maxControllersBeforeOptimization = 30;
+		private const int _maxControllersBeforeOptimization = 30;
+		private const int ParallelControllerThreshold = 24;
+		// Physics2D now uses Unity's worker pool as well. Keep AI fan-out bounded
+		// to one coordinator + one helper worker so it does not oversubscribe the
+		// same mobile CPU during physics barriers.
+		private static readonly int MaxParallelism = Math.Max(1, Math.Min(2, Environment.ProcessorCount - 2));
+		private static readonly ParallelOptions ControllerParallelOptions = new ParallelOptions
+		{
+			MaxDegreeOfParallelism = MaxParallelism,
+		};
 
         public struct Options
         {

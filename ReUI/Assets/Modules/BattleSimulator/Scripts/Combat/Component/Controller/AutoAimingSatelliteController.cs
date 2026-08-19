@@ -1,4 +1,4 @@
-﻿using Combat.Component.Body;
+using Combat.Component.Body;
 using Combat.Component.Platform;
 using Combat.Component.Satellite;
 using Combat.Component.Ship;
@@ -73,7 +73,7 @@ namespace Combat.Component.Controller
             if (!_target.IsActive())
                 return _defaultRotation;
 
-            var targetPosition = _target.Body.WorldPosition();
+            var targetPosition = BattlefieldGeometry.NearestEquivalent(platformPosition, _target.Body.WorldPosition());
             float rotation;
 
             if (_bulletVelocity > 0)
@@ -94,11 +94,11 @@ namespace Combat.Component.Controller
                     target = targetPosition;
                 }
 
-                rotation = RotationHelpers.Angle(platformPosition.Direction(target)) - _ship.Body.WorldRotation();;
+                rotation = RotationHelpers.Angle(target - platformPosition) - _ship.Body.WorldRotation();;
             }
             else
             {
-                rotation = RotationHelpers.Angle(platformPosition.Direction(targetPosition)) - _ship.Body.WorldRotation();
+                rotation = RotationHelpers.Angle(targetPosition - platformPosition) - _ship.Body.WorldRotation();
             }
 
             return RotationHelpers.IsRotationInArc(rotation, _defaultRotation + _minAngle, _defaultRotation + _maxAngle) ? 

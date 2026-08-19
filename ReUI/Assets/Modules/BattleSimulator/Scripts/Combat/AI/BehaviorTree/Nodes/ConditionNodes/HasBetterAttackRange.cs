@@ -1,4 +1,4 @@
-﻿using Combat.Component.Ship;
+using Combat.Component.Ship;
 using Combat.Ai.BehaviorTree.Utils;
 
 namespace Combat.Ai.BehaviorTree.Nodes
@@ -35,6 +35,11 @@ namespace Combat.Ai.BehaviorTree.Nodes
 			}
 
 			_target = target;
+            if (target.Systems == null)
+            {
+                _targetAttackRadius = 0f;
+                return;
+            }
             target.Systems.All.CalculateAttackRange(out var rangeMin, out var rangeMax);
 			_targetAttackRadius = rangeMax;
 		}

@@ -1,4 +1,4 @@
-﻿using Combat.Component.Ship;
+using Combat.Component.Ship;
 using Combat.Component.Unit.Classification;
 using Combat.Scene;
 using Combat.Unit;
@@ -52,8 +52,8 @@ namespace Combat.Ai.BehaviorTree
             IShip target = null;
             var targetDistance = float.MaxValue;
 
-            var shipPosition = drone.Body.Position;
-            var mothershipPosition = mothership != null ? mothership.Body.Position : shipPosition;
+            var shipPosition = drone.Body.WorldPosition();
+            var mothershipPosition = mothership != null ? mothership.Body.WorldPosition() : shipPosition;
             var mothershipSize = mothership != null ? mothership.Body.Scale : drone.Body.Scale;
 
             lock (shipList.LockObject)
@@ -65,15 +65,15 @@ namespace Combat.Ai.BehaviorTree
                     if (ship.Type.Class != UnitClass.Ship) continue;
                     if (ship.Stats.Armor.Percentage > maxHp) continue;
 
-                    var targetPosition = ship.Body.Position;
+                    var targetPosition = ship.Body.WorldPosition();
                     if (maxDistance > 0)
                     {
-                        var mothershipDistance = mothershipPosition.Direction(targetPosition).magnitude;
+                        var mothershipDistance = BattlefieldGeometry.Distance(mothershipPosition, targetPosition);
                         var summarySize = 0.5f * (ship.Body.Scale + mothershipSize);
                         if (mothershipDistance - summarySize > maxDistance) continue;
                     }
 
-                    var distance = shipPosition.Direction(targetPosition).magnitude;
+                    var distance = BattlefieldGeometry.Distance(shipPosition, targetPosition);
                     if (distance > targetDistance) continue;
 
                     target = ship;

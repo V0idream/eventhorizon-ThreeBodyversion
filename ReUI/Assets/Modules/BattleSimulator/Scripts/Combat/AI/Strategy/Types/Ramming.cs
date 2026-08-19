@@ -12,6 +12,9 @@ namespace Combat.Ai
     {
         public static float SuitabilityLevel(IShip ship, IShip enemy, int level)
         {
+            if (enemy?.Engine == null || enemy.Stats == null)
+                return 0f;
+
             var hasAccelerator = ship.Systems.All.Any(device => device is AcceleratorDevice);
             if (ship.Engine.MaxVelocity < 0.75f * enemy.Engine.MaxVelocity && !hasAccelerator)
                 return 0f;

@@ -26,6 +26,8 @@ namespace Combat.Ai.Condition
 			
 		public bool IsTrue(Context context)
 		{
+			if (context.Enemy?.Stats == null)
+				return true;
 			return context.Enemy.Stats.Energy.Percentage > _min;
 		}
 			

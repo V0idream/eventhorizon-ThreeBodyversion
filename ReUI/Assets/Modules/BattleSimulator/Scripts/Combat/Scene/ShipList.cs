@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Combat.Component.Ship;
 
 namespace Combat.Scene
@@ -11,7 +12,11 @@ namespace Combat.Scene
             _ships = new List<IShip>();
         }
 
-        public IReadOnlyList<IShip> Items => _ships;
+        // Readers (notably the background AI workers) get an immutable array
+        // snapshot. Structural mutations stay on _ships under _lockObject, so
+        // multiple target-selection workers can scan concurrently without
+        // serializing on the collection lock.
+        public IReadOnlyList<IShip> Items => GetSnapshot();
         public object LockObject => _lockObject;
 
         public void Add(IShip ship)
@@ -19,6 +24,7 @@ namespace Combat.Scene
             lock (_lockObject)
             {
                 _ships.Add(ship);
+                _snapshotDirty = true;
             }
         }
 
@@ -28,6 +34,7 @@ namespace Combat.Scene
             {
                 var index = _ships.IndexOf(ship);
                 _ships.QuickRemove(index);
+                _snapshotDirty = true;
             }
         }
 
@@ -36,10 +43,31 @@ namespace Combat.Scene
             lock (LockObject)
             {
                 _ships.Clear();
+                _snapshot = Array.Empty<IShip>();
+                _snapshotDirty = false;
+            }
+        }
+
+        private IReadOnlyList<IShip> GetSnapshot()
+        {
+            if (!_snapshotDirty)
+                return _snapshot;
+
+            lock (_lockObject)
+            {
+                if (_snapshotDirty)
+                {
+                    _snapshot = _ships.ToArray();
+                    _snapshotDirty = false;
+                }
+
+                return _snapshot;
             }
         }
 
         private readonly object _lockObject;
         private readonly List<IShip> _ships;
+        private IShip[] _snapshot = Array.Empty<IShip>();
+        private volatile bool _snapshotDirty = true;
     }
 }

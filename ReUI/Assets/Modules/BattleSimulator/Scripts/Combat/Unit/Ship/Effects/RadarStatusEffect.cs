@@ -144,9 +144,18 @@ namespace Combat.Component.Ship.Effects
             ClearTargeting(ship);
         }
 
-        public static bool TryApplyEmpJammed(IShip ship, float duration, float energyDrainPerSecond)
+        public static bool TryApplyEmpJammed(IShip ship, float duration, float energyDrainPerSecond,
+            IShip source = null)
         {
             if (ship == null || ship.Effects == null || duration <= 0f)
+                return false;
+
+            // Ordinary EMP is hostile electronic disruption.  Keep this gate
+            // inside the status layer as well as in individual collision
+            // actions so attached/raycast/reflected effects cannot ever feed
+            // the firing ship's own jammer state back into itself or allies.
+            if (source != null &&
+                (ship == source || CombatRelations.AreAllies(source.Type, ship.Type)))
                 return false;
 
             foreach (var effect in ship.Effects.All)
@@ -177,6 +186,20 @@ namespace Combat.Component.Ship.Effects
                 EmpImmunityDuration));
             ClearTargeting(ship);
             return true;
+        }
+
+        public static bool CanBeWeaponTarget(IShip observer, IShip target)
+        {
+            if (!CanDetect(observer, target))
+                return false;
+
+            // EMP disables the victim's own sensors and weapon control; it
+            // must not behave like stealth for everyone else.  If some other
+            // feature currently lowers target priority to None, an actively
+            // jammed ship remains a valid external weapon lock.  Explicit
+            // RadarStatus stealth and small-universe transit are already
+            // rejected by CanDetect above.
+            return target.Features.TargetPriority != TargetPriority.None || IsJammed(target);
         }
 
         public static void ApplyStealth(IShip ship, float duration)

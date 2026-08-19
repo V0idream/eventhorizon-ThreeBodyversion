@@ -22,7 +22,11 @@ namespace Combat.Factory
         public const int NormalBuildId = 11010;
         public const int PredatorBuildId = 11011;
         public const int DefenseBuildId = 11012;
-        public const int MaxPredatorDrones = 80;
+        public const int MaxPredatorDrones = 400;
+        public const int MaxNormalDronesPerOwner = 48;
+        public const int NanoStormInitialPredatorCount = 125;
+        public const int DestroyedShipPredatorMultiplier = 5;
+        public const float DroneRespawnDelay = 5f;
         public const float DefaultPredatorDamage = 500f;
         public const float NanoStormPredatorDamage = 5000f;
 
@@ -38,10 +42,13 @@ namespace Combat.Factory
 
         public static IShip SpawnImmediate(int buildId, IShip owner, Vector2 position,
             DroneBehaviour behaviour = DroneBehaviour.Aggressive,
-            float predatorDamage = DefaultPredatorDamage)
+            float predatorDamage = DefaultPredatorDamage,
+            bool ignoreSpawnLimits = false)
         {
             if (_factory == null || _database == null || owner == null || !owner.IsActive()) return null;
-            if (buildId == PredatorBuildId && _runner != null && !_runner.CanSpawnPredator)
+            if (!ignoreSpawnLimits && buildId == PredatorBuildId && _runner != null && !_runner.CanSpawnPredator)
+                return null;
+            if (!ignoreSpawnLimits && buildId == NormalBuildId && _runner != null && !_runner.CanSpawnNormal(owner))
                 return null;
             if (!_specifications.TryGetValue(buildId, out var spec))
             {
@@ -58,6 +65,8 @@ namespace Combat.Factory
                 _runner?.RegisterDefense(drone, owner);
             else if (buildId == PredatorBuildId && drone != null)
                 _runner?.RegisterPredator(drone, predatorDamage);
+            else if (buildId == NormalBuildId && drone != null)
+                _runner?.RegisterNormal(drone, owner);
             return drone;
         }
 
@@ -66,7 +75,8 @@ namespace Combat.Factory
             float predatorDamage = DefaultPredatorDamage)
         {
             if (count <= 0 || owner == null) return;
-            _queue.Enqueue(new SpawnOrder(buildId, owner, position, Mathf.Clamp(count, 1, 200), behaviour,
+            var maxQueuedCount = buildId == PredatorBuildId ? MaxPredatorDrones : 200;
+            _queue.Enqueue(new SpawnOrder(buildId, owner, position, Mathf.Clamp(count, 1, maxQueuedCount), behaviour,
                 predatorDamage));
         }
 
@@ -78,7 +88,8 @@ namespace Combat.Factory
             if (!_convertedVictims.Add(victim)) return;
             var owner = attacker.Type.Owner ?? attacker;
             var size = victim.Specification?.Stats?.Layout?.CellCount ?? 1;
-            QueueSpawn(PredatorBuildId, owner, victim.Body.WorldPosition(), Mathf.Max(1, Mathf.CeilToInt(size / 50f)));
+            var count = Mathf.Max(1, Mathf.CeilToInt(size / 50f)) * DestroyedShipPredatorMultiplier;
+            QueueSpawn(PredatorBuildId, owner, victim.Body.WorldPosition(), count);
         }
 
         internal static bool TryDequeue(out SpawnOrder order)
@@ -121,7 +132,24 @@ namespace Combat.Factory
     public sealed class EdgeDroneRuntimeRunner : MonoBehaviour
     {
         public void RegisterDefense(IShip drone, IShip protectedShip) =>
-            _defenders.Add(new DefenderPair(drone, protectedShip));
+            _defenders.Add(new DefenderPair(drone, protectedShip,
+                Time.time + Random.Range(0f, DefenderUpdateInterval)));
+
+        public void RegisterNormal(IShip drone, IShip owner)
+        {
+            if (drone != null && owner != null)
+                _normalDrones.Add(new NormalDronePair(drone, owner));
+        }
+
+        public bool CanSpawnNormal(IShip owner)
+        {
+            RemoveDestroyedNormalDrones();
+            var count = 0;
+            for (var i = 0; i < _normalDrones.Count; ++i)
+                if (_normalDrones[i].Owner == owner && ++count >= EdgeDroneRuntime.MaxNormalDronesPerOwner)
+                    return false;
+            return true;
+        }
 
         public bool CanSpawnPredator
         {
@@ -145,6 +173,8 @@ namespace Combat.Factory
         private void Update()
         {
             RemoveDestroyedPredators();
+            RemoveDestroyedNormalDrones();
+            ProcessRespawns();
             // Ship creation touches Unity objects, physics and renderers and
             // therefore cannot be moved to worker threads safely. Cache the
             // immutable specification and spread object creation over frames
@@ -173,20 +203,102 @@ namespace Combat.Factory
 
             AttackWithPredators();
 
+            var now = Time.time;
             for (var i = _defenders.Count - 1; i >= 0; i--)
             {
                 var pair = _defenders[i];
-                if (pair.Drone == null || !pair.Drone.IsActive() || pair.Owner == null || !pair.Owner.IsActive())
-                { _defenders.RemoveAt(i); continue; }
+                if (pair.Drone == null || !pair.Drone.IsActive())
+                {
+                    ScheduleRespawn(EdgeDroneRuntime.DefenseBuildId,
+                        ResolveRespawnOwner(pair.Drone, pair.Owner), DroneBehaviour.Defensive);
+                    _defenders.RemoveAt(i);
+                    continue;
+                }
+                if (pair.Owner == null || !pair.Owner.IsActive())
+                {
+                    _defenders.RemoveAt(i);
+                    continue;
+                }
+                if (now < pair.NextUpdate) continue;
+                pair.NextUpdate = now + DefenderUpdateInterval;
                 Intercept(pair);
+            }
+        }
+
+        private void RemoveDestroyedNormalDrones()
+        {
+            for (var i = _normalDrones.Count - 1; i >= 0; --i)
+            {
+                var pair = _normalDrones[i];
+                if (pair.Drone == null || !pair.Drone.IsActive())
+                {
+                    ScheduleRespawn(EdgeDroneRuntime.NormalBuildId,
+                        ResolveRespawnOwner(pair.Drone, pair.Owner), DroneBehaviour.Aggressive);
+                    _normalDrones.RemoveAt(i);
+                    continue;
+                }
+
+                if (pair.Owner == null || !pair.Owner.IsActive())
+                    _normalDrones.RemoveAt(i);
             }
         }
 
         private void RemoveDestroyedPredators()
         {
             for (var i = _predators.Count - 1; i >= 0; i--)
-                if (_predators[i].Drone == null || !_predators[i].Drone.IsActive())
+            {
+                var pair = _predators[i];
+                if (pair.Drone == null || !pair.Drone.IsActive())
+                {
+                    ScheduleRespawn(EdgeDroneRuntime.PredatorBuildId,
+                        ResolveRespawnOwner(pair.Drone, pair.Owner), DroneBehaviour.Aggressive, pair.ContactDamage);
                     _predators.RemoveAt(i);
+                    continue;
+                }
+
+                if (pair.Owner == null || !pair.Owner.IsActive())
+                    _predators.RemoveAt(i);
+            }
+        }
+
+        private void ScheduleRespawn(int buildId, IShip owner, DroneBehaviour behaviour,
+            float predatorDamage = EdgeDroneRuntime.DefaultPredatorDamage)
+        {
+            if (owner == null || !owner.IsActive())
+                return;
+
+            _respawns.Add(new RespawnOrder(buildId, owner, behaviour, predatorDamage,
+                Time.time + EdgeDroneRuntime.DroneRespawnDelay));
+        }
+
+        private static IShip ResolveRespawnOwner(IShip drone, IShip fallbackOwner) =>
+            drone?.Type?.Owner ?? fallbackOwner;
+
+        private void ProcessRespawns()
+        {
+            if (_respawns.Count == 0)
+                return;
+
+            var now = Time.time;
+            for (var i = _respawns.Count - 1; i >= 0; --i)
+            {
+                var order = _respawns[i];
+                if (order.Owner == null || !order.Owner.IsActive())
+                {
+                    _respawns.RemoveAt(i);
+                    continue;
+                }
+                if (now < order.RespawnAt)
+                    continue;
+
+                // Respawns deliberately bypass the normal queued-spawn budget
+                // and population gates. They replace a previously existing
+                // Edge drone one-for-one exactly five seconds after its loss.
+                var respawned = EdgeDroneRuntime.SpawnImmediate(order.BuildId, order.Owner,
+                    order.Owner.Body.WorldPosition(), order.Behaviour, order.PredatorDamage, true);
+                if (respawned != null)
+                    _respawns.RemoveAt(i);
+            }
         }
 
         private void AttackWithPredators()
@@ -201,9 +313,16 @@ namespace Combat.Factory
                 var drone = pair.Drone;
                 if (drone == null || !drone.IsActive()) continue;
 
+                // Electronic-shield capture changes the drone owner in place.
+                // Drop a stale suicide target immediately if it became the
+                // drone's new owner instead of waiting for the periodic target
+                // refresh to notice the allegiance change.
+                if (pair.Target != null && pair.Target == drone.Type.Owner)
+                    pair.Target = null;
+
                 if (pair.Target == null || !pair.Target.IsActive() ||
                     !CombatRelations.AreEnemies(drone.Type, pair.Target.Type) ||
-                    Combat.Component.Ship.Effects.SmallUniverseTransitEffect.IsInTransit(pair.Target) ||
+                    !Combat.Component.Ship.Effects.RadarStatus.CanDetect(drone, pair.Target) ||
                     now >= pair.NextTargetUpdate)
                 {
                     pair.Target = FindNearestPredatorTarget(scene, drone);
@@ -211,9 +330,26 @@ namespace Combat.Factory
                 }
 
                 var target = pair.Target;
-                if (target == null || !target.IsActive()) continue;
+                if (target == null || !target.IsActive())
+                {
+                    drone.Controls.Throttle = 0f;
+                    drone.Controls.Course = null;
+                    continue;
+                }
+
+                // Re-check immediately before applying the manual suicide hit.
+                // Capture can occur during the same frame after target
+                // acquisition, and this final gate guarantees that neither the
+                // new owner nor any new ally can receive predator contact damage.
+                if (target == drone.Type.Owner || CombatRelations.AreAllies(drone.Type, target.Type))
+                {
+                    pair.Target = null;
+                    continue;
+                }
                 var delta = target.Body.WorldPosition() - drone.Body.WorldPosition();
                 var distance = delta.magnitude;
+                drone.Controls.Course = distance > 0.01f ? RotationHelpers.Angle(delta) : null;
+                drone.Controls.Throttle = 1f;
                 var desiredVelocity = distance > 0.01f ? delta / distance * 58f : Vector2.zero;
                 drone.Body.ApplyAcceleration(desiredVelocity - drone.Body.WorldVelocity());
 
@@ -242,8 +378,7 @@ namespace Combat.Factory
                 var candidate = candidates[candidateIndex];
                 if (candidate == drone || !candidate.IsActive() ||
                     !CombatRelations.AreEnemies(drone.Type, candidate.Type) ||
-                    candidate.Features.TargetPriority == Combat.Component.Features.TargetPriority.None ||
-                    Combat.Component.Ship.Effects.SmallUniverseTransitEffect.IsInTransit(candidate))
+                    !Combat.Component.Ship.Effects.RadarStatus.CanDetect(drone, candidate))
                     continue;
 
                 var distance = (candidate.Body.WorldPosition() - drone.Body.WorldPosition()).sqrMagnitude;
@@ -297,9 +432,22 @@ namespace Combat.Factory
             }
         }
 
-        private readonly struct DefenderPair
+        private sealed class DefenderPair
         {
-            public DefenderPair(IShip drone, IShip owner) { Drone = drone; Owner = owner; }
+            public DefenderPair(IShip drone, IShip owner, float nextUpdate)
+            {
+                Drone = drone;
+                Owner = owner;
+                NextUpdate = nextUpdate;
+            }
+            public IShip Drone { get; }
+            public IShip Owner { get; }
+            public float NextUpdate { get; set; }
+        }
+
+        private readonly struct NormalDronePair
+        {
+            public NormalDronePair(IShip drone, IShip owner) { Drone = drone; Owner = owner; }
             public IShip Drone { get; }
             public IShip Owner { get; }
         }
@@ -309,16 +457,41 @@ namespace Combat.Factory
             public PredatorPair(IShip drone, float nextTargetUpdate, float contactDamage)
             {
                 Drone = drone;
+                Owner = drone?.Type?.Owner;
                 NextTargetUpdate = nextTargetUpdate;
                 ContactDamage = contactDamage;
             }
             public IShip Drone { get; }
+            public IShip Owner { get; }
             public IShip Target { get; set; }
             public float NextTargetUpdate { get; set; }
             public float ContactDamage { get; }
         }
+
+        private readonly struct RespawnOrder
+        {
+            public RespawnOrder(int buildId, IShip owner, DroneBehaviour behaviour, float predatorDamage,
+                float respawnAt)
+            {
+                BuildId = buildId;
+                Owner = owner;
+                Behaviour = behaviour;
+                PredatorDamage = predatorDamage;
+                RespawnAt = respawnAt;
+            }
+
+            public int BuildId { get; }
+            public IShip Owner { get; }
+            public DroneBehaviour Behaviour { get; }
+            public float PredatorDamage { get; }
+            public float RespawnAt { get; }
+        }
+
         private readonly Queue<EdgeDroneRuntime.SpawnOrder> _active = new();
+        private readonly List<RespawnOrder> _respawns = new();
+        private readonly List<NormalDronePair> _normalDrones = new();
         private readonly List<DefenderPair> _defenders = new();
         private readonly List<PredatorPair> _predators = new();
+        private const float DefenderUpdateInterval = 0.05f;
     }
 }

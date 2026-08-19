@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Combat.Component.Ship;
 using Combat.Component.Unit;
 using Combat.Component.Unit.Classification;
@@ -59,32 +59,29 @@ namespace Combat.Ai
         {
             _enemies.Clear();
             _allies.Clear();
-            lock (_scene.Ships.LockObject)
+            var ships = _scene.Ships.Items;
+
+            for (int i = 0; i < ships.Count; ++i)
             {
-                var ships = _scene.Ships.Items;
+                var target = ships[i];
+                if (target == ship || target == primaryTarget || !target.IsActive())
+                    continue;
 
-                for (int i = 0; i < ships.Count; ++i)
+                var type = target.Type.Class;
+                if (type == UnitClass.Decoy && target is not Decoy { IsCounterElectron: true })
+                    continue;
+
+                if (CombatRelations.AreAllies(target.Type, ship.Type) && allies)
                 {
-                    var target = ships[i];
-                    if (target == ship || target == primaryTarget || !target.IsActive())
+                    if (type == UnitClass.Drone || type == UnitClass.Decoy)
                         continue;
 
-                    var type = target.Type.Class;
-                    if (type == UnitClass.Decoy)
-                        continue;
+                    _allies.Add(target);
+                }
 
-                    if (CombatRelations.AreAllies(target.Type, ship.Type) && allies)
-                    {
-                        if (type == UnitClass.Drone)
-                            continue;
-
-                        _allies.Add(target);
-                    }
-
-                    if (CombatRelations.AreEnemies(target.Type, ship.Type) && enemies)
-                    {
-                        _enemies.Add(target);
-                    }
+                if (CombatRelations.AreEnemies(target.Type, ship.Type) && enemies)
+                {
+                    _enemies.Add(target);
                 }
             }
         }
@@ -105,7 +102,7 @@ namespace Combat.Ai
 
         private static float Distance(IShip ship1, IShip ship2)
         {
-            return ship1.Body.Position.Direction(ship2.Body.Position).sqrMagnitude;
+            return BattlefieldGeometry.SqrDistance(ship1.Body.WorldPosition(), ship2.Body.WorldPosition());
         }
 
         private readonly List<IShip> _enemies = new List<IShip>();

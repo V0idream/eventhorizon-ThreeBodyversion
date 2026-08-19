@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Constructor;
 using GameServices.GameManager;
@@ -51,7 +51,7 @@ namespace GameServices.Player
             get => _explorationShip;
             set
             {
-				Assert.IsTrue(value == null || value.Model.SizeClass == SizeClass.Frigate && _ships.Contains(value));
+				Assert.IsTrue(value == null || value.Model.SizeClass != SizeClass.Starbase && _ships.Contains(value));
 				_explorationShip = value;
                 DataChanged = true;
             }

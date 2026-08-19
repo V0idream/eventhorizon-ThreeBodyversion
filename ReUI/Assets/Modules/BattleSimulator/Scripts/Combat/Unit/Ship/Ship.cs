@@ -255,6 +255,9 @@ namespace Combat.Component.Ship
 
         private float EffectiveVelocityLimit()
         {
+            if (Specification.Info.Id.Value == Combat.Factory.EdgeDroneRuntime.PredatorBuildId)
+                return 60f;
+
             var engineLimit = Engine?.MaxVelocity ?? 0f;
             var combatLimit = Type.Side == UnitSide.Player
                 ? PlayerPrefs.GetInt(EngineThrottleKey, 0) != 0

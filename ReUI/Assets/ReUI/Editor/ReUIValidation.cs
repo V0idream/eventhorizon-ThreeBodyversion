@@ -838,6 +838,8 @@ namespace ReUI.Editor
                          "LevelsPerTier = 50",
                          "MaxTier = 10",
                          "MaxExtraBattleships = 10",
+                         "TradeCreditsPerTier = 10000",
+                         "TradeStarsPerTier = 10",
                          "CapturedStarbaseFacilityType.Trade",
                          "PlayerPrefs.GetInt",
                          "session.Regions.Regions",
@@ -854,8 +856,8 @@ namespace ReUI.Editor
                 "Scripts/Domain/Player/DailyReward.cs"));
             foreach (var token in new[]
                      {
-                         "tradeCredits += tier * 1000",
-                         "tradeStars += tier",
+                         "tradeCredits += tier * CapturedStarbaseFacilities.TradeCreditsPerTier",
+                         "tradeStars += tier * CapturedStarbaseFacilities.TradeStarsPerTier",
                          "researchByFaction[region.Faction] = current + tier",
                          "CreateResearchItem(pair.Key)",
                      })

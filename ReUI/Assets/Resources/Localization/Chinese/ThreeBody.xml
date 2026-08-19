@@ -198,6 +198,8 @@
     <string name="SingerFlagshipDescription">歌者文明的旗舰级清理舰。舰首光粒负责正面毁灭，两侧的“针”沿平行航线贯穿敌阵，构成无可规避的清理齐射。</string>
     <string name="SingerNeedle">针</string>
     <string name="SingerNeedleDescription">将极细的实体贯穿体加速至近乎无法观测的速度，沿射线连续穿透航路上的敌舰。</string>
+    <string name="SingerWarpMissile">跃迁导弹</string>
+    <string name="SingerWarpMissileDescription">歌者文明的空间跃迁制导导弹。发射2秒后跃迁至目标约25距离处继续追踪；撞击造成30000动能伤害，并同时引发30000动能伤害的爆炸。</string>
     <string name="SingerEngine">歌者曲率引擎</string>
     <string name="SingerEngineDescription">以精密曲率梯度牵引舰体前行，几乎不留下可供低等文明追踪的推进痕迹。</string>
     <string name="SingerReactor">歌者真空能源核心</string>
@@ -253,6 +255,8 @@
     <string name="EdgeDroneHiveDescription">持续制造并放出边缘世界无人机，以不断补充的自治单元维持战场压力。</string>
     <string name="EdgeDefender">捍卫者</string>
     <string name="EdgeDefenderDescription">部署一架贴身防卫无人机，主动撞截导弹、射弹与无法被常规近防火力处理的攻击。</string>
+    <string name="EdgeCounterElectron">对抗电元</string>
+    <string name="EdgeCounterElectronDescription">生成一个可被敌方雷达、火控与制导系统视作正常敌舰的全息假目标。假目标第一次受到攻击后会继续维持5秒再消失；敌方生成的投影会显示在玩家雷达上。</string>
     <string name="SingerStasisBeam">静滞光束</string>
     <string name="SingerStasisBeamDescription">将命中目标锁入迟滞场。舰船与无人机行动骤缓，飞行武器则在静止中耗尽剩余航程。</string>
     <string name="StasisField">静滞力场</string>

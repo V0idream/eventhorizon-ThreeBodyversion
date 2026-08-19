@@ -99,6 +99,13 @@ namespace Combat.Component.Collider
             if (unit == null || unit.Body == null) return false;
             
             if (ShouldIgnoreElectronicShieldShipCollision(_unit, unit)) return false;
+            // Captured missiles/drones immediately point Source at their new
+            // owner. Collision callbacks are emitted by both colliders, so it
+            // is not enough for the captured unit to ignore Source itself:
+            // the owner's collider must also ignore the reciprocal callback.
+            // Without this, a freshly captured predator can still deliver one
+            // ramming/contact hit to the ship that captured it.
+            if (collider.Source == _unit) return false;
             if (Source == null) return true;
             if (unit == Source) return false;
             if (unit.Type.Owner == Source && !IsBallLightning(unit) && !IsOwnerBlockingShield(unit)) return false;

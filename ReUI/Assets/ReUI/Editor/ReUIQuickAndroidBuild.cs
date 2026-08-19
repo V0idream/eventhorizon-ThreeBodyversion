@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using UnityEditor;
+using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -18,9 +19,9 @@ namespace ReUI.Editor
     {
         private const string PackageName = "com.threebody.EventHorizon";
         private const string ProductName = "三体视界";
-        private const string VersionName = "Beta8.30";
-        private const int VersionCode = 140040;
-        private const string OutputFileName = "ThreeBody-EventHorizon-Beta8.30.apk";
+        private const string VersionName = "Beta8.37";
+        private const int VersionCode = 140047;
+        private const string OutputFileName = "ThreeBody-EventHorizon-Beta8.37.apk";
 
         [MenuItem("Build/ReUI/Quick Android APK")]
         public static void Build()
@@ -42,6 +43,9 @@ namespace ReUI.Editor
                 GraphicsDeviceType.Vulkan,
                 GraphicsDeviceType.OpenGLES3,
             });
+            PlayerSettings.SetMobileMTRendering(NamedBuildTarget.Android, true);
+            PlayerSettings.graphicsJobs = true;
+            PlayerSettings.graphicsJobMode = GraphicsJobMode.Native;
             PlayerSettings.allowHDRDisplaySupport = true;
             // Unity/Android only exposes HDROutputSettings as available when the
             // player is built to initialise an HDR-capable main display. Runtime

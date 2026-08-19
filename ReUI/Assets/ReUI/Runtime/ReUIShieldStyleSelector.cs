@@ -86,17 +86,24 @@ namespace ReUI
             var general = settings.GetComponentInChildren<SettingsGeneral>(true);
             if (general == null) return;
 
-            var existing = general.transform.Find(RowName)?.GetComponent<ReUIShieldStyleSelectorState>();
+            EnsureIn(general.transform, FindFont(general.transform));
+        }
+
+        internal static ReUIShieldStyleSelectorState EnsureIn(Transform parent, Font font)
+        {
+            if (parent == null) return null;
+
+            var existing = parent.Find(RowName)?.GetComponent<ReUIShieldStyleSelectorState>();
             if (existing != null)
             {
                 existing.Refresh();
-                return;
+                return existing;
             }
 
-            var font = FindFont(general.transform);
+            if (font == null) font = FindFont(parent);
             var rowObject = new GameObject(RowName, typeof(RectTransform), typeof(LayoutElement),
                 typeof(HorizontalLayoutGroup), typeof(ReUIShieldStyleSelectorState));
-            rowObject.transform.SetParent(general.transform, false);
+            rowObject.transform.SetParent(parent, false);
 
             var rowLayout = rowObject.GetComponent<LayoutElement>();
             rowLayout.minHeight = 72f;
@@ -126,6 +133,7 @@ namespace ReUI
             state.Classic = classic;
             state.Modern = modern;
             state.Initialize();
+            return state;
         }
 
         internal static void EnsureForSettings(Canvas canvas)

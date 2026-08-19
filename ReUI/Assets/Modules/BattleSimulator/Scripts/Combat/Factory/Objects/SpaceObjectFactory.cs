@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Combat.Collision.Behaviour;
 using Combat.Collision.Behaviour.Action;
 using Combat.Component.Body;
@@ -210,6 +210,47 @@ namespace Combat.Factory
             effect.Run(0.3f, parent.Body.Velocity, 0);
 
             unit.AddTrigger(new DroneExplosionActionObsolete(unit, _effectFactory, _soundPlayer));
+
+            _scene.AddUnit(unit);
+            return unit;
+        }
+
+        public IUnit CreateCounterElectronDecoy(IShip parent)
+        {
+            var prefab = _prefabCache.LoadResourcePrefab("Combat/Objects/Decoy");
+            var gameObject = new GameObjectHolder(prefab, _objectPool);
+            gameObject.IsActive = true;
+
+            var direction = RotationHelpers.Direction(Random.Range(0f, 360f));
+            var offset = Mathf.Max(8f, parent.Body.WorldScale() * 1.5f);
+            var position = parent.Body.WorldPosition() + direction * offset;
+            var size = Mathf.Max(1.2f, parent.Body.WorldScale() * 0.75f);
+            var visibleHologram = parent.Type.Side == UnitSide.Enemy;
+            var color = visibleHologram
+                ? new Color(0.15f, 0.75f, 1f, 0.42f)
+                : new Color(0.15f, 0.75f, 1f, 0f);
+
+            var body = gameObject.GetComponent<IBodyComponent>();
+            body.Initialize(null, position, parent.Body.WorldRotation(), size, parent.Body.WorldVelocity(), 0f, 0.1f);
+            var collider = gameObject.GetComponent<ICollider>();
+            var view = gameObject.GetComponent<IView>();
+            view.Color = color;
+
+            // Counter-electron false targets persist until they are attacked;
+            // once hit, Decoy keeps them lockable for five more seconds before
+            // removing the hologram.
+            var unit = new Decoy(parent, body, view, collider, float.MaxValue, float.MaxValue,
+                counterElectron: true, visibleHologram: visibleHologram, effectFactory: _effectFactory);
+            unit.AddResource(gameObject);
+
+            if (visibleHologram)
+            {
+                var effect = _effectFactory.CreateEffect("WaveThin");
+                effect.Position = position;
+                effect.Size = size * 2f;
+                effect.Color = color;
+                effect.Run(0.7f, Vector2.zero, 0f);
+            }
 
             _scene.AddUnit(unit);
             return unit;

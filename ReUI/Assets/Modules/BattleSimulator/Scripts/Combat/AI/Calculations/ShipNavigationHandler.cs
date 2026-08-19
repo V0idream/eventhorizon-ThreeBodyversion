@@ -1,5 +1,6 @@
-﻿using UnityEngine;
+using UnityEngine;
 using Combat.Component.Ship;
+using Combat.Scene;
 
 namespace Combat.Ai.Calculations
 {
@@ -10,7 +11,7 @@ namespace Combat.Ai.Calculations
 			var minDistance = min + ship.Body.Scale/3 + target.Body.Scale/3;
 			var maxDistance = minDistance - min + max;
 
-			var direction = ship.Body.Position.Direction(target.Body.Position);
+			var direction = BattlefieldGeometry.Delta(ship.Body.WorldPosition(), target.Body.WorldPosition());
 			var alpha = RotationHelpers.Angle(direction);
 
 			var distance = direction.magnitude;
@@ -58,7 +59,7 @@ namespace Combat.Ai.Calculations
             var minDistance = min + shipSummarySize;
 			var maxDistance = max + shipSummarySize;
 
-			var direction = ship.Body.Position.Direction(target.Body.Position);
+			var direction = BattlefieldGeometry.Delta(ship.Body.WorldPosition(), target.Body.WorldPosition());
             var distance = direction.magnitude;
             if (distance >= minDistance && distance <= maxDistance)
                 return true;
@@ -112,7 +113,7 @@ namespace Combat.Ai.Calculations
 			var canHit = TryInterceptTarget(ship, enemy, out var target, out timeToHit);
 			var status = canHit ? Status.Chasing : Status.Following;
 
-			var direction = ship.Body.Position.Direction(target);
+			var direction = BattlefieldGeometry.Delta(ship.Body.WorldPosition(), target);
 			var course = RotationHelpers.Angle(direction);
 			controls.Course = course;
 
@@ -153,8 +154,8 @@ namespace Combat.Ai.Calculations
 		private static bool TryInterceptTarget(IShip ship, IShip enemy, out Vector2 target, out float timeToHit)
 		{
 			var enemyVelocity = enemy.Body.Velocity;
-			var enemyPosition = enemy.Body.Position;
-			var shipPosition = ship.Body.Position;
+			var shipPosition = ship.Body.WorldPosition();
+			var enemyPosition = BattlefieldGeometry.NearestEquivalent(shipPosition, enemy.Body.WorldPosition());
 			var maxVelocity = Mathf.Max(ship.Body.Velocity.magnitude, ship.Engine.MaxVelocity);
 
 			var canHit = Geometry.GetTargetPosition(

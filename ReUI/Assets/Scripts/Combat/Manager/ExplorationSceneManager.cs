@@ -165,6 +165,8 @@ namespace Combat.Manager
                      strategicBullet.Controller is StrategicWeaponController strategic &&
                      strategic.Kind == StrategicWeaponController.WeaponKind.DualVectorFoil && strategic.IsActive)
                 _enemyStatsPanel.OpenStrategicProjectile(strategic);
+            else if (target is Decoy { IsCounterElectron: true } counterElectron && counterElectron.IsActive())
+                _enemyStatsPanel.OpenCounterElectronDecoy(counterElectron);
             else if (_scene.EnemyShip.IsActive())
                 _enemyStatsPanel.Open(_scene.EnemyShip);
             else

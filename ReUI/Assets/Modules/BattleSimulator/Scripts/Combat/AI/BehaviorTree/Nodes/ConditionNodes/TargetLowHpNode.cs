@@ -1,4 +1,4 @@
-﻿using Combat.Unit;
+using Combat.Unit;
 
 namespace Combat.Ai.BehaviorTree.Nodes
 {
@@ -14,7 +14,7 @@ namespace Combat.Ai.BehaviorTree.Nodes
 		public NodeState Evaluate(Context context)
 		{
 			var target = context.TargetShip;
-			if (!target.IsActive())
+			if (!target.IsActive() || target.Stats == null)
 				return NodeState.Failure;
 
 			var hp = target.Stats.Armor.Percentage;

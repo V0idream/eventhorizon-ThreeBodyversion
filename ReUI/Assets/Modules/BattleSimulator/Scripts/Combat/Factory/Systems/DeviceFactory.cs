@@ -74,6 +74,9 @@ namespace Combat.Factory
             if (deviceData.ComponentId == ThreeBodyContentRules.EdgeDefenderComponentId)
                 return new EdgeDefenderDevice(ship, stats);
 
+            if (deviceData.ComponentId == ThreeBodyContentRules.EdgeCounterElectronComponentId)
+                return new CounterElectronDevice(ship, stats, _spaceObjectFactory);
+
             if (TryCreateSpecialEnergyShield(deviceData, ship, stats, out var specialShield))
                 return specialShield;
 
