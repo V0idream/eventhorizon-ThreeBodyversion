@@ -74,7 +74,7 @@ namespace Combat.Manager
 
             _messenger.AddListener<CombatShip>(EventType.CombatShipDestroyed, OnShipDestroyed);
             CreateHud();
-            StartNextWave();
+            _waitingForPlayerRegistration = true;
             SpawnSupply();
             _supplyTimer = SupplySpawnInterval * 0.5f;
             RefreshHud(true);
@@ -107,6 +107,16 @@ namespace Combat.Manager
         public void Tick()
         {
             if (!_run.Active || _ending) return;
+
+            if (_waitingForPlayerRegistration)
+            {
+                if (_scene.PlayerShip != null && _scene.PlayerShip.IsActive())
+                {
+                    _waitingForPlayerRegistration = false;
+                    StartNextWave();
+                }
+                return;
+            }
 
             if (_run.Defeat)
             {
@@ -958,6 +968,7 @@ namespace Combat.Manager
         private bool _bossStageInitialized;
         private bool _transitioningBoss;
         private bool _ending;
+        private bool _waitingForPlayerRegistration;
 
         private const float InterWaveDelay = 3f;
         private const float SupplySpawnInterval = 17f;

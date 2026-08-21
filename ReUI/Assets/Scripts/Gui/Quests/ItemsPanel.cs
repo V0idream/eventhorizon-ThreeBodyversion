@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using Domain.Quests;
 using Economy.Products;
 using UnityEngine;
@@ -50,9 +50,5 @@ namespace Gui.Quests
             item.GetComponent<Toggle>().isOn = false;
         }
 
-        private void Update()
-        {
-            _scrollRect.horizontalNormalizedPosition = Mathf.Clamp01(_scrollRect.horizontalNormalizedPosition + Time.deltaTime * 0.01f);
-        }
     }
 }

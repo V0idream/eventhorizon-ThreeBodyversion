@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
@@ -53,10 +53,5 @@ namespace Gui.Quests
                 _scrollRect.horizontalNormalizedPosition = 0;
         }
 
-        private void Update()
-        {
-            if (_scrollRect)
-                _scrollRect.horizontalNormalizedPosition = Mathf.Clamp01(_scrollRect.horizontalNormalizedPosition + Time.deltaTime * 0.01f);
-        }
     }
 }

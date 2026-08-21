@@ -10,8 +10,8 @@ public static class AndroidDevelopmentBuild
 {
     private const string PackageName = "com.threebody.EventHorizon";
     private const string ProductName = "三体视界";
-    private const string VersionName = "Beta3";
-    private const int VersionCode = 120000;
+    private const string VersionName = "Beta9.3";
+    private const int VersionCode = 120300;
 
     [MenuItem("Build/Android/Development APK")]
     public static void BuildFromMenu()
@@ -137,7 +137,10 @@ public static class AndroidDevelopmentBuild
                 : component.Icon;
             var assetPath = FindComponentSpriteAsset(icon);
             if (string.IsNullOrEmpty(assetPath))
-                throw new InvalidOperationException($"ThreeBody component sprite is missing: {component.Icon} ({jsonPath})");
+            {
+                Debug.LogWarning($"ThreeBody component sprite is missing, skipping normalization: {component.Icon} ({jsonPath})");
+                continue;
+            }
 
             var importer = AssetImporter.GetAtPath(assetPath) as TextureImporter;
             if (importer == null)
