@@ -1,0 +1,31 @@
+{
+  "ItemType": 8,
+  "Id": 11030,
+  "ShipId": 11030,
+  "AvailableForPlayer": true,
+  "AvailableForEnemy": true,
+  "DifficultyClass": 6,
+  "BuildFaction": 24,
+  "Components": [
+    {"ComponentId":993,"Quality":0,"Modification":0,"X":32,"Y":2,"BarrelId":0,"KeyBinding":0,"Behaviour":0},
+    {"ComponentId":994,"Quality":0,"Modification":0,"X":32,"Y":11,"BarrelId":1,"KeyBinding":1,"Behaviour":0},
+    {"ComponentId":989,"Quality":0,"Modification":0,"X":37,"Y":33,"BarrelId":-1,"KeyBinding":0,"Behaviour":0},
+    {"ComponentId":989,"Quality":0,"Modification":0,"X":35,"Y":31,"BarrelId":-1,"KeyBinding":0,"Behaviour":0},
+    {"ComponentId":989,"Quality":0,"Modification":0,"X":37,"Y":31,"BarrelId":-1,"KeyBinding":0,"Behaviour":0},
+    {"ComponentId":991,"Quality":0,"Modification":0,"X":39,"Y":32,"BarrelId":-1,"KeyBinding":4,"Behaviour":0},
+    {"ComponentId":990,"Quality":0,"Modification":0,"X":33,"Y":56,"BarrelId":-1,"KeyBinding":0,"Behaviour":0},
+    {"ComponentId":990,"Quality":0,"Modification":0,"X":37,"Y":56,"BarrelId":-1,"KeyBinding":0,"Behaviour":0},
+    {"ComponentId":990,"Quality":0,"Modification":0,"X":35,"Y":56,"BarrelId":-1,"KeyBinding":0,"Behaviour":0},
+    {"ComponentId":990,"Quality":0,"Modification":0,"X":31,"Y":54,"BarrelId":-1,"KeyBinding":0,"Behaviour":0},
+    {"ComponentId":990,"Quality":0,"Modification":0,"X":30,"Y":44,"BarrelId":-1,"KeyBinding":0,"Behaviour":0},
+    {"ComponentId":990,"Quality":0,"Modification":0,"X":34,"Y":44,"BarrelId":-1,"KeyBinding":0,"Behaviour":0},
+    {"ComponentId":990,"Quality":0,"Modification":0,"X":38,"Y":44,"BarrelId":-1,"KeyBinding":0,"Behaviour":0},
+    {"ComponentId":990,"Quality":0,"Modification":0,"X":30,"Y":48,"BarrelId":-1,"KeyBinding":0,"Behaviour":0},
+    {"ComponentId":990,"Quality":0,"Modification":0,"X":34,"Y":48,"BarrelId":-1,"KeyBinding":0,"Behaviour":0},
+    {"ComponentId":990,"Quality":0,"Modification":0,"X":38,"Y":48,"BarrelId":-1,"KeyBinding":0,"Behaviour":0},
+    {"ComponentId":992,"Quality":0,"Modification":0,"X":25,"Y":58,"BarrelId":-1,"KeyBinding":0,"Behaviour":0},
+    {"ComponentId":992,"Quality":0,"Modification":0,"X":42,"Y":58,"BarrelId":-1,"KeyBinding":0,"Behaviour":0},
+    {"ComponentId":992,"Quality":0,"Modification":0,"X":34,"Y":68,"BarrelId":-1,"KeyBinding":0,"Behaviour":0},
+    {"ComponentId":992,"Quality":0,"Modification":0,"X":37,"Y":68,"BarrelId":-1,"KeyBinding":0,"Behaviour":0}
+  ]
+}

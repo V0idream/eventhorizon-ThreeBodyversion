@@ -1,0 +1,596 @@
+[Licensing::Module] Trying to connect to existing licensing client channel...
+[Licensing::IpcConnector] Channel LicenseClient-Voidream doesn't exist
+Built from '6000.0/staging' branch; Version is '6000.0.75f1 (26349cd2a5c8) revision 2503836'; Using compiler version '193933523'; Build Type 'Release'
+OS: 'Windows 11  (10.0.28120) Enterprise' Language: 'zh' Physical Memory: 32487 MB
+BatchMode: 1, IsHumanControllingUs: 0, StartBugReporterOnCrash: 0, Is64bit: 1
+System  architecture: x64
+Process architecture: x64
+Date: 2026-08-20T12:55:41Z
+[Licensing::Module] Successfully launched the LicensingClient (PId: 10252)
+
+COMMAND LINE ARGUMENTS:
+C:\Program Files\Unity\Hub\Editor\6000.0.75f1\Editor\Unity.exe
+-batchmode
+-quit
+-projectPath
+C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI
+-executeMethod
+ReUI.Editor.ReUIPerformanceValidation.Validate
+-logFile
+C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\beta9-returner-validation3.log
+Successfully changed project path to: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI
+C:/Users/wjy25/Documents/Re-Threebody/upstream/ReUI
+[UnityMemory] Configuration Parameters - Can be set up in boot.config
+    "memorysetup-bucket-allocator-granularity=16"
+    "memorysetup-bucket-allocator-bucket-count=8"
+    "memorysetup-bucket-allocator-block-size=33554432"
+    "memorysetup-bucket-allocator-block-count=8"
+    "memorysetup-main-allocator-block-size=16777216"
+    "memorysetup-thread-allocator-block-size=16777216"
+    "memorysetup-gfx-main-allocator-block-size=16777216"
+    "memorysetup-gfx-thread-allocator-block-size=16777216"
+    "memorysetup-cache-allocator-block-size=4194304"
+    "memorysetup-typetree-allocator-block-size=2097152"
+    "memorysetup-profiler-bucket-allocator-granularity=16"
+    "memorysetup-profiler-bucket-allocator-bucket-count=8"
+    "memorysetup-profiler-bucket-allocator-block-size=33554432"
+    "memorysetup-profiler-bucket-allocator-block-count=8"
+    "memorysetup-profiler-allocator-block-size=16777216"
+    "memorysetup-profiler-editor-allocator-block-size=1048576"
+    "memorysetup-temp-allocator-size-main=16777216"
+    "memorysetup-job-temp-allocator-block-size=2097152"
+    "memorysetup-job-temp-allocator-block-size-background=1048576"
+    "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+    "memorysetup-allocator-temp-initial-block-size-main=262144"
+    "memorysetup-allocator-temp-initial-block-size-worker=262144"
+    "memorysetup-temp-allocator-size-background-worker=32768"
+    "memorysetup-temp-allocator-size-job-worker=262144"
+    "memorysetup-temp-allocator-size-preload-manager=33554432"
+    "memorysetup-temp-allocator-size-nav-mesh-worker=65536"
+    "memorysetup-temp-allocator-size-audio-worker=65536"
+    "memorysetup-temp-allocator-size-cloud-worker=32768"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gfx=262144"
+Player connection [38340]  Target information:
+
+Player connection [38340]  * "[IP] 172.18.32.1 [Port] 55504 [Flags] 2 [Guid] 3897578653 [EditorId] 3897578653 [Version] 1048832 [Id] WindowsEditor(7,WIN-006UKCKR5SD) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
+
+Player connection [38340]  * "[IP] 192.168.1.105 [Port] 55504 [Flags] 2 [Guid] 3897578653 [EditorId] 3897578653 [Version] 1048832 [Id] WindowsEditor(7,WIN-006UKCKR5SD) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
+
+Player connection [38340] Host joined multi-casting on [225.0.0.222:54997]...
+Player connection [38340] Host joined alternative multi-casting on [225.0.0.222:34997]...
+Input System module state changed to: Initialized.
+[Physics::Module] Initialized fallback backend.
+[Physics::Module] Id: 0xdecafbad
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-Voidream" at "2026-08-20T12:55:41.9583077Z"
+[Package Manager] Connected to IPC stream "Upm-9840" after 0.6 seconds.
+Library Redirect Path: Library/
+[Licensing::Client] Code 10 while verifying Licensing Client signature (process Id: 10252, path: "C:/Program Files/Unity/Hub/Editor/6000.0.75f1/Editor/Data/Resources/Licensing/Client/Unity.Licensing.Client.exe")
+[Licensing::Module] LicensingClient has failed validation; ignoring
+[Licensing::Client] Handshaking with LicensingClient:
+  Version:                 1.17.4+4293ba1
+  Session Id:              492cf6143ff74616bc506751aabf4321
+  Correlation Id:          0da034f88bc8a6e78bc71b993b9b2f73
+  External correlation Id: 5488551721322638240
+  Machine Id:              WeJfFlhUrXm/oUJXcgBJuMWLvIg=
+[Licensing::Module] Successfully connected to LicensingClient on channel: "LicenseClient-Voidream" (connect: 0.57s, validation: 0.29s, handshake: 0.12s)
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-Voidream-notifications" at "2026-08-20T12:55:42.3668885Z"
+[Licensing::Module] Connected to LicensingClient (PId: 10252, launch time: 0.01, total connection time: 0.97s)
+[Licensing::Module] Error: Access token is unavailable; failed to update
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] License group:
+  Id: 20067615106968-UnityPersXXXX
+  Product: Unity Personal
+  Type: Assigned
+  Expiration: Unlimited
+[Licensing::Client] Successfully updated license, isAsync: True, time: 0.02
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] Licensing Background thread has ended after 1.06s
+[Physics::Module] Selected backend.
+[Physics::Module] Name: PhysX
+[Physics::Module] Id: 0xf2b8ea05
+[Physics::Module] SDK Version: 4.1.2
+[Physics::Module] Integration Version: 1.0.0
+[Physics::Module] Threading Mode: Multi-Threaded
+[Licensing::Client] Successfully resolved entitlement details
+Refreshing native plugins compatible for Editor in 2.01 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Initialize engine version: 6000.0.75f1 (26349cd2a5c8)
+[Subsystems] Discovering subsystems at path C:/Program Files/Unity/Hub/Editor/6000.0.75f1/Editor/Data/Resources/UnitySubsystems
+[Subsystems] Discovering subsystems at path C:/Users/wjy25/Documents/Re-Threebody/upstream/ReUI/Assets
+GfxDevice: creating device client; kGfxThreadingModeNonThreaded
+Direct3D:
+    Version:  Direct3D 11.0 [level 11.1]
+    Renderer: NVIDIA GeForce RTX 5070 Ti Laptop GPU (ID=0x2f18)
+    Vendor:   NVIDIA
+    VRAM:     11944 MB
+    Driver:   32.0.16.1088
+Initialize mono
+Mono path[0] = 'C:/Program Files/Unity/Hub/Editor/6000.0.75f1/Editor/Data/Managed'
+Mono path[1] = 'C:/Program Files/Unity/Hub/Editor/6000.0.75f1/Editor/Data/MonoBleedingEdge/lib/mono/unityjit-win32'
+Mono config path = 'C:/Program Files/Unity/Hub/Editor/6000.0.75f1/Editor/Data/MonoBleedingEdge/etc'
+Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56840
+Using cacheserver namespaces - metadata:defaultmetadata, artifacts:defaultartifacts
+Using cacheserver namespaces - metadata:defaultmetadata, artifacts:defaultartifacts
+ImportWorker Server TCP listen port: 0
+AcceleratorClientConnectionCallback - disconnected - :0
+Begin MonoManager ReloadAssembly
+Registering precompiled unity dll's ...
+Register platform support module: C:/Program Files/Unity/Hub/Editor/6000.0.75f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport/UnityEditor.WindowsStandalone.Extensions.dll
+Register platform support module: C:/Program Files/Unity/Hub/Editor/6000.0.75f1/Editor/Data/PlaybackEngines/AndroidPlayer/UnityEditor.Android.Extensions.dll
+Registered in 0.003022 seconds.
+- Loaded All Assemblies, in  0.369 seconds
+Native extension for Android target not found
+Android Extension - Scanning For ADB Devices 316 ms
+Native extension for WindowsStandalone target not found
+Package Manager log level set to [2]
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  0.663 seconds
+Domain Reload Profiling: 1031ms
+	BeginReloadAssembly (122ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (0ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (1ms)
+	RebuildCommonClasses (35ms)
+	RebuildNativeTypeToScriptingClass (11ms)
+	initialDomainReloadingComplete (47ms)
+	LoadAllAssembliesAndSetupDomain (152ms)
+		LoadAssemblies (121ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (148ms)
+			TypeCache.Refresh (146ms)
+				TypeCache.ScanAssembly (133ms)
+			BuildScriptInfoCaches (0ms)
+			ResolveRequiredComponents (0ms)
+	FinalizeReload (664ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (630ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (412ms)
+			SetLoadedEditorAssemblies (3ms)
+			BeforeProcessingInitializeOnLoad (51ms)
+			ProcessInitializeOnLoadAttributes (114ms)
+			ProcessInitializeOnLoadMethodAttributes (51ms)
+			AfterProcessingInitializeOnLoad (0ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (0ms)
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Client] Successfully resolved entitlement details
+Application.AssetDatabase Initial Refresh Start
+[Package Manager] Restoring resolved packages state from cache
+[Licensing::Client] Successfully resolved entitlement details
+[Package Manager] Registered 50 packages:
+  Packages from [https://package.openupm.com]:
+    com.google.external-dependency-manager@1.2.187 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.google.external-dependency-manager@f5312a5700af)
+  Packages from [https://packages.unity.com]:
+    com.unity.ads@4.17.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.ads@c6e6f61ed7d9)
+    com.unity.ide.visualstudio@2.0.27 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.ide.visualstudio@dc1ddd4f09b6)
+    com.unity.inputsystem@1.19.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.inputsystem@21a28c3a6c83)
+    com.unity.purchasing@5.3.1 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.purchasing@b69b97f74d28)
+    com.unity.toolchain.win-x86_64-linux-x86_64@2.0.11 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.toolchain.win-x86_64-linux-x86_64@3c4c356523ed)
+    com.unity.sysroot@2.0.10 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.sysroot@7bbbb9339c14)
+    com.unity.sysroot.linux-x86_64@2.0.9 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.sysroot.linux-x86_64@1998d1c7730e)
+    com.unity.services.core@1.16.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.services.core@8ba50f624741)
+    com.unity.nuget.newtonsoft-json@3.2.1 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.nuget.newtonsoft-json@74deb55db2a0)
+  Built-in packages:
+    com.unity.2d.sprite@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.2d.sprite@0eb6ea2c7181)
+    com.unity.multiplayer.center@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.multiplayer.center@f3fb577b3546)
+    com.unity.test-framework@1.6.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.test-framework@082c24152fd4)
+    com.unity.ugui@2.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.ugui@7537063fea2b)
+    com.unity.ui@2.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.ui@ccd6582d7949)
+    com.unity.modules.accessibility@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.accessibility)
+    com.unity.modules.ai@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.ai)
+    com.unity.modules.androidjni@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.androidjni)
+    com.unity.modules.animation@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.animation)
+    com.unity.modules.assetbundle@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.assetbundle)
+    com.unity.modules.audio@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.audio)
+    com.unity.modules.cloth@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.cloth)
+    com.unity.modules.director@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.director)
+    com.unity.modules.imageconversion@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.imageconversion)
+    com.unity.modules.imgui@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.imgui)
+    com.unity.modules.jsonserialize@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.jsonserialize)
+    com.unity.modules.particlesystem@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.particlesystem)
+    com.unity.modules.physics@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.physics)
+    com.unity.modules.physics2d@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.physics2d)
+    com.unity.modules.screencapture@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.screencapture)
+    com.unity.modules.terrain@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.terrain)
+    com.unity.modules.terrainphysics@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.terrainphysics)
+    com.unity.modules.tilemap@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.tilemap)
+    com.unity.modules.ui@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.ui)
+    com.unity.modules.uielements@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.uielements)
+    com.unity.modules.umbra@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.umbra)
+    com.unity.modules.unityanalytics@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.unityanalytics)
+    com.unity.modules.unitywebrequest@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.unitywebrequest)
+    com.unity.modules.unitywebrequestassetbundle@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.unitywebrequestassetbundle)
+    com.unity.modules.unitywebrequestaudio@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.unitywebrequestaudio)
+    com.unity.modules.unitywebrequesttexture@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.unitywebrequesttexture)
+    com.unity.modules.unitywebrequestwww@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.unitywebrequestwww)
+    com.unity.modules.vehicles@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.vehicles)
+    com.unity.modules.video@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.video)
+    com.unity.modules.vr@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.vr)
+    com.unity.modules.wind@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.wind)
+    com.unity.modules.xr@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.xr)
+    com.unity.modules.subsystems@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.subsystems)
+    com.unity.modules.hierarchycore@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.hierarchycore)
+    com.unity.ext.nunit@2.0.5 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.ext.nunit@031a54704bff)
+[Subsystems] No new subsystems found in resolved package list.
+[Package Manager] Done registering packages in 0.03 seconds
+[ScriptCompilation] Requested script compilation because: Assetdatabase observed changes in script compilation related files
+Assembly for Assembly Definition File 'Assets/Modules/GalaxyMap/GalaxyMap.asmdef' will not be compiled, because it has no scripts associated with it.
+Starting: C:\Program Files\Unity\Hub\Editor\6000.0.75f1\Editor\Data\bee_backend.exe --ipc --defer-dag-verification --dagfile="Library/Bee/1300b0aE.dag" --continue-on-failure --profile="Library/Bee/backend1.traceevents" ScriptAssemblies
+WorkingDir: C:/Users/wjy25/Documents/Re-Threebody/upstream/ReUI
+DisplayProgressbar: Compiling Scripts
+ExitCode: 0 Duration: 2s979ms
+[845/851    1s] Csc Library/Bee/artifacts/1300b0aE.dag/Assembly-CSharp.dll (+2 others)
+Assets\Scripts\Combat\Domain\CombatModelBuilder.cs(95,32): warning CS0618: 'Factory<CombatModelBuilder>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\AnnouncementState.cs(47,32): warning CS0618: 'Factory<AnnouncementState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\CombatRewardState.cs(41,32): warning CS0618: 'Factory<IReward, CombatRewardState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\EhopediaState.cs(31,32): warning CS0618: 'Factory<EhopediaState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\DailyRewardState.cs(57,32): warning CS0618: 'Factory<DailyRewardState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\EditorInitializationState.cs(49,32): warning CS0618: 'Factory<EditorInitializationState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\DialogState.cs(59,32): warning CS0618: 'Factory<string, WindowArgs, Action<WindowExitCode>, DialogState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\ExplorationState.cs(85,32): warning CS0618: 'Factory<Planet, ExplorationState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\InitializationState.cs(200,32): warning CS0618: 'Factory<InitializationState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\MainMenuState.cs(166,26): warning CS0618: 'Factory<MainMenuState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\QuestState.cs(63,26): warning CS0618: 'Factory<IUserInteraction, QuestState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\ModalDialogState.cs(53,32): warning CS0618: 'Factory<string, IEnumerable<GameScene>, ModalDialogState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\QuickCombatState.cs(218,32): warning CS0618: 'Factory<QuickCombatState.Settings, QuickCombatState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\TestingState.cs(31,32): warning CS0618: 'Factory<TestingState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\StartingNewGameState.cs(91,32): warning CS0618: 'Factory<StartingNewGameState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\TravelState.cs(89,32): warning CS0618: 'Factory<int, TravelState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\StarMapState.cs(360,32): warning CS0618: 'Factory<StarMapState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\CombatState.cs(128,32): warning CS0618: 'Factory<ICombatModel, Action<ICombatModel>, CombatState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\SkillTreeState.cs(31,32): warning CS0618: 'Factory<SkillTreeState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\RetreatState.cs(81,32): warning CS0618: 'Factory<RetreatState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\Legacy\GUI\Console.cs(24,17): warning CS0618: 'Object.FindObjectsOfType<T>()' is obsolete: 'Object.FindObjectsOfType has been deprecated. Use Object.FindObjectsByType instead which lets you decide whether you need the results sorted or not.  FindObjectsOfType sorts the results by InstanceID but if you do not need this using FindObjectSortMode.None is considerably faster.'
+
+Assets\Scripts\Legacy\GUI\Layout\RandomLayoutGroup.cs(29,4): warning CS0618: 'Random.seed' is obsolete: 'Deprecated. Use InitState() function or Random.state property instead.'
+
+Assets\Scripts\Legacy\GUI\Layout\RandomLayoutGroup.cs(42,4): warning CS0618: 'Random.seed' is obsolete: 'Deprecated. Use InitState() function or Random.state property instead.'
+
+Assets\Scripts\GameServices\OfflineMultiplayer\PlayerInfo.cs(108,30): warning CS0168: The variable 'e' is declared but never used
+
+Assets\Scripts\GameServices\OfflineMultiplayer\PlayerInfo.cs(147,30): warning CS0168: The variable 'e' is declared but never used
+
+Assets\Scripts\GameServices\OfflineMultiplayer\PlayerInfo.cs(163,30): warning CS0168: The variable 'e' is declared but never used
+
+Assets\Scripts\GameServices\OfflineMultiplayer\PlayerInfo.cs(192,30): warning CS0168: The variable 'e' is declared but never used
+
+Assets\Scripts\Legacy\Debug\Cheats.cs(297,26): warning CS0168: The variable 'e' is declared but never used
+
+Assets\Scripts\Legacy\Debug\Cheats.cs(353,41): warning CS0612: 'ComponentInfo.FromInt64(IDatabase, long)' is obsolete
+
+Assets\Scripts\GameStateMachine\States\ShipEditorState.cs(202,40): warning CS0612: 'ComponentInfo.FromInt64(IDatabase, long)' is obsolete
+
+Assets\Scripts\Legacy\Map\Star.cs(412,3): warning CS0618: 'Random.seed' is obsolete: 'Deprecated. Use InitState() function or Random.state property instead.'
+
+Assets\Scripts\Legacy\GUI\ViewModel\StarMap\TechTreePanelViewModel.cs(546,6): warning CS0618: 'Random.seed' is obsolete: 'Deprecated. Use InitState() function or Random.state property instead.'
+
+Assets\Scripts\Legacy\Debug\Cheats.cs(417,57): warning CS0612: 'ComponentInfo.SerializeToInt64()' is obsolete
+
+Assets\Scripts\Combat\Manager\AdventureCombatController.cs(599,86): warning CS0612: 'ComponentInfo.SerializeToInt64()' is obsolete
+
+Assets\Scripts\Legacy\GUI\ViewModel\CargoHold\ScrapPanelViewModel.cs(133,84): warning CS0612: 'ComponentInfo.SerializeToInt64()' is obsolete
+
+Assets\Scripts\GameServices\OfflineMultiplayer\EnemyPlayerInfo.cs(61,30): warning CS0168: The variable 'e' is declared but never used
+
+Assets\Scripts\Gui\Combat\RadarPanel.cs(61,17): warning CS0219: The variable 'simpleRadarIndex' is assigned but its value is never used
+
+Assets\Scripts\Domain\Economy\ItemType\ComponentItem.cs(21,47): warning CS0612: 'ComponentInfo.SerializeToInt64()' is obsolete
+
+Assets\Scripts\Gui\MainMenu\SettingsProgress.cs(176,37): warning CS0618: 'Object.FindObjectsOfType<T>(bool)' is obsolete: 'Object.FindObjectsOfType has been deprecated. Use Object.FindObjectsByType instead which lets you decide whether you need the results sorted or not.  FindObjectsOfType sorts the results by InstanceID but if you do not need this using FindObjectSortMode.None is considerably faster.'
+
+Assets\Scripts\Gui\MainMenu\SettingsProgress.cs(178,38): warning CS0618: 'Object.FindObjectsOfType<T>(bool)' is obsolete: 'Object.FindObjectsOfType has been deprecated. Use Object.FindObjectsByType instead which lets you decide whether you need the results sorted or not.  FindObjectsOfType sorts the results by InstanceID but if you do not need this using FindObjectSortMode.None is considerably faster.'
+
+Assets\Scripts\Gui\ShipService\ShipLayoutPanel.cs(75,85): warning CS0612: 'IShipLayout.Size' is obsolete
+
+Assets\Scripts\Gui\ShipService\ShipLayoutPanel.cs(76,86): warning CS0612: 'IShipLayout.Size' is obsolete
+
+Assets\Scripts\Gui\ShipService\ShipLayoutPanel.cs(92,28): warning CS0612: 'IShipLayout.Size' is obsolete
+
+Assets\Scripts\Gui\ShipService\ShipLayoutPanel.cs(146,62): warning CS0612: 'IShipLayout.Size' is obsolete
+
+Assets\Scripts\Gui\ShipService\ShipLayoutPanel.cs(146,91): warning CS0612: 'IShipLayout.Size' is obsolete
+
+Assets\Scripts\Legacy\GUI\ViewModel\MainMenu\DevConsoleViewModel.cs(76,5): warning CS0162: Unreachable code detected
+
+Assets\Scripts\Gui\MainMenu\SettingsProgress.cs(259,60): warning CS0618: 'Object.FindObjectOfType<T>()' is obsolete: 'Object.FindObjectOfType has been deprecated. Use Object.FindFirstObjectByType instead or if finding any instance is acceptable the faster Object.FindAnyObjectByType'
+
+Assets\Scripts\Gui\MainMenu\MainMenu.cs(644,60): warning CS0618: 'Object.FindObjectOfType<T>()' is obsolete: 'Object.FindObjectOfType has been deprecated. Use Object.FindFirstObjectByType instead or if finding any instance is acceptable the faster Object.FindAnyObjectByType'
+
+Assets\Scripts\Gui\MainMenu\MainMenu.cs(826,60): warning CS0618: 'Object.FindObjectOfType<T>()' is obsolete: 'Object.FindObjectOfType has been deprecated. Use Object.FindFirstObjectByType instead or if finding any instance is acceptable the faster Object.FindAnyObjectByType'
+
+Assets\Scripts\Gui\MainMenu\MainMenu.cs(881,60): warning CS0618: 'Object.FindObjectOfType<T>()' is obsolete: 'Object.FindObjectOfType has been deprecated. Use Object.FindFirstObjectByType instead or if finding any instance is acceptable the faster Object.FindAnyObjectByType'
+
+Assets\Scripts\Legacy\GUI\LoadingScreen.cs(133,18): warning CS0414: The field 'LoadingScreen._firstTime' is assigned but its value is never used
+
+Assets\Scripts\Legacy\GUI\LoadingScreen.cs(28,15): warning CS0414: The field 'LoadingScreen._coroutineRunning' is assigned but its value is never used
+
+Assets\Scripts\Gui\Utils\BackButtonEvent.cs(12,39): warning CS0414: The field 'BackButtonEvent._ignoreIfStandaloneBuild' is assigned but its value is never used
+
+Assets\Scripts\Legacy\GUI\ViewModel\StarMap\MilitaryPanelViewModel.cs(41,15): warning CS0414: The field 'MilitaryPanelViewModel._money' is assigned but its value is never used
+
+Assets\Scripts\Legacy\GUI\LoadingScreen.cs(20,33): warning CS0414: The field 'LoadingScreen._delay' is assigned but its value is never used
+[846/851    0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp.pdb
+[847/851    0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp.dll
+[848/851    0s] Csc Library/Bee/artifacts/1300b0aE.dag/Assembly-CSharp-Editor.dll (+2 others)
+Assets\Editor\TexturePostProcessor.cs(45,13): warning CS0618: 'TextureImporter.spritePackingTag' is obsolete: 'Support for packing sprites through spritePackingTag has been removed. Please use SpriteAtlas instead.'
+
+Assets\Editor\ApplicationManager.cs(222,36): warning CS0618: 'PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup)' is obsolete: 'Use GetScriptingDefineSymbols(NamedBuildTarget buildTarget) instead'
+
+Assets\Editor\ApplicationManager.cs(232,13): warning CS0618: 'PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup, string)' is obsolete: 'Use SetScriptingDefineSymbols(NamedBuildTarget buildTarget, string defines) instead'
+
+Assets\Editor\AndroidDevelopmentBuild.cs(26,9): warning CS0618: 'PlayerSettings.SetApplicationIdentifier(BuildTargetGroup, string)' is obsolete: 'Use SetApplicationIdentifier(NamedBuildTarget buildTarget, string identifier) instead'
+
+Assets\Editor\AndroidDevelopmentBuild.cs(31,9): warning CS0618: 'PlayerSettings.SetScriptingBackend(BuildTargetGroup, ScriptingImplementation)' is obsolete: 'Use SetScriptingBackend(NamedBuildTarget buildTarget, ScriptingImplementation backend) instead'
+
+Assets\Editor\ApplicationManager.cs(240,36): warning CS0618: 'PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup)' is obsolete: 'Use GetScriptingDefineSymbols(NamedBuildTarget buildTarget) instead'
+
+Assets\Editor\ApplicationManager.cs(252,13): warning CS0618: 'PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup, string)' is obsolete: 'Use SetScriptingDefineSymbols(NamedBuildTarget buildTarget, string defines) instead'
+
+Assets\ReUI\Editor\ReUIQuickAndroidBuild.cs(32,13): warning CS0618: 'PlayerSettings.SetApplicationIdentifier(BuildTargetGroup, string)' is obsolete: 'Use SetApplicationIdentifier(NamedBuildTarget buildTarget, string identifier) instead'
+
+Assets\ReUI\Editor\ReUIQuickAndroidBuild.cs(38,13): warning CS0618: 'PlayerSettings.SetScriptingBackend(BuildTargetGroup, ScriptingImplementation)' is obsolete: 'Use SetScriptingBackend(NamedBuildTarget buildTarget, ScriptingImplementation backend) instead'
+[849/851    0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp-Editor.pdb
+[850/851    0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp-Editor.dll
+*** Tundra build success (2.94 seconds), 6 items updated, 851 evaluated
+Assets\Scripts\Combat\Domain\CombatModelBuilder.cs(95,32): warning CS0618: 'Factory<CombatModelBuilder>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\AnnouncementState.cs(47,32): warning CS0618: 'Factory<AnnouncementState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\CombatRewardState.cs(41,32): warning CS0618: 'Factory<IReward, CombatRewardState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\EhopediaState.cs(31,32): warning CS0618: 'Factory<EhopediaState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\DailyRewardState.cs(57,32): warning CS0618: 'Factory<DailyRewardState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\EditorInitializationState.cs(49,32): warning CS0618: 'Factory<EditorInitializationState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\DialogState.cs(59,32): warning CS0618: 'Factory<string, WindowArgs, Action<WindowExitCode>, DialogState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\ExplorationState.cs(85,32): warning CS0618: 'Factory<Planet, ExplorationState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\InitializationState.cs(200,32): warning CS0618: 'Factory<InitializationState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\MainMenuState.cs(166,26): warning CS0618: 'Factory<MainMenuState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\QuestState.cs(63,26): warning CS0618: 'Factory<IUserInteraction, QuestState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\ModalDialogState.cs(53,32): warning CS0618: 'Factory<string, IEnumerable<GameScene>, ModalDialogState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\QuickCombatState.cs(218,32): warning CS0618: 'Factory<QuickCombatState.Settings, QuickCombatState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\TestingState.cs(31,32): warning CS0618: 'Factory<TestingState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\StartingNewGameState.cs(91,32): warning CS0618: 'Factory<StartingNewGameState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\TravelState.cs(89,32): warning CS0618: 'Factory<int, TravelState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\StarMapState.cs(360,32): warning CS0618: 'Factory<StarMapState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\CombatState.cs(128,32): warning CS0618: 'Factory<ICombatModel, Action<ICombatModel>, CombatState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\SkillTreeState.cs(31,32): warning CS0618: 'Factory<SkillTreeState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\RetreatState.cs(81,32): warning CS0618: 'Factory<RetreatState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\Legacy\GUI\Console.cs(24,17): warning CS0618: 'Object.FindObjectsOfType<T>()' is obsolete: 'Object.FindObjectsOfType has been deprecated. Use Object.FindObjectsByType instead which lets you decide whether you need the results sorted or not.  FindObjectsOfType sorts the results by InstanceID but if you do not need this using FindObjectSortMode.None is considerably faster.'
+Assets\Scripts\Legacy\GUI\Layout\RandomLayoutGroup.cs(29,4): warning CS0618: 'Random.seed' is obsolete: 'Deprecated. Use InitState() function or Random.state property instead.'
+Assets\Scripts\Legacy\GUI\Layout\RandomLayoutGroup.cs(42,4): warning CS0618: 'Random.seed' is obsolete: 'Deprecated. Use InitState() function or Random.state property instead.'
+Assets\Scripts\GameServices\OfflineMultiplayer\PlayerInfo.cs(108,30): warning CS0168: The variable 'e' is declared but never used
+Assets\Scripts\GameServices\OfflineMultiplayer\PlayerInfo.cs(147,30): warning CS0168: The variable 'e' is declared but never used
+Assets\Scripts\GameServices\OfflineMultiplayer\PlayerInfo.cs(163,30): warning CS0168: The variable 'e' is declared but never used
+Assets\Scripts\GameServices\OfflineMultiplayer\PlayerInfo.cs(192,30): warning CS0168: The variable 'e' is declared but never used
+Assets\Scripts\Legacy\Debug\Cheats.cs(297,26): warning CS0168: The variable 'e' is declared but never used
+Assets\Scripts\Legacy\Debug\Cheats.cs(353,41): warning CS0612: 'ComponentInfo.FromInt64(IDatabase, long)' is obsolete
+Assets\Scripts\GameStateMachine\States\ShipEditorState.cs(202,40): warning CS0612: 'ComponentInfo.FromInt64(IDatabase, long)' is obsolete
+Assets\Scripts\Legacy\Map\Star.cs(412,3): warning CS0618: 'Random.seed' is obsolete: 'Deprecated. Use InitState() function or Random.state property instead.'
+Assets\Scripts\Legacy\GUI\ViewModel\StarMap\TechTreePanelViewModel.cs(546,6): warning CS0618: 'Random.seed' is obsolete: 'Deprecated. Use InitState() function or Random.state property instead.'
+Assets\Scripts\Legacy\Debug\Cheats.cs(417,57): warning CS0612: 'ComponentInfo.SerializeToInt64()' is obsolete
+Assets\Scripts\Combat\Manager\AdventureCombatController.cs(599,86): warning CS0612: 'ComponentInfo.SerializeToInt64()' is obsolete
+Assets\Scripts\Legacy\GUI\ViewModel\CargoHold\ScrapPanelViewModel.cs(133,84): warning CS0612: 'ComponentInfo.SerializeToInt64()' is obsolete
+Assets\Scripts\GameServices\OfflineMultiplayer\EnemyPlayerInfo.cs(61,30): warning CS0168: The variable 'e' is declared but never used
+Assets\Scripts\Gui\Combat\RadarPanel.cs(61,17): warning CS0219: The variable 'simpleRadarIndex' is assigned but its value is never used
+Assets\Scripts\Domain\Economy\ItemType\ComponentItem.cs(21,47): warning CS0612: 'ComponentInfo.SerializeToInt64()' is obsolete
+Assets\Scripts\Gui\MainMenu\SettingsProgress.cs(176,37): warning CS0618: 'Object.FindObjectsOfType<T>(bool)' is obsolete: 'Object.FindObjectsOfType has been deprecated. Use Object.FindObjectsByType instead which lets you decide whether you need the results sorted or not.  FindObjectsOfType sorts the results by InstanceID but if you do not need this using FindObjectSortMode.None is considerably faster.'
+Assets\Scripts\Gui\MainMenu\SettingsProgress.cs(178,38): warning CS0618: 'Object.FindObjectsOfType<T>(bool)' is obsolete: 'Object.FindObjectsOfType has been deprecated. Use Object.FindObjectsByType instead which lets you decide whether you need the results sorted or not.  FindObjectsOfType sorts the results by InstanceID but if you do not need this using FindObjectSortMode.None is considerably faster.'
+Assets\Scripts\Gui\ShipService\ShipLayoutPanel.cs(75,85): warning CS0612: 'IShipLayout.Size' is obsolete
+Assets\Scripts\Gui\ShipService\ShipLayoutPanel.cs(76,86): warning CS0612: 'IShipLayout.Size' is obsolete
+Assets\Scripts\Gui\ShipService\ShipLayoutPanel.cs(92,28): warning CS0612: 'IShipLayout.Size' is obsolete
+Assets\Scripts\Gui\ShipService\ShipLayoutPanel.cs(146,62): warning CS0612: 'IShipLayout.Size' is obsolete
+Assets\Scripts\Gui\ShipService\ShipLayoutPanel.cs(146,91): warning CS0612: 'IShipLayout.Size' is obsolete
+Assets\Scripts\Legacy\GUI\ViewModel\MainMenu\DevConsoleViewModel.cs(76,5): warning CS0162: Unreachable code detected
+Assets\Scripts\Gui\MainMenu\SettingsProgress.cs(259,60): warning CS0618: 'Object.FindObjectOfType<T>()' is obsolete: 'Object.FindObjectOfType has been deprecated. Use Object.FindFirstObjectByType instead or if finding any instance is acceptable the faster Object.FindAnyObjectByType'
+Assets\Scripts\Gui\MainMenu\MainMenu.cs(644,60): warning CS0618: 'Object.FindObjectOfType<T>()' is obsolete: 'Object.FindObjectOfType has been deprecated. Use Object.FindFirstObjectByType instead or if finding any instance is acceptable the faster Object.FindAnyObjectByType'
+Assets\Scripts\Gui\MainMenu\MainMenu.cs(826,60): warning CS0618: 'Object.FindObjectOfType<T>()' is obsolete: 'Object.FindObjectOfType has been deprecated. Use Object.FindFirstObjectByType instead or if finding any instance is acceptable the faster Object.FindAnyObjectByType'
+Assets\Scripts\Gui\MainMenu\MainMenu.cs(881,60): warning CS0618: 'Object.FindObjectOfType<T>()' is obsolete: 'Object.FindObjectOfType has been deprecated. Use Object.FindFirstObjectByType instead or if finding any instance is acceptable the faster Object.FindAnyObjectByType'
+Assets\Scripts\Legacy\GUI\LoadingScreen.cs(133,18): warning CS0414: The field 'LoadingScreen._firstTime' is assigned but its value is never used
+Assets\Scripts\Legacy\GUI\LoadingScreen.cs(28,15): warning CS0414: The field 'LoadingScreen._coroutineRunning' is assigned but its value is never used
+Assets\Scripts\Gui\Utils\BackButtonEvent.cs(12,39): warning CS0414: The field 'BackButtonEvent._ignoreIfStandaloneBuild' is assigned but its value is never used
+Assets\Scripts\Legacy\GUI\ViewModel\StarMap\MilitaryPanelViewModel.cs(41,15): warning CS0414: The field 'MilitaryPanelViewModel._money' is assigned but its value is never used
+Assets\Scripts\Legacy\GUI\LoadingScreen.cs(20,33): warning CS0414: The field 'LoadingScreen._delay' is assigned but its value is never used
+Assets\Editor\TexturePostProcessor.cs(45,13): warning CS0618: 'TextureImporter.spritePackingTag' is obsolete: 'Support for packing sprites through spritePackingTag has been removed. Please use SpriteAtlas instead.'
+Assets\Editor\ApplicationManager.cs(222,36): warning CS0618: 'PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup)' is obsolete: 'Use GetScriptingDefineSymbols(NamedBuildTarget buildTarget) instead'
+Assets\Editor\ApplicationManager.cs(232,13): warning CS0618: 'PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup, string)' is obsolete: 'Use SetScriptingDefineSymbols(NamedBuildTarget buildTarget, string defines) instead'
+Assets\Editor\AndroidDevelopmentBuild.cs(26,9): warning CS0618: 'PlayerSettings.SetApplicationIdentifier(BuildTargetGroup, string)' is obsolete: 'Use SetApplicationIdentifier(NamedBuildTarget buildTarget, string identifier) instead'
+Assets\Editor\AndroidDevelopmentBuild.cs(31,9): warning CS0618: 'PlayerSettings.SetScriptingBackend(BuildTargetGroup, ScriptingImplementation)' is obsolete: 'Use SetScriptingBackend(NamedBuildTarget buildTarget, ScriptingImplementation backend) instead'
+Assets\Editor\ApplicationManager.cs(240,36): warning CS0618: 'PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup)' is obsolete: 'Use GetScriptingDefineSymbols(NamedBuildTarget buildTarget) instead'
+Assets\Editor\ApplicationManager.cs(252,13): warning CS0618: 'PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup, string)' is obsolete: 'Use SetScriptingDefineSymbols(NamedBuildTarget buildTarget, string defines) instead'
+Assets\ReUI\Editor\ReUIQuickAndroidBuild.cs(32,13): warning CS0618: 'PlayerSettings.SetApplicationIdentifier(BuildTargetGroup, string)' is obsolete: 'Use SetApplicationIdentifier(NamedBuildTarget buildTarget, string identifier) instead'
+Assets\ReUI\Editor\ReUIQuickAndroidBuild.cs(38,13): warning CS0618: 'PlayerSettings.SetScriptingBackend(BuildTargetGroup, ScriptingImplementation)' is obsolete: 'Use SetScriptingBackend(NamedBuildTarget buildTarget, ScriptingImplementation backend) instead'
+AssetDatabase: script compilation time: 3.558585s
+Begin MonoManager ReloadAssembly
+- Loaded All Assemblies, in 14.385 seconds
+Refreshing native plugins compatible for Editor in 664.58 ms, found 0 plugins.
+Native extension for Android target not found
+Native extension for WindowsStandalone target not found
+Detected .NET version 4.5
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  1.168 seconds
+Domain Reload Profiling: 15551ms
+	BeginReloadAssembly (326ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (12ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (146ms)
+	RebuildCommonClasses (43ms)
+	RebuildNativeTypeToScriptingClass (15ms)
+	initialDomainReloadingComplete (30ms)
+	LoadAllAssembliesAndSetupDomain (13968ms)
+		LoadAssemblies (13489ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (602ms)
+			TypeCache.Refresh (544ms)
+				TypeCache.ScanAssembly (532ms)
+			BuildScriptInfoCaches (46ms)
+			ResolveRequiredComponents (10ms)
+	FinalizeReload (1169ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (992ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (35ms)
+			SetLoadedEditorAssemblies (5ms)
+			BeforeProcessingInitializeOnLoad (182ms)
+			ProcessInitializeOnLoadAttributes (549ms)
+			ProcessInitializeOnLoadMethodAttributes (219ms)
+			AfterProcessingInitializeOnLoad (3ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (6ms)
+Start importing Assets/Sprites/Satellites/returner_experimental_platform.png using Guid(3088d29f1bab5614f91b97b7045faad4) (TextureImporter) -> (artifact id: 'f22cf51070bdb15842f963c0142706a5') in 0.1174498 seconds
+Start importing Assets/Resources/Textures/GUI/Controls/controls_returner_mirror_sea_field.png using Guid(406a4184ed2f2854fa22e4c933f83524) (TextureImporter) -> (artifact id: '64ba2c887ee269b46144ce8481dcb519') in 0.0440974 seconds
+Start importing Assets/Sprites/ShipIcons/returner_death.png using Guid(d15f0658b71bde74fa116ec9ac3aff3d) (TextureImporter) -> (artifact id: '31fecf38bd1f4ae2d158cbbe76642e9f') in 0.4099196 seconds
+Start importing Assets/Sprites/Components/returner_fractal.png using Guid(625ea1733e71f5a4b82f18e1bd210679) (TextureImporter) -> (artifact id: '5ce7194a380dddc84d7bae2b8c78c503') in 0.0305336 seconds
+Start importing Assets/Sprites/Components/returner_hyperspace_engine.png using Guid(135797caf0050da43a6f196fc34b9308) (TextureImporter) -> (artifact id: '201da18e702c6396a9a113be6377ddf7') in 0.029054 seconds
+Start importing Assets/Resources/Textures/GUI/Controls/controls_returner_universe_restart.png using Guid(131e36eab4d231f4e928e35836023b37) (TextureImporter) -> (artifact id: 'a78b7d057d3003efda61fe76383e73c7') in 0.0464052 seconds
+Start importing Assets/Sprites/ShipIcons/returner_law.png using Guid(3355c4c699bd99043a520cb227c8ad4b) (TextureImporter) -> (artifact id: 'ae4c99c2d1798a6072355cd9532e6b5b') in 0.3970553 seconds
+Start importing Assets/Sprites/Components/returner_mirror_sea_field.png using Guid(738323043e5efde409482ddd62e2fd1f) (TextureImporter) -> (artifact id: 'ac7b91255d3d12871f5d14b20405c624') in 0.026235 seconds
+Start importing Assets/Sprites/Components/returner_neutron_armor.png using Guid(f49b71b3668c133498e35b27c0772b32) (TextureImporter) -> (artifact id: '59404e985e2a561df2544c1ec13f6280') in 0.0268431 seconds
+Start importing Assets/Sprites/Ships/returner_order.png using Guid(5675e7ce2e249af489b8a734558d50c4) (TextureImporter) -> (artifact id: '21f7fb3b1287ae9797a9edbc3648d57a') in 0.4615986 seconds
+Start importing Assets/Sprites/Ships/returner_pi.png using Guid(f6efbb8a895352f45aeb50dc4c26b3fd) (TextureImporter) -> (artifact id: '7cc80c41c86f31b9d3dd84b928916e5f') in 0.2976027 seconds
+Start importing Assets/Sprites/Components/returner_tidal.png using Guid(48d7c33202a862c488efc3dd8daed003) (TextureImporter) -> (artifact id: 'd77e504ae4f61309e3f243e7440fb2e7') in 0.0224418 seconds
+Start importing Assets/Sprites/Components/returner_creed.png using Guid(78e327eceeeef97499528039b6d39e62) (TextureImporter) -> (artifact id: '3f5f91b67ca5da7e705c1d177fc696ba') in 0.0285266 seconds
+Start importing Assets/Sprites/Components/returner_universe_restart.png using Guid(f8d1d96149d913841bfcb4c05e702774) (TextureImporter) -> (artifact id: 'e1404ecaf7284cfa99ecc5aa80b32ee8') in 0.0247356 seconds
+Start importing Assets/Sprites/ShipIcons/returner_pi.png using Guid(199efe02d32cb764297c267e7d39dc62) (TextureImporter) -> (artifact id: '3dd07e3a1118f33dca384d46f0612931') in 0.3089205 seconds
+Start importing Assets/Sprites/Ships/returner_death.png using Guid(1dbf8314562840e48bc8bcd4f75d5fa5) (TextureImporter) -> (artifact id: 'aab3d2f1a760570c3a708ad6155de805') in 0.417002 seconds
+Start importing Assets/Sprites/ShipIcons/returner_order.png using Guid(1e0d73704506ecf44b77f3151b74fdcd) (TextureImporter) -> (artifact id: 'f9e537b1a6a87eb0f43dfb270c9dee00') in 0.4682711 seconds
+Start importing Assets/Sprites/Components/returner_concept_erasure.png using Guid(4e3c248e6c765464fa5cbb39df8ff471) (TextureImporter) -> (artifact id: '544405ebc73512567f85f7480ebbe604') in 0.0271353 seconds
+Start importing Assets/Sprites/Ships/returner_law.png using Guid(4fce433ee5ffb9d44ab83b3869f8be5e) (TextureImporter) -> (artifact id: 'c5bc707d6122e89cf8acb3f47e20d83d') in 0.3851145 seconds
+Start importing Assets/Sprites/Components/returner_zero_point_reactor.png using Guid(bf4b5497a0bec3b45a6bb7eb2baaf3ec) (TextureImporter) -> (artifact id: '3c9027ce65ad3159cff70c4b4c3a0b87') in 0.0271954 seconds
+Start importing Assets/Modules/Database/Resources/Database/Ammunition/ReturnerCreed.json using Guid(8016e9e4e723b3944a002e47e4c25b37) (TextScriptImporter) -> (artifact id: '7ffd9119081a57660dffaa20daa28ece') in 0.0149125 seconds
+Start importing Assets/Modules/Database/Resources/Database/Component/ReturnerConceptErasure.json using Guid(0161df6a6a8ef184d81df0252f3b0c0a) (TextScriptImporter) -> (artifact id: '7807b32a2e7f24fc1af77d3fcca543e7') in 0.012606 seconds
+Start importing Assets/Modules/Database/Resources/Database/Component/Stats/ReturnerConceptErasure.json using Guid(71ddd817654f60c418e142a2f429b7f1) (TextScriptImporter) -> (artifact id: '1c74cd1b6914b75cfa64b6911ecdef8f') in 0.0111145 seconds
+Start importing Assets/Modules/Database/Resources/Database/Ship/Builds/ReturnerLaw.json using Guid(32f866bec4736a74c9e8705f311f7ef9) (TextScriptImporter) -> (artifact id: 'af771f7c9e5b79555bf1123529511ab8') in 0.0120766 seconds
+Start importing Assets/Modules/Database/Resources/Database/Component/Stats/ReturnerCreed.json using Guid(72add40491699c64788a9d774b3bc434) (TextScriptImporter) -> (artifact id: '1aab6e4d8f223a020101ccd106ff1040') in 0.0152816 seconds
+Start importing Assets/Modules/Database/Resources/Database/Component/Stats/ReturnerNeutronArmor.json using Guid(c2fab65a8e536e84988bef2f2861b914) (TextScriptImporter) -> (artifact id: '6288133c259afd0ff8dcfaf7d6084eea') in 0.014031 seconds
+Start importing Assets/Modules/Database/Resources/Database/Component/Stats/ReturnerUniverseRestart.json using Guid(e2e103111faea774082a2021d7ba0b13) (TextScriptImporter) -> (artifact id: '86adc2d81594f2e985399c441f343137') in 0.0167983 seconds
+Start importing Assets/Modules/Database/Resources/Database/Component/ReturnerHyperspaceEngine.json using Guid(845996781a105b24587574a66d2aa5ef) (TextScriptImporter) -> (artifact id: '35bc61621dd4c7ba77abb6233da09d79') in 0.0110665 seconds
+Start importing Assets/Modules/Database/Resources/Database/Component/Stats/ReturnerFractal.json using Guid(a46ca575cccf5544e9c5488d70da1803) (TextScriptImporter) -> (artifact id: '5af353efe6c69495ad7aae26aaf781ce') in 0.0122554 seconds
+Start importing Assets/Modules/Database/Resources/Database/Component/ReturnerMirrorSeaField.json using Guid(35ece79d37c9c4841a378729745cba02) (TextScriptImporter) -> (artifact id: 'e71e8b0926474ea6bf221d73b30938cd') in 0.0117515 seconds
+Start importing Assets/Modules/Database/Resources/Database/Component/Stats/ReturnerHyperspaceEngine.json using Guid(95b664256b4dbb84a8f4defb9d479b5d) (TextScriptImporter) -> (artifact id: 'd1c9c4a0567fde61929be7a7bc02cb02') in 0.0120586 seconds
+Start importing Assets/Modules/Database/Resources/Database/Ship/ReturnerLaw.json using Guid(a5a19444432b72b4398bac74c305f35a) (TextScriptImporter) -> (artifact id: 'c6a551cba8ce9f1b42ba77ec1fede786') in 0.0117986 seconds
+Start importing Assets/Modules/Database/Resources/Database/Weapon/ReturnerConceptErasure.json using Guid(a5ab9ab54cbe232439a24748cd669978) (TextScriptImporter) -> (artifact id: '1e6ef2afdbd2bb4f3cd43abef6a14486') in 0.0100868 seconds
+Start importing Assets/Modules/Database/Resources/Database/Component/Stats/ReturnerMirrorSeaField.json using Guid(26eaab7a0442d4f479b3da41fe5661cb) (TextScriptImporter) -> (artifact id: '39955377ca9a7dbcbad517aa9c24293e') in 0.0127158 seconds
+Start importing Assets/Modules/Database/Resources/Database/Weapon/ReturnerCreed.json using Guid(a60f0d1fb124f4241923b883af3c3ca4) (TextScriptImporter) -> (artifact id: 'caa87d92c67cffe7a54f3b01386bddf3') in 0.0122218 seconds
+Start importing Assets/Modules/Database/Resources/Database/Ammunition/ReturnerConceptErasure.json using Guid(e66a8d1e2079f6b45aef0b319a74b0ba) (TextScriptImporter) -> (artifact id: '33b17ccb625fdd55380c0015b94c5e8c') in 0.0114053 seconds
+Start importing Assets/Modules/Database/Resources/Database/Satellite/ReturnerExperimentalPlatform.json using Guid(47e9e1ca79b0c4740aa4a1531c7b9bda) (TextScriptImporter) -> (artifact id: '7a5b3557cd1df2c38df6614bcda9d5fc') in 0.0150989 seconds
+Start importing Assets/Modules/Database/Resources/Database/Ammunition/ReturnerTidal.json using Guid(28e872b61fe93e54bbc97d4c7b315021) (TextScriptImporter) -> (artifact id: '7fa733a52671552ef6c356aeadee9d79') in 0.0157738 seconds
+Start importing Assets/Modules/Database/Resources/Database/Component/ReturnerCreed.json using Guid(39bd0648a81df014485d49a1834a52af) (TextScriptImporter) -> (artifact id: 'fcc0cc36c6d8d49ac58b9dcf0baf7faf') in 0.0160592 seconds
+Start importing Assets/Modules/Database/Resources/Database/Ship/Builds/ReturnerDeath.json using Guid(1a3be8609dd9ac347be635711ce2f48f) (TextScriptImporter) -> (artifact id: 'cd294deb8b1e4ffb9f61960ef89eeaf3') in 0.0136958 seconds
+Start importing Assets/Modules/Database/Resources/Database/Component/Stats/ReturnerTidal.json using Guid(4a46753792cb1c549a9154cabf78d9ca) (TextScriptImporter) -> (artifact id: '5ef71731f93a59b87abee2f17fa17cd2') in 0.0135472 seconds
+Start importing Assets/Modules/Database/Resources/Database/Component/ReturnerFractal.json using Guid(8aebc870de185fb4c8609ea84a25d099) (TextScriptImporter) -> (artifact id: '8b62df02a4f64efef66425d1cb6af129') in 0.0126928 seconds
+Start importing Assets/Modules/Database/Resources/Database/Ship/ReturnerOrder.json using Guid(aaf927808a5d4db458a7571812f303fa) (TextScriptImporter) -> (artifact id: '68a20de522d9c14a32cf2bcaba91e19d') in 0.0146781 seconds
+Start importing Assets/Modules/Database/Resources/Database/Device/ReturnerMirrorSeaField.json using Guid(daa7f65f97dfe3343831c7f45bd8a8fa) (TextScriptImporter) -> (artifact id: 'cdb6fc34c410107f7f9e1d3146f468ec') in 0.0100064 seconds
+Start importing Assets/Modules/Database/Resources/Database/Ship/ReturnerPi.json using Guid(9bea16d333871c04d951b3ffccacca87) (TextScriptImporter) -> (artifact id: 'e93a8e024a5babc22ba2316b83393fe4') in 0.0133373 seconds
+Start importing Assets/Modules/Database/Resources/Database/Ship/Builds/ReturnerPi.json using Guid(0cd2851080e37674e82fb230845d04e2) (TextScriptImporter) -> (artifact id: '0d2134a374a6188fa7a03343ffca45f8') in 0.0141007 seconds
+Start importing Assets/Modules/Database/Resources/Database/Weapon/ReturnerTidal.json using Guid(0c5968fe39072ac4da7aa0a358491d48) (TextScriptImporter) -> (artifact id: 'c5f76567a548189bf24750da9a343641') in 0.0110904 seconds
+Start importing Assets/Modules/Database/Resources/Database/Ammunition/ReturnerFractal.json using Guid(6c33b2e582d620f4e8f6e2da24614290) (TextScriptImporter) -> (artifact id: '7f6d6f31e0968f7a93ab28ce0b8194ba') in 0.0125944 seconds
+Start importing Assets/Modules/Database/Resources/Database/Faction/25.json using Guid(6ca9f5c152b9e924b8ca149d2f1f2a34) (TextScriptImporter) -> (artifact id: 'ac37978c7d51e15c6f4c04cf065402ae') in 0.0100631 seconds
+Start importing Assets/Modules/Database/Resources/Database/Weapon/ReturnerFractal.json using Guid(9cd4034b6adea254fa5813f2d56241f3) (TextScriptImporter) -> (artifact id: '18a5bae3546927b0dd8ed74887484500') in 0.0101417 seconds
+Start importing Assets/Modules/Database/Resources/Database/Component/ReturnerUniverseRestart.json using Guid(ac867baf88ef16642bbb3378ec1e4b1f) (TextScriptImporter) -> (artifact id: '61d396489d94959bf159e4aa2fd78240') in 0.0118849 seconds
+Start importing Assets/Modules/Database/Resources/Database/Ship/Builds/ReturnerOrder.json using Guid(5d955bef5529d3e43972a9765c34210f) (TextScriptImporter) -> (artifact id: '29df441e1bcb28b33b49d90dde382ddb') in 0.0111623 seconds
+Start importing Assets/Modules/Database/Resources/Database/Satellite/Builds/ReturnerExperimentalPlatform.json using Guid(8d25f565414c8f1478afc5218d68196f) (TextScriptImporter) -> (artifact id: '835d904aaa0ad6c128db0557a516ce53') in 0.0133747 seconds
+Start importing Assets/Modules/Database/Resources/Database/Ship/ReturnerDeath.json using Guid(bd751f5f23d11dc4384cc1b4b8ab530f) (TextScriptImporter) -> (artifact id: 'd4910889246dbd38793b86ff7c78053f') in 0.0134984 seconds
+Start importing Assets/Modules/Database/Resources/Database/Faction/23.json using Guid(4eea92571782e4f489cc62e5ecad798f) (TextScriptImporter) -> (artifact id: '1c962a510e62ac7ac3a30ea4514f343a') in 0.0168419 seconds
+Start importing Assets/Modules/Database/Resources/Database/Component/Stats/ReturnerZeroPointReactor.json using Guid(fee630cd630107748b5a49e13773f336) (TextScriptImporter) -> (artifact id: '9bbceaaeb81aaf0b54219a7dfaa3ad2a') in 0.0122341 seconds
+Start importing Assets/Modules/Database/Resources/Database/Faction/24.json using Guid(4fb9f27589733e94a8b88eb1c1094177) (TextScriptImporter) -> (artifact id: 'b0b4573d6697c9ffcdd7e4feadb6b935') in 0.0139187 seconds
+Start importing Assets/Modules/Database/Resources/Database/Component/ReturnerTidal.json using Guid(4f5b8cda664419948a51622ca90c919b) (TextScriptImporter) -> (artifact id: '66e0cb33a4be5128c1337da1937602e8') in 0.0169664 seconds
+Start importing Assets/Modules/Database/Resources/Database/Component/ReturnerNeutronArmor.json using Guid(8f32495709b889343b8542b98b0e20a2) (TextScriptImporter) -> (artifact id: 'bfd6a83fc13ad888da7243f8ff7cf217') in 0.0150703 seconds
+Start importing Assets/Modules/Database/Resources/Database/Component/ReturnerZeroPointReactor.json using Guid(df0d568541fb3184c867b70962c0ce29) (TextScriptImporter) -> (artifact id: '09f1d7c944cfc61051c57abb9155464a') in 0.0177691 seconds
+Start importing Assets/Modules/Database/Resources/Database/Device/ReturnerUniverseRestart.json using Guid(ff607c9fdadf18c4795fa3e16747f097) (TextScriptImporter) -> (artifact id: '36f80d393ddad1331fab493ebe69b72c') in 0.0146979 seconds
+Refreshing native plugins compatible for Editor in 10.73 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Asset Pipeline Refresh (id=8a5d7a50049510c42b2149175526497f): Total: 24.801 seconds - Initiated by InitialRefreshV2(ForceSynchronousImport)
+	Summary:
+		Imports: total=61 (actual=61, local cache=0, cache server=0)
+		Asset DB Process Time: managed=16 ms, native=6561 ms
+		Asset DB Callback time: managed=168 ms, native=43 ms
+		Scripting: domain reloads=1, domain reload time=14385 ms, compile time=3560 ms, other=65 ms
+		Project Asset Count: scripts=1398, non-scripts=4734
+		Asset File Changes: new=0, changed=1, moved=0, deleted=0
+		Scan Filter Count: 0
+	InvokeCustomDependenciesCallbacks: 0.001ms
+	InvokePackagesCallback: 29.544ms
+	ApplyChangesToAssetFolders: 0.609ms
+	Scan: 192.652ms
+	OnSourceAssetsModified: 1.237ms
+	CategorizeAssetsWithTransientArtifact: 64.223ms
+	ProcessAssetsWithTransientArtifactChanges: 69.578ms
+	CategorizeAssets: 49.584ms
+	ImportOutOfDateAssets: 6017.599ms (-1707.750ms without children)
+		ImportManagerImport: 4162.853ms (3.441ms without children)
+			ImportInProcess: 4159.069ms
+			UpdateCategorizedAssets: 0.343ms
+		CompileScripts: 3559.808ms
+		ReloadNativeAssets: 0.005ms
+		UnloadImportedAssets: 0.549ms
+		ReloadImportedAssets: 0.007ms
+		EnsureUptoDateAssetsAreRegisteredWithGuidPM: 0.919ms
+		InitializingProgressBar: 0.015ms
+		PostProcessAllAssetNotificationsAddChangedAssets: 0.000ms
+		OnDemandSchedulerStart: 1.193ms
+	PostProcessAllAssets: 169.143ms
+	Hotreload: 13.232ms
+	GatherAllCurrentPrimaryArtifactRevisions: 0.002ms
+	UnloadStreamsBegin: 0.194ms
+	PersistCurrentRevisions: 0.825ms
+	UnloadStreamsEnd: 0.001ms
+	GenerateScriptTypeHashes: 5.197ms
+	Untracked: 18192.108ms
+
+Application.AssetDatabase Initial Refresh End
+Scanning for USB devices : 0.780ms
+Initializing Unity extensions:
+[MODES] ModeService[none].Initialize
+[MODES] ModeService[none].LoadModes
+[MODES] Loading mode Default (0) for mode-current-id-三体视界
+Unloading 103 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5148 unused Assets / (4.2 MB). Loaded Objects now: 5517.
+Memory consumption went from 169.2 MB to 165.0 MB.
+Total: 7.260100 ms (FindLiveObjects: 0.294800 ms CreateObjectMapping: 0.186900 ms MarkObjects: 4.397500 ms  DeleteObjects: 2.379900 ms)
+
+[Beta8.38 Performance Validation] projectileSnapshotCache=true, shipSnapshotCache=true, pointDefenseFullScansRemoved=true, droneFullScansRemoved=true, timeRift20Hz=true, parallelAi=true, lockFreeTargetSnapshots=true, physics2DJobs=coarse, jobWorkers=platform-selected, androidMultithreadedRendering=true, androidGraphicsJobs=true, androidAdpfHints=true, androidMainThreadAffinity=disabled, explorationEquipmentRestricted=true, edgeDroneClassFixed=true, edgeDroneRenderReduced=true, edgeTitanDefenders=2, modDronesForcedOffensive=true, edgeNormalDroneCap=48, edgeDefenderScanHz=20, hiveAllShipClasses=true, hiveSizeCostMultiplier=1.5, hiveFuelMultiplier=1.5, predatorRuntimeSteering=true, explorationTurretEquipmentRestricted=true, tenSegmentStatusBars=true, extendedDisplayMenu=true, editableThemeHex=true, empLaserOwnerFeedbackBlocked=true, empJammedTargetsRemainLockable=true, virusConvertedFallbackTarget=true, virusConvertedNoRetaliation=true, nanoStormInitialPredators=125, predatorDroneCap=400, destroyedShipPredatorsX5=true, predatorTargetingFixed=true, edgeDroneRespawnDelay=5, edgeDroneRespawnBypassesSpawnBudget=true
+Batchmode quit successfully invoked - shutting down!
+Curl error 42: Callback aborted
+Killing ADB server in 0.2133503 seconds.
+[Physics::Module] Cleanup current backned.
+[Physics::Module] Id: 0xf2b8ea05
+Input System module state changed to: ShutdownInProgress.
+Input System polling thread exited.
+Input System module state changed to: Shutdown.
+[Licensing::IpcConnector] LicenseClient-Voidream-notifications channel disconnected successfully.
+[Licensing::IpcConnector] LicenseClient-Voidream channel disconnected successfully.
+AcceleratorClientConnectionCallback - disconnected - :0
+Cleanup mono
+Exiting batchmode successfully now!
+Exiting without the bug reporter. Application will terminate with return code 0

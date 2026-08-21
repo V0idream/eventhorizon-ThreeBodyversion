@@ -1,0 +1,716 @@
+[Licensing::Module] Trying to connect to existing licensing client channel...
+Built from '6000.0/staging' branch; Version is '6000.0.75f1 (26349cd2a5c8) revision 2503836'; Using compiler version '193933523'; Build Type 'Release'
+[Licensing::IpcConnector] Channel LicenseClient-Voidream doesn't exist
+OS: 'Windows 11  (10.0.28120) Enterprise' Language: 'zh' Physical Memory: 32487 MB
+BatchMode: 1, IsHumanControllingUs: 0, StartBugReporterOnCrash: 0, Is64bit: 1
+System  architecture: x64
+Process architecture: x64
+Date: 2026-08-10T09:12:10Z
+[Licensing::Module] Successfully launched the LicensingClient (PId: 31336)
+
+COMMAND LINE ARGUMENTS:
+C:\Program Files\Unity\Hub\Editor\6000.0.75f1\Editor\Unity.exe
+-batchmode
+-nographics
+-projectPath
+C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI
+-quit
+-logFile
+C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\beta817-compile2.log
+Successfully changed project path to: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI
+C:/Users/wjy25/Documents/Re-Threebody/upstream/ReUI
+[UnityMemory] Configuration Parameters - Can be set up in boot.config
+    "memorysetup-bucket-allocator-granularity=16"
+    "memorysetup-bucket-allocator-bucket-count=8"
+    "memorysetup-bucket-allocator-block-size=33554432"
+    "memorysetup-bucket-allocator-block-count=8"
+    "memorysetup-main-allocator-block-size=16777216"
+    "memorysetup-thread-allocator-block-size=16777216"
+    "memorysetup-gfx-main-allocator-block-size=16777216"
+    "memorysetup-gfx-thread-allocator-block-size=16777216"
+    "memorysetup-cache-allocator-block-size=4194304"
+    "memorysetup-typetree-allocator-block-size=2097152"
+    "memorysetup-profiler-bucket-allocator-granularity=16"
+    "memorysetup-profiler-bucket-allocator-bucket-count=8"
+    "memorysetup-profiler-bucket-allocator-block-size=33554432"
+    "memorysetup-profiler-bucket-allocator-block-count=8"
+    "memorysetup-profiler-allocator-block-size=16777216"
+    "memorysetup-profiler-editor-allocator-block-size=1048576"
+    "memorysetup-temp-allocator-size-main=16777216"
+    "memorysetup-job-temp-allocator-block-size=2097152"
+    "memorysetup-job-temp-allocator-block-size-background=1048576"
+    "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+    "memorysetup-allocator-temp-initial-block-size-main=262144"
+    "memorysetup-allocator-temp-initial-block-size-worker=262144"
+    "memorysetup-temp-allocator-size-background-worker=32768"
+    "memorysetup-temp-allocator-size-job-worker=262144"
+    "memorysetup-temp-allocator-size-preload-manager=33554432"
+    "memorysetup-temp-allocator-size-nav-mesh-worker=65536"
+    "memorysetup-temp-allocator-size-audio-worker=65536"
+    "memorysetup-temp-allocator-size-cloud-worker=32768"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gfx=262144"
+Player connection [31976]  Target information:
+
+Player connection [31976]  * "[IP] 172.28.176.1 [Port] 55504 [Flags] 2 [Guid] 3057494902 [EditorId] 3057494902 [Version] 1048832 [Id] WindowsEditor(7,WIN-006UKCKR5SD) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
+
+Player connection [31976]  * "[IP] 198.18.0.1 [Port] 55504 [Flags] 2 [Guid] 3057494902 [EditorId] 3057494902 [Version] 1048832 [Id] WindowsEditor(7,WIN-006UKCKR5SD) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
+
+Player connection [31976]  * "[IP] 192.168.1.106 [Port] 55504 [Flags] 2 [Guid] 3057494902 [EditorId] 3057494902 [Version] 1048832 [Id] WindowsEditor(7,WIN-006UKCKR5SD) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
+
+Player connection [31976] Host joined multi-casting on [225.0.0.222:54997]...
+Player connection [31976] Host joined alternative multi-casting on [225.0.0.222:34997]...
+Input System module state changed to: Initialized.
+[Physics::Module] Initialized fallback backend.
+[Physics::Module] Id: 0xdecafbad
+[Package Manager] Connected to IPC stream "Upm-36100" after 0.6 seconds.
+Library Redirect Path: Library/
+[Physics::Module] Selected backend.
+[Physics::Module] Name: PhysX
+[Physics::Module] Id: 0xf2b8ea05
+[Physics::Module] SDK Version: 4.1.2
+[Physics::Module] Integration Version: 1.0.0
+[Physics::Module] Threading Mode: Multi-Threaded
+[Licensing::Module] Licensing is not yet initialized.
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-Voidream" at "2026-08-10T09:12:15.0780661Z"
+[Licensing::Client] Code 10 while verifying Licensing Client signature (process Id: 31336, path: "C:/Program Files/Unity/Hub/Editor/6000.0.75f1/Editor/Data/Resources/Licensing/Client/Unity.Licensing.Client.exe")
+[Licensing::Module] LicensingClient has failed validation; ignoring
+[Licensing::Client] Handshaking with LicensingClient:
+  Version:                 1.17.4+4293ba1
+  Session Id:              a43b7b5236c645efa247190bbd03f85b
+  Correlation Id:          6c5a7cdb5bc5fd270e53693e4f45e46f
+  External correlation Id: 5950871746250797844
+  Machine Id:              WeJfFlhUrXm/oUJXcgBJuMWLvIg=
+[Licensing::Module] Successfully connected to LicensingClient on channel: "LicenseClient-Voidream" (connect: 4.37s, validation: 0.59s, handshake: 0.10s)
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-Voidream-notifications" at "2026-08-10T09:12:15.7703262Z"
+[Licensing::Module] Connected to LicensingClient (PId: 31336, launch time: 0.04, total connection time: 5.06s)
+[Licensing::Module] Error: Access token is unavailable; failed to update
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] License group:
+  Id: 20067615106968-UnityPersXXXX
+  Product: Unity Personal
+  Type: Assigned
+  Expiration: Unlimited
+[Licensing::Client] Successfully updated license, isAsync: True, time: 0.01
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] Licensing Background thread has ended after 5.15s
+[Licensing::Module] Licensing is initialized (took 3.35s).
+[Licensing::Client] Successfully resolved entitlement details
+Refreshing native plugins compatible for Editor in 15.95 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Initialize engine version: 6000.0.75f1 (26349cd2a5c8)
+[Subsystems] Discovering subsystems at path C:/Program Files/Unity/Hub/Editor/6000.0.75f1/Editor/Data/Resources/UnitySubsystems
+[Subsystems] Discovering subsystems at path C:/Users/wjy25/Documents/Re-Threebody/upstream/ReUI/Assets
+Forcing GfxDevice: Null
+GfxDevice: creating device client; kGfxThreadingModeNonThreaded
+NullGfxDevice:
+    Version:  NULL 1.0 [1.0]
+    Renderer: Null Device
+    Vendor:   Unity Technologies
+Initialize mono
+Mono path[0] = 'C:/Program Files/Unity/Hub/Editor/6000.0.75f1/Editor/Data/Managed'
+Mono path[1] = 'C:/Program Files/Unity/Hub/Editor/6000.0.75f1/Editor/Data/MonoBleedingEdge/lib/mono/unityjit-win32'
+Mono config path = 'C:/Program Files/Unity/Hub/Editor/6000.0.75f1/Editor/Data/MonoBleedingEdge/etc'
+Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56100
+Using cacheserver namespaces - metadata:defaultmetadata, artifacts:defaultartifacts
+Using cacheserver namespaces - metadata:defaultmetadata, artifacts:defaultartifacts
+ImportWorker Server TCP listen port: 0
+AcceleratorClientConnectionCallback - disconnected - :0
+Begin MonoManager ReloadAssembly
+Registering precompiled unity dll's ...
+Register platform support module: C:/Program Files/Unity/Hub/Editor/6000.0.75f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport/UnityEditor.WindowsStandalone.Extensions.dll
+Register platform support module: C:/Program Files/Unity/Hub/Editor/6000.0.75f1/Editor/Data/PlaybackEngines/AndroidPlayer/UnityEditor.Android.Extensions.dll
+Registered in 0.634631 seconds.
+- Loaded All Assemblies, in 12.008 seconds
+Native extension for Android target not found
+Android Extension - Scanning For ADB Devices 287 ms
+Native extension for WindowsStandalone target not found
+Package Manager log level set to [2]
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  0.620 seconds
+Domain Reload Profiling: 12627ms
+	BeginReloadAssembly (8904ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (0ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (1ms)
+	RebuildCommonClasses (605ms)
+	RebuildNativeTypeToScriptingClass (10ms)
+	initialDomainReloadingComplete (672ms)
+	LoadAllAssembliesAndSetupDomain (1817ms)
+		LoadAssemblies (8910ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (1807ms)
+			TypeCache.Refresh (1805ms)
+				TypeCache.ScanAssembly (1456ms)
+			BuildScriptInfoCaches (0ms)
+			ResolveRequiredComponents (0ms)
+	FinalizeReload (620ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (591ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (382ms)
+			SetLoadedEditorAssemblies (3ms)
+			BeforeProcessingInitializeOnLoad (47ms)
+			ProcessInitializeOnLoadAttributes (101ms)
+			ProcessInitializeOnLoadMethodAttributes (58ms)
+			AfterProcessingInitializeOnLoad (0ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (0ms)
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Client] Successfully resolved entitlement details
+Application.AssetDatabase Initial Refresh Start
+[Package Manager] Restoring resolved packages state from cache
+[Licensing::Client] Successfully resolved entitlement details
+[Package Manager] Registered 50 packages:
+  Packages from [https://package.openupm.com]:
+    com.google.external-dependency-manager@1.2.187 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.google.external-dependency-manager@f5312a5700af)
+  Packages from [https://packages.unity.com]:
+    com.unity.ads@4.17.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.ads@c6e6f61ed7d9)
+    com.unity.ide.visualstudio@2.0.27 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.ide.visualstudio@dc1ddd4f09b6)
+    com.unity.inputsystem@1.19.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.inputsystem@21a28c3a6c83)
+    com.unity.purchasing@5.3.1 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.purchasing@b69b97f74d28)
+    com.unity.toolchain.win-x86_64-linux-x86_64@2.0.11 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.toolchain.win-x86_64-linux-x86_64@3c4c356523ed)
+    com.unity.sysroot@2.0.10 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.sysroot@7bbbb9339c14)
+    com.unity.sysroot.linux-x86_64@2.0.9 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.sysroot.linux-x86_64@1998d1c7730e)
+    com.unity.services.core@1.16.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.services.core@8ba50f624741)
+    com.unity.nuget.newtonsoft-json@3.2.1 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.nuget.newtonsoft-json@74deb55db2a0)
+  Built-in packages:
+    com.unity.2d.sprite@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.2d.sprite@0eb6ea2c7181)
+    com.unity.multiplayer.center@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.multiplayer.center@f3fb577b3546)
+    com.unity.test-framework@1.6.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.test-framework@082c24152fd4)
+    com.unity.ugui@2.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.ugui@7537063fea2b)
+    com.unity.ui@2.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.ui@ccd6582d7949)
+    com.unity.modules.accessibility@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.accessibility)
+    com.unity.modules.ai@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.ai)
+    com.unity.modules.androidjni@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.androidjni)
+    com.unity.modules.animation@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.animation)
+    com.unity.modules.assetbundle@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.assetbundle)
+    com.unity.modules.audio@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.audio)
+    com.unity.modules.cloth@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.cloth)
+    com.unity.modules.director@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.director)
+    com.unity.modules.imageconversion@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.imageconversion)
+    com.unity.modules.imgui@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.imgui)
+    com.unity.modules.jsonserialize@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.jsonserialize)
+    com.unity.modules.particlesystem@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.particlesystem)
+    com.unity.modules.physics@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.physics)
+    com.unity.modules.physics2d@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.physics2d)
+    com.unity.modules.screencapture@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.screencapture)
+    com.unity.modules.terrain@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.terrain)
+    com.unity.modules.terrainphysics@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.terrainphysics)
+    com.unity.modules.tilemap@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.tilemap)
+    com.unity.modules.ui@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.ui)
+    com.unity.modules.uielements@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.uielements)
+    com.unity.modules.umbra@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.umbra)
+    com.unity.modules.unityanalytics@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.unityanalytics)
+    com.unity.modules.unitywebrequest@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.unitywebrequest)
+    com.unity.modules.unitywebrequestassetbundle@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.unitywebrequestassetbundle)
+    com.unity.modules.unitywebrequestaudio@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.unitywebrequestaudio)
+    com.unity.modules.unitywebrequesttexture@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.unitywebrequesttexture)
+    com.unity.modules.unitywebrequestwww@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.unitywebrequestwww)
+    com.unity.modules.vehicles@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.vehicles)
+    com.unity.modules.video@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.video)
+    com.unity.modules.vr@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.vr)
+    com.unity.modules.wind@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.wind)
+    com.unity.modules.xr@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.xr)
+    com.unity.modules.subsystems@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.subsystems)
+    com.unity.modules.hierarchycore@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.hierarchycore)
+    com.unity.ext.nunit@2.0.5 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.ext.nunit@031a54704bff)
+[Subsystems] No new subsystems found in resolved package list.
+[Package Manager] Done registering packages in 0.01 seconds
+[ScriptCompilation] Requested script compilation because: Assetdatabase observed changes in script compilation related files
+Assembly for Assembly Definition File 'Assets/Modules/GalaxyMap/GalaxyMap.asmdef' will not be compiled, because it has no scripts associated with it.
+Starting: C:\Program Files\Unity\Hub\Editor\6000.0.75f1\Editor\Data\bee_backend.exe --ipc --defer-dag-verification --dagfile="Library/Bee/1300b0aE.dag" --continue-on-failure --profile="Library/Bee/backend1.traceevents" ScriptAssemblies
+WorkingDir: C:/Users/wjy25/Documents/Re-Threebody/upstream/ReUI
+DisplayProgressbar: Compiling Scripts
+ExitCode: 0 Duration: 6s652ms
+[842/851    2s] Csc Library/Bee/artifacts/1300b0aE.dag/BattleSimulator.dll (+2 others)
+Assets\Modules\BattleSimulator\Scripts\Combat\Factory\Bullets\AmmunitionClassExtensions.cs(53,23): warning CS0612: 'BulletEffectType' is obsolete
+
+Assets\Modules\BattleSimulator\Scripts\Combat\Factory\Bullets\BulletStats.cs(85,16): warning CS0612: 'BulletEffectType' is obsolete
+
+Assets\Modules\BattleSimulator\Scripts\Combat\Factory\Bullets\BulletStats.cs(202,16): warning CS0612: 'BulletEffectType' is obsolete
+
+Assets\Modules\BattleSimulator\Scripts\Combat\Component\Systems\Devices\RetributionDevice.cs(61,22): warning CS0114: 'RetributionDevice.Cooldown' hides inherited member 'SystemBase.Cooldown'. To make the current member override that implementation, add the override keyword. Otherwise add the new keyword.
+
+Assets\Modules\BattleSimulator\Scripts\Combat\Component\Systems\Devices\SophonJammerDevice.cs(92,22): warning CS0114: 'SophonJammerDevice.Cooldown' hides inherited member 'SystemBase.Cooldown'. To make the current member override that implementation, add the override keyword. Otherwise add the new keyword.
+
+Assets\Modules\BattleSimulator\Scripts\Combat\Factory\Bullets\BulletStats.cs(210,11): warning CS0612: 'BulletEffectType' is obsolete
+
+Assets\Modules\BattleSimulator\Scripts\Combat\Factory\Bullets\BulletStats.cs(211,11): warning CS0612: 'BulletEffectType' is obsolete
+
+Assets\Modules\BattleSimulator\Scripts\Combat\Factory\Bullets\BulletStats.cs(213,11): warning CS0612: 'BulletEffectType' is obsolete
+
+Assets\Modules\BattleSimulator\Scripts\Combat\Factory\Bullets\BulletStats.cs(215,11): warning CS0612: 'BulletEffectType' is obsolete
+
+Assets\Modules\BattleSimulator\Scripts\Combat\Factory\Bullets\BulletFactoryObsolete.cs(49,50): warning CS0612: 'PrefabCache.LoadBulletPrefabObsolete(PrefabId, string, IGameServicesProvider)' is obsolete
+
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Actions\AttackAction.cs(54,25): warning CS0612: 'WeaponInfo.BulletEffectType' is obsolete
+
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Actions\AttackAction.cs(54,84): warning CS0612: 'WeaponInfo.BulletEffectType' is obsolete
+
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Actions\AttackAction.cs(54,151): warning CS0612: 'WeaponInfo.BulletEffectType' is obsolete
+
+Assets\Modules\BattleSimulator\Scripts\Combat\Factory\Bullets\BulletStats.cs(93,32): warning CS0612: 'BulletEffectType' is obsolete
+
+Assets\Modules\BattleSimulator\Scripts\Combat\Factory\Bullets\BulletStats.cs(95,32): warning CS0612: 'BulletEffectType' is obsolete
+
+Assets\Modules\BattleSimulator\Scripts\Combat\Factory\Bullets\BulletStats.cs(97,32): warning CS0612: 'BulletEffectType' is obsolete
+
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Actions\AttackAction.cs(99,21): warning CS0612: 'WeaponInfo.BulletEffectType' is obsolete
+
+Assets\Modules\BattleSimulator\Scripts\Combat\Component\Body\RigidBodyAdapter.cs(21,17): warning CS0618: 'Rigidbody2D.isKinematic' is obsolete: 'Please use Rigidbody2D.bodyType instead.'
+
+Assets\Modules\BattleSimulator\Scripts\Combat\Component\Body\RigidBodyAdapter.cs(26,17): warning CS0618: 'Rigidbody2D.isKinematic' is obsolete: 'Please use Rigidbody2D.bodyType instead.'
+
+Assets\Modules\BattleSimulator\Scripts\Combat\Component\Collider\CircleCollider.cs(45,25): warning CS0618: 'Physics2D.OverlapCircleNonAlloc(Vector2, float, Collider2D[], int)' is obsolete: 'Physics2D.OverlapCircleNonAlloc is deprecated. Use Physics2D.OverlapCircle instead.'
+
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Computer.cs(56,4): warning CS0612: 'ThreatList.Update(float, IShip, IThreatAnalyzer)' is obsolete
+
+Assets\Modules\BattleSimulator\Scripts\Combat\Factory\Bullets\BulletFactoryObsolete.cs(230,111): warning CS0612: 'IWeaponPlatform.Type' is obsolete
+
+Assets\Modules\BattleSimulator\Scripts\Combat\Factory\Systems\DeviceFactory.cs(291,19): warning CS0472: The result of the expression is always 'true' since a value of type 'bool' is never equal to 'null' of type 'bool?'
+
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\BehaviorTree\Utils\ShipSystemExtensions.cs(98,8): warning CS0219: The variable 'systems' is assigned but its value is never used
+
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Keyboard.cs(41,30): warning CS0168: The variable 'e' is declared but never used
+
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Helpers.cs(21,21): warning CS0612: 'WeaponInfo.BulletEffectType' is obsolete
+
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Helpers.cs(21,53): warning CS0612: 'BulletEffectType' is obsolete
+
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Drone.cs(39,17): warning CS0612: 'ThreatList.Update(float, IShip, IThreatAnalyzer)' is obsolete
+
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Helpers.cs(35,21): warning CS0612: 'WeaponInfo.BulletEffectType' is obsolete
+
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Helpers.cs(35,53): warning CS0612: 'BulletEffectType' is obsolete
+
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Starbase.cs(57,21): warning CS0612: 'WeaponInfo.BulletEffectType' is obsolete
+
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Starbase.cs(57,53): warning CS0612: 'BulletEffectType' is obsolete
+
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Starbase.cs(57,81): warning CS0612: 'WeaponInfo.BulletEffectType' is obsolete
+
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Starbase.cs(57,113): warning CS0612: 'BulletEffectType' is obsolete
+
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Helpers.cs(50,21): warning CS0612: 'WeaponInfo.BulletEffectType' is obsolete
+
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Helpers.cs(50,53): warning CS0612: 'BulletEffectType' is obsolete
+
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Strategy\Factories\AttackRules.cs(29,12): warning CS0612: 'WeaponInfo.BulletEffectType' is obsolete
+
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Strategy\Factories\AttackRules.cs(29,44): warning CS0612: 'BulletEffectType' is obsolete
+
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Strategy\Factories\AttackRules.cs(32,21): warning CS0612: 'WeaponInfo.BulletEffectType' is obsolete
+
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Strategy\Factories\AttackRules.cs(32,53): warning CS0612: 'BulletEffectType' is obsolete
+
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Strategy\Factories\AttackRules.cs(32,81): warning CS0612: 'WeaponInfo.BulletEffectType' is obsolete
+
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Strategy\Factories\AttackRules.cs(32,113): warning CS0612: 'BulletEffectType' is obsolete
+
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Strategy\Factories\AttackRules.cs(72,21): warning CS0612: 'WeaponInfo.BulletEffectType' is obsolete
+
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Strategy\Factories\AttackRules.cs(72,53): warning CS0612: 'BulletEffectType' is obsolete
+
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Strategy\Factories\AttackRules.cs(97,21): warning CS0612: 'WeaponInfo.BulletEffectType' is obsolete
+
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Strategy\Factories\AttackRules.cs(97,53): warning CS0612: 'BulletEffectType' is obsolete
+
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Strategy\Factories\AttackRules.cs(97,81): warning CS0612: 'WeaponInfo.BulletEffectType' is obsolete
+
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Strategy\Factories\AttackRules.cs(97,113): warning CS0612: 'BulletEffectType' is obsolete
+
+Assets\Modules\BattleSimulator\Scripts\Combat\Factory\ShipFactory.cs(59,21): warning CS0414: The field 'ShipFactory._droneBayUniqueId' is assigned but its value is never used
+[843/851    0s] CopyFiles Library/ScriptAssemblies/BattleSimulator.pdb
+[844/851    0s] CopyFiles Library/ScriptAssemblies/BattleSimulator.dll
+[845/851    2s] Csc Library/Bee/artifacts/1300b0aE.dag/Assembly-CSharp.dll (+2 others)
+Assets\Scripts\Combat\Domain\CombatModelBuilder.cs(95,32): warning CS0618: 'Factory<CombatModelBuilder>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\AnnouncementState.cs(47,32): warning CS0618: 'Factory<AnnouncementState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\CombatRewardState.cs(41,32): warning CS0618: 'Factory<IReward, CombatRewardState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\DialogState.cs(59,32): warning CS0618: 'Factory<string, WindowArgs, Action<WindowExitCode>, DialogState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\DailyRewardState.cs(57,32): warning CS0618: 'Factory<DailyRewardState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\EditorInitializationState.cs(49,32): warning CS0618: 'Factory<EditorInitializationState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\EhopediaState.cs(31,32): warning CS0618: 'Factory<EhopediaState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\CombatState.cs(128,32): warning CS0618: 'Factory<ICombatModel, Action<ICombatModel>, CombatState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\ExplorationState.cs(85,32): warning CS0618: 'Factory<Planet, ExplorationState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\MainMenuState.cs(152,26): warning CS0618: 'Factory<MainMenuState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\InitializationState.cs(194,32): warning CS0618: 'Factory<InitializationState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\QuestState.cs(63,26): warning CS0618: 'Factory<IUserInteraction, QuestState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\ModalDialogState.cs(53,32): warning CS0618: 'Factory<string, IEnumerable<GameScene>, ModalDialogState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\RetreatState.cs(81,32): warning CS0618: 'Factory<RetreatState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\QuickCombatState.cs(218,32): warning CS0618: 'Factory<QuickCombatState.Settings, QuickCombatState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\SkillTreeState.cs(31,32): warning CS0618: 'Factory<SkillTreeState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\StartingNewGameState.cs(91,32): warning CS0618: 'Factory<StartingNewGameState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\TestingState.cs(31,32): warning CS0618: 'Factory<TestingState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\TravelState.cs(89,32): warning CS0618: 'Factory<int, TravelState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\StarMapState.cs(360,32): warning CS0618: 'Factory<StarMapState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\Legacy\GUI\Console.cs(24,17): warning CS0618: 'Object.FindObjectsOfType<T>()' is obsolete: 'Object.FindObjectsOfType has been deprecated. Use Object.FindObjectsByType instead which lets you decide whether you need the results sorted or not.  FindObjectsOfType sorts the results by InstanceID but if you do not need this using FindObjectSortMode.None is considerably faster.'
+
+Assets\Scripts\Legacy\GUI\Layout\RandomLayoutGroup.cs(29,4): warning CS0618: 'Random.seed' is obsolete: 'Deprecated. Use InitState() function or Random.state property instead.'
+
+Assets\Scripts\Legacy\GUI\Layout\RandomLayoutGroup.cs(42,4): warning CS0618: 'Random.seed' is obsolete: 'Deprecated. Use InitState() function or Random.state property instead.'
+
+Assets\Scripts\Legacy\GUI\ViewModel\StarMap\TechTreePanelViewModel.cs(546,6): warning CS0618: 'Random.seed' is obsolete: 'Deprecated. Use InitState() function or Random.state property instead.'
+
+Assets\Scripts\GameServices\OfflineMultiplayer\PlayerInfo.cs(108,30): warning CS0168: The variable 'e' is declared but never used
+
+Assets\Scripts\GameServices\OfflineMultiplayer\PlayerInfo.cs(147,30): warning CS0168: The variable 'e' is declared but never used
+
+Assets\Scripts\GameServices\OfflineMultiplayer\PlayerInfo.cs(163,30): warning CS0168: The variable 'e' is declared but never used
+
+Assets\Scripts\GameStateMachine\States\ShipEditorState.cs(159,40): warning CS0612: 'ComponentInfo.FromInt64(IDatabase, long)' is obsolete
+
+Assets\Scripts\GameServices\OfflineMultiplayer\PlayerInfo.cs(192,30): warning CS0168: The variable 'e' is declared but never used
+
+Assets\Scripts\Legacy\Map\Star.cs(412,3): warning CS0618: 'Random.seed' is obsolete: 'Deprecated. Use InitState() function or Random.state property instead.'
+
+Assets\Scripts\Legacy\Debug\Cheats.cs(297,26): warning CS0168: The variable 'e' is declared but never used
+
+Assets\Scripts\Domain\Economy\ItemType\ComponentItem.cs(21,47): warning CS0612: 'ComponentInfo.SerializeToInt64()' is obsolete
+
+Assets\Scripts\Legacy\Debug\Cheats.cs(353,41): warning CS0612: 'ComponentInfo.FromInt64(IDatabase, long)' is obsolete
+
+Assets\Scripts\Gui\Combat\RadarPanel.cs(61,17): warning CS0219: The variable 'simpleRadarIndex' is assigned but its value is never used
+
+Assets\Scripts\Legacy\Debug\Cheats.cs(417,57): warning CS0612: 'ComponentInfo.SerializeToInt64()' is obsolete
+
+Assets\Scripts\GameServices\OfflineMultiplayer\EnemyPlayerInfo.cs(61,30): warning CS0168: The variable 'e' is declared but never used
+
+Assets\Scripts\Legacy\GUI\ViewModel\CargoHold\ScrapPanelViewModel.cs(133,84): warning CS0612: 'ComponentInfo.SerializeToInt64()' is obsolete
+
+Assets\Scripts\Gui\ShipService\ShipLayoutPanel.cs(75,85): warning CS0612: 'IShipLayout.Size' is obsolete
+
+Assets\Scripts\Gui\ShipService\ShipLayoutPanel.cs(76,86): warning CS0612: 'IShipLayout.Size' is obsolete
+
+Assets\Scripts\Gui\ShipService\ShipLayoutPanel.cs(92,28): warning CS0612: 'IShipLayout.Size' is obsolete
+
+Assets\Scripts\Gui\ShipService\ShipLayoutPanel.cs(146,62): warning CS0612: 'IShipLayout.Size' is obsolete
+
+Assets\Scripts\Gui\ShipService\ShipLayoutPanel.cs(146,91): warning CS0612: 'IShipLayout.Size' is obsolete
+
+Assets\Scripts\Gui\MainMenu\SettingsProgress.cs(176,37): warning CS0618: 'Object.FindObjectsOfType<T>(bool)' is obsolete: 'Object.FindObjectsOfType has been deprecated. Use Object.FindObjectsByType instead which lets you decide whether you need the results sorted or not.  FindObjectsOfType sorts the results by InstanceID but if you do not need this using FindObjectSortMode.None is considerably faster.'
+
+Assets\Scripts\Gui\MainMenu\SettingsProgress.cs(178,38): warning CS0618: 'Object.FindObjectsOfType<T>(bool)' is obsolete: 'Object.FindObjectsOfType has been deprecated. Use Object.FindObjectsByType instead which lets you decide whether you need the results sorted or not.  FindObjectsOfType sorts the results by InstanceID but if you do not need this using FindObjectSortMode.None is considerably faster.'
+
+Assets\Scripts\Legacy\GUI\ViewModel\MainMenu\DevConsoleViewModel.cs(76,5): warning CS0162: Unreachable code detected
+
+Assets\Scripts\Gui\MainMenu\SettingsProgress.cs(259,60): warning CS0618: 'Object.FindObjectOfType<T>()' is obsolete: 'Object.FindObjectOfType has been deprecated. Use Object.FindFirstObjectByType instead or if finding any instance is acceptable the faster Object.FindAnyObjectByType'
+
+Assets\Scripts\Gui\MainMenu\MainMenu.cs(427,60): warning CS0618: 'Object.FindObjectOfType<T>()' is obsolete: 'Object.FindObjectOfType has been deprecated. Use Object.FindFirstObjectByType instead or if finding any instance is acceptable the faster Object.FindAnyObjectByType'
+
+Assets\Scripts\Gui\MainMenu\MainMenu.cs(609,60): warning CS0618: 'Object.FindObjectOfType<T>()' is obsolete: 'Object.FindObjectOfType has been deprecated. Use Object.FindFirstObjectByType instead or if finding any instance is acceptable the faster Object.FindAnyObjectByType'
+
+Assets\Scripts\Gui\MainMenu\MainMenu.cs(664,60): warning CS0618: 'Object.FindObjectOfType<T>()' is obsolete: 'Object.FindObjectOfType has been deprecated. Use Object.FindFirstObjectByType instead or if finding any instance is acceptable the faster Object.FindAnyObjectByType'
+
+Assets\Scripts\Legacy\GUI\LoadingScreen.cs(28,15): warning CS0414: The field 'LoadingScreen._coroutineRunning' is assigned but its value is never used
+
+Assets\Scripts\Legacy\GUI\LoadingScreen.cs(20,33): warning CS0414: The field 'LoadingScreen._delay' is assigned but its value is never used
+
+Assets\Scripts\Gui\Utils\BackButtonEvent.cs(12,39): warning CS0414: The field 'BackButtonEvent._ignoreIfStandaloneBuild' is assigned but its value is never used
+
+Assets\Scripts\Legacy\GUI\LoadingScreen.cs(133,18): warning CS0414: The field 'LoadingScreen._firstTime' is assigned but its value is never used
+
+Assets\Scripts\Legacy\GUI\ViewModel\StarMap\MilitaryPanelViewModel.cs(41,15): warning CS0414: The field 'MilitaryPanelViewModel._money' is assigned but its value is never used
+[846/851    0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp.pdb
+[847/851    0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp.dll
+[848/851    0s] Csc Library/Bee/artifacts/1300b0aE.dag/Assembly-CSharp-Editor.dll (+2 others)
+Assets\Editor\TexturePostProcessor.cs(45,13): warning CS0618: 'TextureImporter.spritePackingTag' is obsolete: 'Support for packing sprites through spritePackingTag has been removed. Please use SpriteAtlas instead.'
+
+Assets\Editor\ApplicationManager.cs(222,36): warning CS0618: 'PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup)' is obsolete: 'Use GetScriptingDefineSymbols(NamedBuildTarget buildTarget) instead'
+
+Assets\Editor\ApplicationManager.cs(232,13): warning CS0618: 'PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup, string)' is obsolete: 'Use SetScriptingDefineSymbols(NamedBuildTarget buildTarget, string defines) instead'
+
+Assets\Editor\ApplicationManager.cs(240,36): warning CS0618: 'PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup)' is obsolete: 'Use GetScriptingDefineSymbols(NamedBuildTarget buildTarget) instead'
+
+Assets\Editor\ApplicationManager.cs(252,13): warning CS0618: 'PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup, string)' is obsolete: 'Use SetScriptingDefineSymbols(NamedBuildTarget buildTarget, string defines) instead'
+
+Assets\Editor\AndroidDevelopmentBuild.cs(26,9): warning CS0618: 'PlayerSettings.SetApplicationIdentifier(BuildTargetGroup, string)' is obsolete: 'Use SetApplicationIdentifier(NamedBuildTarget buildTarget, string identifier) instead'
+
+Assets\Editor\AndroidDevelopmentBuild.cs(31,9): warning CS0618: 'PlayerSettings.SetScriptingBackend(BuildTargetGroup, ScriptingImplementation)' is obsolete: 'Use SetScriptingBackend(NamedBuildTarget buildTarget, ScriptingImplementation backend) instead'
+
+Assets\ReUI\Editor\ReUIQuickAndroidBuild.cs(31,13): warning CS0618: 'PlayerSettings.SetApplicationIdentifier(BuildTargetGroup, string)' is obsolete: 'Use SetApplicationIdentifier(NamedBuildTarget buildTarget, string identifier) instead'
+
+Assets\ReUI\Editor\ReUIQuickAndroidBuild.cs(37,13): warning CS0618: 'PlayerSettings.SetScriptingBackend(BuildTargetGroup, ScriptingImplementation)' is obsolete: 'Use SetScriptingBackend(NamedBuildTarget buildTarget, ScriptingImplementation backend) instead'
+[849/851    0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp-Editor.pdb
+[850/851    0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp-Editor.dll
+*** Tundra build success (6.63 seconds), 9 items updated, 851 evaluated
+Assets\Modules\BattleSimulator\Scripts\Combat\Factory\Bullets\AmmunitionClassExtensions.cs(53,23): warning CS0612: 'BulletEffectType' is obsolete
+Assets\Modules\BattleSimulator\Scripts\Combat\Factory\Bullets\BulletStats.cs(85,16): warning CS0612: 'BulletEffectType' is obsolete
+Assets\Modules\BattleSimulator\Scripts\Combat\Factory\Bullets\BulletStats.cs(202,16): warning CS0612: 'BulletEffectType' is obsolete
+Assets\Modules\BattleSimulator\Scripts\Combat\Component\Systems\Devices\RetributionDevice.cs(61,22): warning CS0114: 'RetributionDevice.Cooldown' hides inherited member 'SystemBase.Cooldown'. To make the current member override that implementation, add the override keyword. Otherwise add the new keyword.
+Assets\Modules\BattleSimulator\Scripts\Combat\Component\Systems\Devices\SophonJammerDevice.cs(92,22): warning CS0114: 'SophonJammerDevice.Cooldown' hides inherited member 'SystemBase.Cooldown'. To make the current member override that implementation, add the override keyword. Otherwise add the new keyword.
+Assets\Modules\BattleSimulator\Scripts\Combat\Factory\Bullets\BulletStats.cs(210,11): warning CS0612: 'BulletEffectType' is obsolete
+Assets\Modules\BattleSimulator\Scripts\Combat\Factory\Bullets\BulletStats.cs(211,11): warning CS0612: 'BulletEffectType' is obsolete
+Assets\Modules\BattleSimulator\Scripts\Combat\Factory\Bullets\BulletStats.cs(213,11): warning CS0612: 'BulletEffectType' is obsolete
+Assets\Modules\BattleSimulator\Scripts\Combat\Factory\Bullets\BulletStats.cs(215,11): warning CS0612: 'BulletEffectType' is obsolete
+Assets\Modules\BattleSimulator\Scripts\Combat\Factory\Bullets\BulletFactoryObsolete.cs(49,50): warning CS0612: 'PrefabCache.LoadBulletPrefabObsolete(PrefabId, string, IGameServicesProvider)' is obsolete
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Actions\AttackAction.cs(54,25): warning CS0612: 'WeaponInfo.BulletEffectType' is obsolete
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Actions\AttackAction.cs(54,84): warning CS0612: 'WeaponInfo.BulletEffectType' is obsolete
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Actions\AttackAction.cs(54,151): warning CS0612: 'WeaponInfo.BulletEffectType' is obsolete
+Assets\Modules\BattleSimulator\Scripts\Combat\Factory\Bullets\BulletStats.cs(93,32): warning CS0612: 'BulletEffectType' is obsolete
+Assets\Modules\BattleSimulator\Scripts\Combat\Factory\Bullets\BulletStats.cs(95,32): warning CS0612: 'BulletEffectType' is obsolete
+Assets\Modules\BattleSimulator\Scripts\Combat\Factory\Bullets\BulletStats.cs(97,32): warning CS0612: 'BulletEffectType' is obsolete
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Actions\AttackAction.cs(99,21): warning CS0612: 'WeaponInfo.BulletEffectType' is obsolete
+Assets\Modules\BattleSimulator\Scripts\Combat\Component\Body\RigidBodyAdapter.cs(21,17): warning CS0618: 'Rigidbody2D.isKinematic' is obsolete: 'Please use Rigidbody2D.bodyType instead.'
+Assets\Modules\BattleSimulator\Scripts\Combat\Component\Body\RigidBodyAdapter.cs(26,17): warning CS0618: 'Rigidbody2D.isKinematic' is obsolete: 'Please use Rigidbody2D.bodyType instead.'
+Assets\Modules\BattleSimulator\Scripts\Combat\Component\Collider\CircleCollider.cs(45,25): warning CS0618: 'Physics2D.OverlapCircleNonAlloc(Vector2, float, Collider2D[], int)' is obsolete: 'Physics2D.OverlapCircleNonAlloc is deprecated. Use Physics2D.OverlapCircle instead.'
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Computer.cs(56,4): warning CS0612: 'ThreatList.Update(float, IShip, IThreatAnalyzer)' is obsolete
+Assets\Modules\BattleSimulator\Scripts\Combat\Factory\Bullets\BulletFactoryObsolete.cs(230,111): warning CS0612: 'IWeaponPlatform.Type' is obsolete
+Assets\Modules\BattleSimulator\Scripts\Combat\Factory\Systems\DeviceFactory.cs(291,19): warning CS0472: The result of the expression is always 'true' since a value of type 'bool' is never equal to 'null' of type 'bool?'
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\BehaviorTree\Utils\ShipSystemExtensions.cs(98,8): warning CS0219: The variable 'systems' is assigned but its value is never used
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Keyboard.cs(41,30): warning CS0168: The variable 'e' is declared but never used
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Helpers.cs(21,21): warning CS0612: 'WeaponInfo.BulletEffectType' is obsolete
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Helpers.cs(21,53): warning CS0612: 'BulletEffectType' is obsolete
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Drone.cs(39,17): warning CS0612: 'ThreatList.Update(float, IShip, IThreatAnalyzer)' is obsolete
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Helpers.cs(35,21): warning CS0612: 'WeaponInfo.BulletEffectType' is obsolete
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Helpers.cs(35,53): warning CS0612: 'BulletEffectType' is obsolete
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Starbase.cs(57,21): warning CS0612: 'WeaponInfo.BulletEffectType' is obsolete
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Starbase.cs(57,53): warning CS0612: 'BulletEffectType' is obsolete
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Starbase.cs(57,81): warning CS0612: 'WeaponInfo.BulletEffectType' is obsolete
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Starbase.cs(57,113): warning CS0612: 'BulletEffectType' is obsolete
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Helpers.cs(50,21): warning CS0612: 'WeaponInfo.BulletEffectType' is obsolete
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Helpers.cs(50,53): warning CS0612: 'BulletEffectType' is obsolete
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Strategy\Factories\AttackRules.cs(29,12): warning CS0612: 'WeaponInfo.BulletEffectType' is obsolete
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Strategy\Factories\AttackRules.cs(29,44): warning CS0612: 'BulletEffectType' is obsolete
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Strategy\Factories\AttackRules.cs(32,21): warning CS0612: 'WeaponInfo.BulletEffectType' is obsolete
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Strategy\Factories\AttackRules.cs(32,53): warning CS0612: 'BulletEffectType' is obsolete
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Strategy\Factories\AttackRules.cs(32,81): warning CS0612: 'WeaponInfo.BulletEffectType' is obsolete
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Strategy\Factories\AttackRules.cs(32,113): warning CS0612: 'BulletEffectType' is obsolete
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Strategy\Factories\AttackRules.cs(72,21): warning CS0612: 'WeaponInfo.BulletEffectType' is obsolete
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Strategy\Factories\AttackRules.cs(72,53): warning CS0612: 'BulletEffectType' is obsolete
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Strategy\Factories\AttackRules.cs(97,21): warning CS0612: 'WeaponInfo.BulletEffectType' is obsolete
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Strategy\Factories\AttackRules.cs(97,53): warning CS0612: 'BulletEffectType' is obsolete
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Strategy\Factories\AttackRules.cs(97,81): warning CS0612: 'WeaponInfo.BulletEffectType' is obsolete
+Assets\Modules\BattleSimulator\Scripts\Combat\AI\Strategy\Factories\AttackRules.cs(97,113): warning CS0612: 'BulletEffectType' is obsolete
+Assets\Modules\BattleSimulator\Scripts\Combat\Factory\ShipFactory.cs(59,21): warning CS0414: The field 'ShipFactory._droneBayUniqueId' is assigned but its value is never used
+Assets\Scripts\Combat\Domain\CombatModelBuilder.cs(95,32): warning CS0618: 'Factory<CombatModelBuilder>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\AnnouncementState.cs(47,32): warning CS0618: 'Factory<AnnouncementState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\CombatRewardState.cs(41,32): warning CS0618: 'Factory<IReward, CombatRewardState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\DialogState.cs(59,32): warning CS0618: 'Factory<string, WindowArgs, Action<WindowExitCode>, DialogState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\DailyRewardState.cs(57,32): warning CS0618: 'Factory<DailyRewardState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\EditorInitializationState.cs(49,32): warning CS0618: 'Factory<EditorInitializationState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\EhopediaState.cs(31,32): warning CS0618: 'Factory<EhopediaState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\CombatState.cs(128,32): warning CS0618: 'Factory<ICombatModel, Action<ICombatModel>, CombatState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\ExplorationState.cs(85,32): warning CS0618: 'Factory<Planet, ExplorationState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\MainMenuState.cs(152,26): warning CS0618: 'Factory<MainMenuState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\InitializationState.cs(194,32): warning CS0618: 'Factory<InitializationState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\QuestState.cs(63,26): warning CS0618: 'Factory<IUserInteraction, QuestState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\ModalDialogState.cs(53,32): warning CS0618: 'Factory<string, IEnumerable<GameScene>, ModalDialogState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\RetreatState.cs(81,32): warning CS0618: 'Factory<RetreatState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\QuickCombatState.cs(218,32): warning CS0618: 'Factory<QuickCombatState.Settings, QuickCombatState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\SkillTreeState.cs(31,32): warning CS0618: 'Factory<SkillTreeState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\StartingNewGameState.cs(91,32): warning CS0618: 'Factory<StartingNewGameState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\TestingState.cs(31,32): warning CS0618: 'Factory<TestingState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\TravelState.cs(89,32): warning CS0618: 'Factory<int, TravelState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\StarMapState.cs(360,32): warning CS0618: 'Factory<StarMapState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\Legacy\GUI\Console.cs(24,17): warning CS0618: 'Object.FindObjectsOfType<T>()' is obsolete: 'Object.FindObjectsOfType has been deprecated. Use Object.FindObjectsByType instead which lets you decide whether you need the results sorted or not.  FindObjectsOfType sorts the results by InstanceID but if you do not need this using FindObjectSortMode.None is considerably faster.'
+Assets\Scripts\Legacy\GUI\Layout\RandomLayoutGroup.cs(29,4): warning CS0618: 'Random.seed' is obsolete: 'Deprecated. Use InitState() function or Random.state property instead.'
+Assets\Scripts\Legacy\GUI\Layout\RandomLayoutGroup.cs(42,4): warning CS0618: 'Random.seed' is obsolete: 'Deprecated. Use InitState() function or Random.state property instead.'
+Assets\Scripts\Legacy\GUI\ViewModel\StarMap\TechTreePanelViewModel.cs(546,6): warning CS0618: 'Random.seed' is obsolete: 'Deprecated. Use InitState() function or Random.state property instead.'
+Assets\Scripts\GameServices\OfflineMultiplayer\PlayerInfo.cs(108,30): warning CS0168: The variable 'e' is declared but never used
+Assets\Scripts\GameServices\OfflineMultiplayer\PlayerInfo.cs(147,30): warning CS0168: The variable 'e' is declared but never used
+Assets\Scripts\GameServices\OfflineMultiplayer\PlayerInfo.cs(163,30): warning CS0168: The variable 'e' is declared but never used
+Assets\Scripts\GameStateMachine\States\ShipEditorState.cs(159,40): warning CS0612: 'ComponentInfo.FromInt64(IDatabase, long)' is obsolete
+Assets\Scripts\GameServices\OfflineMultiplayer\PlayerInfo.cs(192,30): warning CS0168: The variable 'e' is declared but never used
+Assets\Scripts\Legacy\Map\Star.cs(412,3): warning CS0618: 'Random.seed' is obsolete: 'Deprecated. Use InitState() function or Random.state property instead.'
+Assets\Scripts\Legacy\Debug\Cheats.cs(297,26): warning CS0168: The variable 'e' is declared but never used
+Assets\Scripts\Domain\Economy\ItemType\ComponentItem.cs(21,47): warning CS0612: 'ComponentInfo.SerializeToInt64()' is obsolete
+Assets\Scripts\Legacy\Debug\Cheats.cs(353,41): warning CS0612: 'ComponentInfo.FromInt64(IDatabase, long)' is obsolete
+Assets\Scripts\Gui\Combat\RadarPanel.cs(61,17): warning CS0219: The variable 'simpleRadarIndex' is assigned but its value is never used
+Assets\Scripts\Legacy\Debug\Cheats.cs(417,57): warning CS0612: 'ComponentInfo.SerializeToInt64()' is obsolete
+Assets\Scripts\GameServices\OfflineMultiplayer\EnemyPlayerInfo.cs(61,30): warning CS0168: The variable 'e' is declared but never used
+Assets\Scripts\Legacy\GUI\ViewModel\CargoHold\ScrapPanelViewModel.cs(133,84): warning CS0612: 'ComponentInfo.SerializeToInt64()' is obsolete
+Assets\Scripts\Gui\ShipService\ShipLayoutPanel.cs(75,85): warning CS0612: 'IShipLayout.Size' is obsolete
+Assets\Scripts\Gui\ShipService\ShipLayoutPanel.cs(76,86): warning CS0612: 'IShipLayout.Size' is obsolete
+Assets\Scripts\Gui\ShipService\ShipLayoutPanel.cs(92,28): warning CS0612: 'IShipLayout.Size' is obsolete
+Assets\Scripts\Gui\ShipService\ShipLayoutPanel.cs(146,62): warning CS0612: 'IShipLayout.Size' is obsolete
+Assets\Scripts\Gui\ShipService\ShipLayoutPanel.cs(146,91): warning CS0612: 'IShipLayout.Size' is obsolete
+Assets\Scripts\Gui\MainMenu\SettingsProgress.cs(176,37): warning CS0618: 'Object.FindObjectsOfType<T>(bool)' is obsolete: 'Object.FindObjectsOfType has been deprecated. Use Object.FindObjectsByType instead which lets you decide whether you need the results sorted or not.  FindObjectsOfType sorts the results by InstanceID but if you do not need this using FindObjectSortMode.None is considerably faster.'
+Assets\Scripts\Gui\MainMenu\SettingsProgress.cs(178,38): warning CS0618: 'Object.FindObjectsOfType<T>(bool)' is obsolete: 'Object.FindObjectsOfType has been deprecated. Use Object.FindObjectsByType instead which lets you decide whether you need the results sorted or not.  FindObjectsOfType sorts the results by InstanceID but if you do not need this using FindObjectSortMode.None is considerably faster.'
+Assets\Scripts\Legacy\GUI\ViewModel\MainMenu\DevConsoleViewModel.cs(76,5): warning CS0162: Unreachable code detected
+Assets\Scripts\Gui\MainMenu\SettingsProgress.cs(259,60): warning CS0618: 'Object.FindObjectOfType<T>()' is obsolete: 'Object.FindObjectOfType has been deprecated. Use Object.FindFirstObjectByType instead or if finding any instance is acceptable the faster Object.FindAnyObjectByType'
+Assets\Scripts\Gui\MainMenu\MainMenu.cs(427,60): warning CS0618: 'Object.FindObjectOfType<T>()' is obsolete: 'Object.FindObjectOfType has been deprecated. Use Object.FindFirstObjectByType instead or if finding any instance is acceptable the faster Object.FindAnyObjectByType'
+Assets\Scripts\Gui\MainMenu\MainMenu.cs(609,60): warning CS0618: 'Object.FindObjectOfType<T>()' is obsolete: 'Object.FindObjectOfType has been deprecated. Use Object.FindFirstObjectByType instead or if finding any instance is acceptable the faster Object.FindAnyObjectByType'
+Assets\Scripts\Gui\MainMenu\MainMenu.cs(664,60): warning CS0618: 'Object.FindObjectOfType<T>()' is obsolete: 'Object.FindObjectOfType has been deprecated. Use Object.FindFirstObjectByType instead or if finding any instance is acceptable the faster Object.FindAnyObjectByType'
+Assets\Scripts\Legacy\GUI\LoadingScreen.cs(28,15): warning CS0414: The field 'LoadingScreen._coroutineRunning' is assigned but its value is never used
+Assets\Scripts\Legacy\GUI\LoadingScreen.cs(20,33): warning CS0414: The field 'LoadingScreen._delay' is assigned but its value is never used
+Assets\Scripts\Gui\Utils\BackButtonEvent.cs(12,39): warning CS0414: The field 'BackButtonEvent._ignoreIfStandaloneBuild' is assigned but its value is never used
+Assets\Scripts\Legacy\GUI\LoadingScreen.cs(133,18): warning CS0414: The field 'LoadingScreen._firstTime' is assigned but its value is never used
+Assets\Scripts\Legacy\GUI\ViewModel\StarMap\MilitaryPanelViewModel.cs(41,15): warning CS0414: The field 'MilitaryPanelViewModel._money' is assigned but its value is never used
+Assets\Editor\TexturePostProcessor.cs(45,13): warning CS0618: 'TextureImporter.spritePackingTag' is obsolete: 'Support for packing sprites through spritePackingTag has been removed. Please use SpriteAtlas instead.'
+Assets\Editor\ApplicationManager.cs(222,36): warning CS0618: 'PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup)' is obsolete: 'Use GetScriptingDefineSymbols(NamedBuildTarget buildTarget) instead'
+Assets\Editor\ApplicationManager.cs(232,13): warning CS0618: 'PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup, string)' is obsolete: 'Use SetScriptingDefineSymbols(NamedBuildTarget buildTarget, string defines) instead'
+Assets\Editor\ApplicationManager.cs(240,36): warning CS0618: 'PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup)' is obsolete: 'Use GetScriptingDefineSymbols(NamedBuildTarget buildTarget) instead'
+Assets\Editor\ApplicationManager.cs(252,13): warning CS0618: 'PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup, string)' is obsolete: 'Use SetScriptingDefineSymbols(NamedBuildTarget buildTarget, string defines) instead'
+Assets\Editor\AndroidDevelopmentBuild.cs(26,9): warning CS0618: 'PlayerSettings.SetApplicationIdentifier(BuildTargetGroup, string)' is obsolete: 'Use SetApplicationIdentifier(NamedBuildTarget buildTarget, string identifier) instead'
+Assets\Editor\AndroidDevelopmentBuild.cs(31,9): warning CS0618: 'PlayerSettings.SetScriptingBackend(BuildTargetGroup, ScriptingImplementation)' is obsolete: 'Use SetScriptingBackend(NamedBuildTarget buildTarget, ScriptingImplementation backend) instead'
+Assets\ReUI\Editor\ReUIQuickAndroidBuild.cs(31,13): warning CS0618: 'PlayerSettings.SetApplicationIdentifier(BuildTargetGroup, string)' is obsolete: 'Use SetApplicationIdentifier(NamedBuildTarget buildTarget, string identifier) instead'
+Assets\ReUI\Editor\ReUIQuickAndroidBuild.cs(37,13): warning CS0618: 'PlayerSettings.SetScriptingBackend(BuildTargetGroup, ScriptingImplementation)' is obsolete: 'Use SetScriptingBackend(NamedBuildTarget buildTarget, ScriptingImplementation backend) instead'
+AssetDatabase: script compilation time: 7.362818s
+Begin MonoManager ReloadAssembly
+- Loaded All Assemblies, in 10.988 seconds
+Start importing ProjectSettings/ProjectSettings.asset using Guid(00000000000000004000000000000000) (LibraryAssetImporter) -> (artifact id: '3471813e03c70f0eafeb5a5f713518d7') in 0.0123985 seconds
+Refreshing native plugins compatible for Editor in 505.79 ms, found 0 plugins.
+Native extension for Android target not found
+Native extension for WindowsStandalone target not found
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  0.592 seconds
+Domain Reload Profiling: 11577ms
+	BeginReloadAssembly (250ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (8ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (125ms)
+	RebuildCommonClasses (28ms)
+	RebuildNativeTypeToScriptingClass (10ms)
+	initialDomainReloadingComplete (22ms)
+	LoadAllAssembliesAndSetupDomain (10675ms)
+		LoadAssemblies (10070ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (684ms)
+			TypeCache.Refresh (637ms)
+				TypeCache.ScanAssembly (627ms)
+			BuildScriptInfoCaches (39ms)
+			ResolveRequiredComponents (7ms)
+	FinalizeReload (593ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (504ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (17ms)
+			SetLoadedEditorAssemblies (3ms)
+			BeforeProcessingInitializeOnLoad (99ms)
+			ProcessInitializeOnLoadAttributes (192ms)
+			ProcessInitializeOnLoadMethodAttributes (190ms)
+			AfterProcessingInitializeOnLoad (3ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (6ms)
+Start importing Assets/Sprites/Components/edge_drone_armor.png using Guid(206f7c1bfd7b8854881d8ec8f31d1437) (TextureImporter) -> (artifact id: '8f2b171eeb6b59425e8ae6e5df544062') in 0.0318921 seconds
+Start importing Assets/Sprites/Components/edge_defense_laser.png using Guid(113d3ca1b50d4ae4aa7b3debbeca46b9) (TextureImporter) -> (artifact id: 'd918587347908180af35f23a2dd27836') in 0.0433041 seconds
+Start importing Assets/Sprites/Components/edge_battery.png using Guid(f121fdf182dc8844693e3d9248b8f3fc) (TextureImporter) -> (artifact id: '1c7d3bf10c45eaa536edae42971ff57d') in 0.022115 seconds
+Start importing Assets/Sprites/Components/edge_drone_cannon.png using Guid(b2123c62c8d1db644b6ac74edddd0f83) (TextureImporter) -> (artifact id: 'bdd27adce376200a25a7a914e5ca4596') in 0.020832 seconds
+Start importing Assets/Sprites/Components/edge_emp_laser.png using Guid(a359316f8c6577c4893980852ebcd252) (TextureImporter) -> (artifact id: '298b37b47bc3bd1b9955627be69e26b0') in 0.0234064 seconds
+Start importing Assets/Sprites/Components/edge_defender.png using Guid(542ceece092e74f4685d33903e57d660) (TextureImporter) -> (artifact id: '29d68571ffaf5e966b35ab49f41e369f') in 0.0215164 seconds
+Start importing Assets/Sprites/Components/edge_predator_swarm.png using Guid(74a34a4ab03b0fb40a17e0e2f5106fcd) (TextureImporter) -> (artifact id: '756cae3d32af7768f2436326537f236c') in 0.0214419 seconds
+Start importing Assets/Sprites/Components/edge_drone_engine.png using Guid(958db59afc52e8449a1d666902b62474) (TextureImporter) -> (artifact id: 'a594ddae66d02603bf37536b50f193c8') in 0.0231256 seconds
+Start importing Assets/Sprites/Components/edge_drone_command.png using Guid(d6a1de5a89b44ec4f8f6e8d697197911) (TextureImporter) -> (artifact id: '06507c265a8f1a502ae1c81c6d630d2f') in 0.0233381 seconds
+Start importing Assets/Sprites/Components/edge_nano_storm.png using Guid(0894898ccb5ca0e42a36d5e0345be793) (TextureImporter) -> (artifact id: 'b5c01f14d9a89baecd127e65c0b76932') in 0.0238976 seconds
+Start importing Assets/Sprites/Components/edge_reactor.png using Guid(38857d3f382ac8549a4c8ea7e96f0603) (TextureImporter) -> (artifact id: 'a85ccb9871a3f2a40a37f1b38ecd8cb6') in 0.0225229 seconds
+Start importing Assets/Sprites/Components/edge_firewall_collapse.png using Guid(798377fc1365fe54f8fcffd2a9148fbc) (TextureImporter) -> (artifact id: '851fbbb461aaa9e427921b35763c024d') in 0.0245998 seconds
+Start importing Assets/Sprites/Components/edge_drone_reactor.png using Guid(3a9c07aee1d5e0d498531e2cb2bb2af3) (TextureImporter) -> (artifact id: '03c1b63923beb42c16b09556ab5e3eec') in 0.0216826 seconds
+Start importing Assets/Sprites/Components/edge_drone_hive.png using Guid(ea800ec61b9ad6a4582040f996030bd3) (TextureImporter) -> (artifact id: '49f7b93cc99bccf99277eef16a51b17c') in 0.0202059 seconds
+Start importing Assets/Sprites/Components/edge_nano_torpedo.png using Guid(5c533f1df277d7b41bc75658aae5d5f7) (TextureImporter) -> (artifact id: 'da2db13ee833ef8ce88e713edc1dc3f0') in 0.0230702 seconds
+Start importing Assets/Sprites/Components/edge_engine.png using Guid(3de65fcb80b09c34492793cbe9787fdc) (TextureImporter) -> (artifact id: '29d803b751b00e3508699db9f1d4d823') in 0.0211117 seconds
+Start importing Assets/Sprites/Components/edge_armor.png using Guid(5e0b1b2c9c430544e9b2b3906e9b4731) (TextureImporter) -> (artifact id: 'a73b3b224c55c9815d16f0d81cb2f40d') in 0.0215121 seconds
+Start importing Assets/Sprites/Components/edge_virus_code.png using Guid(1f7e98ec81230b146838beab8fbc3915) (TextureImporter) -> (artifact id: '7eaa42e2df620be17d98f1a998b11853') in 0.0233648 seconds
+Start importing Assets/Modules/Database/Resources/Database/Component/Stats/EdgeDroneEngine.json using Guid(008f0049d3f62e14ea3a0968cc205950) (TextScriptImporter) -> (artifact id: 'cb479f072b0b3254bb007932257259d5') in 0.0134336 seconds
+Start importing Assets/Modules/Database/Resources/Database/Weapon/EdgeDefenseLaser.json using Guid(c097e9665e3f2f74885c2709fa5acd0c) (TextScriptImporter) -> (artifact id: '34d3b2044da322ac042cd8fb777ef97b') in 0.0228827 seconds
+Start importing Assets/Modules/Database/Resources/Database/Component/Stats/EdgeDroneCommand.json using Guid(f0d2ff5235be6ce419f639587345c1a6) (TextScriptImporter) -> (artifact id: 'b2e347971e0bb9ff598d1499a26ae76d') in 0.0118094 seconds
+Start importing Assets/Modules/Database/Resources/Database/Ship/EdgeDefenseDrone.json using Guid(619af9e2246839b4385c423f5fd19292) (TextScriptImporter) -> (artifact id: 'f2955c408eb8c16d7f466dff484fd389') in 0.014397 seconds
+Start importing Assets/Modules/Database/Resources/Database/Component/Stats/EdgeDroneReactor.json using Guid(a13b98988cb290e4aa60ad98ef2c877f) (TextScriptImporter) -> (artifact id: '3780216a2c691489fcda4ab76bfb3562') in 0.0127082 seconds
+Start importing Assets/Modules/Database/Resources/Database/Component/Stats/EdgeDroneArmor.json using Guid(1240c3db08dd5464da64d3d8b6c9d6e5) (TextScriptImporter) -> (artifact id: 'ea3ced9ddcf8193960fbb33e36e6f9fe') in 0.0115306 seconds
+Start importing Assets/Modules/Database/Resources/Database/Ammunition/EdgeDroneCannon.json using Guid(6600af9ed49f3d04a836aa2ce574892a) (TextScriptImporter) -> (artifact id: '1b423d536e5dd7c15ca7490b23d6774f') in 0.0142065 seconds
+Start importing Assets/Modules/Database/Resources/Database/Weapon/EdgeDroneCannon.json using Guid(962db36b54d8f5c45ab0fa6486265e39) (TextScriptImporter) -> (artifact id: '2a261cb566190357dbd90067c126dcef') in 0.0116298 seconds
+Start importing Assets/Resources/Localization/Chinese/ThreeBody.xml using Guid(98f4a1bb6747b5846943e08bf4e4b41b) (TextScriptImporter) -> (artifact id: '31e2a60c20c13f31a785fd8263df6e9f') in 0.012435 seconds
+Start importing Assets/Modules/Database/Resources/Database/Ship/Builds/EdgeDefenseDrone.json using Guid(b8afab7dba058914b9bdea4e0bad2400) (TextScriptImporter) -> (artifact id: 'e4f0f829d2ccc4b17c89a6c60ed4f781') in 0.0639256 seconds
+Start importing Assets/Modules/Database/Resources/Database/Component/Stats/EdgeDefenseLaser.json using Guid(49d79757da39a2c468620680aa69dfe6) (TextScriptImporter) -> (artifact id: '4d5862bf9540c7bcb6971e404ffc4d97') in 0.0232557 seconds
+Start importing Assets/Modules/Database/Resources/Database/Ammunition/EdgeDefenseLaser.json using Guid(bb5a4b7aa9cb5804baeaee285da919c7) (TextScriptImporter) -> (artifact id: '9f69bcad7478866332da0a3f3fbb3b46') in 0.0244852 seconds
+Start importing Assets/Modules/Database/Resources/Database/Ship/EdgeDrone.json using Guid(0eafbb5005dc042419630716e3eac712) (TextScriptImporter) -> (artifact id: '924fba127c8e2eb42ea99882074723f5') in 0.0167976 seconds
+Start importing Assets/Modules/Database/Resources/Database/Component/EdgeDefenseLaser.json using Guid(6ed4852fefad10a40b6ae5a33f7ea917) (TextScriptImporter) -> (artifact id: '81fab56cf9504ee77a49aa392a51210b') in 0.0260809 seconds
+Start importing Assets/Modules/Database/Resources/Database/Component/EdgeFirewallCollapse.json using Guid(6f6299590e08d814e92548238557c287) (TextScriptImporter) -> (artifact id: 'ef89582d0edc2cd351f5a5d22de0b8af') in 0.0172904 seconds
+Start importing Assets/Modules/Database/Resources/Database/Ship/EdgePredatorDrone.json using Guid(7f52c096ab8544640a8af3a6da1b0e00) (TextScriptImporter) -> (artifact id: 'eed638e106bc14ce805aae04f6caa868') in 0.0151729 seconds
+Refreshing native plugins compatible for Editor in 6.05 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Asset Pipeline Refresh (id=356985c613da5b543909ada6f3bf0c0f): Total: 23.648 seconds - Initiated by InitialRefreshV2(ForceSynchronousImport)
+	Summary:
+		Imports: total=35 (actual=35, local cache=0, cache server=0)
+		Asset DB Process Time: managed=8 ms, native=5021 ms
+		Asset DB Callback time: managed=170 ms, native=62 ms
+		Scripting: domain reloads=1, domain reload time=10988 ms, compile time=7364 ms, other=31 ms
+		Project Asset Count: scripts=1397, non-scripts=4656
+		Asset File Changes: new=0, changed=1, moved=0, deleted=0
+		Scan Filter Count: 0
+	InvokeCustomDependenciesCallbacks: 0.001ms
+	InvokePackagesCallback: 54.741ms
+	ApplyChangesToAssetFolders: 0.481ms
+	Scan: 148.736ms
+	OnSourceAssetsModified: 0.746ms
+	CategorizeAssetsWithTransientArtifact: 1843.512ms
+	ProcessAssetsWithTransientArtifactChanges: 49.536ms
+	CategorizeAssets: 37.234ms
+	ImportOutOfDateAssets: 1887.577ms (-6254.373ms without children)
+		ImportManagerImport: 775.917ms (5.355ms without children)
+			ImportInProcess: 770.390ms
+			UpdateCategorizedAssets: 0.172ms
+		CompileScripts: 7364.405ms
+		ReloadNativeAssets: 0.007ms
+		UnloadImportedAssets: 0.200ms
+		ReloadImportedAssets: 0.003ms
+		EnsureUptoDateAssetsAreRegisteredWithGuidPM: 0.781ms
+		InitializingProgressBar: 0.009ms
+		PostProcessAllAssetNotificationsAddChangedAssets: 0.001ms
+		OnDemandSchedulerStart: 0.628ms
+	PostProcessAllAssets: 171.129ms
+	Hotreload: 8.028ms
+	GatherAllCurrentPrimaryArtifactRevisions: 0.002ms
+	UnloadStreamsBegin: 0.284ms
+	PersistCurrentRevisions: 0.401ms
+	UnloadStreamsEnd: 0.001ms
+	GenerateScriptTypeHashes: 3.021ms
+	Untracked: 19445.853ms
+
+Application.AssetDatabase Initial Refresh End
+Scanning for USB devices : 0.973ms
+Initializing Unity extensions:
+[MODES] ModeService[none].Initialize
+[MODES] ModeService[none].LoadModes
+[MODES] Loading mode Default (0) for mode-current-id-三体视界
+Unloading 75 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5091 unused Assets / (4.6 MB). Loaded Objects now: 5498.
+Memory consumption went from 168.1 MB to 163.5 MB.
+Total: 7.333700 ms (FindLiveObjects: 0.281900 ms CreateObjectMapping: 0.160600 ms MarkObjects: 4.877700 ms  DeleteObjects: 2.012500 ms)
+
+Batchmode quit successfully invoked - shutting down!
+Curl error 42: Callback aborted
+Killing ADB server in 0.0953413 seconds.
+[Physics::Module] Cleanup current backned.
+[Physics::Module] Id: 0xf2b8ea05
+Input System module state changed to: ShutdownInProgress.
+Input System polling thread exited.
+Input System module state changed to: Shutdown.
+[Licensing::IpcConnector] LicenseClient-Voidream-notifications channel disconnected successfully.
+[Licensing::IpcConnector] LicenseClient-Voidream channel disconnected successfully.
+AcceleratorClientConnectionCallback - disconnected - :0
+Cleanup mono
+Exiting batchmode successfully now!
+Exiting without the bug reporter. Application will terminate with return code 0

@@ -82,6 +82,16 @@ namespace Combat.Scene
 
             if (unit is IShip ship)
             {
+                // Fringe World mass-produced drones remain combat units, but
+                // they are intentionally not valid player radar-lock targets.
+                // This only affects explicit radar locking; weapons, collision
+                // and AI targeting keep their normal drone behaviour.
+                if (ship.Type.Class == UnitClass.Drone && ship.Type.FactionId == 25)
+                {
+                    _lockedTarget = null;
+                    return;
+                }
+
                 var detectable = RadarStatus.CanDetect(_activePlayerShip, ship);
                 var normalEnemy = CombatRelations.AreEnemiesForDisplay(_activePlayerShip.Type, ship.Type);
                 var convertedFallback = TemporaryConversionEffect.CanPlayerAttack(_activePlayerShip, ship);

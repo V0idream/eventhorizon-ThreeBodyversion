@@ -75,7 +75,16 @@ namespace Combat.Factory
                 return new EdgeDefenderDevice(ship, stats);
 
             if (deviceData.ComponentId == ThreeBodyContentRules.EdgeCounterElectronComponentId)
-                return new CounterElectronDevice(ship, stats, _spaceObjectFactory);
+                return new CounterElectronDevice(
+                    ship,
+                    stats,
+                    deviceData.KeyBinding >= 0 ? deviceData.KeyBinding : 0,
+                    _spaceObjectFactory,
+                    ship.Type.Side != UnitSide.Player);
+
+            if (deviceData.ComponentId == ThreeBodyContentRules.ReturnerUniverseRestartComponentId)
+                return new UniverseRestartDevice(ship, stats,
+                    deviceData.KeyBinding >= 0 ? deviceData.KeyBinding : 0);
 
             if (TryCreateSpecialEnergyShield(deviceData, ship, stats, out var specialShield))
                 return specialShield;
@@ -287,6 +296,9 @@ namespace Combat.Factory
                 case ThreeBodyContentRules.StasisFieldComponentId:
                     mode = EnergyShieldInteractionMode.Stasis;
                     break;
+                case ThreeBodyContentRules.ReturnerMirrorSeaFieldComponentId:
+                    mode = EnergyShieldInteractionMode.MirrorSea;
+                    break;
                 default:
                     device = null;
                     return false;
@@ -304,6 +316,11 @@ namespace Combat.Factory
                     : 0f;
             var shield = _satelliteFactory.CreateSpecialEnergyShield(
                 ship, prefab, stats.Size, stats.Color, mode, specialCost, stats.EnergyConsumption);
+            if (mode == EnergyShieldInteractionMode.MirrorSea && shield is EnergyShield mirrorSeaShield)
+            {
+                device = new MirrorSeaFieldDevice(ship, stats, deviceData.KeyBinding, mirrorSeaShield);
+                return true;
+            }
             var shieldDevice = new SpecialEnergyShieldDevice(ship, stats, deviceData.KeyBinding, mode);
             shieldDevice.AddTrigger(new AuxiliaryUnitAction(shieldDevice, shield));
             if (stats.Sound)

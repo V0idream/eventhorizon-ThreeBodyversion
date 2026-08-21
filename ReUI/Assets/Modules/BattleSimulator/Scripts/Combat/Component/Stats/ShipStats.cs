@@ -1,4 +1,4 @@
-﻿using Combat.Collision;
+using Combat.Collision;
 using Combat.Component.Mods;
 using Combat.Component.Unit;
 using Combat.Component.Unit.Classification;
@@ -97,6 +97,10 @@ namespace Combat.Component.Stats
                 impact.CorrosiveDamage = 0f;
                 impact.ShieldDamage = 0f;
             }
+
+            if (self is IShip affectedShip)
+                Combat.Collision.Behaviour.Action.RealityDistortionEffect.AmplifyIncomingDamage(
+                    affectedShip, ref impact);
 
             var resistance = Resistance;
             

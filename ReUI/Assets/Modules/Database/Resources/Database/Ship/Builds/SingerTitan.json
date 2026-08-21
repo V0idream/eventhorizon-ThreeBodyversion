@@ -78,6 +78,46 @@
       "Behaviour": 0
     },
     {
+      "ComponentId": 987,
+      "Quality": 0,
+      "Modification": 0,
+      "X": 20,
+      "Y": 38,
+      "BarrelId": 9,
+      "KeyBinding": 3,
+      "Behaviour": 0
+    },
+    {
+      "ComponentId": 987,
+      "Quality": 0,
+      "Modification": 0,
+      "X": 78,
+      "Y": 38,
+      "BarrelId": 10,
+      "KeyBinding": 3,
+      "Behaviour": 0
+    },
+    {
+      "ComponentId": 987,
+      "Quality": 0,
+      "Modification": 0,
+      "X": 20,
+      "Y": 52,
+      "BarrelId": 11,
+      "KeyBinding": 3,
+      "Behaviour": 0
+    },
+    {
+      "ComponentId": 987,
+      "Quality": 0,
+      "Modification": 0,
+      "X": 78,
+      "Y": 52,
+      "BarrelId": 12,
+      "KeyBinding": 3,
+      "Behaviour": 0
+    },
+    {
       "ComponentId": 961,
       "Quality": 0,
       "Modification": 0,

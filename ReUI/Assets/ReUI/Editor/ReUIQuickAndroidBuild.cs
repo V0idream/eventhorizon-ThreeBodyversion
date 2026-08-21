@@ -19,9 +19,9 @@ namespace ReUI.Editor
     {
         private const string PackageName = "com.threebody.EventHorizon";
         private const string ProductName = "三体视界";
-        private const string VersionName = "Beta8.37";
-        private const int VersionCode = 140047;
-        private const string OutputFileName = "ThreeBody-EventHorizon-Beta8.37.apk";
+        private const string VersionName = "Beta9.2";
+        private const int VersionCode = 140060;
+        private const string OutputFileName = "ThreeBody-EventHorizon-Beta9.2.apk";
 
         [MenuItem("Build/ReUI/Quick Android APK")]
         public static void Build()
@@ -58,6 +58,8 @@ namespace ReUI.Editor
             AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
             RefreshResourceLocator();
             ReUIValidation.ValidateBeta84();
+            ReUIValidation.ValidateAdventureMode();
+            ReUIValidation.ValidateWarpMissileAndCounterElectron();
 
             string[] scenes = EditorBuildSettings.scenes
                 .Where(scene => scene.enabled)

@@ -9,8 +9,8 @@ using UnityEngine;
 namespace Combat.Component.Controller
 {
     /// <summary>
-    /// Keeps ordinary homing guidance, but performs one short-range warp after
-    /// the missile has been in flight for two seconds.
+    /// Keeps ordinary homing guidance, but starts slowly and evaluates one
+    /// short-range warp after half a second.
     /// </summary>
     public sealed class WarpMissileController : IController
     {
@@ -27,10 +27,11 @@ namespace Combat.Component.Controller
         public void UpdatePhysics(float elapsedTime)
         {
             _homing.UpdatePhysics(elapsedTime);
-            if (_warped)
+            if (_warpAttempted)
                 return;
 
             _elapsed += elapsedTime;
+            ClampPreWarpVelocity();
             if (!_chargeEffectPlayed && _elapsed >= WarpDelay - ChargeEffectLeadTime)
             {
                 _chargeEffectPlayed = true;
@@ -41,19 +42,63 @@ namespace Combat.Component.Controller
             if (_elapsed < WarpDelay)
                 return;
 
+            // Evaluate the warp opportunity exactly once. A close target also
+            // consumes this opportunity, so the missile cannot warp later if
+            // the target subsequently moves away.
+            _warpAttempted = true;
             var target = _homing.Target;
             if (!target.IsActive())
+            {
+                RestoreCruiseVelocity();
                 return;
+            }
+
+            var departure = _unit.Body.WorldPosition();
+            if (BattlefieldGeometry.Distance(departure, target.Body.WorldPosition()) <= WarpSuppressionDistance)
+            {
+                RestoreCruiseVelocity();
+                return;
+            }
 
             WarpToTarget(target);
+        }
+
+        public void Retarget(IUnit target)
+        {
+            _homing.Retarget(target);
+        }
+
+        private void ClampPreWarpVelocity()
+        {
+            var body = _unit.Body;
+            var direction = body.Velocity;
+            if (direction.sqrMagnitude < 0.0001f)
+                direction = RotationHelpers.Direction(body.WorldRotation());
+            else
+                direction.Normalize();
+
+            var desired = direction * (_cruiseVelocity * PreWarpSpeedMultiplier);
+            body.ApplyAcceleration(desired - body.Velocity);
+        }
+
+        private void RestoreCruiseVelocity()
+        {
+            var body = _unit.Body;
+            var direction = body.Velocity;
+            if (direction.sqrMagnitude < 0.0001f)
+                direction = RotationHelpers.Direction(body.WorldRotation());
+            else
+                direction.Normalize();
+            body.ApplyAcceleration(direction * _cruiseVelocity - body.Velocity);
         }
 
         private void WarpToTarget(IUnit target)
         {
             var body = _unit.Body;
             var departure = body.WorldPosition();
-            var targetPosition = BattlefieldGeometry.NearestEquivalent(departure, target.Body.WorldPosition());
-            var approach = BattlefieldGeometry.Delta(departure, targetPosition);
+            var delta = BattlefieldGeometry.Delta(departure, target.Body.WorldPosition());
+            var targetPosition = departure + delta;
+            var approach = delta;
             if (approach.sqrMagnitude < 0.0001f)
                 approach = RotationHelpers.Direction(body.WorldRotation());
             else
@@ -76,7 +121,6 @@ namespace Combat.Component.Controller
                 body.ApplyAcceleration(finalDirection * _cruiseVelocity - body.Velocity);
             }
 
-            _warped = true;
         }
 
         private void SpawnEffect(Vector2 position, float size, float lifetime, float rotationSpeed)
@@ -100,12 +144,14 @@ namespace Combat.Component.Controller
         private readonly float _cruiseVelocity;
         private float _elapsed;
         private bool _chargeEffectPlayed;
-        private bool _warped;
+        private bool _warpAttempted;
 
         private const string WarpEffectName = "FlashAdditive";
-        private const float WarpDelay = 2f;
-        private const float ChargeEffectLeadTime = 0.35f;
+        private const float WarpDelay = 0.5f;
+        private const float ChargeEffectLeadTime = 0.2f;
+        private const float PreWarpSpeedMultiplier = 0.1f;
         private const float WarpArrivalDistance = 25f;
+        private const float WarpSuppressionDistance = 30f;
         private const float WarpEffectLifetime = 0.45f;
     }
 }

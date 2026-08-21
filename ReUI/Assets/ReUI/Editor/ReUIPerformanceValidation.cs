@@ -7,7 +7,7 @@ namespace ReUI.Editor
 {
     internal static class ReUIPerformanceValidation
     {
-        [MenuItem("Tools/ReUI/Validate Beta8.37 Performance")]
+        [MenuItem("Tools/ReUI/Validate Beta8.38 Performance")]
         public static void Validate()
         {
             var coordinator = Read(
@@ -175,7 +175,7 @@ namespace ReUI.Editor
                 "mobileMTRendering:", "Android: 1");
 
             Debug.Log(
-                "[Beta8.37 Performance Validation] projectileSnapshotCache=true, " +
+                "[Beta8.38 Performance Validation] projectileSnapshotCache=true, " +
                 "shipSnapshotCache=true, pointDefenseFullScansRemoved=true, " +
                 "droneFullScansRemoved=true, timeRift20Hz=true, " +
                 "parallelAi=true, lockFreeTargetSnapshots=true, " +

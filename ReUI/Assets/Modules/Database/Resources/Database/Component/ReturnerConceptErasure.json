@@ -1,0 +1,19 @@
+{
+  "ItemType": 1,
+  "Id": 996,
+  "Name": "$ReturnerConceptErasure",
+  "Description": "$ReturnerConceptErasureDescription",
+  "ContentSource": 1,
+  "DisplayCategory": 1,
+  "Availability": 1,
+  "ComponentStatsId": 968,
+  "Faction": 24,
+  "Level": 200,
+  "Icon": "returner_concept_erasure",
+  "Color": "#FFFFFF",
+  "Layout": "111111111111111111111111111111111111",
+  "CellType": "4",
+  "WeaponId": 163,
+  "AmmunitionId": 921,
+  "WeaponSlotType": "S"
+}

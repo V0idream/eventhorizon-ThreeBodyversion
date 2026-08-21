@@ -10,13 +10,13 @@ namespace GameDatabase.DataModel
         partial void OnDataDeserialized(ShipSerializable serializable, Database.Loader loader)
         {
             var barrels = serializable.Barrels ?? Array.Empty<BarrelSerializable>();
-            if (TryAddSingerWarpMissileSlots(serializable.Id, barrels.Length, out var slotLayout))
+            if (TryAddSingerWarpMissileSlots(serializable.Id, barrels.Length, out var slotLayout, out var warpBarrelCount))
             {
                 Layout = slotLayout;
-                var expandedBarrels = new BarrelSerializable[barrels.Length + 2];
+                var expandedBarrels = new BarrelSerializable[barrels.Length + warpBarrelCount];
                 Array.Copy(barrels, expandedBarrels, barrels.Length);
-                expandedBarrels[barrels.Length] = CreateSingerWarpMissileBarrel();
-                expandedBarrels[barrels.Length + 1] = CreateSingerWarpMissileBarrel();
+                for (var index = 0; index < warpBarrelCount; ++index)
+                    expandedBarrels[barrels.Length + index] = CreateSingerWarpMissileBarrel();
                 barrels = expandedBarrels;
             }
 
@@ -52,7 +52,7 @@ namespace GameDatabase.DataModel
 
             for (var row = 0; row < 3; ++row)
             for (var column = 0; column < 3; ++column)
-                data[(y + row) * size + x + column] = (char)Enums.CellType.Special;
+                data[(y + row) * size + x + column] = (char)Enums.CellType.Inner;
 
             layout = new Layout(new string(data));
             return true;
@@ -75,38 +75,39 @@ namespace GameDatabase.DataModel
             return true;
         }
 
-        private bool TryAddSingerWarpMissileSlots(int shipId, int barrelCount, out Layout layout)
+        private bool TryAddSingerWarpMissileSlots(int shipId, int barrelCount, out Layout layout, out int addedBarrels)
         {
             layout = Layout;
+            addedBarrels = 0;
 
             int leftX;
             int rightX;
-            int y;
+            int[] rows;
             int expectedBarrels;
             switch (shipId)
             {
                 case 11001: // Singer cruiser
                     leftX = 12;
                     rightX = 41;
-                    y = 24;
+                    rows = new[] { 24 };
                     expectedBarrels = 3;
                     break;
                 case 11002: // Singer battleship
                     leftX = 11;
                     rightX = 56;
-                    y = 32;
+                    rows = new[] { 25, 32 };
                     expectedBarrels = 4;
                     break;
                 case 11003: // Singer flagship
                     leftX = 16;
                     rightX = 69;
-                    y = 38;
+                    rows = new[] { 31, 38 };
                     expectedBarrels = 7;
                     break;
                 case 11004: // Singer titan
                     leftX = 20;
                     rightX = 78;
-                    y = 45;
+                    rows = new[] { 38, 45, 52 };
                     expectedBarrels = 7;
                     break;
                 default:
@@ -121,13 +122,20 @@ namespace GameDatabase.DataModel
 
             var data = Layout.Data.ToCharArray();
             var size = Layout.Size;
-            if (!CanAddWeaponRect(data, size, leftX, y, 3, 6) ||
-                !CanAddWeaponRect(data, size, rightX, y, 3, 6))
-                return false;
+            foreach (var y in rows)
+            {
+                if (!CanAddWeaponRect(data, size, leftX, y, 3, 6) ||
+                    !CanAddWeaponRect(data, size, rightX, y, 3, 6))
+                    return false;
+            }
 
-            AddWeaponRect(data, size, leftX, y, 3, 6);
-            AddWeaponRect(data, size, rightX, y, 3, 6);
+            foreach (var y in rows)
+            {
+                AddWeaponRect(data, size, leftX, y, 3, 6);
+                AddWeaponRect(data, size, rightX, y, 3, 6);
+            }
             layout = new Layout(new string(data));
+            addedBarrels = rows.Length * 2;
             return true;
         }
 

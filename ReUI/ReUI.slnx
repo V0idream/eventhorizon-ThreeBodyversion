@@ -1,8 +1,8 @@
 ﻿<Solution>
+  <Project Path="BattleSimulator.csproj" />
   <Project Path="Database.csproj" />
   <Project Path="Zenject.csproj" />
   <Project Path="ShipConstructor.csproj" />
-  <Project Path="BattleSimulator.csproj" />
   <Project Path="Assembly-CSharp.csproj" />
   <Project Path="UniRx.csproj" />
   <Project Path="CommonComponents.csproj" />

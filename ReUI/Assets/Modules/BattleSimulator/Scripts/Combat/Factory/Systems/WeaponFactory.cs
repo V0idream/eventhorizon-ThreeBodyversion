@@ -39,6 +39,8 @@ namespace Combat.Factory
                     : StrategicFieldEffect.FieldKind.DarkDomain;
                 return CreateStrategicFieldWeapon(stats, weaponData.KeyBinding, bulletFactory, platform, owner, kind);
             }
+            if (weaponData.Ammunition.Id.Value == ThreeBodyContentRules.ReturnerFractalAmmunitionId)
+                return CreateFractalWeapon(stats, weaponData.KeyBinding, bulletFactory, platform, owner);
             if (weaponData.Weapon.Id.Value == 137)
                 // Point defence is autonomous.  It must not reserve an action button
                 // even if an old saved layout contains a key binding.
@@ -170,6 +172,19 @@ namespace Combat.Factory
             var weapon = new AutoPointDefenseCannon(platform, weaponStats, bulletFactory, keyBinding, _scene, owner);
             if (weaponStats.ShotSound)
                 weapon.AddTrigger(new SoundEffect(_services.SoundPlayer, weaponStats.ShotSound, ConditionType.OnActivate));
+            var effect = CreateEffect(weaponStats, bulletFactory);
+            if (effect != null)
+                weapon.AddTrigger(CreateFlashEffect(effect, bulletFactory, platform));
+            return weapon;
+        }
+
+        private IWeapon CreateFractalWeapon(WeaponStats weaponStats, int keyBinding,
+            IBulletFactory bulletFactory, IWeaponPlatform platform, IShip owner)
+        {
+            var weapon = new FractalWeapon(platform, weaponStats, bulletFactory, keyBinding, _scene, owner);
+            if (weaponStats.ShotSound)
+                weapon.AddTrigger(new SoundEffect(_services.SoundPlayer, weaponStats.ShotSound,
+                    ConditionType.OnActivate));
             var effect = CreateEffect(weaponStats, bulletFactory);
             if (effect != null)
                 weapon.AddTrigger(CreateFlashEffect(effect, bulletFactory, platform));

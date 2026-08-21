@@ -1,0 +1,16 @@
+{
+  "ItemType": 1,
+  "Id": 990,
+  "Name": "$ReturnerNeutronArmor",
+  "Description": "$ReturnerNeutronArmorDescription",
+  "ContentSource": 1,
+  "DisplayCategory": 2,
+  "Availability": 1,
+  "ComponentStatsId": 962,
+  "Faction": 24,
+  "Level": 200,
+  "Icon": "returner_neutron_armor",
+  "Color": "#FFFFFF",
+  "Layout": "1111",
+  "CellType": "1"
+}

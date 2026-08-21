@@ -1,0 +1,19 @@
+{
+  "ItemType": 1,
+  "Id": 995,
+  "Name": "$ReturnerFractal",
+  "Description": "$ReturnerFractalDescription",
+  "ContentSource": 1,
+  "DisplayCategory": 1,
+  "Availability": 1,
+  "ComponentStatsId": 967,
+  "Faction": 24,
+  "Level": 200,
+  "Icon": "returner_fractal",
+  "Color": "#FFFFFF",
+  "Layout": "011100011100011100011100011100011100",
+  "CellType": "4",
+  "WeaponId": 162,
+  "AmmunitionId": 920,
+  "WeaponSlotType": "C"
+}

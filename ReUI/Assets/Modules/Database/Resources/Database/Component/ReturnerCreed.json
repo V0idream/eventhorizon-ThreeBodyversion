@@ -1,0 +1,19 @@
+{
+  "ItemType": 1,
+  "Id": 993,
+  "Name": "$ReturnerCreed",
+  "Description": "$ReturnerCreedDescription",
+  "ContentSource": 1,
+  "DisplayCategory": 1,
+  "Availability": 1,
+  "ComponentStatsId": 965,
+  "Faction": 24,
+  "Level": 200,
+  "Icon": "returner_creed",
+  "Color": "#FFFFFF",
+  "Layout": "0011100001110000111000011100001110000111000011100",
+  "CellType": "4",
+  "WeaponId": 160,
+  "AmmunitionId": 918,
+  "WeaponSlotType": "C"
+}

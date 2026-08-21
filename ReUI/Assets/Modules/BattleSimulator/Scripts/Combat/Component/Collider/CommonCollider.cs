@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Combat.Collision.Manager;
 using Combat.Component.Body;
@@ -60,6 +60,15 @@ namespace Combat.Component.Collider
 
         public float MaxRange { get; set; }
         public bool OneHitOnly { get; set; }
+        public IReadOnlyList<Collider2D> PhysicalColliders => AllColliders;
+        /// <summary>
+        /// Most projectiles collapse contacts from multiple colliders that
+        /// belong to the same unit into one logical hit. Fractal projectiles
+        /// deliberately opt out: every distinct collider-enter callback is a
+        /// real hit, while trigger/collision stay callbacks remain suppressed
+        /// by OneHitOnly so a single overlap is not charged every physics tick.
+        /// </summary>
+        public bool CountPhysicalColliderHits { get; set; }
         public float StuckTime => _activeCollisionFrameCount * Time.fixedDeltaTime;
 
         public IUnit ActiveCollision => _activeCollision;
@@ -85,6 +94,7 @@ namespace Combat.Component.Collider
 			Source = null;
             LastCollision = null;
             OneHitOnly = _ignoreTriggerStayEvent;
+            CountPhysicalColliderHits = false;
             if (this) Enabled = true;
             _activeCollision = null;
             _cachedColliders = null;
@@ -146,7 +156,7 @@ namespace Combat.Component.Collider
             if (ShouldReplaceActiveTrigger(ActiveTrigger, other.Unit))
                 ActiveTrigger = other.Unit;
 
-            var isNew = _recentTrigger != other.Unit;
+            var isNew = CountPhysicalColliderHits || _recentTrigger != other.Unit;
             _recentTrigger = other.Unit;
 
             LastContactPoint = GetTriggerContactPoint(collider);
@@ -215,7 +225,7 @@ namespace Combat.Component.Collider
             var other = collision.collider.gameObject.GetComponent<ICollider>();
             if (!IsValidCollider(other)) return;
 
-            if (!TryAddActiveCollision(other.Unit))
+            if (!CountPhysicalColliderHits && !TryAddActiveCollision(other.Unit))
                 return;
 
             LastCollision = other.Unit;

@@ -195,6 +195,13 @@ namespace Combat.Factory
             else if (_ammunition.Id.Value == 913)
                 collisionBehaviour.AddAction(new StasisAction());
 
+            if (_ammunition.Id.Value == ThreeBodyContentRules.ReturnerCreedAmmunitionId)
+                collisionBehaviour.AddAction(new CreedDamageAction(150_000f));
+            else if (_ammunition.Id.Value == ThreeBodyContentRules.ReturnerTidalAmmunitionId)
+                collisionBehaviour.AddAction(new TidalCollisionAction(_owner));
+            else if (_ammunition.Id.Value == ThreeBodyContentRules.ReturnerConceptErasureAmmunitionId)
+                collisionBehaviour.AddAction(new ConceptErasureCollisionAction(_scene, _owner));
+
             if (_statModifier.PiercingBeam)
                 collisionBehaviour.AddAction(new SelfDestructAction(4));
 
@@ -348,7 +355,8 @@ namespace Combat.Factory
             if (_ammunition.Id.Value == 170)
                 return new StrategicWeaponController(bullet, _scene, _owner, _stats.Range,
                     StrategicWeaponController.WeaponKind.DarkDomain);
-
+            if (_ammunition.Id.Value == ThreeBodyContentRules.ReturnerCreedAmmunitionId)
+                return new CreedProjectileController(bullet, _owner, guidanceTarget, bulletSpeed, 150_000f);
             var range = _stats.Range;
             var weight = _stats.Weight;
 
@@ -398,7 +406,9 @@ namespace Combat.Factory
                     break;
             }
 
-            if (_ammunition.Id.Value == 916 && controller is HomingController warpHoming)
+            if ((_ammunition.Id.Value == 916 ||
+                 _ammunition.Id.Value == ThreeBodyContentRules.ReturnerTidalAmmunitionId) &&
+                controller is HomingController warpHoming)
                 controller = new WarpMissileController(bullet, warpHoming, _effectFactory, _stats.Color, bulletSpeed);
 
             if (BulletShape.IsBeam() && !_ammunition.Controller.Continuous && bulletSpeed > 0)

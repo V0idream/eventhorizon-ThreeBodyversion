@@ -1,4 +1,4 @@
-﻿using Combat.Collision.Behaviour;
+using Combat.Collision.Behaviour;
 using Combat.Collision.Behaviour.Action;
 using Combat.Collision.Manager;
 using Combat.Component.Body;
@@ -188,7 +188,8 @@ namespace Combat.Factory
             // collision response. Always restore the prefab value for other
             // special shields because pooled shield objects can be reused.
             var nonBlockingField = interactionMode == EnergyShieldInteractionMode.Electronic ||
-                                   interactionMode == EnergyShieldInteractionMode.Stasis;
+                                   interactionMode == EnergyShieldInteractionMode.Stasis ||
+                                   interactionMode == EnergyShieldInteractionMode.MirrorSea;
             var circleCollider = gameObject.GetComponent<CircleCollider2D>();
             if (circleCollider != null)
                 circleCollider.isTrigger = nonBlockingField;

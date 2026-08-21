@@ -1,0 +1,16 @@
+{
+  "ItemType": 1,
+  "Id": 989,
+  "Name": "$ReturnerZeroPointReactor",
+  "Description": "$ReturnerZeroPointReactorDescription",
+  "ContentSource": 1,
+  "DisplayCategory": 3,
+  "Availability": 1,
+  "ComponentStatsId": 961,
+  "Faction": 24,
+  "Level": 200,
+  "Icon": "returner_zero_point_reactor",
+  "Color": "#FFFFFF",
+  "Layout": "1111",
+  "CellType": "2"
+}

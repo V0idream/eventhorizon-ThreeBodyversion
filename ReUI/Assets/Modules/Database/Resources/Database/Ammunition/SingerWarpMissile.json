@@ -9,7 +9,7 @@
     "Range": 700.0,
     "Lifetime": 8.0,
     "Color": "#D9F7FF",
-    "BulletPrefab": 22,
+    "BulletPrefab": 25,
     "EnergyCost": 260.0,
     "CanBeDisarmed": true,
     "AiBulletBehavior": 1

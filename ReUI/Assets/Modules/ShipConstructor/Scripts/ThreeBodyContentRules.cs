@@ -32,6 +32,24 @@ namespace Constructor
         public const int EdgeDefenderComponentId = 983;
         public const int StasisFieldComponentId = 986;
         public const int EdgeCounterElectronComponentId = 988;
+        public const int ReturnerZeroPointReactorComponentId = 989;
+        public const int ReturnerNeutronArmorComponentId = 990;
+        public const int ReturnerMirrorSeaFieldComponentId = 991;
+        public const int ReturnerHyperspaceEngineComponentId = 992;
+        public const int ReturnerCreedComponentId = 993;
+        public const int ReturnerTidalComponentId = 994;
+        public const int ReturnerFractalComponentId = 995;
+        public const int ReturnerConceptErasureComponentId = 996;
+        public const int ReturnerUniverseRestartComponentId = 997;
+        public const int ReturnerCreedAmmunitionId = 918;
+        public const int ReturnerTidalAmmunitionId = 919;
+        public const int ReturnerFractalAmmunitionId = 920;
+        public const int ReturnerConceptErasureAmmunitionId = 921;
+        public const int ReturnerExperimentalPlatformId = 955;
+        public const int ReturnerPiShipId = 11030;
+        public const int ReturnerLawShipId = 11031;
+        public const int ReturnerDeathShipId = 11032;
+        public const int ReturnerOrderShipId = 11033;
         public const int EdgeDefenseDroneShipId = 11012;
         public const int WanNianFengXueShipId = 94009;
         public const int WanNianFengXueBuildId = 94009;
@@ -101,6 +119,15 @@ namespace Constructor
             EdgeDroneHiveComponentId,
             EdgeDefenderComponentId,
             StasisFieldComponentId,
+            ReturnerZeroPointReactorComponentId,
+            ReturnerNeutronArmorComponentId,
+            ReturnerMirrorSeaFieldComponentId,
+            ReturnerHyperspaceEngineComponentId,
+            ReturnerCreedComponentId,
+            ReturnerTidalComponentId,
+            ReturnerFractalComponentId,
+            ReturnerConceptErasureComponentId,
+            ReturnerUniverseRestartComponentId,
         };
 
         private const string CreativeWorkshopBuildPreference = "ThreeBody.CreativeWorkshop.BuildId";

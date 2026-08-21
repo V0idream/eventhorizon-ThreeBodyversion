@@ -9,9 +9,9 @@
   "ComponentStatsId": 959,
   "Faction": 25,
   "Level": 200,
-  "Icon": "edge_firewall_collapse",
+  "Icon": "edge_counter_electron",
   "Color": "#FFFFFF",
   "Layout": "111111111",
-  "CellType": "6",
+  "CellType": "2",
   "DeviceId": 918
 }

@@ -27,6 +27,15 @@ namespace Combat.Component.Controller
 
         public IUnit Target => _target;
 
+        public void Retarget(IUnit target)
+        {
+            _forcedTarget = IsValidTarget(target) ? target : null;
+            _preferredTarget = _forcedTarget;
+            _target = _forcedTarget;
+            UpdateGuidanceTarget();
+            _timeFromLastUpdate = 0f;
+        }
+
         public void Dispose() { }
 
         public void UpdatePhysics(float elapsedTime)
@@ -46,6 +55,10 @@ namespace Combat.Component.Controller
 
         private IUnit FindTarget()
         {
+            if (IsValidTarget(_forcedTarget))
+                return _forcedTarget;
+            _forcedTarget = null;
+
             if (_unit.Type.Side == UnitSide.Player)
             {
                 // Prefer the player's current explicit lock. If it disappears
@@ -142,6 +155,7 @@ namespace Combat.Component.Controller
         private readonly bool _smartAim;
         private IUnit _target;
         private IUnit _preferredTarget;
+        private IUnit _forcedTarget;
         private readonly IUnit _unit;
         private readonly IScene _scene;
         private readonly float _maxVelocity;

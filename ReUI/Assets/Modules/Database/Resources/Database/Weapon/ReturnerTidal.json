@@ -1,0 +1,11 @@
+{
+  "ItemType": 3,
+  "Id": 161,
+  "WeaponClass": 0,
+  "FireRate": 0.10,
+  "ActivationType": 1,
+  "ShotSound": "shot_01",
+  "ShotEffectPrefab": "OrbAdditive",
+  "EffectSize": 2.5,
+  "ControlButtonIcon": "controls_missile"
+}

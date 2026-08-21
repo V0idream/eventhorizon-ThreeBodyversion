@@ -1,4 +1,4 @@
-﻿using Combat.Component.Body;
+using Combat.Component.Body;
 using Constructor;
 using GameDatabase.DataModel;
 using GameDatabase.Enums;
@@ -54,6 +54,18 @@ namespace Combat.Factory
 			get
 			{
 				WeaponCapability capability = 0;
+				// Returner weapons apply their damage through bespoke collision
+				// handlers instead of database ImpactEffectType.Damage entries.  The
+				// AI weapon selector only sees this capability bit, so without this
+				// bridge a Returner Pi spawned as an Adventure enemy owns two lethal
+				// weapons but is classified as completely unarmed and never attacks.
+				var ammunitionId = _ammunition.Id.Value;
+				if (ammunitionId == ThreeBodyContentRules.ReturnerCreedAmmunitionId ||
+				    ammunitionId == ThreeBodyContentRules.ReturnerTidalAmmunitionId ||
+				    ammunitionId == ThreeBodyContentRules.ReturnerFractalAmmunitionId ||
+				    ammunitionId == ThreeBodyContentRules.ReturnerConceptErasureAmmunitionId)
+					capability |= WeaponCapability.DamageEnemy;
+
 				for (int i = 0; i < _ammunition.Effects.Count; ++i)
 				{
 					switch (_ammunition.Effects[i].Type)

@@ -93,6 +93,35 @@
     <string name="ThreeBody_FourDimensionalSpace">四维空间占位科技</string>
     <string name="ThreeBodyPlaceholderDescription">第一阶段占位内容，后续将替换为正式装置与科技。</string>
 
+    <string name="ReturnerPi">圆周率</string>
+    <string name="ReturnerPiDescription">归零者战列舰。以超高密度能源系统维持重型跨空间武器阵列。</string>
+    <string name="ReturnerLaw">法则</string>
+    <string name="ReturnerLawDescription">归零者旗舰。其舰体与武器系统体现了对常规物理规律的主动改写。</string>
+    <string name="ReturnerDeath">死神</string>
+    <string name="ReturnerDeathDescription">归零者泰坦。搭载概念抹除与大规模递归火力，是归零者主力决战舰。</string>
+    <string name="ReturnerOrder">秩序</string>
+    <string name="ReturnerOrderDescription">归零者空间站。以极高密度能源、装甲与反射场维持区域控制。</string>
+    <string name="ReturnerZeroPointReactor">零点能反应炉</string>
+    <string name="ReturnerZeroPointReactorDescription">从真空涨落中持续抽取能量的归零者反应炉，容量与恢复速度远超歌者能源设备。</string>
+    <string name="ReturnerNeutronArmor">中子护甲</string>
+    <string name="ReturnerNeutronArmorDescription">以极端致密物质构成的归零者装甲，对动能、能量、热与腐蚀损伤均具有极高抗性。</string>
+    <string name="ReturnerMirrorSeaField">镜海反射场</string>
+    <string name="ReturnerMirrorSeaFieldDescription">开启后消耗舰船能量和独立镜海储量，将进入场内的敌方弹体以原有效果反射回攻击者附近。储量关闭时缓慢恢复。</string>
+    <string name="ReturnerHyperspaceEngine">超空间引擎</string>
+    <string name="ReturnerHyperspaceEngineDescription">归零者高速推进系统，提供1800推进力与1800转向能力。</string>
+    <string name="ReturnerCreed">信条</string>
+    <string name="ReturnerCreedDescription">在目标背后生成逆向贯穿弹体，沿目标与发射舰之间的直线穿透，对经过的目标造成高额维度伤害。</string>
+    <string name="ReturnerTidal">潮汐</string>
+    <string name="ReturnerTidalDescription">跃迁命中后短暂拉伸目标舰体，并按舰体规模造成两阶段无视防御伤害。</string>
+    <string name="ReturnerFractal">分形</string>
+    <string name="ReturnerFractalDescription">展开C6六重旋转对称递归弹幕。每0.5秒递归一阶，最多12阶，弹体沿旋转轨迹穿透战场。</string>
+    <string name="ReturnerConceptErasure">概念抹除</string>
+    <string name="ReturnerConceptErasureDescription">命中后生成现实扭曲区域。小型舰船会被直接抹除，大型舰船则持续积累现实扭曲并承受更高伤害。</string>
+    <string name="ReturnerUniverseRestart">宇宙重启</string>
+    <string name="ReturnerUniverseRestartDescription">一次性终极装置。发动舰船自身退出战斗，清除战场中最多十艘其他舰船，并使其余我方舰船恢复为可重新部署状态。</string>
+    <string name="ReturnerExperimentalPlatform">归零者实验平台</string>
+    <string name="ReturnerExperimentalPlatformDescription">仅允许大型舰船搭载的4x4特殊实验平台，用于归零者高级装置。</string>
+
     <string name="EmptyDream">空幻之梦</string>
     <string name="EmptyDreamDescription">自由势力旗舰。舰体围绕高维能量骨架构筑，专用于三体模组测试。</string>
     <string name="TearTheStars">撕裂星辰</string>

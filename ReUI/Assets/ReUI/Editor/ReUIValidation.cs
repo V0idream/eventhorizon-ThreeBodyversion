@@ -1007,6 +1007,447 @@ namespace ReUI.Editor
                       "visualStyles=classic-modern-hull-outline, version=Beta8.4");
         }
 
+        [MenuItem("Tools/ReUI/Validate Adventure Mode")]
+        public static void ValidateAdventureMode()
+        {
+            string assets = Application.dataPath;
+            string mainMenu = File.ReadAllText(Path.Combine(assets, "Scripts/Gui/MainMenu/MainMenu.cs"));
+            string mainMenuState = File.ReadAllText(Path.Combine(assets, "Scripts/GameStateMachine/States/MainMenuState.cs"));
+            string run = File.ReadAllText(Path.Combine(assets, "Scripts/Domain/Adventure/AdventureRun.cs"));
+            string state = File.ReadAllText(Path.Combine(assets, "Scripts/GameStateMachine/States/AdventureState.cs"));
+            string combatModel = File.ReadAllText(Path.Combine(assets, "Scripts/Domain/Adventure/AdventureCombatModel.cs"));
+            string controller = File.ReadAllText(Path.Combine(assets, "Scripts/Combat/Manager/AdventureCombatController.cs"));
+            string guiHelper = File.ReadAllText(Path.Combine(assets, "Scripts/GameServices/Gui/GuiHelper.cs"));
+            string combatManager = File.ReadAllText(Path.Combine(assets, "Scripts/Combat/Manager/CombatManager.cs"));
+            string selection = File.ReadAllText(Path.Combine(assets, "Scripts/Gui/Combat/ShipSelectionPanel.cs"));
+            string editorState = File.ReadAllText(Path.Combine(assets, "Scripts/GameStateMachine/States/ShipEditorState.cs"));
+            string installer = File.ReadAllText(Path.Combine(assets, "Scripts/Installers/GameInstaller.cs"));
+            string combatInstaller = File.ReadAllText(Path.Combine(assets, "Scripts/Installers/CombatSceneInstaller.cs"));
+
+            RequireSourceTokens(mainMenu, "Adventure main-menu entry",
+                "EnsureAdventureButton()", "clone.name = \"Adventure\"", "冒险模式", "OpenAdventureShipPicker()",
+                "SizeClass.Frigate", "_startAdventureTrigger.Fire(ship)");
+            RequireSourceTokens(mainMenuState, "Adventure state transition",
+                "StartAdventureSignal", "_adventureRun.Begin(ship)", "CreateAdventureState()");
+            RequireSourceTokens(run, "Adventure isolated run state",
+                "CreateAdventureCopy(sourceShip)", "CloneInstalledComponent", "ApplyDeathPenalty()", "GetUpgradeChoices()", "GetBossBuild()",
+                "Math.Max(10, current)", "ComponentInfo.TryCreateRandomComponent", "AwardVictoryRewards()",
+                "_research.AddResearchPoints", "_playerInventory.Components.Add", "RememberHullCondition", "_hullConditions");
+            RequireSourceTokens(state, "Adventure combat state",
+                "StateType.Adventure", "GameScene.Combat", "AdventureCombatModel", "AdventureMode = true",
+                "RememberHullCondition(info.ShipData, info.Condition)");
+            RequireSourceTokens(combatModel, "Adventure hull-condition restoration",
+                "RestoreForNextActivation(run.GetHullCondition(info.ShipData))");
+            RequireSourceTokens(controller, "Adventure combat loop",
+                "StartNextWave()", "SpawnEnemyWave", "GetWaveEnemyCount", "GetWaveEnemyLevel", "data.SetLevel(level)",
+                "SpawnSupply", "SupplySearchTime", "UpgradeDropChance", "OfferUpgrade()",
+                "ship.State != UnitState.Destroyed", "ApplyDeathPenalty()", "StartBossStage()", "FinishVictory()", "FinishDefeat()",
+                "CreatePlanetaryFloatingContainer", "collaborative: true", "BattlefieldGeometry.SqrDistance",
+                "CreateSupplySearchPrompt(", "正在采集物资", "SetSupplySearchPrompt(nearest)",
+                "ShowSupplyCollectedAnimation(", "ShowLootWindow(products", "requireContinue: true", "RecordWaveCredits");
+            RequireSourceTokens(guiHelper, "Adventure loot continue button",
+                "AdventureContinueButton", "timer.enabled = false", "button.onClick.AddListener(window.Close)",
+                "requireContinue");
+            RequireSourceTokens(combatManager, "Adventure combat integration",
+                "_adventureRun.Active", "CanChangeShip()", "return _adventureRun.Defeat");
+            RequireSourceTokens(selection, "Adventure ship-selection modification",
+                "AdventureModifyButton", "改装", "AdventureEditShipSignal");
+            RequireSourceTokens(editorState, "Adventure isolated ship editor",
+                "AdventureMode", "AdventureShipEditorContext", "Inventory = run");
+            RequireSourceTokens(installer, "Adventure global bindings",
+                "Bind<AdventureRun>().AsSingle()", "Bind<AdventureState>()", "BindSignal<StartAdventureSignal>()",
+                "BindSignal<AdventureEditShipSignal>()");
+            RequireSourceTokens(combatInstaller, "Adventure combat-scene binding",
+                "AdventureCombatModel", "AdventureCombatController");
+
+            ValidateAdventureRuntimeUiSkeleton();
+            ValidateAdventureWaveCurve();
+
+            var database = new GameDatabase.Database();
+            database.LoadDefault();
+            var progression = database.ShipBuildList
+                .Where(Game.Adventure.AdventureRun.IsAdventureProgressionBuild)
+                .ToArray();
+            if (!progression.Any(item => item.Ship.SizeClass == GameDatabase.Enums.SizeClass.Frigate))
+                throw new InvalidOperationException("Adventure Mode has no player-available frigate starting builds.");
+            if (!progression.Any(item => item.Ship.ShipType == GameDatabase.Enums.ShipType.Flagship))
+                throw new InvalidOperationException("Adventure Mode has no player-available flagship progression builds.");
+            if (progression.Any(item => item.Ship.SizeClass == GameDatabase.Enums.SizeClass.Starbase ||
+                                        item.Ship.SizeClass == GameDatabase.Enums.SizeClass.TitanP))
+                throw new InvalidOperationException("Adventure progression incorrectly includes a starbase or TitanP hull.");
+
+            var incompleteFactions = progression
+                .Where(item => item.Ship.SizeClass == GameDatabase.Enums.SizeClass.Frigate && item.Faction != null)
+                .Select(item => item.Faction)
+                .Distinct()
+                .Where(faction =>
+                {
+                    var ranks = progression
+                        .Where(item => item.Faction != null && item.Faction.Id == faction.Id)
+                        .Select(Game.Adventure.AdventureRun.GetAdventureRank)
+                        .Distinct()
+                        .ToHashSet();
+                    return Enumerable.Range(0, 5).Any(rank => !ranks.Contains(rank));
+                })
+                .Select(item => item.Id.Value)
+                .OrderBy(item => item)
+                .ToArray();
+            var strandedFactions = progression
+                .Where(item => item.Ship.SizeClass == GameDatabase.Enums.SizeClass.Frigate && item.Faction != null)
+                .Select(item => item.Faction)
+                .Distinct()
+                .Where(faction => !progression.Any(item => item.Faction != null && item.Faction.Id == faction.Id &&
+                                                            Game.Adventure.AdventureRun.GetAdventureRank(item) >= 3))
+                .Select(item => item.Id.Value)
+                .OrderBy(item => item)
+                .ToArray();
+            if (strandedFactions.Length > 0)
+                throw new InvalidOperationException("Adventure starting factions have no capital-tier progression fallback: " +
+                                                    string.Join(",", strandedFactions));
+
+            var copyProbeBuild = progression.FirstOrDefault(item => item.Components.Count > 0);
+            if (copyProbeBuild == null)
+                throw new InvalidOperationException("Adventure copy isolation probe could not find a fitted ship build.");
+            var originalProbe = new Constructor.Ships.CommonShip(
+                new Constructor.Ships.ShipModel(copyProbeBuild, database),
+                copyProbeBuild.Components.Select(Constructor.ComponentExtensions.FromDatabase));
+            var copiedProbe = Game.Adventure.AdventureRun.CreateAdventureCopy(originalProbe);
+            var originalComponent = originalProbe.Components.FirstOrDefault();
+            var copiedComponent = copiedProbe.Components.FirstOrDefault();
+            if (originalComponent == null || copiedComponent == null || ReferenceEquals(originalComponent, copiedComponent))
+                throw new InvalidOperationException("Adventure ship copy shares an IntegratedComponent instance with the main ship.");
+            int originalBehaviour = originalComponent.Behaviour;
+            copiedComponent.Behaviour = originalBehaviour + 1000;
+            if (originalComponent.Behaviour != originalBehaviour)
+                throw new InvalidOperationException("Adventure component mutation leaked into the main ship copy source.");
+
+            ValidateAdventureRunRules(database, progression);
+
+            string startingInventory = File.ReadAllText(Path.Combine(assets,
+                "Modules/Database/Resources/Database/Settings/StartingInventory.json"));
+            if (!startingInventory.Contains("\"ItemId\": 91") ||
+                !startingInventory.Contains("\"MinAmount\": 10") ||
+                !startingInventory.Contains("\"MaxAmount\": 10"))
+                throw new InvalidOperationException("Starting inventory no longer provides the expected 10 TargetingUnit components.");
+
+            Debug.Log($"[Adventure Validation] progressionBuilds={progression.Length}, " +
+                      $"frigates={progression.Count(item => item.Ship.SizeClass == GameDatabase.Enums.SizeClass.Frigate)}, " +
+                      $"flagships={progression.Count(item => item.Ship.ShipType == GameDatabase.Enums.ShipType.Flagship)}, " +
+                      $"incompleteFactionChains={string.Join(",", incompleteFactions)}, " +
+                      "waves=5-to-10, levels=10-to-200, runState=isolated, supplies=searchable+animated, " +
+                      "deathPenalty=highest-tier, editPreservesHull=true, boss=flagship, rewards=loot-window+continue");
+        }
+
+        private static void ValidateAdventureWaveCurve()
+        {
+            MethodInfo countMethod = typeof(Combat.Manager.AdventureCombatController).GetMethod(
+                "GetWaveEnemyCount", BindingFlags.Static | BindingFlags.NonPublic);
+            MethodInfo levelMethod = typeof(Combat.Manager.AdventureCombatController).GetMethod(
+                "GetWaveEnemyLevel", BindingFlags.Static | BindingFlags.NonPublic);
+            if (countMethod == null || levelMethod == null)
+                throw new InvalidOperationException("Adventure wave-curve helpers were not found.");
+
+            int Count(int wave) => (int)countMethod.Invoke(null, new object[] { wave });
+            int Level(int wave) => (int)levelMethod.Invoke(null, new object[] { wave });
+            if (Count(1) != 5 || Count(5) != 5 || Count(6) != 6 || Count(25) != 9 ||
+                Count(26) != 10 || Count(100) != 10)
+                throw new InvalidOperationException(
+                    "Adventure enemy-count curve must start at 5, increase every five waves, and cap at 10.");
+            if (Level(1) != 10 || Level(10) != 100 || Level(20) != 200 || Level(21) != 200)
+                throw new InvalidOperationException(
+                    "Adventure enemy-level curve must increase by 10 per wave and cap at 200.");
+        }
+
+        [MenuItem("Tools/ReUI/Validate Warp Missile + Counter Electron")]
+        public static void ValidateWarpMissileAndCounterElectron()
+        {
+            string assets = Application.dataPath;
+            string warpComponent = File.ReadAllText(Path.Combine(assets,
+                "Modules/Database/Resources/Database/Component/SingerWarpMissile.json"));
+            string warpAmmo = File.ReadAllText(Path.Combine(assets,
+                "Modules/Database/Resources/Database/Ammunition/SingerWarpMissile.json"));
+            string warpExplosion = File.ReadAllText(Path.Combine(assets,
+                "Modules/Database/Resources/Database/Ammunition/SingerWarpMissileExplosion.json"));
+            string warpBullet = File.ReadAllText(Path.Combine(assets,
+                "Modules/Database/Resources/Database/Ammunition/Bullets/SingerWarpMissile.json"));
+            string warpController = File.ReadAllText(Path.Combine(assets,
+                "Modules/BattleSimulator/Scripts/Combat/Component/Controller/WarpMissileController.cs"));
+            string shipSource = File.ReadAllText(Path.Combine(assets,
+                "Modules/Database/Scripts/DataModel/Ship.cs"));
+            string counterComponent = File.ReadAllText(Path.Combine(assets,
+                "Modules/Database/Resources/Database/Component/EdgeCounterElectron.json"));
+            string counterDevice = File.ReadAllText(Path.Combine(assets,
+                "Modules/Database/Resources/Database/Device/EdgeCounterElectron.json"));
+            string counterRuntime = File.ReadAllText(Path.Combine(assets,
+                "Modules/BattleSimulator/Scripts/Combat/Component/Systems/Devices/CounterElectronDevice.cs"));
+            string deviceFactory = File.ReadAllText(Path.Combine(assets,
+                "Modules/BattleSimulator/Scripts/Combat/Factory/Systems/DeviceFactory.cs"));
+            string locatorSource = File.ReadAllText(Path.Combine(assets,
+                "Modules/ResourceLocator/Scripts/ResourceLocator.cs"));
+
+            RequireSourceTokens(warpComponent, "Singer warp missile component",
+                "\"Icon\": \"singer_warp_missile_launcher\"",
+                "\"Layout\": \"111000111000111000111000111000111000\"",
+                "\"CellType\": \"4\"", "\"WeaponSlotType\": \"M\"");
+            RequireSourceTokens(warpAmmo, "Singer warp missile ammunition",
+                "\"BulletPrefab\": 25", "\"Power\": 30000", "\"Ammunition\": 917");
+            RequireSourceTokens(warpExplosion, "Singer warp missile explosion",
+                "\"Power\": 30000", "\"DamageType\": 0");
+            RequireSourceTokens(warpBullet, "Singer warp missile projectile",
+                "\"Image\": \"rocket2\"", "\"Size\": 1.0", "\"Margins\": 0.4",
+                "\"SecondColor\": \"#56DFFFFF\"");
+            RequireSourceTokens(warpController, "Singer warp missile single warp",
+                "_warpAttempted = true", "WarpDelay = 0.5f", "PreWarpSpeedMultiplier = 0.1f",
+                "ClampPreWarpVelocity()", "RestoreCruiseVelocity()", "WarpArrivalDistance = 25f",
+                "WarpSuppressionDistance = 30f", "BattlefieldGeometry.Distance");
+            RequireSourceTokens(shipSource, "Singer launcher layout",
+                "rows = new[] { 24 }", "rows = new[] { 25, 32 }", "rows = new[] { 31, 38 }",
+                "rows = new[] { 38, 45, 52 }", "addedBarrels = rows.Length * 2",
+                "(char)Enums.CellType.Inner");
+            RequireSourceTokens(counterComponent, "Counter Electron green-slot component",
+                "\"Icon\": \"edge_counter_electron\"", "\"CellType\": \"2\"",
+                "\"Layout\": \"111111111\"");
+            RequireSourceTokens(counterDevice, "Counter Electron control icon",
+                "\"ControlButtonIcon\": \"edge_counter_electron\"");
+            RequireSourceTokens(counterRuntime, "Counter Electron active runtime",
+                "base(keyBinding, stats.ControlButtonIcon)", "Active && !_pressed", "CreateCounterElectronDecoy",
+                "CanBeActivated", "_autoActivate");
+            RequireSourceTokens(deviceFactory, "Counter Electron action-button binding",
+                "EdgeCounterElectronComponentId", "deviceData.KeyBinding >= 0 ? deviceData.KeyBinding : 0",
+                "ship.Type.Side != UnitSide.Player");
+            RequireSourceTokens(locatorSource, "embedded action-button fallback",
+                "GetControlButtonSprite(spriteId.Id) ?? GetEmbeddedThreeBodySprite(spriteId.Id)");
+
+            ValidateEmbeddedBase64Image(Path.Combine(assets,
+                "Resources/Embedded/ThreeBody/singer_warp_missile_launcher.bytes"), 128, 256);
+            ValidateEmbeddedBase64Image(Path.Combine(assets,
+                "Resources/Embedded/ThreeBody/edge_counter_electron.bytes"), 128, 128);
+
+            var database = new GameDatabase.Database();
+            database.LoadDefault();
+            var expectedBarrels = new Dictionary<int, int>
+            {
+                [11001] = 5,
+                [11002] = 8,
+                [11003] = 11,
+                [11004] = 13,
+            };
+            foreach (var pair in expectedBarrels)
+            {
+                var ship = database.GetShip(new ItemId<GameDatabase.DataModel.Ship>(pair.Key));
+                if (ship == null || ship == GameDatabase.DataModel.Ship.DefaultValue || ship.Barrels.Count != pair.Value)
+                    throw new InvalidOperationException(
+                        $"Singer ship {pair.Key} has {ship?.Barrels.Count ?? -1} barrels; expected {pair.Value}.");
+            }
+
+            string builds = Path.Combine(assets, "Modules/Database/Resources/Database/Ship/Builds");
+            ValidateComponentCount(Path.Combine(builds, "SingerCruiser.json"), 987, 2);
+            ValidateComponentCount(Path.Combine(builds, "SingerBattleship.json"), 987, 4);
+            ValidateComponentCount(Path.Combine(builds, "SingerFlagship.json"), 987, 4);
+            ValidateComponentCount(Path.Combine(builds, "SingerTitan.json"), 987, 6);
+            ValidateComponentCount(Path.Combine(builds, "edge_terminate.json"), 988, 1);
+            ValidateComponentCount(Path.Combine(builds, "edge_privilege.json"), 988, 1);
+            ValidateComponentKeyBinding(Path.Combine(builds, "edge_terminate.json"), 988, 0);
+            ValidateComponentKeyBinding(Path.Combine(builds, "edge_privilege.json"), 988, 0);
+
+            Debug.Log("[Warp/Counter Validation] warp=single@0.5s slow=10% skip<=30 arrive=25, projectile=rocket2-recolor, " +
+                      "launchers=2/4/4/6, counterElectron=active-button+green+edge-flagship+titan, art=embedded-hq");
+        }
+
+        private static void ValidateComponentKeyBinding(string path, int componentId, int expectedKeyBinding)
+        {
+            string source = File.ReadAllText(path);
+            string componentToken = "\"ComponentId\": " + componentId;
+            int componentIndex = source.IndexOf(componentToken, StringComparison.Ordinal);
+            if (componentIndex < 0)
+                throw new InvalidOperationException(Path.GetFileName(path) + " does not contain component " + componentId + ".");
+            int keyIndex = source.IndexOf("\"KeyBinding\": " + expectedKeyBinding, componentIndex, StringComparison.Ordinal);
+            if (keyIndex < 0 || keyIndex - componentIndex > 180)
+                throw new InvalidOperationException(Path.GetFileName(path) + " component " + componentId +
+                                                    " does not use KeyBinding " + expectedKeyBinding + ".");
+        }
+
+        private static void ValidateComponentCount(string path, int componentId, int expected)
+        {
+            string source = File.ReadAllText(path);
+            string token = "\"ComponentId\": " + componentId;
+            int count = source.Split(new[] { token }, StringSplitOptions.None).Length - 1;
+            if (count != expected)
+                throw new InvalidOperationException(Path.GetFileName(path) + " has " + count +
+                                                    " instances of component " + componentId + "; expected " + expected + ".");
+        }
+
+        private static void ValidateEmbeddedBase64Image(string path, int expectedWidth, int expectedHeight)
+        {
+            byte[] bytes = Convert.FromBase64String(File.ReadAllText(path).Trim());
+            var texture = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+            try
+            {
+                bool loaded = texture.LoadImage(bytes, false);
+                if (!loaded || texture.width != expectedWidth || texture.height != expectedHeight)
+                    throw new InvalidOperationException(Path.GetFileName(path) +
+                                                        $" is not the expected {expectedWidth}x{expectedHeight} embedded image " +
+                                                        $"(loaded={loaded}, actual={texture.width}x{texture.height}).");
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(texture);
+            }
+        }
+
+        private static void ValidateAdventureRunRules(GameDatabase.Database database,
+            GameDatabase.DataModel.ShipBuild[] progression)
+        {
+            var start = progression
+                .Where(item => item.Ship.SizeClass == GameDatabase.Enums.SizeClass.Frigate && item.Faction != null)
+                .FirstOrDefault(item => progression.Any(next => next.Faction != null && next.Faction.Id == item.Faction.Id &&
+                                                                Game.Adventure.AdventureRun.GetAdventureRank(next) > 0));
+            if (start == null)
+                throw new InvalidOperationException("Adventure runtime probe could not find an upgradeable frigate.");
+
+            var run = new Game.Adventure.AdventureRun(database, null, null, null);
+            run.Begin(new Constructor.Ships.CommonShip(start, database));
+            var targeting = new Constructor.ComponentInfo(database.GetComponent(new ItemId<GameDatabase.DataModel.Component>(91)));
+            if (run.GetQuantity(targeting) < 10)
+                throw new InvalidOperationException("Adventure runtime did not start with at least 10 TargetingUnit components.");
+            if (run.OwnedShips.Count != 1 || run.OwnedShips[0].Model.SizeClass != GameDatabase.Enums.SizeClass.Frigate)
+                throw new InvalidOperationException("Adventure runtime did not start with exactly one frigate copy.");
+
+            var hullProbeShip = run.OwnedShips[0];
+            run.RememberHullCondition(hullProbeShip, 0.42f);
+            var hullProbeModel = new Game.Adventure.AdventureCombatModel(run, database, null, 10);
+            var hullProbeInfo = hullProbeModel.Player.Ships.FirstOrDefault(item => ReferenceEquals(item.ShipData, hullProbeShip));
+            if (hullProbeInfo == null || Math.Abs(hullProbeInfo.Condition - 0.42f) > 0.001f)
+                throw new InvalidOperationException("Adventure combat rebuild restored an edited ship to full hull condition.");
+            run.RememberHullCondition(hullProbeShip, 1f);
+
+            var nextChoices = run.GetUpgradeChoices();
+            if (nextChoices.Count == 0)
+                throw new InvalidOperationException("Adventure runtime produced no first upgrade choice.");
+            var promoted = run.AddShip(nextChoices[0]);
+            if (promoted == null || run.OwnedShips.Count != 2)
+                throw new InvalidOperationException("Adventure runtime could not add the selected upgrade ship.");
+            int promotedRank = Game.Adventure.AdventureRun.GetAdventureRank(promoted);
+            var removed = run.ApplyDeathPenalty();
+            if (removed.Count == 0 || removed.Any(item => Game.Adventure.AdventureRun.GetAdventureRank(item) != promotedRank) ||
+                run.OwnedShips.Any(item => Game.Adventure.AdventureRun.GetAdventureRank(item) == promotedRank))
+                throw new InvalidOperationException("Adventure death penalty did not remove every hull in the highest owned tier.");
+            if (run.Defeat || !run.OwnedShips.Any(item => item.Model.SizeClass == GameDatabase.Enums.SizeClass.Frigate))
+                throw new InvalidOperationException("Adventure death penalty incorrectly failed a run that still owns a frigate.");
+            run.ApplyDeathPenalty();
+            if (!run.Defeat || run.OwnedShips.Any(item => item.Model.SizeClass == GameDatabase.Enums.SizeClass.Frigate))
+                throw new InvalidOperationException("Adventure run did not fail after all frigates were lost.");
+
+            ValidateAdventureFactionFallback(database, progression, 22, requireSkippedRank: true);
+            ValidateAdventureFactionFallback(database, progression, 16, requireSkippedRank: false);
+        }
+
+        private static void ValidateAdventureFactionFallback(GameDatabase.Database database,
+            GameDatabase.DataModel.ShipBuild[] progression, int factionId, bool requireSkippedRank)
+        {
+            var frigate = progression.FirstOrDefault(item => item.Faction != null && item.Faction.Id.Value == factionId &&
+                                                             item.Ship.SizeClass == GameDatabase.Enums.SizeClass.Frigate);
+            if (frigate == null)
+                return;
+
+            var run = new Game.Adventure.AdventureRun(database, null, null, null);
+            run.Begin(new Constructor.Ships.CommonShip(frigate, database));
+            bool skippedRank = false;
+            int guard = 0;
+            while (!run.BossStage && guard++ < 12)
+            {
+                int before = run.OwnedShips.Max(Game.Adventure.AdventureRun.GetAdventureRank);
+                var choices = run.GetUpgradeChoices();
+                if (choices.Count == 0)
+                    throw new InvalidOperationException($"Adventure faction {factionId} became stranded at rank {before}.");
+                int next = choices.Min(Game.Adventure.AdventureRun.GetAdventureRank);
+                if (next > before + 1)
+                    skippedRank = true;
+                if (run.AddShip(choices[0]) == null)
+                    throw new InvalidOperationException($"Adventure faction {factionId} could not add its next progression choice.");
+            }
+
+            if (!run.BossStage)
+                throw new InvalidOperationException($"Adventure faction {factionId} never reached its final boss stage.");
+            if (run.GetBossBuild() == null)
+                throw new InvalidOperationException($"Adventure faction {factionId} has no final boss or capital fallback.");
+            if (requireSkippedRank && !skippedRank)
+                throw new InvalidOperationException($"Adventure faction {factionId} fallback probe expected a missing intermediate tier.");
+        }
+
+        private static void ValidateAdventureRuntimeUiSkeleton()
+        {
+            Scene mainMenuScene = EditorSceneManager.OpenScene(MainMenuScenePath, OpenSceneMode.Single);
+            var mainMenu = mainMenuScene.GetRootGameObjects()
+                .SelectMany(item => item.GetComponentsInChildren<Gui.MainMenu.MainMenu>(true))
+                .FirstOrDefault();
+            if (mainMenu == null)
+                throw new InvalidOperationException("Adventure UI validation could not find MainMenu controller.");
+
+            MethodInfo ensureAdventure = typeof(Gui.MainMenu.MainMenu).GetMethod(
+                "EnsureAdventureButton", BindingFlags.Instance | BindingFlags.NonPublic);
+            if (ensureAdventure == null)
+                throw new InvalidOperationException("Adventure main-menu creation method was not found.");
+            ensureAdventure.Invoke(mainMenu, null);
+
+            Button quickBattle = mainMenu.GetComponentsInChildren<Button>(true)
+                .FirstOrDefault(item => item.name == "Combat");
+            Button adventure = mainMenu.GetComponentsInChildren<Button>(true)
+                .FirstOrDefault(item => item.name == "Adventure");
+            Button settings = mainMenu.GetComponentsInChildren<Button>(true)
+                .FirstOrDefault(item => Enumerable.Range(0, item.onClick.GetPersistentEventCount())
+                    .Any(index => item.onClick.GetPersistentMethodName(index) == "OpenSettings"));
+            if (quickBattle == null || adventure == null || settings == null)
+                throw new InvalidOperationException("Adventure main-menu entry could not be created from the authored Quick Battle button.");
+            if (adventure.transform.parent != quickBattle.transform.parent ||
+                adventure.transform.GetSiblingIndex() != quickBattle.transform.GetSiblingIndex() + 1)
+                throw new InvalidOperationException("Adventure entry is not positioned immediately after Quick Battle.");
+            if (settings.transform.parent != adventure.transform.parent)
+                throw new InvalidOperationException("Adventure and Settings entries do not share the same menu container.");
+            var visibleButtons = Enumerable.Range(0, adventure.transform.parent.childCount)
+                .Select(index => adventure.transform.parent.GetChild(index))
+                .Where(item => item.gameObject.activeSelf && item.GetComponent<Button>() != null)
+                .Select(item => item.GetComponent<Button>())
+                .ToList();
+            int visibleAdventureIndex = visibleButtons.IndexOf(adventure);
+            int visibleSettingsIndex = visibleButtons.IndexOf(settings);
+            if (visibleAdventureIndex < 0 || visibleSettingsIndex != visibleAdventureIndex + 1)
+                throw new InvalidOperationException("Adventure entry is not immediately before Settings in the visible main-menu order.");
+            if (!adventure.GetComponentsInChildren<Text>(true).Any(item => item.text == "冒险模式"))
+                throw new InvalidOperationException("Adventure main-menu entry does not display the required Chinese label.");
+
+            Scene combatScene = EditorSceneManager.OpenScene("Assets/Scenes/CombatScene.unity", OpenSceneMode.Single);
+            var selection = combatScene.GetRootGameObjects()
+                .SelectMany(item => item.GetComponentsInChildren<Gui.Combat.ShipSelectionPanel>(true))
+                .FirstOrDefault();
+            if (selection == null)
+                throw new InvalidOperationException("Adventure UI validation could not find ShipSelectionPanel.");
+
+            MethodInfo ensureModify = typeof(Gui.Combat.ShipSelectionPanel).GetMethod(
+                "EnsureAdventureModifyButton", BindingFlags.Instance | BindingFlags.NonPublic);
+            if (ensureModify == null)
+                throw new InvalidOperationException("Adventure ship-modification button creation method was not found.");
+            ensureModify.Invoke(selection, null);
+            Button modify = selection.GetComponentsInChildren<Button>(true)
+                .FirstOrDefault(item => item.name == "AdventureModifyButton");
+            if (modify == null || !modify.GetComponentsInChildren<Text>(true).Any(item => item.text == "改装"))
+                throw new InvalidOperationException("Adventure ship-selection modification button was not created correctly.");
+
+            // Reload an authored scene so this editor-only validation never
+            // leaves its runtime-created probe buttons in a dirty scene that a
+            // subsequent player build could accidentally observe.
+            EditorSceneManager.OpenScene(MainMenuScenePath, OpenSceneMode.Single);
+        }
+
+        private static void RequireSourceTokens(string source, string feature, params string[] tokens)
+        {
+            foreach (string token in tokens)
+            {
+                if (!source.Contains(token))
+                    throw new InvalidOperationException(feature + " is missing required implementation token: " + token);
+            }
+        }
+
         private static void ValidateEdgeComponentArtworkMapping()
         {
             string meshSource = File.ReadAllText(Path.Combine(Application.dataPath,

@@ -52,6 +52,7 @@ SpriteAtlas:
     packedSpriteRenderDataKeys:
     - f1c9ef306d5d98c4a9a2961e5e2b0d2d: 21300000
     - 73cf3a40ecaefe643a1fedd348ecc303: 21300000
+    - 1e0d73704506ecf44b77f3151b74fdcd: 21300000
     - aeef55c0b1b8f744c81535f5e39312ac: 21300000
     - 0b3594e00636624458bf1e004ee9636d: 21300000
     - f5ccaaf0fbf953f48ba9894f0354e942: 21300000
@@ -64,6 +65,7 @@ SpriteAtlas:
     - 668b59c1740c3f749aa02c4f574d0173: 21300000
     - e835dfe1537deb6458be1daa24d4cc75: 21300000
     - 873a8e0225d4393458e64b53254b6892: 21300000
+    - 199efe02d32cb764297c267e7d39dc62: 21300000
     - 2e0ad11218f391a41a2d9fe1922d552c: 21300000
     - a67a0c22c42d07449881385ee493d320: 21300000
     - 2eee11429d84a89408a1a163a3928fd2: 21300000
@@ -100,6 +102,7 @@ SpriteAtlas:
     - f14a7f065ec65564595871b2d78d8612: 21300000
     - 2492a9468d00bb143a1165c6b30b56ea: 21300000
     - 930e22c6e89e6974b83f65e1a7a45f78: 21300000
+    - 3355c4c699bd99043a520cb227c8ad4b: 21300000
     - dd8ceef64f5f2484f872c435f4b6f43b: 21300000
     - 9071b90767dc9f140bbe82f22a1e842c: 21300000
     - 79539437049153b40a4f027656c03dde: 21300000
@@ -111,6 +114,7 @@ SpriteAtlas:
     - 1d157238699f24b459a3f59d9480edd4: 21300000
     - 9b382538a6f00e345aef0e4cf893a960: 21300000
     - 8bd6fe48fa8d6724195ad0e9a51b4690: 21300000
+    - d15f0658b71bde74fa116ec9ac3aff3d: 21300000
     - 2588c88812a56e14896e7a3989544bbd: 21300000
     - 26224e889db8a9945a9b049045550cb9: 21300000
     - 9a9977c8c6934cf4fbbbbe07ebe6983e: 21300000
@@ -174,6 +178,7 @@ SpriteAtlas:
   m_PackedSprites:
   - {fileID: 21300000, guid: f1c9ef306d5d98c4a9a2961e5e2b0d2d, type: 3}
   - {fileID: 21300000, guid: 73cf3a40ecaefe643a1fedd348ecc303, type: 3}
+  - {fileID: 21300000, guid: 1e0d73704506ecf44b77f3151b74fdcd, type: 3}
   - {fileID: 21300000, guid: aeef55c0b1b8f744c81535f5e39312ac, type: 3}
   - {fileID: 21300000, guid: 0b3594e00636624458bf1e004ee9636d, type: 3}
   - {fileID: 21300000, guid: f5ccaaf0fbf953f48ba9894f0354e942, type: 3}
@@ -186,6 +191,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 668b59c1740c3f749aa02c4f574d0173, type: 3}
   - {fileID: 21300000, guid: e835dfe1537deb6458be1daa24d4cc75, type: 3}
   - {fileID: 21300000, guid: 873a8e0225d4393458e64b53254b6892, type: 3}
+  - {fileID: 21300000, guid: 199efe02d32cb764297c267e7d39dc62, type: 3}
   - {fileID: 21300000, guid: 2e0ad11218f391a41a2d9fe1922d552c, type: 3}
   - {fileID: 21300000, guid: a67a0c22c42d07449881385ee493d320, type: 3}
   - {fileID: 21300000, guid: 2eee11429d84a89408a1a163a3928fd2, type: 3}
@@ -222,6 +228,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: f14a7f065ec65564595871b2d78d8612, type: 3}
   - {fileID: 21300000, guid: 2492a9468d00bb143a1165c6b30b56ea, type: 3}
   - {fileID: 21300000, guid: 930e22c6e89e6974b83f65e1a7a45f78, type: 3}
+  - {fileID: 21300000, guid: 3355c4c699bd99043a520cb227c8ad4b, type: 3}
   - {fileID: 21300000, guid: dd8ceef64f5f2484f872c435f4b6f43b, type: 3}
   - {fileID: 21300000, guid: 9071b90767dc9f140bbe82f22a1e842c, type: 3}
   - {fileID: 21300000, guid: 79539437049153b40a4f027656c03dde, type: 3}
@@ -233,6 +240,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 1d157238699f24b459a3f59d9480edd4, type: 3}
   - {fileID: 21300000, guid: 9b382538a6f00e345aef0e4cf893a960, type: 3}
   - {fileID: 21300000, guid: 8bd6fe48fa8d6724195ad0e9a51b4690, type: 3}
+  - {fileID: 21300000, guid: d15f0658b71bde74fa116ec9ac3aff3d, type: 3}
   - {fileID: 21300000, guid: 2588c88812a56e14896e7a3989544bbd, type: 3}
   - {fileID: 21300000, guid: 26224e889db8a9945a9b049045550cb9, type: 3}
   - {fileID: 21300000, guid: 9a9977c8c6934cf4fbbbbe07ebe6983e, type: 3}
@@ -295,6 +303,7 @@ SpriteAtlas:
   m_PackedSpriteNamesToIndex:
   - f2s2
   - flagships
+  - returner_order
   - f4s4
   - f2s1_2
   - f7s3
@@ -307,6 +316,7 @@ SpriteAtlas:
   - fs3
   - starship_earth_cruiser
   - f2s3
+  - returner_pi
   - fns10
   - f6s4
   - f1s4
@@ -343,6 +353,7 @@ SpriteAtlas:
   - f1s2
   - starship_earth_destroyer_preview5
   - fns8
+  - returner_law
   - flagshipn
   - f6s1_2
   - f5s3
@@ -354,6 +365,7 @@ SpriteAtlas:
   - amoeba_icon
   - flagship2
   - edge_predator_drone
+  - returner_death
   - slime2
   - flagship8
   - f3s1_2

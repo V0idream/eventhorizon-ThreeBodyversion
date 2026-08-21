@@ -1,4 +1,4 @@
-﻿using GameDatabase.Enums;
+using GameDatabase.Enums;
 using GameDatabase.Extensions;
 using UnityEngine;
 
@@ -20,12 +20,35 @@ namespace Combat.Component.View
             _colorMode = colorMode;
         }
 
+        /// <summary>
+        /// Fractal ammunition is intentionally rendered as a mathematical point
+        /// rather than an art asset. Use Unity's built-in one-pixel texture so
+        /// no projectile texture has to be imported or packed into an atlas.
+        /// </summary>
+        public void UsePointSprite()
+        {
+            if (_defaultSprite == null)
+                _defaultSprite = _spriteRenderer.sprite;
+
+            if (_pointSprite == null)
+            {
+                _pointSprite = Sprite.Create(Texture2D.whiteTexture,
+                    new Rect(0f, 0f, 1f, 1f), new Vector2(0.5f, 0.5f), 4f);
+                _pointSprite.name = "RuntimeFractalPoint";
+            }
+
+            _spriteRenderer.sprite = _pointSprite;
+        }
+
         public virtual void SetMargins(float margins) { }
 
         public override void Dispose()
         {
             Opacity = 1.0f;
             Scale = 1.0f;
+            Size = 1.0f;
+            if (_defaultSprite != null)
+                _spriteRenderer.sprite = _defaultSprite;
         }
 
         protected override void UpdateLife(float life)
@@ -62,6 +85,7 @@ namespace Combat.Component.View
         protected override void OnGameObjectCreated()
         {
             _initialSize = _spriteRenderer.transform.localScale.z;
+            _defaultSprite = _spriteRenderer.sprite;
         }
 
         protected override void OnGameObjectDestroyed()
@@ -73,5 +97,7 @@ namespace Combat.Component.View
         protected SpriteRenderer SpriteRenderer { get { return _spriteRenderer; } }
 
         private float _initialSize;
+        private Sprite _defaultSprite;
+        private static Sprite _pointSprite;
     }
 }

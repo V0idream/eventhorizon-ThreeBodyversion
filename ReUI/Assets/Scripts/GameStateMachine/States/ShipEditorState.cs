@@ -20,6 +20,7 @@ using TextAsset = UnityEngine.TextAsset;
 using Debug = UnityEngine.Debug;
 using Resources = UnityEngine.Resources;
 using JsonUtility = UnityEngine.JsonUtility;
+using Game.Adventure;
 
 namespace GameStateMachine.States
 {
@@ -49,6 +50,10 @@ namespace GameStateMachine.States
 			{
 				container.Bind<IShipEditorContext>().To<DatabaseEditorContext>().AsSingle().WithArguments(_context.Ship);
 			}
+			else if (_context.AdventureMode)
+			{
+				container.Bind<IShipEditorContext>().To<AdventureShipEditorContext>().AsSingle().WithArguments(_context.Ship);
+			}
 			else
 			{
 				container.BindInterfacesTo<InventoryProvider>().AsTransient().WhenInjectedInto<ShipEditorContext>();
@@ -69,7 +74,45 @@ namespace GameStateMachine.States
 		{
 			public IShip Ship;
 			public bool DatabaseMode;
+			public bool AdventureMode;
 			public IGameState NextState;
+		}
+
+		private sealed class AdventureShipEditorContext : IShipEditorContext
+		{
+			private readonly MemoryPresetStorage _presets = new();
+			private readonly UpgradesProvider _upgrades = new();
+
+			public AdventureShipEditorContext(IShip ship, AdventureRun run)
+			{
+				Ship = ship;
+				Inventory = run;
+			}
+
+			public IShip Ship { get; }
+			public IInventoryProvider Inventory { get; }
+			public IShipDataProvider ShipDataProvider => new EmptyDataProvider();
+			public bool IsShipNameEditable => true;
+			public IShipPresetStorage ShipPresetStorage => _presets;
+			public IComponentUpgradesProvider UpgradesProvider => _upgrades;
+			public bool CanBeUnlocked(GameDatabase.DataModel.Component component) => true;
+		}
+
+		private sealed class MemoryPresetStorage : IShipPresetStorage
+		{
+			private readonly List<IShipPreset> _items = new();
+
+			public IEnumerable<IShipPreset> GetPresets(Ship ship) => _items.Where(item => item.Ship == ship);
+
+			public IShipPreset Create(Ship ship)
+			{
+				var preset = new ShipPreset(ship);
+				_items.Add(preset);
+				return preset;
+			}
+
+			public void Update(IShipPreset preset) { }
+			public void Delete(IShipPreset preset) => _items.Remove(preset);
 		}
 
 		private class ShipEditorContext : IShipEditorContext

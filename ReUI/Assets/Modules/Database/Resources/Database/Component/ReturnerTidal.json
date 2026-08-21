@@ -1,0 +1,19 @@
+{
+  "ItemType": 1,
+  "Id": 994,
+  "Name": "$ReturnerTidal",
+  "Description": "$ReturnerTidalDescription",
+  "ContentSource": 1,
+  "DisplayCategory": 1,
+  "Availability": 1,
+  "ComponentStatsId": 966,
+  "Faction": 24,
+  "Level": 200,
+  "Icon": "returner_tidal",
+  "Color": "#FFFFFF",
+  "Layout": "001100001100001100001100001100001100",
+  "CellType": "4",
+  "WeaponId": 161,
+  "AmmunitionId": 919,
+  "WeaponSlotType": "M"
+}

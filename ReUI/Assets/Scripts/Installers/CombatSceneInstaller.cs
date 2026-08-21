@@ -14,6 +14,7 @@ using GameServices.SceneManager;
 using UnityEngine;
 using Zenject;
 using GameServices.Multiplayer;
+using Game.Adventure;
 
 namespace Installers
 {
@@ -48,6 +49,8 @@ namespace Installers
             Container.BindInterfacesTo<Messenger>().AsSingle().WithArguments(GameScene.Combat);
 
 			Container.BindInterfacesAndSelfTo<CombatManager>().AsSingle().NonLazy();
+            if (_combatModel is AdventureCombatModel)
+                Container.BindInterfacesAndSelfTo<AdventureCombatController>().AsSingle().NonLazy();
             Container.BindInterfacesTo<MultiplayerBattleSync>().AsSingle().NonLazy();
             Container.BindInterfacesTo<ViewRect>().AsTransient();
             Container.BindInterfacesTo<Scene>().AsSingle().WithArguments(new SceneSettings { AreaWidth = areaSize, AreaHeight = areaSize }).NonLazy();

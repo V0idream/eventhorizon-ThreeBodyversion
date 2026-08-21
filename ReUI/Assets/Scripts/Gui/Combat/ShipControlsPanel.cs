@@ -129,7 +129,8 @@ namespace Gui.Combat
             return _ship != null && _ship.IsActive() && id >= 0 && id < _ship.Systems.All.Count &&
                    (_ship.Systems.All[id] is DimensionalAscensionDevice ||
                     _ship.Systems.All[id] is SophonGuidanceDevice ||
-                    _ship.Systems.All[id] is SpecialEnergyShieldDevice);
+                    _ship.Systems.All[id] is SpecialEnergyShieldDevice ||
+                    _ship.Systems.All[id] is MirrorSeaFieldDevice);
         }
 
         private bool TryRequestSophonActivation(int id)

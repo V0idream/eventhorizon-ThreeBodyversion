@@ -1,0 +1,21 @@
+{
+  "ItemType": 25,
+  "Id": 921,
+  "Body": {
+    "Size": 1.0,
+    "Weight": 0.05,
+    "Velocity": 260.0,
+    "Range": 750.0,
+    "Lifetime": 5.0,
+    "Color": "#BEEFFFFF",
+    "BulletPrefab": 24,
+    "EnergyCost": 30000.0,
+    "CanBeDisarmed": false
+  },
+  "Controller": {
+    "Type": 1,
+    "StartingVelocityModifier": 0.5
+  },
+  "ImpactType": 0,
+  "Effects": []
+}

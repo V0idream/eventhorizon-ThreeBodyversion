@@ -25,8 +25,10 @@ using GameDatabase.Extensions;
 using Combat.Ai.Calculations;
 using Combat.Component.Platform;
 using Combat.Component.Systems.Weapons;
+using Combat.Component.Systems.Devices;
 using GameServices.Player;
 using GameServices.Captains;
+using Game.Adventure;
 
 namespace Combat.Manager
 {
@@ -73,6 +75,7 @@ namespace Combat.Manager
         [Inject] private readonly Settings _settings;
         [Inject] private readonly RadarPanel _radarPanel;
         [Inject] private readonly ICombatModel _combatModel;
+        [Inject] private readonly AdventureRun _adventureRun;
 
         public void Initialize()
         {
@@ -200,6 +203,12 @@ namespace Combat.Manager
 
         public void CreateShip(IShipInfo ship)
         {
+            if (_adventureRun.Active && ship != null && ship.Side == UnitSide.Player)
+            {
+                var adventureAlly = _combatModel.AllyFleet.Ships.FirstOrDefault(item =>
+                    ReferenceEquals(item.ShipData, ship.ShipData) && item.Status == ShipStatus.Active);
+                adventureAlly?.Destroy();
+            }
             CreateShip(ship, _scene.FindFreePlace(40, ship.Side));
         }
 
@@ -260,6 +269,8 @@ namespace Combat.Manager
 
         public bool CanChangeShip()
         {
+            if (_adventureRun.Active)
+                return _combatModel.PlayerFleet.Ships.Any(item => item.Status != ShipStatus.Destroyed);
             if (_combatModel.Rules.ShipSelection != PlayerShipSelectionMode.Default) return false;
             return _combatModel.PlayerFleet.IsAnyShipLeft();
         }
@@ -338,8 +349,99 @@ namespace Combat.Manager
             if (_combatModel == null)
                 return;
 
+            ProcessUniverseRestartRequest();
+
             ApplyPendingCaptainBonus();
             UpdateLocalGame();
+        }
+
+        private void ProcessUniverseRestartRequest()
+        {
+            if (!UniverseRestartRuntime.TryConsume(out var source) || source == null)
+                return;
+
+            // Universe Restart is a player-side emergency reset. Enemy AI does
+            // not own the ship-selection UI and therefore cannot execute the
+            // player-facing replacement flow safely.
+            if (source.Type.Side != UnitSide.Player)
+                return;
+
+            var sourceInfo = _combatModel.PlayerFleet.GetInfo(source);
+            if (sourceInfo == null)
+                return;
+
+            // "Clear the battlefield" is capped at ten ships. The restart hull
+            // itself always pays the activation price and is not counted toward
+            // that cap. When more than ten other ships are present, choose ten
+            // without replacement rather than favoring a side or size class.
+            var candidates = _scene.Ships.Items
+                .Where(item => item != null && item != source && item.IsActive())
+                .ToList();
+            var clearCount = Mathf.Min(10, candidates.Count);
+            for (var i = 0; i < clearCount; ++i)
+            {
+                var index = Random.Range(i, candidates.Count);
+                (candidates[i], candidates[index]) = (candidates[index], candidates[i]);
+                var clearedShip = candidates[i];
+                if (clearedShip.Type.Side == UnitSide.Enemy)
+                {
+                    // Vanish() only makes a ShipInfo Ready again, so the old
+                    // implementation appeared to erase enemies and then simply
+                    // respawned them. Mark the fleet entry Destroyed instead.
+                    var enemyInfo = _combatModel.EnemyFleet.GetInfo(clearedShip);
+                    if (enemyInfo != null)
+                        enemyInfo.Destroy();
+                    else
+                        clearedShip.Vanish();
+                }
+                else
+                {
+                    clearedShip.Vanish();
+                }
+            }
+
+            source.Vanish();
+            if (_adventureRun.Active)
+                _adventureRun.RemoveShip(sourceInfo.ShipData);
+            _combatModel.PlayerFleet.Remove(sourceInfo);
+
+            // Every surviving player-owned hull is restored to a clean ready
+            // state, including ships destroyed before the reset was activated.
+            // Active player ships are withdrawn first so the user makes an
+            // explicit post-reset selection instead of being auto-deployed.
+            foreach (var info in _combatModel.PlayerFleet.Ships.ToArray())
+            {
+                if (info.ShipUnit != null && info.ShipUnit.IsActive())
+                    info.ShipUnit.Vanish();
+                if (info is ShipInfo concrete)
+                    concrete.RestoreForNextActivation(1f);
+            }
+
+            // Universe Restart restores friendly participants too. They remain
+            // allies rather than being moved into the player's selectable list.
+            foreach (var info in _combatModel.AllyFleet.Ships.ToArray())
+            {
+                if (info.ShipUnit != null && info.ShipUnit.IsActive())
+                    info.ShipUnit.Vanish();
+                if (info is ShipInfo concrete)
+                    concrete.RestoreForNextActivation(1f);
+            }
+
+            if (_combatModel.PlayerFleet.Ships.Count == 0)
+            {
+                // The activating hull is consumed by the device. With no other
+                // player hull to restore/select, the reset is an immediate loss
+                // rather than an empty ship-selection screen.
+                if (_adventureRun.Active)
+                    _adventureRun.MarkDefeat();
+                _manualShipChangePending = false;
+                _nextPlayerShipCooldown = _nextShipMaxCooldown + 1f;
+                return;
+            }
+
+            _manualShipChangePending = true;
+            _nextPlayerShipCooldown = 0f;
+            _shipSelectionPanel.Open(_combatModel);
         }
 
         private void TryRestoreZhangBeihaiShip(IShip destroyedShip)
@@ -438,7 +540,7 @@ namespace Combat.Manager
                     TryCallNextEnemyAutomatically();
                 }
 
-                if (ActiveEnemyCount() == 0 && _combatModel.EnemyFleet.AnyAvailableShip() == null)
+                if (!_adventureRun.Active && ActiveEnemyCount() == 0 && _combatModel.EnemyFleet.AnyAvailableShip() == null)
                 {
                     _battleEndCooldown += Time.deltaTime;
                     if (_battleEndCooldown >= _nextShipMaxCooldown)
@@ -683,6 +785,9 @@ namespace Combat.Manager
 
         private bool IsPlayerDefeated()
         {
+            if (_adventureRun.Active)
+                return _adventureRun.Defeat;
+
             if (_combatModel.DefenseStarbase != null &&
                 _combatModel.DefenseStarbase.Status != ShipStatus.Destroyed)
                 return false;

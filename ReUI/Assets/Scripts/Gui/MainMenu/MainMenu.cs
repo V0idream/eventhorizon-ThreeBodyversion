@@ -39,6 +39,7 @@ namespace Gui.MainMenu
         private void Initialize(
             StartGameSignal.Trigger startGameTrigger,
             StartQuickBattleSignal.Trigger startBattleTrigger,
+			StartAdventureSignal.Trigger startAdventureTrigger,
 			OpenEhopediaSignal.Trigger openEchopediaTrigger,
 			OpenShipEditorSignal.Trigger openShipEditorTrigger,
 			IMessenger messenger,
@@ -49,6 +50,7 @@ namespace Gui.MainMenu
         {
             _startGameTrigger = startGameTrigger;
             _startBattleTrigger = startBattleTrigger;
+			_startAdventureTrigger = startAdventureTrigger;
 			_openShipEditorTrigger = openShipEditorTrigger;
             _openEchopediaTrigger = openEchopediaTrigger;
             _gameSession = gameSession;
@@ -61,6 +63,7 @@ namespace Gui.MainMenu
             _inputField.text = _gameSettings.EditorText;
             ThreeBodyUiPalette.Configure(_database.UiSettings);
             ApplyThreeBodyBranding();
+			EnsureAdventureButton();
 
             messenger.AddListener(EventType.SessionCreated, UpdateButtons);
             messenger.AddListener(EventType.DatabaseLoaded, OnDatabaseLoaded);
@@ -102,6 +105,220 @@ namespace Gui.MainMenu
             _guiManager.OpenWindow(Common.WindowNames.SelectDifficultyDialog, OnDialogClosed);
             StartCoroutine(ConfigureQuickBattleFleetToggle());
         }
+
+		public void StartAdventure()
+		{
+			OpenAdventureShipPicker();
+		}
+
+		private void EnsureAdventureButton()
+		{
+			if (transform.root.Find("Adventure") != null)
+				return;
+
+			var buttons = GetComponentsInChildren<Button>(true);
+			var quickBattle = buttons.FirstOrDefault(item => item != null && item.name == "Combat");
+			if (quickBattle == null)
+				return;
+
+			var parent = quickBattle.transform.parent;
+			if (parent.Find("Adventure") != null)
+				return;
+
+			var clone = Instantiate(quickBattle.gameObject, parent, false);
+			clone.name = "Adventure";
+			clone.transform.SetSiblingIndex(quickBattle.transform.GetSiblingIndex() + 1);
+			var button = clone.GetComponent<Button>();
+			button.onClick = new Button.ButtonClickedEvent();
+			button.onClick.AddListener(StartAdventure);
+			button.interactable = true;
+
+			foreach (var text in clone.GetComponentsInChildren<Text>(true))
+			{
+				if (!string.IsNullOrWhiteSpace(text.text))
+					text.text = "冒险模式";
+			}
+
+			// The clone may already contain the quick-battle icon if ReUI styled the
+			// source before MainMenu.Initialize. Replace it immediately instead of
+			// waiting for a later styling scan.
+			ReUI.ReUICanvasStyler.ForceSemanticIcon(button, ReUI.ReUIIconKind.StarMap);
+		}
+
+		private void OpenAdventureShipPicker()
+		{
+			var frigates = _playerFleet?.Ships
+				.Where(ship => ship != null && ship.Model != null && ship.Model.SizeClass == GameDatabase.Enums.SizeClass.Frigate)
+				.ToList() ?? new List<Constructor.Ships.IShip>();
+			if (frigates.Count == 0)
+			{
+				_guiHelper.ShowMessageBox("冒险模式需要至少拥有一艘护卫舰。先在正常游戏中获得护卫舰后再进入。");
+				return;
+			}
+
+			if (_adventurePicker != null)
+				Destroy(_adventurePicker);
+
+			var canvas = GetComponentInParent<Canvas>();
+			if (canvas == null)
+				canvas = FindFirstObjectByType<Canvas>();
+			if (canvas == null)
+				return;
+
+			_adventurePicker = new GameObject("AdventureShipPicker", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+			_adventurePicker.layer = canvas.gameObject.layer;
+			var root = _adventurePicker.GetComponent<RectTransform>();
+			root.SetParent(canvas.transform, false);
+			root.anchorMin = Vector2.zero;
+			root.anchorMax = Vector2.one;
+			root.offsetMin = Vector2.zero;
+			root.offsetMax = Vector2.zero;
+			root.SetAsLastSibling();
+			_adventurePicker.GetComponent<Image>().color = new Color(0.005f, 0.008f, 0.025f, 0.92f);
+
+			var panel = CreateAdventureUiObject("Panel", root, typeof(Image));
+			var panelRect = panel.GetComponent<RectTransform>();
+			panelRect.anchorMin = new Vector2(0.18f, 0.1f);
+			panelRect.anchorMax = new Vector2(0.82f, 0.9f);
+			panelRect.offsetMin = Vector2.zero;
+			panelRect.offsetMax = Vector2.zero;
+			panel.GetComponent<Image>().color = ThreeBodyUiPalette.PanelSoft;
+
+			var title = CreateAdventureText("Title", panelRect, "冒险模式 - 选择初始护卫舰", 34, TextAnchor.MiddleCenter);
+			var titleRect = title.rectTransform;
+			titleRect.anchorMin = new Vector2(0.05f, 0.86f);
+			titleRect.anchorMax = new Vector2(0.95f, 0.98f);
+			titleRect.offsetMin = Vector2.zero;
+			titleRect.offsetMax = Vector2.zero;
+
+			var note = CreateAdventureText("Note", panelRect,
+				"进入后舰船和临时组件均为冒险模式独立副本；正常存档中的原舰不会被死亡、降级或改装影响。",
+				20, TextAnchor.MiddleCenter);
+			var noteRect = note.rectTransform;
+			noteRect.anchorMin = new Vector2(0.07f, 0.76f);
+			noteRect.anchorMax = new Vector2(0.93f, 0.86f);
+			noteRect.offsetMin = Vector2.zero;
+			noteRect.offsetMax = Vector2.zero;
+
+			var scrollObject = CreateAdventureUiObject("Ships", panelRect, typeof(Image), typeof(ScrollRect));
+			var scrollRectTransform = scrollObject.GetComponent<RectTransform>();
+			scrollRectTransform.anchorMin = new Vector2(0.08f, 0.16f);
+			scrollRectTransform.anchorMax = new Vector2(0.92f, 0.75f);
+			scrollRectTransform.offsetMin = Vector2.zero;
+			scrollRectTransform.offsetMax = Vector2.zero;
+			scrollObject.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.25f);
+
+			var viewport = CreateAdventureUiObject("Viewport", scrollRectTransform, typeof(Image), typeof(Mask));
+			var viewportRect = viewport.GetComponent<RectTransform>();
+			viewportRect.anchorMin = Vector2.zero;
+			viewportRect.anchorMax = Vector2.one;
+			viewportRect.offsetMin = new Vector2(8f, 8f);
+			viewportRect.offsetMax = new Vector2(-8f, -8f);
+			viewport.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.02f);
+			viewport.GetComponent<Mask>().showMaskGraphic = false;
+
+			var content = CreateAdventureUiObject("Content", viewportRect,
+				typeof(VerticalLayoutGroup), typeof(ContentSizeFitter));
+			var contentRect = content.GetComponent<RectTransform>();
+			contentRect.anchorMin = new Vector2(0f, 1f);
+			contentRect.anchorMax = new Vector2(1f, 1f);
+			contentRect.pivot = new Vector2(0.5f, 1f);
+			contentRect.anchoredPosition = Vector2.zero;
+			contentRect.sizeDelta = Vector2.zero;
+			var layout = content.GetComponent<VerticalLayoutGroup>();
+			layout.spacing = 8f;
+			layout.padding = new RectOffset(8, 8, 8, 8);
+			layout.childControlWidth = true;
+			layout.childControlHeight = true;
+			layout.childForceExpandWidth = true;
+			layout.childForceExpandHeight = false;
+			var fitter = content.GetComponent<ContentSizeFitter>();
+			fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+			var scroll = scrollObject.GetComponent<ScrollRect>();
+			scroll.viewport = viewportRect;
+			scroll.content = contentRect;
+			scroll.horizontal = false;
+			scroll.vertical = true;
+			scroll.movementType = ScrollRect.MovementType.Clamped;
+
+			foreach (var ship in frigates)
+			{
+				var row = CreateAdventureUiObject("Ship", contentRect, typeof(Image), typeof(Button), typeof(LayoutElement));
+				row.GetComponent<Image>().color = ThreeBodyUiPalette.ButtonDim;
+				row.GetComponent<LayoutElement>().preferredHeight = 64f;
+				var label = CreateAdventureText("Label", row.GetComponent<RectTransform>(),
+					_localization.GetString(ship.Name) + "  Lv." + ship.Experience.Level,
+					24, TextAnchor.MiddleCenter);
+				label.rectTransform.anchorMin = Vector2.zero;
+				label.rectTransform.anchorMax = Vector2.one;
+				label.rectTransform.offsetMin = new Vector2(12f, 4f);
+				label.rectTransform.offsetMax = new Vector2(-12f, -4f);
+				var selectedShip = ship;
+				row.GetComponent<Button>().onClick.AddListener(() => StartSelectedAdventureShip(selectedShip));
+			}
+
+			var cancel = CreateAdventureUiObject("Cancel", panelRect, typeof(Image), typeof(Button));
+			var cancelRect = cancel.GetComponent<RectTransform>();
+			cancelRect.anchorMin = new Vector2(0.35f, 0.035f);
+			cancelRect.anchorMax = new Vector2(0.65f, 0.13f);
+			cancelRect.offsetMin = Vector2.zero;
+			cancelRect.offsetMax = Vector2.zero;
+			cancel.GetComponent<Image>().color = ThreeBodyUiPalette.ButtonDim;
+			var cancelText = CreateAdventureText("Label", cancelRect, "取消", 24, TextAnchor.MiddleCenter);
+			cancelText.rectTransform.anchorMin = Vector2.zero;
+			cancelText.rectTransform.anchorMax = Vector2.one;
+			cancelText.rectTransform.offsetMin = Vector2.zero;
+			cancelText.rectTransform.offsetMax = Vector2.zero;
+			cancel.GetComponent<Button>().onClick.AddListener(CloseAdventureShipPicker);
+		}
+
+		private void StartSelectedAdventureShip(Constructor.Ships.IShip ship)
+		{
+			CloseAdventureShipPicker();
+			_startAdventureTrigger.Fire(ship);
+		}
+
+		private void CloseAdventureShipPicker()
+		{
+			if (_adventurePicker == null) return;
+			Destroy(_adventurePicker);
+			_adventurePicker = null;
+		}
+
+		private GameObject CreateAdventureUiObject(string name, Transform parent, params System.Type[] components)
+		{
+			var types = new List<System.Type> { typeof(RectTransform), typeof(CanvasRenderer) };
+			foreach (var type in components)
+				if (type != null && !types.Contains(type)) types.Add(type);
+			var result = new GameObject(name, types.ToArray());
+			result.layer = parent.gameObject.layer;
+			result.transform.SetParent(parent, false);
+			return result;
+		}
+
+		private Text CreateAdventureText(string name, Transform parent, string value, int size, TextAnchor alignment)
+		{
+			var obj = CreateAdventureUiObject(name, parent, typeof(Text));
+			var text = obj.GetComponent<Text>();
+			text.font = GetAdventureUiFont();
+			text.text = value;
+			text.fontSize = size;
+			text.resizeTextForBestFit = true;
+			text.resizeTextMinSize = 12;
+			text.resizeTextMaxSize = size;
+			text.alignment = alignment;
+			text.color = ThreeBodyUiPalette.AccentSoft;
+			return text;
+		}
+
+		private Font GetAdventureUiFont()
+		{
+			if (_adventureUiFont != null)
+				return _adventureUiFont;
+			_adventureUiFont = GetComponentsInChildren<Text>(true)
+				.FirstOrDefault(item => item != null && item.font != null)?.font;
+			return _adventureUiFont ?? Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+		}
 
 		public void OpenSettings()
 		{
@@ -858,6 +1075,9 @@ namespace Gui.MainMenu
 		private OpenShipEditorSignal.Trigger _openShipEditorTrigger;
 		private StartGameSignal.Trigger _startGameTrigger;
         private StartQuickBattleSignal.Trigger _startBattleTrigger;
+		private StartAdventureSignal.Trigger _startAdventureTrigger;
+		private GameObject _adventurePicker;
+		private Font _adventureUiFont;
         private OpenEhopediaSignal.Trigger _openEchopediaTrigger;
         private ISessionData _gameSession;
         private IGuiManager _guiManager;

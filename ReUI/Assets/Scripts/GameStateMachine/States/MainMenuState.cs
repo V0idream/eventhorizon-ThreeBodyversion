@@ -6,6 +6,7 @@ using Session;
 using CommonComponents.Signals;
 using Services.Audio;
 using Zenject;
+using Game.Adventure;
 
 namespace GameStateMachine.States
 {
@@ -19,6 +20,7 @@ namespace GameStateMachine.States
 			IMusicPlayer musicPlayer,
 			StartGameSignal startGameSignal,
 			StartQuickBattleSignal startQuickBattleSignal,
+			StartAdventureSignal startAdventureSignal,
 			ConfigureControlsSignal configureControlsSignal,
 			OpenShipEditorSignal openShipEditorSignal,
 			OpenEhopediaSignal openEhopediaSignal,
@@ -42,6 +44,8 @@ namespace GameStateMachine.States
             _startGameSignal.Event += OnStartGame;
             _startQuickBattleSignal = startQuickBattleSignal;
             _startQuickBattleSignal.Event += OnStartQuickBattle;
+            _startAdventureSignal = startAdventureSignal;
+            _startAdventureSignal.Event += OnStartAdventure;
             _exitSignal = exitSignal;
             _exitSignal.Event += OnExit;
             _configureControlsSignal = configureControlsSignal;
@@ -85,6 +89,14 @@ namespace GameStateMachine.States
         private void OnStartQuickBattle(QuickCombatState.Settings settings)
         {
             LoadState(StateFactory.CreateQuickCombatState(settings));
+        }
+
+        private void OnStartAdventure(IShip ship)
+        {
+            if (ship == null || ship.Model == null || ship.Model.SizeClass != GameDatabase.Enums.SizeClass.Frigate)
+                return;
+            _adventureRun.Begin(ship);
+            LoadState(StateFactory.CreateAdventureState());
         }
 
         private void OnConfigureControls()
@@ -140,6 +152,7 @@ namespace GameStateMachine.States
 		private readonly ReloadUiSignal _reloadUiSignal;
 		private readonly StartGameSignal _startGameSignal;
         private readonly StartQuickBattleSignal _startQuickBattleSignal;
+        private readonly StartAdventureSignal _startAdventureSignal;
         private readonly ConfigureControlsSignal _configureControlsSignal;
 		private readonly OpenShipEditorSignal _openShipEditorSignal;
 		private readonly OpenEhopediaSignal _openEhopediaSignal;
@@ -148,6 +161,7 @@ namespace GameStateMachine.States
         private readonly DailyReward _dailyReward;
         private readonly DailyRewardAwailableSignal _dailyRewardAwailableSignal;
 		private readonly OpenGameSettingsSignal _openGameSettingsSignal;
+		[Inject] private readonly AdventureRun _adventureRun;
 
 		public class Factory : Factory<MainMenuState> { }
     }

@@ -9,6 +9,7 @@ using Economy.Products;
 using Galaxy;
 using Galaxy.StarContent;
 using Game;
+using Game.Adventure;
 using Game.Exploration;
 using GameModel.Quests;
 using GameServices.Database;
@@ -60,6 +61,10 @@ namespace Installers
             Container.BindInterfacesAndSelfTo<StarMap>().AsSingle();
 
             Container.BindInterfacesAndSelfTo<Research>().AsSingle();
+
+            // AdventureRun owns only temporary mode-local ships/components.
+            // It is global so the same run survives Combat -> ShipEditor -> Combat.
+            Container.Bind<AdventureRun>().AsSingle();
 
             Container.Bind<OfflineMultiplayer>().AsSingle().NonLazy();
 
@@ -236,6 +241,9 @@ namespace Installers
 			Container.Bind<QuickCombatState>().AsTransient();
 			Container.BindFactory<QuickCombatState.Settings, QuickCombatState, QuickCombatState.Factory>();
 
+			Container.Bind<AdventureState>().AsTransient();
+			Container.BindFactory<AdventureState, AdventureState.Factory>();
+
 			Container.Bind<ShipEditorState>().AsTransient();
 			Container.BindFactory<ShipEditorState.Context, ShipEditorState, ShipEditorState.Factory>();
 
@@ -266,6 +274,10 @@ namespace Installers
             Container.BindTrigger<StartBattleSignal.Trigger>();
             Container.BindSignal<StartQuickBattleSignal>();
             Container.BindTrigger<StartQuickBattleSignal.Trigger>();
+            Container.BindSignal<StartAdventureSignal>();
+            Container.BindTrigger<StartAdventureSignal.Trigger>();
+            Container.BindSignal<AdventureEditShipSignal>();
+            Container.BindTrigger<AdventureEditShipSignal.Trigger>();
             Container.BindSignal<ExitSignal>();
             Container.BindSignal<CombatRetreatSignal>();
             Container.BindTrigger<ExitSignal.Trigger>();

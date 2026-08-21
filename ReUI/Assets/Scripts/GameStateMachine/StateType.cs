@@ -11,6 +11,7 @@
         Combat,
 		CombatReward,
 		QuickCombat,
+		Adventure,
 		Quest,
         SkillTree,
 		ShipEditor,

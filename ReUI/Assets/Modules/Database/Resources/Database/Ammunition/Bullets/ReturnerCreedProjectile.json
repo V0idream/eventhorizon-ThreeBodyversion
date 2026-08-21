@@ -1,0 +1,10 @@
+{
+  "ItemType": 27,
+  "Id": 26,
+  "Shape": 0,
+  "Image": "returner_creed_projectile",
+  "Size": 3.2,
+  "Margins": 0.04,
+  "MainColor": "#FFFFFFFF",
+  "MainColorMode": 0
+}

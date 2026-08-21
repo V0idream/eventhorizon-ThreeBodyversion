@@ -12,6 +12,8 @@
     { "ComponentId": 960, "Quality": 0, "Modification": 0, "X": 42, "Y": 11, "BarrelId": 2, "KeyBinding": 1, "Behaviour": 0 },
     { "ComponentId": 987, "Quality": 0, "Modification": 0, "X": 16, "Y": 38, "BarrelId": 7, "KeyBinding": 2, "Behaviour": 0 },
     { "ComponentId": 987, "Quality": 0, "Modification": 0, "X": 69, "Y": 38, "BarrelId": 8, "KeyBinding": 2, "Behaviour": 0 },
+    { "ComponentId": 987, "Quality": 0, "Modification": 0, "X": 16, "Y": 31, "BarrelId": 9, "KeyBinding": 2, "Behaviour": 0 },
+    { "ComponentId": 987, "Quality": 0, "Modification": 0, "X": 69, "Y": 31, "BarrelId": 10, "KeyBinding": 2, "Behaviour": 0 },
 
     { "ComponentId": 961, "Quality": 0, "Modification": 0, "X": 34, "Y": 64, "BarrelId": -1, "KeyBinding": 0, "Behaviour": 0 },
     { "ComponentId": 961, "Quality": 0, "Modification": 0, "X": 36, "Y": 64, "BarrelId": -1, "KeyBinding": 0, "Behaviour": 0 },

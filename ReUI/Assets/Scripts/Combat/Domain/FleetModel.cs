@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Combat.Component.Unit.Classification;
 using Combat.Unit;
 using Constructor.Ships;
@@ -40,6 +40,15 @@ namespace Combat.Domain
         public int AiLevel { get; private set; }
 
         public IList<IShipInfo> Ships { get { return _ships.AsReadOnly(); } }
+
+        public bool Remove(IShipInfo ship)
+        {
+            if (ship == null)
+                return false;
+            if (ship.Status == ShipStatus.Active)
+                ship.Destroy();
+            return _ships.Remove(ship);
+        }
 
         public long GetExpForAllShips()
         {

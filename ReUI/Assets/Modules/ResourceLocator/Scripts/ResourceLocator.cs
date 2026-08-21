@@ -52,6 +52,10 @@ namespace Services.Resources
                 string.Equals(spriteId.Id, "dual_vector_foil_projectile", StringComparison.OrdinalIgnoreCase))
                 return GetDualVectorFoilPaperSprite();
 
+            if (spriteId.Category == SpriteId.Type.Ammunition &&
+                string.Equals(spriteId.Id, "returner_creed_projectile", StringComparison.OrdinalIgnoreCase))
+                return GetReturnerCreedProjectileSprite();
+
             switch (spriteId.Category)
             {
                 case SpriteId.Type.Component:
@@ -67,7 +71,7 @@ namespace Services.Resources
                     sprite = GetSatelliteSprite(spriteId.Id);
                     break;
                 case SpriteId.Type.ActionButton:
-                    sprite = GetControlButtonSprite(spriteId.Id);
+                    sprite = GetControlButtonSprite(spriteId.Id) ?? GetEmbeddedThreeBodySprite(spriteId.Id);
                     break;
                 case SpriteId.Type.GuiIcon:
                     sprite = GetGuiIcon(spriteId.Id);
@@ -95,7 +99,11 @@ namespace Services.Resources
             if (sprite != null &&
                 (spriteId.Category == SpriteId.Type.Ship || spriteId.Category == SpriteId.Type.ShipIcon) &&
                 (string.Equals(spriteId.Id, "sophon_launcher", StringComparison.OrdinalIgnoreCase) ||
-                 string.Equals(spriteId.Id, "wan_nian_feng_xue", StringComparison.OrdinalIgnoreCase)))
+                 string.Equals(spriteId.Id, "wan_nian_feng_xue", StringComparison.OrdinalIgnoreCase) ||
+                 string.Equals(spriteId.Id, "returner_pi", StringComparison.OrdinalIgnoreCase) ||
+                 string.Equals(spriteId.Id, "returner_law", StringComparison.OrdinalIgnoreCase) ||
+                 string.Equals(spriteId.Id, "returner_death", StringComparison.OrdinalIgnoreCase) ||
+                 string.Equals(spriteId.Id, "returner_order", StringComparison.OrdinalIgnoreCase)))
                 sprite = GetClockwiseRotatedSprite(spriteId, sprite);
 
             return sprite;
@@ -271,6 +279,91 @@ namespace Services.Resources
             var sprite = Sprite.Create(texture, new Rect(0f, 0f, width, height),
                 new Vector2(0.5f, 0.5f), 64f, 0, SpriteMeshType.FullRect);
             sprite.name = "dual_vector_foil_projectile_Paper";
+            _correctedTextures[key] = texture;
+            _correctedSprites[key] = sprite;
+            return sprite;
+        }
+
+        private Sprite GetReturnerCreedProjectileSprite()
+        {
+            const string key = "Generated:ReturnerCreedProjectile";
+            if (_correctedSprites.TryGetValue(key, out var cached) && cached != null)
+                return cached;
+
+            // A dedicated procedural projectile for Creed.  It deliberately
+            // does not sample or reuse SingerNeedle (or any other ammunition
+            // artwork): the shape is a rigid, double-chevron "axiom lance"
+            // with a white core, cyan body and blue additive-looking halo.
+            // Creed projectile is intentionally larger than normal ammunition:
+            // it represents a dimensional penetrator rather than a small shell.
+            // The elongated body and visible core make the through-target path
+            // readable during combat.
+            const int width = 288;
+            const int height = 96;
+            var texture = new Texture2D(width, height, TextureFormat.RGBA32, false, true)
+            {
+                name = "returner_creed_projectile_AxiomLance",
+                filterMode = FilterMode.Bilinear,
+                wrapMode = TextureWrapMode.Clamp,
+            };
+
+            var pixels = new Color32[width * height];
+            var centerY = (height - 1) * 0.5f;
+            for (var y = 0; y < height; ++y)
+            for (var x = 0; x < width; ++x)
+            {
+                var dy = Mathf.Abs(y - centerY);
+                var inLongitudinalRange = x >= 8 && x <= width - 3;
+
+                // Soft blue halo around the whole lance.
+                if (inLongitudinalRange)
+                {
+                    var haloHalfWidth = 20f;
+                    if (x > 146)
+                        haloHalfWidth *= Mathf.Clamp01((width - 2f - x) / 44f);
+                    var halo = Mathf.Clamp01(1f - dy / Mathf.Max(1f, haloHalfWidth));
+                    if (halo > 0f)
+                        pixels[y * width + x] = new Color32(20, 128, 255, (byte)(halo * halo * 105f));
+                }
+
+                var shaft = x >= 48 && x < 220 && dy <= 7.5f;
+                var tipHalfWidth = x >= 146
+                    ? 16f * Mathf.Clamp01((width - 2f - x) / 68f)
+                    : 0f;
+                var tip = x >= 220 && dy <= tipHalfWidth;
+
+                // Rear double-chevron fins make the projectile immediately
+                // distinguishable from the long Singer needle silhouette.
+                var rearT = Mathf.Clamp01((x - 10f) / 55f);
+                var rearOuter = Mathf.Lerp(14f, 5f, rearT);
+                var rearInner = Mathf.Lerp(7f, 2f, rearT);
+                var rearFin = x >= 10 && x <= 65 && dy <= rearOuter && dy >= rearInner;
+
+                // A short transverse "law mark" through the body.
+                var crossMark = x >= 96 && x <= 108 && dy <= 17f;
+
+                if (shaft || tip || rearFin || crossMark)
+                {
+                    var edge = (shaft && dy > 5f) ||
+                               (tip && tipHalfWidth - dy < 2f) ||
+                               (rearFin && (dy - rearInner < 1.5f || rearOuter - dy < 1.5f)) ||
+                               (crossMark && dy > 8f);
+                    pixels[y * width + x] = edge
+                        ? new Color32(24, 152, 255, 245)
+                        : new Color32(105, 224, 255, 255);
+                }
+
+                // White-hot center line.  This remains visible even against
+                // very bright combat backgrounds.
+                if (x >= 36 && x <= width - 7 && dy <= 2.4f)
+                    pixels[y * width + x] = new Color32(240, 252, 255, 255);
+            }
+
+            texture.SetPixels32(pixels);
+            texture.Apply(false, true);
+            var sprite = Sprite.Create(texture, new Rect(0f, 0f, width, height),
+                new Vector2(0.48f, 0.5f), 100f, 0, SpriteMeshType.FullRect);
+            sprite.name = "returner_creed_projectile_AxiomLance";
             _correctedTextures[key] = texture;
             _correctedSprites[key] = sprite;
             return sprite;

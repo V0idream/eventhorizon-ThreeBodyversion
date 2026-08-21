@@ -93,6 +93,7 @@ SpriteAtlas:
     - 574e014347e162e40822bab73c449ae6: 21300000
     - eee3fb438095b35458bcc2bcba0bc15b: 21300000
     - f92846534f07b684fb23dbecddf72262: 21300000
+    - 1dbf8314562840e48bc8bcd4f75d5fa5: 21300000
     - 1353fa2475ade884ebcd607c515cdc45: 21300000
     - 65bdfd24fc40a8244bbb8589c3f9e00d: 21300000
     - adc0e5349c0a1d2479ec93690f6b6c1c: 21300000
@@ -172,6 +173,7 @@ SpriteAtlas:
     - b313c84a62937ee4e988abbe1774cf61: 21300000
     - 6e48b57a2141c4c4f82c5b40aeb35566: 21300000
     - c7a5a48ab9f9b8d4a974cf8edb3c27b3: 21300000
+    - f6efbb8a895352f45aeb50dc4c26b3fd: 21300000
     - 8056709a92595e4488e2675e6a5ad706: 21300000
     - 3f4b01aa3a7d836409de6daf53915ccc: 21300000
     - 10084abae6c94a349b5745709765d02e: 21300000
@@ -210,12 +212,14 @@ SpriteAtlas:
     - 980b2dad8a15c6543aa56ecf443fb93f: 21300000
     - 7e2194ed783eb3a42bbd3106f0905b96: 21300000
     - dde9130e87ba58a44b8ad591098b7754: 21300000
+    - 4fce433ee5ffb9d44ab83b3869f8be5e: 21300000
     - 9e3bbf4e73782fd458f1cb11633cc257: 21300000
     - db8ec16e863b3f54cae0d15ebf4ff1c3: 21300000
     - e37f066ededf47840a1ecde4432ed2d8: 21300000
     - 9bafec6eeee6cc14e818f90ea4dc28b1: 21300000
     - 82ca798e73438b740a922228cfabd878: 21300000
     - 9ea83bbe55040024a94892a218e0ee5f: 21300000
+    - 5675e7ce2e249af489b8a734558d50c4: 21300000
     - 63ef1dce233db60498b40e813572a9ee: 21300000
     - 9c5ac2de15eaddc408cd249bef8ddb86: 21300000
     - 7d8defdee4bd070499b28f10084640ad: 21300000
@@ -277,6 +281,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 574e014347e162e40822bab73c449ae6, type: 3}
   - {fileID: 21300000, guid: eee3fb438095b35458bcc2bcba0bc15b, type: 3}
   - {fileID: 21300000, guid: f92846534f07b684fb23dbecddf72262, type: 3}
+  - {fileID: 21300000, guid: 1dbf8314562840e48bc8bcd4f75d5fa5, type: 3}
   - {fileID: 21300000, guid: 1353fa2475ade884ebcd607c515cdc45, type: 3}
   - {fileID: 21300000, guid: 65bdfd24fc40a8244bbb8589c3f9e00d, type: 3}
   - {fileID: 21300000, guid: adc0e5349c0a1d2479ec93690f6b6c1c, type: 3}
@@ -356,6 +361,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: b313c84a62937ee4e988abbe1774cf61, type: 3}
   - {fileID: 21300000, guid: 6e48b57a2141c4c4f82c5b40aeb35566, type: 3}
   - {fileID: 21300000, guid: c7a5a48ab9f9b8d4a974cf8edb3c27b3, type: 3}
+  - {fileID: 21300000, guid: f6efbb8a895352f45aeb50dc4c26b3fd, type: 3}
   - {fileID: 21300000, guid: 8056709a92595e4488e2675e6a5ad706, type: 3}
   - {fileID: 21300000, guid: 3f4b01aa3a7d836409de6daf53915ccc, type: 3}
   - {fileID: 21300000, guid: 10084abae6c94a349b5745709765d02e, type: 3}
@@ -394,12 +400,14 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 980b2dad8a15c6543aa56ecf443fb93f, type: 3}
   - {fileID: 21300000, guid: 7e2194ed783eb3a42bbd3106f0905b96, type: 3}
   - {fileID: 21300000, guid: dde9130e87ba58a44b8ad591098b7754, type: 3}
+  - {fileID: 21300000, guid: 4fce433ee5ffb9d44ab83b3869f8be5e, type: 3}
   - {fileID: 21300000, guid: 9e3bbf4e73782fd458f1cb11633cc257, type: 3}
   - {fileID: 21300000, guid: db8ec16e863b3f54cae0d15ebf4ff1c3, type: 3}
   - {fileID: 21300000, guid: e37f066ededf47840a1ecde4432ed2d8, type: 3}
   - {fileID: 21300000, guid: 9bafec6eeee6cc14e818f90ea4dc28b1, type: 3}
   - {fileID: 21300000, guid: 82ca798e73438b740a922228cfabd878, type: 3}
   - {fileID: 21300000, guid: 9ea83bbe55040024a94892a218e0ee5f, type: 3}
+  - {fileID: 21300000, guid: 5675e7ce2e249af489b8a734558d50c4, type: 3}
   - {fileID: 21300000, guid: 63ef1dce233db60498b40e813572a9ee, type: 3}
   - {fileID: 21300000, guid: 9c5ac2de15eaddc408cd249bef8ddb86, type: 3}
   - {fileID: 21300000, guid: 7d8defdee4bd070499b28f10084640ad, type: 3}
@@ -460,6 +468,7 @@ SpriteAtlas:
   - f2s1
   - ship5
   - f9s1
+  - returner_death
   - fns2
   - edge_privilege
   - f1s1
@@ -539,6 +548,7 @@ SpriteAtlas:
   - space_invader
   - drone3
   - ship9
+  - returner_pi
   - earth_titan_rotated
   - necro3
   - edge_defense_drone
@@ -577,12 +587,14 @@ SpriteAtlas:
   - fns8
   - fns5
   - flagships
+  - returner_law
   - starship_earth_frigate_preview5
   - ecm_drone
   - red_ship3
   - f13s1
   - f5s2
   - f9s2
+  - returner_order
   - fns6
   - f4s1_2
   - starship_earth_destroyer

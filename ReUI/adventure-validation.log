@@ -1,0 +1,855 @@
+[Licensing::Module] Trying to connect to existing licensing client channel...
+Built from '6000.0/staging' branch; Version is '6000.0.75f1 (26349cd2a5c8) revision 2503836'; Using compiler version '193933523'; Build Type 'Release'
+[Licensing::IpcConnector] Channel LicenseClient-Voidream doesn't exist
+OS: 'Windows 11  (10.0.28120) Enterprise' Language: 'zh' Physical Memory: 32487 MB
+BatchMode: 1, IsHumanControllingUs: 0, StartBugReporterOnCrash: 0, Is64bit: 1
+System  architecture: x64
+Process architecture: x64
+Date: 2026-08-19T06:15:49Z
+[Licensing::Module] Successfully launched the LicensingClient (PId: 11856)
+
+COMMAND LINE ARGUMENTS:
+C:\Program Files\Unity\Hub\Editor\6000.0.75f1\Editor\Unity.exe
+-batchmode
+-quit
+-nographics
+-projectPath
+C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI
+-executeMethod
+ReUI.Editor.ReUIValidation.ValidateAdventureMode
+-logFile
+C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\adventure-validation.log
+Successfully changed project path to: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI
+C:/Users/wjy25/Documents/Re-Threebody/upstream/ReUI
+[UnityMemory] Configuration Parameters - Can be set up in boot.config
+    "memorysetup-bucket-allocator-granularity=16"
+    "memorysetup-bucket-allocator-bucket-count=8"
+    "memorysetup-bucket-allocator-block-size=33554432"
+    "memorysetup-bucket-allocator-block-count=8"
+    "memorysetup-main-allocator-block-size=16777216"
+    "memorysetup-thread-allocator-block-size=16777216"
+    "memorysetup-gfx-main-allocator-block-size=16777216"
+    "memorysetup-gfx-thread-allocator-block-size=16777216"
+    "memorysetup-cache-allocator-block-size=4194304"
+    "memorysetup-typetree-allocator-block-size=2097152"
+    "memorysetup-profiler-bucket-allocator-granularity=16"
+    "memorysetup-profiler-bucket-allocator-bucket-count=8"
+    "memorysetup-profiler-bucket-allocator-block-size=33554432"
+    "memorysetup-profiler-bucket-allocator-block-count=8"
+    "memorysetup-profiler-allocator-block-size=16777216"
+    "memorysetup-profiler-editor-allocator-block-size=1048576"
+    "memorysetup-temp-allocator-size-main=16777216"
+    "memorysetup-job-temp-allocator-block-size=2097152"
+    "memorysetup-job-temp-allocator-block-size-background=1048576"
+    "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+    "memorysetup-allocator-temp-initial-block-size-main=262144"
+    "memorysetup-allocator-temp-initial-block-size-worker=262144"
+    "memorysetup-temp-allocator-size-background-worker=32768"
+    "memorysetup-temp-allocator-size-job-worker=262144"
+    "memorysetup-temp-allocator-size-preload-manager=33554432"
+    "memorysetup-temp-allocator-size-nav-mesh-worker=65536"
+    "memorysetup-temp-allocator-size-audio-worker=65536"
+    "memorysetup-temp-allocator-size-cloud-worker=32768"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gfx=262144"
+Player connection [37804]  Target information:
+
+Player connection [37804]  * "[IP] 172.18.16.1 [Port] 55504 [Flags] 2 [Guid] 3491353925 [EditorId] 3491353925 [Version] 1048832 [Id] WindowsEditor(7,WIN-006UKCKR5SD) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
+
+Player connection [37804]  * "[IP] 198.18.0.1 [Port] 55504 [Flags] 2 [Guid] 3491353925 [EditorId] 3491353925 [Version] 1048832 [Id] WindowsEditor(7,WIN-006UKCKR5SD) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
+
+Player connection [37804]  * "[IP] 192.168.1.105 [Port] 55504 [Flags] 2 [Guid] 3491353925 [EditorId] 3491353925 [Version] 1048832 [Id] WindowsEditor(7,WIN-006UKCKR5SD) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
+
+Player connection [37804] Host joined multi-casting on [225.0.0.222:54997]...
+Player connection [37804] Host joined alternative multi-casting on [225.0.0.222:34997]...
+Input System module state changed to: Initialized.
+[Physics::Module] Initialized fallback backend.
+[Physics::Module] Id: 0xdecafbad
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-Voidream" at "2026-08-19T06:15:49.9958036Z"
+[Package Manager] Connected to IPC stream "Upm-28028" after 0.4 seconds.
+Library Redirect Path: Library/
+[Licensing::Client] Code 10 while verifying Licensing Client signature (process Id: 11856, path: "C:/Program Files/Unity/Hub/Editor/6000.0.75f1/Editor/Data/Resources/Licensing/Client/Unity.Licensing.Client.exe")
+[Licensing::Module] LicensingClient has failed validation; ignoring
+[Physics::Module] Selected backend.
+[Physics::Module] Name: PhysX
+[Physics::Module] Id: 0xf2b8ea05
+[Physics::Module] SDK Version: 4.1.2
+[Physics::Module] Integration Version: 1.0.0
+[Physics::Module] Threading Mode: Multi-Threaded
+[Licensing::Module] Licensing is not yet initialized.
+[Licensing::Client] Handshaking with LicensingClient:
+  Version:                 1.17.4+4293ba1
+  Session Id:              2572584aab514e4db48dd2d8efbbcce9
+  Correlation Id:          21d4d581c24224d8abee2a1aac956c19
+  External correlation Id: 5510172103865692859
+  Machine Id:              WeJfFlhUrXm/oUJXcgBJuMWLvIg=
+[Licensing::Module] Successfully connected to LicensingClient on channel: "LicenseClient-Voidream" (connect: 0.39s, validation: 0.33s, handshake: 0.05s)
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-Voidream-notifications" at "2026-08-19T06:15:50.3823945Z"
+[Licensing::Module] Connected to LicensingClient (PId: 11856, launch time: 0.00, total connection time: 0.77s)
+[Licensing::Module] Error: Access token is unavailable; failed to update
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] License group:
+  Id: 20067615106968-UnityPersXXXX
+  Product: Unity Personal
+  Type: Assigned
+  Expiration: Unlimited
+[Licensing::Client] Successfully updated license, isAsync: True, time: 0.01
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] Licensing Background thread has ended after 0.81s
+[Licensing::Module] Licensing is initialized (took 0.04s).
+[Licensing::Client] Successfully resolved entitlement details
+Refreshing native plugins compatible for Editor in 1.34 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Initialize engine version: 6000.0.75f1 (26349cd2a5c8)
+[Subsystems] Discovering subsystems at path C:/Program Files/Unity/Hub/Editor/6000.0.75f1/Editor/Data/Resources/UnitySubsystems
+[Subsystems] Discovering subsystems at path C:/Users/wjy25/Documents/Re-Threebody/upstream/ReUI/Assets
+Forcing GfxDevice: Null
+GfxDevice: creating device client; kGfxThreadingModeNonThreaded
+NullGfxDevice:
+    Version:  NULL 1.0 [1.0]
+    Renderer: Null Device
+    Vendor:   Unity Technologies
+Initialize mono
+Mono path[0] = 'C:/Program Files/Unity/Hub/Editor/6000.0.75f1/Editor/Data/Managed'
+Mono path[1] = 'C:/Program Files/Unity/Hub/Editor/6000.0.75f1/Editor/Data/MonoBleedingEdge/lib/mono/unityjit-win32'
+Mono config path = 'C:/Program Files/Unity/Hub/Editor/6000.0.75f1/Editor/Data/MonoBleedingEdge/etc'
+Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56028
+Using cacheserver namespaces - metadata:defaultmetadata, artifacts:defaultartifacts
+Using cacheserver namespaces - metadata:defaultmetadata, artifacts:defaultartifacts
+ImportWorker Server TCP listen port: 0
+AcceleratorClientConnectionCallback - disconnected - :0
+Begin MonoManager ReloadAssembly
+Registering precompiled unity dll's ...
+Register platform support module: C:/Program Files/Unity/Hub/Editor/6000.0.75f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport/UnityEditor.WindowsStandalone.Extensions.dll
+Register platform support module: C:/Program Files/Unity/Hub/Editor/6000.0.75f1/Editor/Data/PlaybackEngines/AndroidPlayer/UnityEditor.Android.Extensions.dll
+Registered in 0.002474 seconds.
+- Loaded All Assemblies, in  0.270 seconds
+Native extension for Android target not found
+Android Extension - Scanning For ADB Devices 2245 ms
+Native extension for WindowsStandalone target not found
+Package Manager log level set to [2]
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  2.486 seconds
+Domain Reload Profiling: 2755ms
+	BeginReloadAssembly (89ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (0ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (0ms)
+	RebuildCommonClasses (27ms)
+	RebuildNativeTypeToScriptingClass (9ms)
+	initialDomainReloadingComplete (34ms)
+	LoadAllAssembliesAndSetupDomain (110ms)
+		LoadAssemblies (88ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (108ms)
+			TypeCache.Refresh (106ms)
+				TypeCache.ScanAssembly (98ms)
+			BuildScriptInfoCaches (0ms)
+			ResolveRequiredComponents (0ms)
+	FinalizeReload (2486ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (2462ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (2307ms)
+			SetLoadedEditorAssemblies (3ms)
+			BeforeProcessingInitializeOnLoad (37ms)
+			ProcessInitializeOnLoadAttributes (78ms)
+			ProcessInitializeOnLoadMethodAttributes (36ms)
+			AfterProcessingInitializeOnLoad (0ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (0ms)
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Client] Successfully resolved entitlement details
+Application.AssetDatabase Initial Refresh Start
+[Package Manager] Restoring resolved packages state from cache
+[Licensing::Client] Successfully resolved entitlement details
+[Package Manager] Registered 50 packages:
+  Packages from [https://package.openupm.com]:
+    com.google.external-dependency-manager@1.2.187 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.google.external-dependency-manager@f5312a5700af)
+  Packages from [https://packages.unity.com]:
+    com.unity.ads@4.17.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.ads@c6e6f61ed7d9)
+    com.unity.ide.visualstudio@2.0.27 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.ide.visualstudio@dc1ddd4f09b6)
+    com.unity.inputsystem@1.19.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.inputsystem@21a28c3a6c83)
+    com.unity.purchasing@5.3.1 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.purchasing@b69b97f74d28)
+    com.unity.toolchain.win-x86_64-linux-x86_64@2.0.11 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.toolchain.win-x86_64-linux-x86_64@3c4c356523ed)
+    com.unity.sysroot@2.0.10 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.sysroot@7bbbb9339c14)
+    com.unity.sysroot.linux-x86_64@2.0.9 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.sysroot.linux-x86_64@1998d1c7730e)
+    com.unity.services.core@1.16.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.services.core@8ba50f624741)
+    com.unity.nuget.newtonsoft-json@3.2.1 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.nuget.newtonsoft-json@74deb55db2a0)
+  Built-in packages:
+    com.unity.2d.sprite@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.2d.sprite@0eb6ea2c7181)
+    com.unity.multiplayer.center@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.multiplayer.center@f3fb577b3546)
+    com.unity.test-framework@1.6.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.test-framework@082c24152fd4)
+    com.unity.ugui@2.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.ugui@7537063fea2b)
+    com.unity.ui@2.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.ui@ccd6582d7949)
+    com.unity.modules.accessibility@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.accessibility)
+    com.unity.modules.ai@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.ai)
+    com.unity.modules.androidjni@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.androidjni)
+    com.unity.modules.animation@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.animation)
+    com.unity.modules.assetbundle@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.assetbundle)
+    com.unity.modules.audio@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.audio)
+    com.unity.modules.cloth@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.cloth)
+    com.unity.modules.director@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.director)
+    com.unity.modules.imageconversion@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.imageconversion)
+    com.unity.modules.imgui@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.imgui)
+    com.unity.modules.jsonserialize@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.jsonserialize)
+    com.unity.modules.particlesystem@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.particlesystem)
+    com.unity.modules.physics@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.physics)
+    com.unity.modules.physics2d@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.physics2d)
+    com.unity.modules.screencapture@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.screencapture)
+    com.unity.modules.terrain@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.terrain)
+    com.unity.modules.terrainphysics@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.terrainphysics)
+    com.unity.modules.tilemap@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.tilemap)
+    com.unity.modules.ui@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.ui)
+    com.unity.modules.uielements@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.uielements)
+    com.unity.modules.umbra@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.umbra)
+    com.unity.modules.unityanalytics@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.unityanalytics)
+    com.unity.modules.unitywebrequest@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.unitywebrequest)
+    com.unity.modules.unitywebrequestassetbundle@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.unitywebrequestassetbundle)
+    com.unity.modules.unitywebrequestaudio@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.unitywebrequestaudio)
+    com.unity.modules.unitywebrequesttexture@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.unitywebrequesttexture)
+    com.unity.modules.unitywebrequestwww@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.unitywebrequestwww)
+    com.unity.modules.vehicles@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.vehicles)
+    com.unity.modules.video@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.video)
+    com.unity.modules.vr@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.vr)
+    com.unity.modules.wind@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.wind)
+    com.unity.modules.xr@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.xr)
+    com.unity.modules.subsystems@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.subsystems)
+    com.unity.modules.hierarchycore@1.0.0 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.modules.hierarchycore)
+    com.unity.ext.nunit@2.0.5 (location: C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Library\PackageCache\com.unity.ext.nunit@031a54704bff)
+[Subsystems] No new subsystems found in resolved package list.
+[Package Manager] Done registering packages in 0.02 seconds
+[ScriptCompilation] Requested script compilation because: Assetdatabase observed changes in script compilation related files
+Assembly for Assembly Definition File 'Assets/Modules/GalaxyMap/GalaxyMap.asmdef' will not be compiled, because it has no scripts associated with it.
+Starting: C:\Program Files\Unity\Hub\Editor\6000.0.75f1\Editor\Data\bee_backend.exe --ipc --defer-dag-verification --dagfile="Library/Bee/1300b0aE.dag" --continue-on-failure --profile="Library/Bee/backend1.traceevents" ScriptAssemblies
+WorkingDir: C:/Users/wjy25/Documents/Re-Threebody/upstream/ReUI
+DisplayProgressbar: Compiling Scripts
+ExitCode: 0 Duration: 3s992ms
+[845/851    2s] Csc Library/Bee/artifacts/1300b0aE.dag/Assembly-CSharp.dll (+2 others)
+Assets\Scripts\Combat\Domain\CombatModelBuilder.cs(95,32): warning CS0618: 'Factory<CombatModelBuilder>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\AnnouncementState.cs(47,32): warning CS0618: 'Factory<AnnouncementState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\CombatRewardState.cs(41,32): warning CS0618: 'Factory<IReward, CombatRewardState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\CombatState.cs(128,32): warning CS0618: 'Factory<ICombatModel, Action<ICombatModel>, CombatState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\DailyRewardState.cs(57,32): warning CS0618: 'Factory<DailyRewardState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\EditorInitializationState.cs(49,32): warning CS0618: 'Factory<EditorInitializationState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\EhopediaState.cs(31,32): warning CS0618: 'Factory<EhopediaState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\ExplorationState.cs(85,32): warning CS0618: 'Factory<Planet, ExplorationState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\DialogState.cs(59,32): warning CS0618: 'Factory<string, WindowArgs, Action<WindowExitCode>, DialogState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\InitializationState.cs(200,32): warning CS0618: 'Factory<InitializationState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\MainMenuState.cs(166,26): warning CS0618: 'Factory<MainMenuState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\QuestState.cs(63,26): warning CS0618: 'Factory<IUserInteraction, QuestState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\ModalDialogState.cs(53,32): warning CS0618: 'Factory<string, IEnumerable<GameScene>, ModalDialogState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\RetreatState.cs(81,32): warning CS0618: 'Factory<RetreatState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\QuickCombatState.cs(218,32): warning CS0618: 'Factory<QuickCombatState.Settings, QuickCombatState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\SkillTreeState.cs(31,32): warning CS0618: 'Factory<SkillTreeState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\StartingNewGameState.cs(91,32): warning CS0618: 'Factory<StartingNewGameState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\StarMapState.cs(360,32): warning CS0618: 'Factory<StarMapState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\TravelState.cs(89,32): warning CS0618: 'Factory<int, TravelState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\GameStateMachine\States\TestingState.cs(31,32): warning CS0618: 'Factory<TestingState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+
+Assets\Scripts\Legacy\GUI\Layout\RandomLayoutGroup.cs(29,4): warning CS0618: 'Random.seed' is obsolete: 'Deprecated. Use InitState() function or Random.state property instead.'
+
+Assets\Scripts\Legacy\GUI\Layout\RandomLayoutGroup.cs(42,4): warning CS0618: 'Random.seed' is obsolete: 'Deprecated. Use InitState() function or Random.state property instead.'
+
+Assets\Scripts\Legacy\GUI\Console.cs(24,17): warning CS0618: 'Object.FindObjectsOfType<T>()' is obsolete: 'Object.FindObjectsOfType has been deprecated. Use Object.FindObjectsByType instead which lets you decide whether you need the results sorted or not.  FindObjectsOfType sorts the results by InstanceID but if you do not need this using FindObjectSortMode.None is considerably faster.'
+
+Assets\Scripts\GameStateMachine\States\ShipEditorState.cs(202,40): warning CS0612: 'ComponentInfo.FromInt64(IDatabase, long)' is obsolete
+
+Assets\Scripts\Gui\ShipService\ShipLayoutPanel.cs(75,85): warning CS0612: 'IShipLayout.Size' is obsolete
+
+Assets\Scripts\Gui\ShipService\ShipLayoutPanel.cs(76,86): warning CS0612: 'IShipLayout.Size' is obsolete
+
+Assets\Scripts\Gui\ShipService\ShipLayoutPanel.cs(92,28): warning CS0612: 'IShipLayout.Size' is obsolete
+
+Assets\Scripts\Legacy\Map\Star.cs(412,3): warning CS0618: 'Random.seed' is obsolete: 'Deprecated. Use InitState() function or Random.state property instead.'
+
+Assets\Scripts\Gui\ShipService\ShipLayoutPanel.cs(146,62): warning CS0612: 'IShipLayout.Size' is obsolete
+
+Assets\Scripts\Gui\ShipService\ShipLayoutPanel.cs(146,91): warning CS0612: 'IShipLayout.Size' is obsolete
+
+Assets\Scripts\Legacy\GUI\ViewModel\CargoHold\ScrapPanelViewModel.cs(133,84): warning CS0612: 'ComponentInfo.SerializeToInt64()' is obsolete
+
+Assets\Scripts\Legacy\Debug\Cheats.cs(297,26): warning CS0168: The variable 'e' is declared but never used
+
+Assets\Scripts\GameServices\OfflineMultiplayer\PlayerInfo.cs(108,30): warning CS0168: The variable 'e' is declared but never used
+
+Assets\Scripts\Legacy\GUI\ViewModel\StarMap\TechTreePanelViewModel.cs(546,6): warning CS0618: 'Random.seed' is obsolete: 'Deprecated. Use InitState() function or Random.state property instead.'
+
+Assets\Scripts\Legacy\Debug\Cheats.cs(353,41): warning CS0612: 'ComponentInfo.FromInt64(IDatabase, long)' is obsolete
+
+Assets\Scripts\GameServices\OfflineMultiplayer\PlayerInfo.cs(147,30): warning CS0168: The variable 'e' is declared but never used
+
+Assets\Scripts\GameServices\OfflineMultiplayer\PlayerInfo.cs(163,30): warning CS0168: The variable 'e' is declared but never used
+
+Assets\Scripts\GameServices\OfflineMultiplayer\PlayerInfo.cs(192,30): warning CS0168: The variable 'e' is declared but never used
+
+Assets\Scripts\Domain\Economy\ItemType\ComponentItem.cs(21,47): warning CS0612: 'ComponentInfo.SerializeToInt64()' is obsolete
+
+Assets\Scripts\Gui\Combat\RadarPanel.cs(61,17): warning CS0219: The variable 'simpleRadarIndex' is assigned but its value is never used
+
+Assets\Scripts\Gui\MainMenu\SettingsProgress.cs(176,37): warning CS0618: 'Object.FindObjectsOfType<T>(bool)' is obsolete: 'Object.FindObjectsOfType has been deprecated. Use Object.FindObjectsByType instead which lets you decide whether you need the results sorted or not.  FindObjectsOfType sorts the results by InstanceID but if you do not need this using FindObjectSortMode.None is considerably faster.'
+
+Assets\Scripts\Gui\MainMenu\SettingsProgress.cs(178,38): warning CS0618: 'Object.FindObjectsOfType<T>(bool)' is obsolete: 'Object.FindObjectsOfType has been deprecated. Use Object.FindObjectsByType instead which lets you decide whether you need the results sorted or not.  FindObjectsOfType sorts the results by InstanceID but if you do not need this using FindObjectSortMode.None is considerably faster.'
+
+Assets\Scripts\Legacy\Debug\Cheats.cs(417,57): warning CS0612: 'ComponentInfo.SerializeToInt64()' is obsolete
+
+Assets\Scripts\Gui\MainMenu\SettingsProgress.cs(259,60): warning CS0618: 'Object.FindObjectOfType<T>()' is obsolete: 'Object.FindObjectOfType has been deprecated. Use Object.FindFirstObjectByType instead or if finding any instance is acceptable the faster Object.FindAnyObjectByType'
+
+Assets\Scripts\Legacy\GUI\ViewModel\MainMenu\DevConsoleViewModel.cs(76,5): warning CS0162: Unreachable code detected
+
+Assets\Scripts\GameServices\OfflineMultiplayer\EnemyPlayerInfo.cs(61,30): warning CS0168: The variable 'e' is declared but never used
+
+Assets\Scripts\Gui\MainMenu\MainMenu.cs(633,60): warning CS0618: 'Object.FindObjectOfType<T>()' is obsolete: 'Object.FindObjectOfType has been deprecated. Use Object.FindFirstObjectByType instead or if finding any instance is acceptable the faster Object.FindAnyObjectByType'
+
+Assets\Scripts\Gui\MainMenu\MainMenu.cs(815,60): warning CS0618: 'Object.FindObjectOfType<T>()' is obsolete: 'Object.FindObjectOfType has been deprecated. Use Object.FindFirstObjectByType instead or if finding any instance is acceptable the faster Object.FindAnyObjectByType'
+
+Assets\Scripts\Gui\MainMenu\MainMenu.cs(870,60): warning CS0618: 'Object.FindObjectOfType<T>()' is obsolete: 'Object.FindObjectOfType has been deprecated. Use Object.FindFirstObjectByType instead or if finding any instance is acceptable the faster Object.FindAnyObjectByType'
+
+Assets\Scripts\Legacy\GUI\LoadingScreen.cs(20,33): warning CS0414: The field 'LoadingScreen._delay' is assigned but its value is never used
+
+Assets\Scripts\Legacy\GUI\ViewModel\StarMap\MilitaryPanelViewModel.cs(41,15): warning CS0414: The field 'MilitaryPanelViewModel._money' is assigned but its value is never used
+
+Assets\Scripts\Legacy\GUI\LoadingScreen.cs(133,18): warning CS0414: The field 'LoadingScreen._firstTime' is assigned but its value is never used
+
+Assets\Scripts\Legacy\GUI\LoadingScreen.cs(28,15): warning CS0414: The field 'LoadingScreen._coroutineRunning' is assigned but its value is never used
+
+Assets\Scripts\Gui\Utils\BackButtonEvent.cs(12,39): warning CS0414: The field 'BackButtonEvent._ignoreIfStandaloneBuild' is assigned but its value is never used
+[846/851    0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp.pdb
+[847/851    0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp.dll
+[848/851    0s] Csc Library/Bee/artifacts/1300b0aE.dag/Assembly-CSharp-Editor.dll (+2 others)
+Assets\Editor\TexturePostProcessor.cs(45,13): warning CS0618: 'TextureImporter.spritePackingTag' is obsolete: 'Support for packing sprites through spritePackingTag has been removed. Please use SpriteAtlas instead.'
+
+Assets\Editor\AndroidDevelopmentBuild.cs(26,9): warning CS0618: 'PlayerSettings.SetApplicationIdentifier(BuildTargetGroup, string)' is obsolete: 'Use SetApplicationIdentifier(NamedBuildTarget buildTarget, string identifier) instead'
+
+Assets\Editor\AndroidDevelopmentBuild.cs(31,9): warning CS0618: 'PlayerSettings.SetScriptingBackend(BuildTargetGroup, ScriptingImplementation)' is obsolete: 'Use SetScriptingBackend(NamedBuildTarget buildTarget, ScriptingImplementation backend) instead'
+
+Assets\ReUI\Editor\ReUIQuickAndroidBuild.cs(32,13): warning CS0618: 'PlayerSettings.SetApplicationIdentifier(BuildTargetGroup, string)' is obsolete: 'Use SetApplicationIdentifier(NamedBuildTarget buildTarget, string identifier) instead'
+
+Assets\ReUI\Editor\ReUIQuickAndroidBuild.cs(38,13): warning CS0618: 'PlayerSettings.SetScriptingBackend(BuildTargetGroup, ScriptingImplementation)' is obsolete: 'Use SetScriptingBackend(NamedBuildTarget buildTarget, ScriptingImplementation backend) instead'
+
+Assets\Editor\ApplicationManager.cs(222,36): warning CS0618: 'PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup)' is obsolete: 'Use GetScriptingDefineSymbols(NamedBuildTarget buildTarget) instead'
+
+Assets\Editor\ApplicationManager.cs(232,13): warning CS0618: 'PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup, string)' is obsolete: 'Use SetScriptingDefineSymbols(NamedBuildTarget buildTarget, string defines) instead'
+
+Assets\Editor\ApplicationManager.cs(240,36): warning CS0618: 'PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup)' is obsolete: 'Use GetScriptingDefineSymbols(NamedBuildTarget buildTarget) instead'
+
+Assets\Editor\ApplicationManager.cs(252,13): warning CS0618: 'PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup, string)' is obsolete: 'Use SetScriptingDefineSymbols(NamedBuildTarget buildTarget, string defines) instead'
+[849/851    0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp-Editor.pdb
+[850/851    0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp-Editor.dll
+*** Tundra build success (3.97 seconds), 6 items updated, 851 evaluated
+Assets\Scripts\Combat\Domain\CombatModelBuilder.cs(95,32): warning CS0618: 'Factory<CombatModelBuilder>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\AnnouncementState.cs(47,32): warning CS0618: 'Factory<AnnouncementState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\CombatRewardState.cs(41,32): warning CS0618: 'Factory<IReward, CombatRewardState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\CombatState.cs(128,32): warning CS0618: 'Factory<ICombatModel, Action<ICombatModel>, CombatState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\DailyRewardState.cs(57,32): warning CS0618: 'Factory<DailyRewardState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\EditorInitializationState.cs(49,32): warning CS0618: 'Factory<EditorInitializationState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\EhopediaState.cs(31,32): warning CS0618: 'Factory<EhopediaState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\ExplorationState.cs(85,32): warning CS0618: 'Factory<Planet, ExplorationState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\DialogState.cs(59,32): warning CS0618: 'Factory<string, WindowArgs, Action<WindowExitCode>, DialogState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\InitializationState.cs(200,32): warning CS0618: 'Factory<InitializationState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\MainMenuState.cs(166,26): warning CS0618: 'Factory<MainMenuState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\QuestState.cs(63,26): warning CS0618: 'Factory<IUserInteraction, QuestState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\ModalDialogState.cs(53,32): warning CS0618: 'Factory<string, IEnumerable<GameScene>, ModalDialogState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\RetreatState.cs(81,32): warning CS0618: 'Factory<RetreatState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\QuickCombatState.cs(218,32): warning CS0618: 'Factory<QuickCombatState.Settings, QuickCombatState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\SkillTreeState.cs(31,32): warning CS0618: 'Factory<SkillTreeState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\StartingNewGameState.cs(91,32): warning CS0618: 'Factory<StartingNewGameState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\StarMapState.cs(360,32): warning CS0618: 'Factory<StarMapState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\TravelState.cs(89,32): warning CS0618: 'Factory<int, TravelState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\GameStateMachine\States\TestingState.cs(31,32): warning CS0618: 'Factory<TestingState>' is obsolete: 'Zenject.Factory has been renamed to PlaceholderFactory.  Zenject.Factory will be removed in future versions'
+Assets\Scripts\Legacy\GUI\Layout\RandomLayoutGroup.cs(29,4): warning CS0618: 'Random.seed' is obsolete: 'Deprecated. Use InitState() function or Random.state property instead.'
+Assets\Scripts\Legacy\GUI\Layout\RandomLayoutGroup.cs(42,4): warning CS0618: 'Random.seed' is obsolete: 'Deprecated. Use InitState() function or Random.state property instead.'
+Assets\Scripts\Legacy\GUI\Console.cs(24,17): warning CS0618: 'Object.FindObjectsOfType<T>()' is obsolete: 'Object.FindObjectsOfType has been deprecated. Use Object.FindObjectsByType instead which lets you decide whether you need the results sorted or not.  FindObjectsOfType sorts the results by InstanceID but if you do not need this using FindObjectSortMode.None is considerably faster.'
+Assets\Scripts\GameStateMachine\States\ShipEditorState.cs(202,40): warning CS0612: 'ComponentInfo.FromInt64(IDatabase, long)' is obsolete
+Assets\Scripts\Gui\ShipService\ShipLayoutPanel.cs(75,85): warning CS0612: 'IShipLayout.Size' is obsolete
+Assets\Scripts\Gui\ShipService\ShipLayoutPanel.cs(76,86): warning CS0612: 'IShipLayout.Size' is obsolete
+Assets\Scripts\Gui\ShipService\ShipLayoutPanel.cs(92,28): warning CS0612: 'IShipLayout.Size' is obsolete
+Assets\Scripts\Legacy\Map\Star.cs(412,3): warning CS0618: 'Random.seed' is obsolete: 'Deprecated. Use InitState() function or Random.state property instead.'
+Assets\Scripts\Gui\ShipService\ShipLayoutPanel.cs(146,62): warning CS0612: 'IShipLayout.Size' is obsolete
+Assets\Scripts\Gui\ShipService\ShipLayoutPanel.cs(146,91): warning CS0612: 'IShipLayout.Size' is obsolete
+Assets\Scripts\Legacy\GUI\ViewModel\CargoHold\ScrapPanelViewModel.cs(133,84): warning CS0612: 'ComponentInfo.SerializeToInt64()' is obsolete
+Assets\Scripts\Legacy\Debug\Cheats.cs(297,26): warning CS0168: The variable 'e' is declared but never used
+Assets\Scripts\GameServices\OfflineMultiplayer\PlayerInfo.cs(108,30): warning CS0168: The variable 'e' is declared but never used
+Assets\Scripts\Legacy\GUI\ViewModel\StarMap\TechTreePanelViewModel.cs(546,6): warning CS0618: 'Random.seed' is obsolete: 'Deprecated. Use InitState() function or Random.state property instead.'
+Assets\Scripts\Legacy\Debug\Cheats.cs(353,41): warning CS0612: 'ComponentInfo.FromInt64(IDatabase, long)' is obsolete
+Assets\Scripts\GameServices\OfflineMultiplayer\PlayerInfo.cs(147,30): warning CS0168: The variable 'e' is declared but never used
+Assets\Scripts\GameServices\OfflineMultiplayer\PlayerInfo.cs(163,30): warning CS0168: The variable 'e' is declared but never used
+Assets\Scripts\GameServices\OfflineMultiplayer\PlayerInfo.cs(192,30): warning CS0168: The variable 'e' is declared but never used
+Assets\Scripts\Domain\Economy\ItemType\ComponentItem.cs(21,47): warning CS0612: 'ComponentInfo.SerializeToInt64()' is obsolete
+Assets\Scripts\Gui\Combat\RadarPanel.cs(61,17): warning CS0219: The variable 'simpleRadarIndex' is assigned but its value is never used
+Assets\Scripts\Gui\MainMenu\SettingsProgress.cs(176,37): warning CS0618: 'Object.FindObjectsOfType<T>(bool)' is obsolete: 'Object.FindObjectsOfType has been deprecated. Use Object.FindObjectsByType instead which lets you decide whether you need the results sorted or not.  FindObjectsOfType sorts the results by InstanceID but if you do not need this using FindObjectSortMode.None is considerably faster.'
+Assets\Scripts\Gui\MainMenu\SettingsProgress.cs(178,38): warning CS0618: 'Object.FindObjectsOfType<T>(bool)' is obsolete: 'Object.FindObjectsOfType has been deprecated. Use Object.FindObjectsByType instead which lets you decide whether you need the results sorted or not.  FindObjectsOfType sorts the results by InstanceID but if you do not need this using FindObjectSortMode.None is considerably faster.'
+Assets\Scripts\Legacy\Debug\Cheats.cs(417,57): warning CS0612: 'ComponentInfo.SerializeToInt64()' is obsolete
+Assets\Scripts\Gui\MainMenu\SettingsProgress.cs(259,60): warning CS0618: 'Object.FindObjectOfType<T>()' is obsolete: 'Object.FindObjectOfType has been deprecated. Use Object.FindFirstObjectByType instead or if finding any instance is acceptable the faster Object.FindAnyObjectByType'
+Assets\Scripts\Legacy\GUI\ViewModel\MainMenu\DevConsoleViewModel.cs(76,5): warning CS0162: Unreachable code detected
+Assets\Scripts\GameServices\OfflineMultiplayer\EnemyPlayerInfo.cs(61,30): warning CS0168: The variable 'e' is declared but never used
+Assets\Scripts\Gui\MainMenu\MainMenu.cs(633,60): warning CS0618: 'Object.FindObjectOfType<T>()' is obsolete: 'Object.FindObjectOfType has been deprecated. Use Object.FindFirstObjectByType instead or if finding any instance is acceptable the faster Object.FindAnyObjectByType'
+Assets\Scripts\Gui\MainMenu\MainMenu.cs(815,60): warning CS0618: 'Object.FindObjectOfType<T>()' is obsolete: 'Object.FindObjectOfType has been deprecated. Use Object.FindFirstObjectByType instead or if finding any instance is acceptable the faster Object.FindAnyObjectByType'
+Assets\Scripts\Gui\MainMenu\MainMenu.cs(870,60): warning CS0618: 'Object.FindObjectOfType<T>()' is obsolete: 'Object.FindObjectOfType has been deprecated. Use Object.FindFirstObjectByType instead or if finding any instance is acceptable the faster Object.FindAnyObjectByType'
+Assets\Scripts\Legacy\GUI\LoadingScreen.cs(20,33): warning CS0414: The field 'LoadingScreen._delay' is assigned but its value is never used
+Assets\Scripts\Legacy\GUI\ViewModel\StarMap\MilitaryPanelViewModel.cs(41,15): warning CS0414: The field 'MilitaryPanelViewModel._money' is assigned but its value is never used
+Assets\Scripts\Legacy\GUI\LoadingScreen.cs(133,18): warning CS0414: The field 'LoadingScreen._firstTime' is assigned but its value is never used
+Assets\Scripts\Legacy\GUI\LoadingScreen.cs(28,15): warning CS0414: The field 'LoadingScreen._coroutineRunning' is assigned but its value is never used
+Assets\Scripts\Gui\Utils\BackButtonEvent.cs(12,39): warning CS0414: The field 'BackButtonEvent._ignoreIfStandaloneBuild' is assigned but its value is never used
+Assets\Editor\TexturePostProcessor.cs(45,13): warning CS0618: 'TextureImporter.spritePackingTag' is obsolete: 'Support for packing sprites through spritePackingTag has been removed. Please use SpriteAtlas instead.'
+Assets\Editor\AndroidDevelopmentBuild.cs(26,9): warning CS0618: 'PlayerSettings.SetApplicationIdentifier(BuildTargetGroup, string)' is obsolete: 'Use SetApplicationIdentifier(NamedBuildTarget buildTarget, string identifier) instead'
+Assets\Editor\AndroidDevelopmentBuild.cs(31,9): warning CS0618: 'PlayerSettings.SetScriptingBackend(BuildTargetGroup, ScriptingImplementation)' is obsolete: 'Use SetScriptingBackend(NamedBuildTarget buildTarget, ScriptingImplementation backend) instead'
+Assets\ReUI\Editor\ReUIQuickAndroidBuild.cs(32,13): warning CS0618: 'PlayerSettings.SetApplicationIdentifier(BuildTargetGroup, string)' is obsolete: 'Use SetApplicationIdentifier(NamedBuildTarget buildTarget, string identifier) instead'
+Assets\ReUI\Editor\ReUIQuickAndroidBuild.cs(38,13): warning CS0618: 'PlayerSettings.SetScriptingBackend(BuildTargetGroup, ScriptingImplementation)' is obsolete: 'Use SetScriptingBackend(NamedBuildTarget buildTarget, ScriptingImplementation backend) instead'
+Assets\Editor\ApplicationManager.cs(222,36): warning CS0618: 'PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup)' is obsolete: 'Use GetScriptingDefineSymbols(NamedBuildTarget buildTarget) instead'
+Assets\Editor\ApplicationManager.cs(232,13): warning CS0618: 'PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup, string)' is obsolete: 'Use SetScriptingDefineSymbols(NamedBuildTarget buildTarget, string defines) instead'
+Assets\Editor\ApplicationManager.cs(240,36): warning CS0618: 'PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup)' is obsolete: 'Use GetScriptingDefineSymbols(NamedBuildTarget buildTarget) instead'
+Assets\Editor\ApplicationManager.cs(252,13): warning CS0618: 'PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup, string)' is obsolete: 'Use SetScriptingDefineSymbols(NamedBuildTarget buildTarget, string defines) instead'
+AssetDatabase: script compilation time: 4.385949s
+Begin MonoManager ReloadAssembly
+- Loaded All Assemblies, in  1.462 seconds
+Refreshing native plugins compatible for Editor in 5.62 ms, found 0 plugins.
+Native extension for Android target not found
+Native extension for WindowsStandalone target not found
+Detected .NET version 4.5
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  0.515 seconds
+Domain Reload Profiling: 1975ms
+	BeginReloadAssembly (239ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (7ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (134ms)
+	RebuildCommonClasses (25ms)
+	RebuildNativeTypeToScriptingClass (8ms)
+	initialDomainReloadingComplete (20ms)
+	LoadAllAssembliesAndSetupDomain (1167ms)
+		LoadAssemblies (1114ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (121ms)
+			TypeCache.Refresh (83ms)
+				TypeCache.ScanAssembly (74ms)
+			BuildScriptInfoCaches (30ms)
+			ResolveRequiredComponents (6ms)
+	FinalizeReload (516ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (430ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (17ms)
+			SetLoadedEditorAssemblies (3ms)
+			BeforeProcessingInitializeOnLoad (89ms)
+			ProcessInitializeOnLoadAttributes (291ms)
+			ProcessInitializeOnLoadMethodAttributes (28ms)
+			AfterProcessingInitializeOnLoad (3ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (4ms)
+Refreshing native plugins compatible for Editor in 5.11 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Asset Pipeline Refresh (id=2a77b4029c535d64b9166e16b65693ba): Total: 6.880 seconds - Initiated by InitialRefreshV2(ForceSynchronousImport)
+	Summary:
+		Imports: total=0 (actual=0, local cache=0, cache server=0)
+		Asset DB Process Time: managed=0 ms, native=863 ms
+		Asset DB Callback time: managed=109 ms, native=27 ms
+		Scripting: domain reloads=1, domain reload time=1462 ms, compile time=4387 ms, other=29 ms
+		Project Asset Count: scripts=1398, non-scripts=4673
+		Asset File Changes: new=0, changed=3, moved=0, deleted=0
+		Scan Filter Count: 0
+	InvokeCustomDependenciesCallbacks: 0.001ms
+	InvokePackagesCallback: 20.656ms
+	ApplyChangesToAssetFolders: 0.394ms
+	Scan: 149.343ms
+	OnSourceAssetsModified: 0.643ms
+	CategorizeAssetsWithTransientArtifact: 27.346ms
+	ProcessAssetsWithTransientArtifactChanges: 39.740ms
+	CategorizeAssets: 32.083ms
+	ImportOutOfDateAssets: 532.067ms (-3856.232ms without children)
+		CompileScripts: 4386.947ms
+		ReloadNativeAssets: 0.004ms
+		UnloadImportedAssets: 0.258ms
+		EnsureUptoDateAssetsAreRegisteredWithGuidPM: 0.603ms
+		InitializingProgressBar: 0.000ms
+		PostProcessAllAssetNotificationsAddChangedAssets: 0.000ms
+		OnDemandSchedulerStart: 0.487ms
+	PostProcessAllAssets: 111.667ms
+	Hotreload: 5.892ms
+	GatherAllCurrentPrimaryArtifactRevisions: 0.002ms
+	UnloadStreamsBegin: 0.157ms
+	PersistCurrentRevisions: 0.177ms
+	UnloadStreamsEnd: 0.001ms
+	GenerateScriptTypeHashes: 2.823ms
+	Untracked: 5960.031ms
+
+Application.AssetDatabase Initial Refresh End
+Scanning for USB devices : 0.511ms
+Initializing Unity extensions:
+[MODES] ModeService[none].Initialize
+[MODES] ModeService[none].LoadModes
+[MODES] Loading mode Default (0) for mode-current-id-三体视界
+Unloading 42 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5083 unused Assets / (4.4 MB). Loaded Objects now: 5511.
+Memory consumption went from 164.2 MB to 159.8 MB.
+Total: 5.714000 ms (FindLiveObjects: 0.221000 ms CreateObjectMapping: 0.137600 ms MarkObjects: 3.493000 ms  DeleteObjects: 1.857200 ms)
+
+Asset Pipeline Refresh (id=e1d4ff8b434bdde4ab071316b5e9b411): Total: 0.021 seconds - Initiated by RefreshV2(NoUpdateAssetOptions)
+Serialization depth limit 10 exceeded at 'GameDatabase.Serializable::FactionFilterSerializable.Type'. There may be an object composition cycle in one or more of your serialized classes. Consider rearranging data or use `[SerializeReference]`. 
+
+Serialization hierarchy:
+11: GameDatabase.Serializable::FactionFilterSerializable.Type
+10: GameDatabase.Serializable::LootContentSerializable.Factions
+9: GameDatabase.Serializable::LootItemSerializable.Loot
+8: GameDatabase.Serializable::LootContentSerializable.Items
+7: GameDatabase.Serializable::LootItemSerializable.Loot
+6: GameDatabase.Serializable::LootContentSerializable.Items
+5: GameDatabase.Serializable::LootItemSerializable.Loot
+4: GameDatabase.Serializable::LootContentSerializable.Items
+3: GameDatabase.Serializable::LootItemSerializable.Loot
+2: GameDatabase.Serializable::LootContentSerializable.Items
+1: GameDatabase.Serializable::RequirementSerializable.Loot
+0: GameDatabase.Serializable::QuestSerializable.Requirement
+Serialization depth limit 10 exceeded at 'GameDatabase.Serializable::LootContentSerializable.Type'. There may be an object composition cycle in one or more of your serialized classes. Consider rearranging data or use `[SerializeReference]`. 
+
+Serialization hierarchy:
+11: GameDatabase.Serializable::LootContentSerializable.Type
+10: GameDatabase.Serializable::LootItemSerializable.Loot
+9: GameDatabase.Serializable::LootContentSerializable.Items
+8: GameDatabase.Serializable::LootItemSerializable.Loot
+7: GameDatabase.Serializable::LootContentSerializable.Items
+6: GameDatabase.Serializable::LootItemSerializable.Loot
+5: GameDatabase.Serializable::LootContentSerializable.Items
+4: GameDatabase.Serializable::LootItemSerializable.Loot
+3: GameDatabase.Serializable::LootContentSerializable.Items
+2: GameDatabase.Serializable::RequirementSerializable.Loot
+1: GameDatabase.Serializable::NodeActionSerializable.Requirement
+0: GameDatabase.Serializable::NodeSerializable.Actions
+Serialization depth limit 10 exceeded at 'GameDatabase.Serializable::FactionFilterSerializable.Type'. There may be an object composition cycle in one or more of your serialized classes. Consider rearranging data or use `[SerializeReference]`. 
+
+Serialization hierarchy:
+11: GameDatabase.Serializable::FactionFilterSerializable.Type
+10: GameDatabase.Serializable::LootContentSerializable.Factions
+9: GameDatabase.Serializable::LootItemSerializable.Loot
+8: GameDatabase.Serializable::LootContentSerializable.Items
+7: GameDatabase.Serializable::LootItemSerializable.Loot
+6: GameDatabase.Serializable::LootContentSerializable.Items
+5: GameDatabase.Serializable::LootItemSerializable.Loot
+4: GameDatabase.Serializable::LootContentSerializable.Items
+3: GameDatabase.Serializable::LootItemSerializable.Loot
+2: GameDatabase.Serializable::LootContentSerializable.Items
+1: GameDatabase.Serializable::RequirementSerializable.Loot
+0: GameDatabase.Serializable::NodeActionSerializable.Requirement
+Serialization depth limit 10 exceeded at 'GameDatabase.Serializable::FactionFilterSerializable.Type'. There may be an object composition cycle in one or more of your serialized classes. Consider rearranging data or use `[SerializeReference]`. 
+
+Serialization hierarchy:
+11: GameDatabase.Serializable::FactionFilterSerializable.Type
+10: GameDatabase.Serializable::LootContentSerializable.Factions
+9: GameDatabase.Serializable::LootItemSerializable.Loot
+8: GameDatabase.Serializable::LootContentSerializable.Items
+7: GameDatabase.Serializable::LootItemSerializable.Loot
+6: GameDatabase.Serializable::LootContentSerializable.Items
+5: GameDatabase.Serializable::LootItemSerializable.Loot
+4: GameDatabase.Serializable::LootContentSerializable.Items
+3: GameDatabase.Serializable::LootItemSerializable.Loot
+2: GameDatabase.Serializable::LootContentSerializable.Items
+1: GameDatabase.Serializable::RequirementSerializable.Loot
+0: GameDatabase.Serializable::NodeTransitionSerializable.Requirement
+Serialization depth limit 10 exceeded at 'GameDatabase.Serializable::LootContentSerializable.Type'. There may be an object composition cycle in one or more of your serialized classes. Consider rearranging data or use `[SerializeReference]`. 
+
+Serialization hierarchy:
+11: GameDatabase.Serializable::LootContentSerializable.Type
+10: GameDatabase.Serializable::LootItemSerializable.Loot
+9: GameDatabase.Serializable::LootContentSerializable.Items
+8: GameDatabase.Serializable::LootItemSerializable.Loot
+7: GameDatabase.Serializable::LootContentSerializable.Items
+6: GameDatabase.Serializable::LootItemSerializable.Loot
+5: GameDatabase.Serializable::LootContentSerializable.Items
+4: GameDatabase.Serializable::LootItemSerializable.Loot
+3: GameDatabase.Serializable::LootContentSerializable.Items
+2: GameDatabase.Serializable::LootItemSerializable.Loot
+1: GameDatabase.Serializable::LootContentSerializable.Items
+0: GameDatabase.Serializable::RequirementSerializable.Loot
+Serialization depth limit 10 exceeded at 'GameDatabase.Serializable::LootContentSerializable.Type'. There may be an object composition cycle in one or more of your serialized classes. Consider rearranging data or use `[SerializeReference]`. 
+
+Serialization hierarchy:
+11: GameDatabase.Serializable::LootContentSerializable.Type
+10: GameDatabase.Serializable::LootItemSerializable.Loot
+9: GameDatabase.Serializable::LootContentSerializable.Items
+8: GameDatabase.Serializable::LootItemSerializable.Loot
+7: GameDatabase.Serializable::LootContentSerializable.Items
+6: GameDatabase.Serializable::LootItemSerializable.Loot
+5: GameDatabase.Serializable::LootContentSerializable.Items
+4: GameDatabase.Serializable::LootItemSerializable.Loot
+3: GameDatabase.Serializable::LootContentSerializable.Items
+2: GameDatabase.Serializable::LootItemSerializable.Loot
+1: GameDatabase.Serializable::LootContentSerializable.Items
+0: GameDatabase.Serializable::LootSerializable.Loot
+Serialization depth limit 10 exceeded at 'GameDatabase.Serializable::LootContentSerializable.Type'. There may be an object composition cycle in one or more of your serialized classes. Consider rearranging data or use `[SerializeReference]`. 
+
+Serialization hierarchy:
+11: GameDatabase.Serializable::LootContentSerializable.Type
+10: GameDatabase.Serializable::LootItemSerializable.Loot
+9: GameDatabase.Serializable::LootContentSerializable.Items
+8: GameDatabase.Serializable::LootItemSerializable.Loot
+7: GameDatabase.Serializable::LootContentSerializable.Items
+6: GameDatabase.Serializable::LootItemSerializable.Loot
+5: GameDatabase.Serializable::LootContentSerializable.Items
+4: GameDatabase.Serializable::LootItemSerializable.Loot
+3: GameDatabase.Serializable::LootContentSerializable.Items
+2: GameDatabase.Serializable::LootItemSerializable.Loot
+1: GameDatabase.Serializable::LootContentSerializable.Items
+0: GameDatabase.Serializable::LootItemSerializable.Loot
+Serialization depth limit 10 exceeded at 'GameDatabase.Serializable::FactionFilterSerializable.Type'. There may be an object composition cycle in one or more of your serialized classes. Consider rearranging data or use `[SerializeReference]`. 
+
+Serialization hierarchy:
+11: GameDatabase.Serializable::FactionFilterSerializable.Type
+10: GameDatabase.Serializable::LootContentSerializable.Factions
+9: GameDatabase.Serializable::LootItemSerializable.Loot
+8: GameDatabase.Serializable::LootContentSerializable.Items
+7: GameDatabase.Serializable::LootItemSerializable.Loot
+6: GameDatabase.Serializable::LootContentSerializable.Items
+5: GameDatabase.Serializable::LootItemSerializable.Loot
+4: GameDatabase.Serializable::LootContentSerializable.Items
+3: GameDatabase.Serializable::LootItemSerializable.Loot
+2: GameDatabase.Serializable::LootContentSerializable.Items
+1: GameDatabase.Serializable::DebugCodeSerializable.Loot
+0: GameDatabase.Serializable::DebugSettingsSerializable.Codes
+Serialization depth limit 10 exceeded at 'GameDatabase.Serializable::LootContentSerializable.Type'. There may be an object composition cycle in one or more of your serialized classes. Consider rearranging data or use `[SerializeReference]`. 
+
+Serialization hierarchy:
+11: GameDatabase.Serializable::LootContentSerializable.Type
+10: GameDatabase.Serializable::LootItemSerializable.Loot
+9: GameDatabase.Serializable::LootContentSerializable.Items
+8: GameDatabase.Serializable::LootItemSerializable.Loot
+7: GameDatabase.Serializable::LootContentSerializable.Items
+6: GameDatabase.Serializable::LootItemSerializable.Loot
+5: GameDatabase.Serializable::LootContentSerializable.Items
+4: GameDatabase.Serializable::LootItemSerializable.Loot
+3: GameDatabase.Serializable::LootContentSerializable.Items
+2: GameDatabase.Serializable::LootItemSerializable.Loot
+1: GameDatabase.Serializable::LootContentSerializable.Items
+0: GameDatabase.Serializable::DebugCodeSerializable.Loot
+barrels do not fit layout 163
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object,UnityEngine.Object)
+UnityEngine.Debug:LogError (object,UnityEngine.Object)
+GameDiagnostics.UnityLogger:LogError (string,UnityEngine.GameObject) (at Assets/ModulesShared/Diagnostics/Scripts/UnityLogger.cs:9)
+GameDiagnostics.Trace:LogError (string) (at Assets/ModulesShared/Diagnostics/Scripts/Debug.cs:35)
+GameDatabase.Utils.BarrelConverter:Convert (GameDatabase.Model.Layout,GameDatabase.Serializable.BarrelSerializable[],int) (at Assets/Modules/Database/Scripts/Utils/BarrelConverter.cs:20)
+GameDatabase.DataModel.Ship:OnDataDeserialized (GameDatabase.Serializable.ShipSerializable,GameDatabase.Database/Loader) (at Assets/Modules/Database/Scripts/DataModel/Ship.cs:26)
+GameDatabase.DataModel.Ship:.ctor (GameDatabase.Serializable.ShipSerializable,GameDatabase.Database/Loader) (at Assets/Modules/Database/Scripts/GeneratedGameCode/DataModel/Ship.cs:49)
+GameDatabase.DataModel.Ship:Create (GameDatabase.Serializable.ShipSerializable,GameDatabase.Database/Loader) (at Assets/Modules/Database/Scripts/GeneratedGameCode/DataModel/Ship.cs:22)
+GameDatabase.Database/Loader:GetShip (GameDatabase.Model.ItemId`1<GameDatabase.DataModel.Ship>,bool) (at Assets/Modules/Database/Scripts/GeneratedGameCode/Database.cs:535)
+GameDatabase.DataModel.ShipBuild:.ctor (GameDatabase.Serializable.ShipBuildSerializable,GameDatabase.Database/Loader) (at Assets/Modules/Database/Scripts/GeneratedGameCode/DataModel/ShipBuild.cs:30)
+GameDatabase.DataModel.ShipBuild:Create (GameDatabase.Serializable.ShipBuildSerializable,GameDatabase.Database/Loader) (at Assets/Modules/Database/Scripts/GeneratedGameCode/DataModel/ShipBuild.cs:22)
+GameDatabase.Database/Loader:GetShipBuild (GameDatabase.Model.ItemId`1<GameDatabase.DataModel.ShipBuild>,bool) (at Assets/Modules/Database/Scripts/GeneratedGameCode/Database.cs:545)
+GameDatabase.DataModel.Component:.ctor (GameDatabase.Serializable.ComponentSerializable,GameDatabase.Database/Loader) (at Assets/Modules/Database/Scripts/GeneratedGameCode/DataModel/Component.cs:49)
+GameDatabase.DataModel.Component:Create (GameDatabase.Serializable.ComponentSerializable,GameDatabase.Database/Loader) (at Assets/Modules/Database/Scripts/GeneratedGameCode/DataModel/Component.cs:22)
+GameDatabase.Database/Loader:Load () (at Assets/Modules/Database/Scripts/GeneratedGameCode/Database.cs:287)
+GameDatabase.Database/Loader:Load (GameDatabase.Database,GameDatabase.Storage.DatabaseContent) (at Assets/Modules/Database/Scripts/GeneratedGameCode/Database.cs:271)
+GameDatabase.Database:Load (GameDatabase.Storage.IDataStorage) (at Assets/Modules/Database/Scripts/Database.cs:153)
+GameDatabase.Database:LoadDefault () (at Assets/Modules/Database/Scripts/Database.cs:94)
+ReUI.Editor.ReUIValidation:ValidateAdventureMode () (at Assets/ReUI/Editor/ReUIValidation.cs:1052)
+
+(Filename: Assets/ModulesShared/Diagnostics/Scripts/Debug.cs Line: 35)
+
+barrels do not fit layout 164
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object,UnityEngine.Object)
+UnityEngine.Debug:LogError (object,UnityEngine.Object)
+GameDiagnostics.UnityLogger:LogError (string,UnityEngine.GameObject) (at Assets/ModulesShared/Diagnostics/Scripts/UnityLogger.cs:9)
+GameDiagnostics.Trace:LogError (string) (at Assets/ModulesShared/Diagnostics/Scripts/Debug.cs:35)
+GameDatabase.Utils.BarrelConverter:Convert (GameDatabase.Model.Layout,GameDatabase.Serializable.BarrelSerializable[],int) (at Assets/Modules/Database/Scripts/Utils/BarrelConverter.cs:20)
+GameDatabase.DataModel.Ship:OnDataDeserialized (GameDatabase.Serializable.ShipSerializable,GameDatabase.Database/Loader) (at Assets/Modules/Database/Scripts/DataModel/Ship.cs:26)
+GameDatabase.DataModel.Ship:.ctor (GameDatabase.Serializable.ShipSerializable,GameDatabase.Database/Loader) (at Assets/Modules/Database/Scripts/GeneratedGameCode/DataModel/Ship.cs:49)
+GameDatabase.DataModel.Ship:Create (GameDatabase.Serializable.ShipSerializable,GameDatabase.Database/Loader) (at Assets/Modules/Database/Scripts/GeneratedGameCode/DataModel/Ship.cs:22)
+GameDatabase.Database/Loader:Load () (at Assets/Modules/Database/Scripts/GeneratedGameCode/Database.cs:320)
+GameDatabase.Database/Loader:Load (GameDatabase.Database,GameDatabase.Storage.DatabaseContent) (at Assets/Modules/Database/Scripts/GeneratedGameCode/Database.cs:271)
+GameDatabase.Database:Load (GameDatabase.Storage.IDataStorage) (at Assets/Modules/Database/Scripts/Database.cs:153)
+GameDatabase.Database:LoadDefault () (at Assets/Modules/Database/Scripts/Database.cs:94)
+ReUI.Editor.ReUIValidation:ValidateAdventureMode () (at Assets/ReUI/Editor/ReUIValidation.cs:1052)
+
+(Filename: Assets/ModulesShared/Diagnostics/Scripts/Debug.cs Line: 35)
+
+barrels do not fit layout 162
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object,UnityEngine.Object)
+UnityEngine.Debug:LogError (object,UnityEngine.Object)
+GameDiagnostics.UnityLogger:LogError (string,UnityEngine.GameObject) (at Assets/ModulesShared/Diagnostics/Scripts/UnityLogger.cs:9)
+GameDiagnostics.Trace:LogError (string) (at Assets/ModulesShared/Diagnostics/Scripts/Debug.cs:35)
+GameDatabase.Utils.BarrelConverter:Convert (GameDatabase.Model.Layout,GameDatabase.Serializable.BarrelSerializable[],int) (at Assets/Modules/Database/Scripts/Utils/BarrelConverter.cs:20)
+GameDatabase.DataModel.Ship:OnDataDeserialized (GameDatabase.Serializable.ShipSerializable,GameDatabase.Database/Loader) (at Assets/Modules/Database/Scripts/DataModel/Ship.cs:26)
+GameDatabase.DataModel.Ship:.ctor (GameDatabase.Serializable.ShipSerializable,GameDatabase.Database/Loader) (at Assets/Modules/Database/Scripts/GeneratedGameCode/DataModel/Ship.cs:49)
+GameDatabase.DataModel.Ship:Create (GameDatabase.Serializable.ShipSerializable,GameDatabase.Database/Loader) (at Assets/Modules/Database/Scripts/GeneratedGameCode/DataModel/Ship.cs:22)
+GameDatabase.Database/Loader:Load () (at Assets/Modules/Database/Scripts/GeneratedGameCode/Database.cs:320)
+GameDatabase.Database/Loader:Load (GameDatabase.Database,GameDatabase.Storage.DatabaseContent) (at Assets/Modules/Database/Scripts/GeneratedGameCode/Database.cs:271)
+GameDatabase.Database:Load (GameDatabase.Storage.IDataStorage) (at Assets/Modules/Database/Scripts/Database.cs:153)
+GameDatabase.Database:LoadDefault () (at Assets/Modules/Database/Scripts/Database.cs:94)
+ReUI.Editor.ReUIValidation:ValidateAdventureMode () (at Assets/ReUI/Editor/ReUIValidation.cs:1052)
+
+(Filename: Assets/ModulesShared/Diagnostics/Scripts/Debug.cs Line: 35)
+
+barrels do not fit layout 165
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object,UnityEngine.Object)
+UnityEngine.Debug:LogError (object,UnityEngine.Object)
+GameDiagnostics.UnityLogger:LogError (string,UnityEngine.GameObject) (at Assets/ModulesShared/Diagnostics/Scripts/UnityLogger.cs:9)
+GameDiagnostics.Trace:LogError (string) (at Assets/ModulesShared/Diagnostics/Scripts/Debug.cs:35)
+GameDatabase.Utils.BarrelConverter:Convert (GameDatabase.Model.Layout,GameDatabase.Serializable.BarrelSerializable[],int) (at Assets/Modules/Database/Scripts/Utils/BarrelConverter.cs:20)
+GameDatabase.DataModel.Ship:OnDataDeserialized (GameDatabase.Serializable.ShipSerializable,GameDatabase.Database/Loader) (at Assets/Modules/Database/Scripts/DataModel/Ship.cs:26)
+GameDatabase.DataModel.Ship:.ctor (GameDatabase.Serializable.ShipSerializable,GameDatabase.Database/Loader) (at Assets/Modules/Database/Scripts/GeneratedGameCode/DataModel/Ship.cs:49)
+GameDatabase.DataModel.Ship:Create (GameDatabase.Serializable.ShipSerializable,GameDatabase.Database/Loader) (at Assets/Modules/Database/Scripts/GeneratedGameCode/DataModel/Ship.cs:22)
+GameDatabase.Database/Loader:Load () (at Assets/Modules/Database/Scripts/GeneratedGameCode/Database.cs:320)
+GameDatabase.Database/Loader:Load (GameDatabase.Database,GameDatabase.Storage.DatabaseContent) (at Assets/Modules/Database/Scripts/GeneratedGameCode/Database.cs:271)
+GameDatabase.Database:Load (GameDatabase.Storage.IDataStorage) (at Assets/Modules/Database/Scripts/Database.cs:153)
+GameDatabase.Database:LoadDefault () (at Assets/Modules/Database/Scripts/Database.cs:94)
+ReUI.Editor.ReUIValidation:ValidateAdventureMode () (at Assets/ReUI/Editor/ReUIValidation.cs:1052)
+
+(Filename: Assets/ModulesShared/Diagnostics/Scripts/Debug.cs Line: 35)
+
+barrels do not fit layout 161
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object,UnityEngine.Object)
+UnityEngine.Debug:LogError (object,UnityEngine.Object)
+GameDiagnostics.UnityLogger:LogError (string,UnityEngine.GameObject) (at Assets/ModulesShared/Diagnostics/Scripts/UnityLogger.cs:9)
+GameDiagnostics.Trace:LogError (string) (at Assets/ModulesShared/Diagnostics/Scripts/Debug.cs:35)
+GameDatabase.Utils.BarrelConverter:Convert (GameDatabase.Model.Layout,GameDatabase.Serializable.BarrelSerializable[],int) (at Assets/Modules/Database/Scripts/Utils/BarrelConverter.cs:20)
+GameDatabase.DataModel.Ship:OnDataDeserialized (GameDatabase.Serializable.ShipSerializable,GameDatabase.Database/Loader) (at Assets/Modules/Database/Scripts/DataModel/Ship.cs:26)
+GameDatabase.DataModel.Ship:.ctor (GameDatabase.Serializable.ShipSerializable,GameDatabase.Database/Loader) (at Assets/Modules/Database/Scripts/GeneratedGameCode/DataModel/Ship.cs:49)
+GameDatabase.DataModel.Ship:Create (GameDatabase.Serializable.ShipSerializable,GameDatabase.Database/Loader) (at Assets/Modules/Database/Scripts/GeneratedGameCode/DataModel/Ship.cs:22)
+GameDatabase.Database/Loader:Load () (at Assets/Modules/Database/Scripts/GeneratedGameCode/Database.cs:320)
+GameDatabase.Database/Loader:Load (GameDatabase.Database,GameDatabase.Storage.DatabaseContent) (at Assets/Modules/Database/Scripts/GeneratedGameCode/Database.cs:271)
+GameDatabase.Database:Load (GameDatabase.Storage.IDataStorage) (at Assets/Modules/Database/Scripts/Database.cs:153)
+GameDatabase.Database:LoadDefault () (at Assets/Modules/Database/Scripts/Database.cs:94)
+ReUI.Editor.ReUIValidation:ValidateAdventureMode () (at Assets/ReUI/Editor/ReUIValidation.cs:1052)
+
+(Filename: Assets/ModulesShared/Diagnostics/Scripts/Debug.cs Line: 35)
+
+barrels do not fit layout 94000
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object,UnityEngine.Object)
+UnityEngine.Debug:LogError (object,UnityEngine.Object)
+GameDiagnostics.UnityLogger:LogError (string,UnityEngine.GameObject) (at Assets/ModulesShared/Diagnostics/Scripts/UnityLogger.cs:9)
+GameDiagnostics.Trace:LogError (string) (at Assets/ModulesShared/Diagnostics/Scripts/Debug.cs:35)
+GameDatabase.Utils.BarrelConverter:Convert (GameDatabase.Model.Layout,GameDatabase.Serializable.BarrelSerializable[],int) (at Assets/Modules/Database/Scripts/Utils/BarrelConverter.cs:20)
+GameDatabase.DataModel.Ship:OnDataDeserialized (GameDatabase.Serializable.ShipSerializable,GameDatabase.Database/Loader) (at Assets/Modules/Database/Scripts/DataModel/Ship.cs:26)
+GameDatabase.DataModel.Ship:.ctor (GameDatabase.Serializable.ShipSerializable,GameDatabase.Database/Loader) (at Assets/Modules/Database/Scripts/GeneratedGameCode/DataModel/Ship.cs:49)
+GameDatabase.DataModel.Ship:Create (GameDatabase.Serializable.ShipSerializable,GameDatabase.Database/Loader) (at Assets/Modules/Database/Scripts/GeneratedGameCode/DataModel/Ship.cs:22)
+GameDatabase.Database/Loader:Load () (at Assets/Modules/Database/Scripts/GeneratedGameCode/Database.cs:320)
+GameDatabase.Database/Loader:Load (GameDatabase.Database,GameDatabase.Storage.DatabaseContent) (at Assets/Modules/Database/Scripts/GeneratedGameCode/Database.cs:271)
+GameDatabase.Database:Load (GameDatabase.Storage.IDataStorage) (at Assets/Modules/Database/Scripts/Database.cs:153)
+GameDatabase.Database:LoadDefault () (at Assets/Modules/Database/Scripts/Database.cs:94)
+ReUI.Editor.ReUIValidation:ValidateAdventureMode () (at Assets/ReUI/Editor/ReUIValidation.cs:1052)
+
+(Filename: Assets/ModulesShared/Diagnostics/Scripts/Debug.cs Line: 35)
+
+barrels do not fit layout 1145141
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object,UnityEngine.Object)
+UnityEngine.Debug:LogError (object,UnityEngine.Object)
+GameDiagnostics.UnityLogger:LogError (string,UnityEngine.GameObject) (at Assets/ModulesShared/Diagnostics/Scripts/UnityLogger.cs:9)
+GameDiagnostics.Trace:LogError (string) (at Assets/ModulesShared/Diagnostics/Scripts/Debug.cs:35)
+GameDatabase.Utils.BarrelConverter:Convert (GameDatabase.Model.Layout,GameDatabase.Serializable.BarrelSerializable[],int) (at Assets/Modules/Database/Scripts/Utils/BarrelConverter.cs:20)
+GameDatabase.DataModel.Ship:OnDataDeserialized (GameDatabase.Serializable.ShipSerializable,GameDatabase.Database/Loader) (at Assets/Modules/Database/Scripts/DataModel/Ship.cs:26)
+GameDatabase.DataModel.Ship:.ctor (GameDatabase.Serializable.ShipSerializable,GameDatabase.Database/Loader) (at Assets/Modules/Database/Scripts/GeneratedGameCode/DataModel/Ship.cs:49)
+GameDatabase.DataModel.Ship:Create (GameDatabase.Serializable.ShipSerializable,GameDatabase.Database/Loader) (at Assets/Modules/Database/Scripts/GeneratedGameCode/DataModel/Ship.cs:22)
+GameDatabase.Database/Loader:Load () (at Assets/Modules/Database/Scripts/GeneratedGameCode/Database.cs:320)
+GameDatabase.Database/Loader:Load (GameDatabase.Database,GameDatabase.Storage.DatabaseContent) (at Assets/Modules/Database/Scripts/GeneratedGameCode/Database.cs:271)
+GameDatabase.Database:Load (GameDatabase.Storage.IDataStorage) (at Assets/Modules/Database/Scripts/Database.cs:153)
+GameDatabase.Database:LoadDefault () (at Assets/Modules/Database/Scripts/Database.cs:94)
+ReUI.Editor.ReUIValidation:ValidateAdventureMode () (at Assets/ReUI/Editor/ReUIValidation.cs:1052)
+
+(Filename: Assets/ModulesShared/Diagnostics/Scripts/Debug.cs Line: 35)
+
+barrels do not fit layout 1145142
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object,UnityEngine.Object)
+UnityEngine.Debug:LogError (object,UnityEngine.Object)
+GameDiagnostics.UnityLogger:LogError (string,UnityEngine.GameObject) (at Assets/ModulesShared/Diagnostics/Scripts/UnityLogger.cs:9)
+GameDiagnostics.Trace:LogError (string) (at Assets/ModulesShared/Diagnostics/Scripts/Debug.cs:35)
+GameDatabase.Utils.BarrelConverter:Convert (GameDatabase.Model.Layout,GameDatabase.Serializable.BarrelSerializable[],int) (at Assets/Modules/Database/Scripts/Utils/BarrelConverter.cs:20)
+GameDatabase.DataModel.Ship:OnDataDeserialized (GameDatabase.Serializable.ShipSerializable,GameDatabase.Database/Loader) (at Assets/Modules/Database/Scripts/DataModel/Ship.cs:26)
+GameDatabase.DataModel.Ship:.ctor (GameDatabase.Serializable.ShipSerializable,GameDatabase.Database/Loader) (at Assets/Modules/Database/Scripts/GeneratedGameCode/DataModel/Ship.cs:49)
+GameDatabase.DataModel.Ship:Create (GameDatabase.Serializable.ShipSerializable,GameDatabase.Database/Loader) (at Assets/Modules/Database/Scripts/GeneratedGameCode/DataModel/Ship.cs:22)
+GameDatabase.Database/Loader:Load () (at Assets/Modules/Database/Scripts/GeneratedGameCode/Database.cs:320)
+GameDatabase.Database/Loader:Load (GameDatabase.Database,GameDatabase.Storage.DatabaseContent) (at Assets/Modules/Database/Scripts/GeneratedGameCode/Database.cs:271)
+GameDatabase.Database:Load (GameDatabase.Storage.IDataStorage) (at Assets/Modules/Database/Scripts/Database.cs:153)
+GameDatabase.Database:LoadDefault () (at Assets/Modules/Database/Scripts/Database.cs:94)
+ReUI.Editor.ReUIValidation:ValidateAdventureMode () (at Assets/ReUI/Editor/ReUIValidation.cs:1052)
+
+(Filename: Assets/ModulesShared/Diagnostics/Scripts/Debug.cs Line: 35)
+
+barrels do not fit layout 114514
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object,UnityEngine.Object)
+UnityEngine.Debug:LogError (object,UnityEngine.Object)
+GameDiagnostics.UnityLogger:LogError (string,UnityEngine.GameObject) (at Assets/ModulesShared/Diagnostics/Scripts/UnityLogger.cs:9)
+GameDiagnostics.Trace:LogError (string) (at Assets/ModulesShared/Diagnostics/Scripts/Debug.cs:35)
+GameDatabase.Utils.BarrelConverter:Convert (GameDatabase.Model.Layout,GameDatabase.Serializable.BarrelSerializable[],int) (at Assets/Modules/Database/Scripts/Utils/BarrelConverter.cs:20)
+GameDatabase.DataModel.Ship:OnDataDeserialized (GameDatabase.Serializable.ShipSerializable,GameDatabase.Database/Loader) (at Assets/Modules/Database/Scripts/DataModel/Ship.cs:26)
+GameDatabase.DataModel.Ship:.ctor (GameDatabase.Serializable.ShipSerializable,GameDatabase.Database/Loader) (at Assets/Modules/Database/Scripts/GeneratedGameCode/DataModel/Ship.cs:49)
+GameDatabase.DataModel.Ship:Create (GameDatabase.Serializable.ShipSerializable,GameDatabase.Database/Loader) (at Assets/Modules/Database/Scripts/GeneratedGameCode/DataModel/Ship.cs:22)
+GameDatabase.Database/Loader:Load () (at Assets/Modules/Database/Scripts/GeneratedGameCode/Database.cs:320)
+GameDatabase.Database/Loader:Load (GameDatabase.Database,GameDatabase.Storage.DatabaseContent) (at Assets/Modules/Database/Scripts/GeneratedGameCode/Database.cs:271)
+GameDatabase.Database:Load (GameDatabase.Storage.IDataStorage) (at Assets/Modules/Database/Scripts/Database.cs:153)
+GameDatabase.Database:LoadDefault () (at Assets/Modules/Database/Scripts/Database.cs:94)
+ReUI.Editor.ReUIValidation:ValidateAdventureMode () (at Assets/ReUI/Editor/ReUIValidation.cs:1052)
+
+(Filename: Assets/ModulesShared/Diagnostics/Scripts/Debug.cs Line: 35)
+
+InvalidOperationException: Adventure progression incorrectly includes a starbase or TitanP hull.
+  at ReUI.Editor.ReUIValidation.ValidateAdventureMode () [0x00477] in C:\Users\wjy25\Documents\Re-Threebody\upstream\ReUI\Assets\ReUI\Editor\ReUIValidation.cs:1075 
+
+(Filename: Assets/ReUI/Editor/ReUIValidation.cs Line: 1075)
+
+executeMethod method ReUI.Editor.ReUIValidation.ValidateAdventureMode threw exception.
+Exiting without the bug reporter. Application will terminate with return code 1

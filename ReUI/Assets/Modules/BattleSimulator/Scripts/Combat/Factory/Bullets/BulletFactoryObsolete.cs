@@ -307,7 +307,10 @@ namespace Combat.Factory
                 stats.Range = _bulletStats.AreaOfEffect;
                 var factory = new BulletFactoryObsolete(stats, _scene, _services, _spaceObjectFactory, _effectFactory, _owner);
                 factory.Stats.RandomFactor = 0.75f;
-                bullet.AddAction(new SpawnBulletsAction(factory, 20, RandomRotationSpawnSettings.Instance, bullet, _services.SoundPlayer, AudioClipId.None, explodeCondition));
+                var spawnSettings = _stats.AmmunitionClass == AmmunitionClassObsolete.FragBomb
+                    ? new EvenlySpacedRotationSpawnSettings(20)
+                    : RandomRotationSpawnSettings.Instance;
+                bullet.AddAction(new SpawnBulletsAction(factory, 20, spawnSettings, bullet, _services.SoundPlayer, AudioClipId.None, explodeCondition));
             }
             if (_stats.AmmunitionClass.EmpIfDetonated())
             {
@@ -348,6 +351,26 @@ namespace Combat.Factory
                    Mathf.Abs(stats.Size - 2.25f) < 0.001f &&
                    Mathf.Abs(stats.AreaOfEffect - 50f) < 0.001f &&
                    stats.BulletPrefab.ToString() == "Combat/Bullets/SatelliteRocket";
+        }
+
+        /// <summary>
+        /// The legacy fragmentation bomb used a fresh 0..360 random rotation
+        /// for every child projectile. That makes one detonation produce dense
+        /// accidental clumps and empty sectors, which reads as fragments flying
+        /// erratically rather than a coherent split. Keep the radial nature of
+        /// the weapon while distributing every child deterministically.
+        /// </summary>
+        private sealed class EvenlySpacedRotationSpawnSettings : IBulletSpawnSettings
+        {
+            public EvenlySpacedRotationSpawnSettings(int count)
+            {
+                _step = count > 0 ? 360f / count : 0f;
+            }
+
+            public Vector2 GetOffset(int bulletIndex) => Vector2.zero;
+            public float GetRotation(int bulletIndex) => bulletIndex * _step;
+
+            private readonly float _step;
         }
 
         private readonly Lazy<GameObject> _prefab;

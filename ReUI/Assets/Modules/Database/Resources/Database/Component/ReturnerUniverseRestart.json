@@ -1,0 +1,17 @@
+{
+  "ItemType": 1,
+  "Id": 997,
+  "Name": "$ReturnerUniverseRestart",
+  "Description": "$ReturnerUniverseRestartDescription",
+  "ContentSource": 1,
+  "DisplayCategory": 6,
+  "Availability": 1,
+  "ComponentStatsId": 969,
+  "Faction": 24,
+  "Level": 200,
+  "Icon": "returner_universe_restart",
+  "Color": "#FFFFFF",
+  "Layout": "1111111111111111",
+  "CellType": "6",
+  "DeviceId": 920
+}

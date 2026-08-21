@@ -1,4 +1,4 @@
-﻿using Combat.Collision.Manager;
+using Combat.Collision.Manager;
 using Combat.Component.Body;
 using Combat.Component.Unit;
 using Combat.Component.View;
@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Zenject;
 using Combat.Component.Systems.Devices;
+using Combat.Component.Unit.Classification;
 
 namespace Combat.Component.Collider
 {
@@ -113,8 +114,10 @@ namespace Combat.Component.Collider
 
                 if (target == null || target.Unit == null)
                     continue;
+                var mirrorBlocksPassThrough = IsHostilePiercingBlockingShield(target.Unit);
                 var nativeLayer = (Unit.Type.CollisionMask & (1 << collider.gameObject.layer)) != 0;
-                if (!nativeLayer && !IsBallLightning(target.Unit) && !IsOwnerBlockingShield(target.Unit))
+                if (!nativeLayer && !IsBallLightning(target.Unit) && !IsOwnerBlockingShield(target.Unit) &&
+                    !mirrorBlocksPassThrough)
                     continue;
 				if (Source != null && (target.Unit == Source ||
                     target.Unit.Type.Owner == Source && !IsBallLightning(target.Unit) &&
@@ -123,6 +126,15 @@ namespace Combat.Component.Collider
 
                 ProcessCollision(target, position, hit.point, elapsedTime, !collisionFound);
                 collisionFound = true;
+                if (mirrorBlocksPassThrough)
+                {
+                    // A pass-through beam must terminate visually and logically
+                    // on Mirror Sea. Without this explicit stop, RayCastCollider
+                    // keeps iterating farther hits even after the reflected beam
+                    // has already been consumed by the special shield handler.
+                    UpdateLength(Vector2.Distance(position, hit.point));
+                    break;
+                }
                 if (!_passThrough) break;
             }
 
@@ -195,6 +207,12 @@ namespace Combat.Component.Collider
         private static bool IsOwnerBlockingShield(IUnit unit)
         {
             return unit is EnergyShield shield && shield.BlocksOwnerProjectiles;
+        }
+
+        private bool IsHostilePiercingBlockingShield(IUnit unit)
+        {
+            return unit is EnergyShield shield && shield.BlocksPiercingProjectiles &&
+                   !CombatRelations.AreAllies(Unit.Type, unit.Type);
         }
 
         private static bool IsBallLightning(IUnit unit)

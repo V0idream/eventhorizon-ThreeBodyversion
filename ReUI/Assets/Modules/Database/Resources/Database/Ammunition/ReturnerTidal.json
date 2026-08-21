@@ -1,0 +1,23 @@
+{
+  "ItemType": 25,
+  "Id": 919,
+  "Body": {
+    "Size": 1.2,
+    "Weight": 0.18,
+    "HitPoints": 80.0,
+    "Velocity": 100.0,
+    "Range": 800.0,
+    "Lifetime": 9.0,
+    "Color": "#D9F7FFFF",
+    "BulletPrefab": 25,
+    "EnergyCost": 8000.0,
+    "CanBeDisarmed": true,
+    "AiBulletBehavior": 1
+  },
+  "Controller": {
+    "Type": 1,
+    "StartingVelocityModifier": 0.2
+  },
+  "ImpactType": 0,
+  "Effects": []
+}

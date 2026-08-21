@@ -1,0 +1,17 @@
+{
+  "ItemType": 1,
+  "Id": 991,
+  "Name": "$ReturnerMirrorSeaField",
+  "Description": "$ReturnerMirrorSeaFieldDescription",
+  "ContentSource": 1,
+  "DisplayCategory": 2,
+  "Availability": 1,
+  "ComponentStatsId": 963,
+  "Faction": 24,
+  "Level": 200,
+  "Icon": "returner_mirror_sea_field",
+  "Color": "#FFFFFF",
+  "Layout": "101111101",
+  "CellType": "2",
+  "DeviceId": 919
+}

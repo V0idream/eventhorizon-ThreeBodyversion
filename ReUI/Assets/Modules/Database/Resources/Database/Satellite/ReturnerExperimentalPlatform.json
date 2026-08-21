@@ -1,0 +1,10 @@
+{
+  "ItemType": 7,
+  "Id": 955,
+  "Name": "$ReturnerExperimentalPlatform",
+  "ModelImage": "returner_experimental_platform",
+  "ModelScale": 0.42,
+  "SizeClass": 4,
+  "Layout": "6666666666666666",
+  "Barrels": []
+}

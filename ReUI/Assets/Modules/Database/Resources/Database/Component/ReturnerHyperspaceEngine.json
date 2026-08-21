@@ -1,0 +1,16 @@
+{
+  "ItemType": 1,
+  "Id": 992,
+  "Name": "$ReturnerHyperspaceEngine",
+  "Description": "$ReturnerHyperspaceEngineDescription",
+  "ContentSource": 1,
+  "DisplayCategory": 4,
+  "Availability": 1,
+  "ComponentStatsId": 964,
+  "Faction": 24,
+  "Level": 200,
+  "Icon": "returner_hyperspace_engine",
+  "Color": "#FFFFFF",
+  "Layout": "011011011",
+  "CellType": "5"
+}

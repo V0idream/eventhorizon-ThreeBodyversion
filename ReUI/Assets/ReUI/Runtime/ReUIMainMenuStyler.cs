@@ -170,6 +170,8 @@ namespace ReUI
             string descriptor = (buttonName + " " + label).ToLowerInvariant();
             if (buttonName == "Combat" || descriptor.Contains("quick") || descriptor.Contains("快速"))
                 return ReUIIconKind.QuickBattle;
+            if (descriptor.Contains("adventure") || descriptor.Contains("冒险"))
+                return ReUIIconKind.StarMap;
             if (descriptor.Contains("combat") || descriptor.Contains("battle") || descriptor.Contains("战斗"))
                 return ReUIIconKind.Battle;
             if (descriptor.Contains("continue") || descriptor.Contains("newgame") || descriptor.Contains("start") ||

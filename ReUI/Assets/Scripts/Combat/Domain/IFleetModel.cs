@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace Combat.Domain
 {
@@ -6,6 +6,7 @@ namespace Combat.Domain
     {
         IList<IShipInfo> Ships { get; }
         int AiLevel { get; }
+        bool Remove(IShipInfo ship);
     }
 
     public static class FleetModelExtensions
