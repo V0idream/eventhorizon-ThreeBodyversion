@@ -69,7 +69,7 @@ namespace Combat.Domain
         public UnitSide Side { get { return _unitSide; } }
         public bool IsCollaborativeAlly { get; }
 
-        public void Create(Factory.ShipFactory factory, Vector2 position, int aiLevel)
+        public void Create(Factory.ShipFactory factory, Vector2 position, int aiLevel, bool forceSimpleAi = false)
         {
             if (Status != ShipStatus.Ready)
                 return;
@@ -88,6 +88,8 @@ namespace Combat.Domain
                 ship = factory.CreateShip(_shipSpec,
                     new MultiplayerController.Factory(MultiplayerSession.Instance.IsHost),
                     _unitSide, position, rotation);
+            else if (forceSimpleAi && _unitSide == UnitSide.Enemy)
+                ship = factory.CreateAdventureEnemyShip(_shipSpec, position, rotation, aiLevel);
             else
                 ship = factory.CreateAiShip(_shipSpec, position, rotation, aiLevel, _unitSide);
 

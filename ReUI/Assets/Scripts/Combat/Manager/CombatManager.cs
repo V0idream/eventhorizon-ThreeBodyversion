@@ -239,7 +239,8 @@ namespace Combat.Manager
                 ? _combatModel.EnemyFleet.AiLevel
                 : ship.Side == UnitSide.Ally
                     ? _combatModel.AllyFleet.AiLevel
-                    : _combatModel.PlayerFleet.AiLevel);
+                    : _combatModel.PlayerFleet.AiLevel,
+                _adventureRun.Active && ship.Side == UnitSide.Enemy);
         }
 
         public bool IsGamePaused { get { return _pausedCount > 0; } }

@@ -10,8 +10,8 @@ public static class AndroidDevelopmentBuild
 {
     private const string PackageName = "com.threebody.EventHorizon";
     private const string ProductName = "三体视界";
-    private const string VersionName = "Beta9.3";
-    private const int VersionCode = 120300;
+    private const string VersionName = "Beta9.7";
+    private const int VersionCode = 140070;
 
     [MenuItem("Build/Android/Development APK")]
     public static void BuildFromMenu()

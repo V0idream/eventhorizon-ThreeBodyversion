@@ -22,7 +22,7 @@ namespace Combat.Domain
         UnitSide Side { get; }
         bool IsCollaborativeAlly { get; }
 
-        void Create(Factory.ShipFactory factory, Vector2 position, int aiLevel);
+        void Create(Factory.ShipFactory factory, Vector2 position, int aiLevel, bool forceSimpleAi = false);
         void Destroy();
         void RestoreForNextActivation(float armorPercentage);
     }

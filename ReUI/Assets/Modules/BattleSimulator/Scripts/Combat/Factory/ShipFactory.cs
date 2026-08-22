@@ -240,9 +240,24 @@ namespace Combat.Factory
             return CreateAiShip(spec, position, rotation, aiLevel, UnitSide.Enemy);
         }
 
+        /// <summary>
+        /// Adventure mode enemies use the lightweight deterministic combat AI.
+        /// The normal BehaviorTree enemy AI is tuned for campaign combat and
+        /// can remain idle when spawned dynamically by the wave controller.
+        /// </summary>
+        public Ship CreateAdventureEnemyShip(IShipSpecification spec, Vector2 position, float rotation, int aiLevel)
+        {
+            return CreateShip(spec, new Computer.Factory(_scene, aiLevel, false, true), UnitSide.Enemy, position, rotation);
+        }
+
         public Ship CreateAiShip(IShipSpecification spec, Vector2 position, float rotation, int aiLevel, UnitSide side)
         {
-            return CreateShip(spec, _controllerFactory.CreateDefaultAiController(aiLevel, spec.CustomAi), side, position, rotation);
+            // Enemy ships must always use the global enemy combat AI.
+            // Imported/player ship builds may contain custom behavior trees
+            // that are unsuitable for hostile units and can leave adventure
+            // enemies idle without acquiring or attacking targets.
+            var customAi = side == UnitSide.Enemy ? null : spec.CustomAi;
+            return CreateShip(spec, _controllerFactory.CreateDefaultAiController(aiLevel, customAi), side, position, rotation);
         }
 
         public Ship CreatePlayerShip(IShipSpecification spec, Vector2 position, float rotation)
